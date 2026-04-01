@@ -1,0 +1,57 @@
+class AppConstants {
+  AppConstants._();
+
+  static const String appName = 'YaruNavi';
+  static const String bundleId = 'com.naname0109.yarunavi';
+
+  // IAP Product IDs
+  static const String monthlyProductId = 'yarunavi_premium_monthly';
+  static const String yearlyProductId = 'yarunavi_premium_yearly';
+
+  // Free tier limits
+  static const int freeTaskLimit = 10;
+  static const int freeRecurringTaskLimit = 1;
+  static const int freeCategoryLimit = 2;
+  static const int freeAiSortMonthlyLimit = 3;
+
+  // Premium limits
+  static const int premiumAiSortDailyLimit = 5;
+
+  // Anthropic API
+  // APIキーはビルド時に --dart-define=ANTHROPIC_API_KEY=xxx で注入
+  static const String anthropicApiKey = String.fromEnvironment(
+    'ANTHROPIC_API_KEY',
+    defaultValue: '',
+  );
+  static const String anthropicModel = 'claude-haiku-4-5-20251001';
+  static const String anthropicVersion = '2023-06-01';
+  static const String anthropicApiUrl =
+      'https://api.anthropic.com/v1/messages';
+
+  // Notifications
+  static const String notificationChannelId = 'yarunavi_task_reminders';
+  static const String notificationChannelName = 'タスクリマインダー';
+  static const int notificationHour = 9; // 朝9時
+
+  /// 通知設定キー → 通知IDオフセットのマッピング
+  static const Map<String, int> notifyOffsets = {
+    'on_due': 0,
+    '1_day_before': 1,
+    '3_days_before': 2,
+    '1_week_before': 3,
+  };
+
+  /// 通知設定キー → 期限日からの日数オフセット
+  static const Map<String, int> notifyDaysBefore = {
+    'on_due': 0,
+    '1_day_before': 1,
+    '3_days_before': 3,
+    '1_week_before': 7,
+  };
+
+  // URLs
+  static const String termsOfUseUrl =
+      'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+  static const String privacyPolicyUrl =
+      'https://naname0109.github.io/yarunavi/';
+}

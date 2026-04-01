@@ -1,0 +1,163 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
+
+import '../models/task.dart';
+import '../utils/constants.dart';
+
+class NotificationService {
+  final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
+
+  Future<void> initialize() async {
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+    const settings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+
+    await _plugin.initialize(
+      settings,
+      onDidReceiveNotificationResponse: _onNotificationTap,
+    );
+
+    // Android通知チャンネル作成
+    const channel = AndroidNotificationChannel(
+      AppConstants.notificationChannelId,
+      AppConstants.notificationChannelName,
+      importance: Importance.high,
+    );
+    await _plugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+  }
+
+  void _onNotificationTap(NotificationResponse response) {
+    // 通知タップ時: アプリが開く（go_routerで /  に遷移済み）
+    debugPrint('Notification tapped: ${response.payload}');
+  }
+
+  /// iOS通知権限をリクエスト
+  Future<bool> requestPermission() async {
+    final ios = _plugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
+    if (ios != null) {
+      final result = await ios.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      return result ?? false;
+    }
+    return true;
+  }
+
+  /// タスクの通知をスケジュール
+  /// [locale] は通知テキストの言語選択に使用（'ja' or 'en'）
+  Future<void> scheduleTaskNotifications(
+    Task task, {
+    required bool isPremium,
+    String locale = 'ja',
+  }) async {
+    if (!isPremium && !kDebugMode) return;
+    if (task.id == null) return;
+    if (task.notifySettings == null || task.isCompleted) return;
+
+    List<String> settings;
+    try {
+      settings = List<String>.from(jsonDecode(task.notifySettings!) as List);
+    } catch (_) {
+      return;
+    }
+
+    for (final setting in settings) {
+      final offset = AppConstants.notifyOffsets[setting];
+      final daysBefore = AppConstants.notifyDaysBefore[setting];
+      if (offset == null || daysBefore == null) continue;
+
+      final notifyDate = task.dueDate.subtract(Duration(days: daysBefore));
+      final scheduledDateTime = tz.TZDateTime(
+        tz.local,
+        notifyDate.year,
+        notifyDate.month,
+        notifyDate.day,
+        AppConstants.notificationHour,
+      );
+
+      // 過去の日時はスキップ
+      if (scheduledDateTime.isBefore(tz.TZDateTime.now(tz.local))) continue;
+
+      final notificationId = task.id! * 10 + offset;
+
+      // 通知テキスト（ロケール対応）
+      String body;
+      if (task.recurrenceType != null && setting == 'on_due') {
+        body = locale == 'ja'
+            ? '${task.title} の時期です'
+            : "It's time for ${task.title}";
+      } else if (daysBefore == 0) {
+        body = locale == 'ja'
+            ? '${task.title} の期限は今日です'
+            : '${task.title} is due today';
+      } else {
+        body = locale == 'ja'
+            ? '${task.title} の期限まであと$daysBefore日です'
+            : '${task.title} is due in $daysBefore days';
+      }
+
+      await _plugin.zonedSchedule(
+        notificationId,
+        AppConstants.appName,
+        body,
+        scheduledDateTime,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            AppConstants.notificationChannelId,
+            AppConstants.notificationChannelName,
+            importance: Importance.high,
+            priority: Priority.high,
+          ),
+          iOS: DarwinNotificationDetails(),
+        ),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: task.id.toString(),
+      );
+    }
+  }
+
+  /// タスクの通知を全キャンセル
+  Future<void> cancelTaskNotifications(int taskId) async {
+    for (final offset in AppConstants.notifyOffsets.values) {
+      await _plugin.cancel(taskId * 10 + offset);
+    }
+  }
+
+  /// 全通知を再構築
+  Future<void> rescheduleAllNotifications(
+    List<Task> tasks, {
+    required bool isPremium,
+    String locale = 'ja',
+  }) async {
+    await _plugin.cancelAll();
+
+    if (!isPremium && !kDebugMode) return;
+
+    for (final task in tasks) {
+      if (!task.isCompleted && task.notifySettings != null) {
+        await scheduleTaskNotifications(task,
+            isPremium: isPremium, locale: locale);
+      }
+    }
+  }
+}
