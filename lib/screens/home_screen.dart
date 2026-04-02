@@ -14,6 +14,10 @@ import '../widgets/responsive_wrapper.dart';
 import '../widgets/task_card.dart';
 import '../widgets/ai_sort_button.dart';
 import '../widgets/task_form_sheet.dart';
+import 'calendar_screen.dart';
+
+/// リスト/カレンダー表示切替
+final _viewModeProvider = StateProvider<bool>((ref) => false); // false=list
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -25,8 +29,8 @@ class HomeScreen extends ConsumerWidget {
     final tasksAsync = ref.watch(tasksProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final currentFilter = ref.watch(filterProvider);
+    final isCalendarView = ref.watch(_viewModeProvider);
 
-    // カテゴリをMapに変換
     final categoryMap = <int, model.Category>{};
     categoriesAsync.whenData((categories) {
       for (final c in categories) {
@@ -34,7 +38,6 @@ class HomeScreen extends ConsumerWidget {
       }
     });
 
-    // 今日の日付表示
     final todayStr = DateFormat.yMMMd(locale).format(DateTime.now());
 
     return Scaffold(
@@ -43,97 +46,108 @@ class HomeScreen extends ConsumerWidget {
         actions: [
           const AiSortButton(),
           IconButton(
+            icon: Icon(
+              isCalendarView ? Icons.view_list : Icons.calendar_month,
+            ),
+            onPressed: () {
+              ref.read(_viewModeProvider.notifier).state = !isCalendarView;
+            },
+            tooltip: isCalendarView ? l10n.listView : l10n.calendarView,
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () => context.push('/settings'),
             tooltip: l10n.settings,
-          ),
-          IconButton(
-            icon: const Icon(Icons.workspace_premium),
-            onPressed: () => context.push('/store'),
-            tooltip: l10n.store,
           ),
         ],
       ),
       body: ResponsiveWrapper(
         child: Column(
           children: [
-            const FilterTabs(),
-            const SizedBox(height: 8),
-            Expanded(
-              child: tasksAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, _) => Center(child: Text('$error')),
-                data: (tasks) {
-                  if (tasks.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.checklist,
-                            size: 64,
-                            color: Theme.of(context).colorScheme.outline,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _getEmptyMessage(currentFilter, l10n),
-                            style: TextStyle(
-                              fontSize: 16,
+            if (isCalendarView)
+              const Expanded(child: CalendarScreen())
+            else ...[
+              const FilterTabs(),
+              const SizedBox(height: 8),
+              Expanded(
+                child: tasksAsync.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (error, _) => Center(child: Text('$error')),
+                  data: (tasks) {
+                    if (tasks.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.checklist,
+                              size: 64,
                               color: Theme.of(context).colorScheme.outline,
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.only(bottom: 80),
-                    itemCount: tasks.length,
-                    itemBuilder: (context, index) {
-                      final task = tasks[index];
-                      final category = task.categoryId != null
-                          ? categoryMap[task.categoryId]
-                          : null;
-
-                      return _FadeInItem(
-                        key: ValueKey(task.id),
-                        index: index,
-                        child: TaskCard(
-                        task: task,
-                        category: category,
-                        onTap: () {
-                          TaskFormSheet.show(context, task: task);
-                        },
-                        onToggleComplete: () async {
-                          final newTask = await ref
-                              .read(tasksProvider.notifier)
-                              .completeTask(task);
-                          if (newTask != null && context.mounted) {
-                            final dateStr = app_date.formatRelativeDate(
-                              newTask.dueDate,
-                              l10n,
-                              locale,
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  l10n.recurringTaskCreated(dateStr),
-                                ),
+                            const SizedBox(height: 16),
+                            Text(
+                              _getEmptyMessage(currentFilter, l10n),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Theme.of(context).colorScheme.outline,
                               ),
-                            );
-                          }
-                        },
-                        onDelete: () {
-                          ref.read(tasksProvider.notifier).deleteTask(task.id!);
-                        },
-                      ),
+                            ),
+                          ],
+                        ),
                       );
-                    },
-                  );
-                },
+                    }
+
+                    return ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 80),
+                      itemCount: tasks.length,
+                      itemBuilder: (context, index) {
+                        final task = tasks[index];
+                        final category = task.categoryId != null
+                            ? categoryMap[task.categoryId]
+                            : null;
+
+                        return _FadeInItem(
+                          key: ValueKey(task.id),
+                          index: index,
+                          child: TaskCard(
+                            task: task,
+                            category: category,
+                            onTap: () {
+                              TaskFormSheet.show(context, task: task);
+                            },
+                            onToggleComplete: () async {
+                              final newTask = await ref
+                                  .read(tasksProvider.notifier)
+                                  .completeTask(task);
+                              if (newTask != null && context.mounted) {
+                                final dateStr = app_date.formatRelativeDate(
+                                  newTask.dueDate,
+                                  l10n,
+                                  locale,
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      l10n.recurringTaskCreated(dateStr),
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                            onDelete: () {
+                              ref
+                                  .read(tasksProvider.notifier)
+                                  .deleteTask(task.id!);
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
+            ],
             const BannerAdWidget(),
           ],
         ),
@@ -195,7 +209,6 @@ class _FadeInItemState extends State<_FadeInItem>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    // 最初の10件のみ段階的にアニメーション
     final delay = widget.index < 10 ? widget.index * 50 : 0;
     Future.delayed(Duration(milliseconds: delay), () {
       if (mounted) _controller.forward();

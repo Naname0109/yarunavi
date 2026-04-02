@@ -22,7 +22,7 @@ class DatabaseService {
 
     _db = await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -45,6 +45,8 @@ class DatabaseService {
         recurrence_parent_id INTEGER,
         notify_settings TEXT,
         calendar_event_id TEXT,
+        estimated_time TEXT,
+        importance INTEGER NOT NULL DEFAULT 1,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
@@ -97,6 +99,11 @@ class DatabaseService {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE tasks ADD COLUMN calendar_event_id TEXT');
     }
+    if (oldVersion < 3) {
+      await db.execute('ALTER TABLE tasks ADD COLUMN estimated_time TEXT');
+      await db.execute(
+          'ALTER TABLE tasks ADD COLUMN importance INTEGER NOT NULL DEFAULT 1');
+    }
   }
 
   // --- Tasks CRUD ---
@@ -136,6 +143,8 @@ class DatabaseService {
       recurrenceValue: task.recurrenceValue,
       recurrenceParentId: parentId,
       notifySettings: task.notifySettings,
+      estimatedTime: task.estimatedTime,
+      importance: task.importance,
       createdAt: now,
       updatedAt: now,
     );

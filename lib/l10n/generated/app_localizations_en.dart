@@ -455,4 +455,87 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLicenses => 'Licenses';
+
+  @override
+  String get estimatedTime => 'Estimated Time';
+
+  @override
+  String get estimatedTimeNone => 'Not set';
+
+  @override
+  String get estimatedTime5min => '5 min';
+
+  @override
+  String get estimatedTime30min => '30 min';
+
+  @override
+  String get estimatedTime1hour => '1 hour';
+
+  @override
+  String get estimatedTimeHalfDay => 'Half day';
+
+  @override
+  String get estimatedTime1day => '1 day';
+
+  @override
+  String get importance => 'Importance';
+
+  @override
+  String get importanceLow => 'Low';
+
+  @override
+  String get importanceMedium => 'Medium';
+
+  @override
+  String get importanceHigh => 'High';
+
+  @override
+  String get memoHint =>
+      'Adding details improves AI sorting (e.g., city hall, weekdays only)';
+
+  @override
+  String get notifyAiAuto => 'AI Auto';
+
+  @override
+  String get notifyManual => 'Manual';
+
+  @override
+  String get aiSubtaskSuggestion => 'Break it down?';
+
+  @override
+  String get aiSubtaskAdd => 'Add these subtasks';
+
+  @override
+  String get aiSubtaskAdded => 'Subtasks added';
+
+  @override
+  String get aiCompleteOriginal => 'Mark the original task as complete?';
+
+  @override
+  String get aiNotifyUpdated => 'AI set notification dates';
+
+  @override
+  String get calendarView => 'Calendar';
+
+  @override
+  String get listView => 'List';
+
+  @override
+  String get debugSection => 'Debug';
+
+  @override
+  String get debugInsertTestData => 'Insert Test Data';
+
+  @override
+  String get debugDeleteAndInsertTestData => 'Delete All & Insert Test Data';
+
+  @override
+  String get debugTestDataInserted => 'Test data inserted';
+
+  @override
+  String get debugConfirmInsert => 'Insert test data?';
+
+  @override
+  String get debugConfirmDeleteAndInsert =>
+      'Delete all data and insert test data?';
 }

@@ -142,5 +142,36 @@
   "settingsDeleteAllConfirmMessage": "All tasks and data will be permanently deleted. This cannot be undone. Are you sure?",
   "settingsDeleteAllSuccess": "All data deleted",
   "settingsVersion": "Version",
-  "settingsLicenses": "Licenses"
+  "settingsLicenses": "Licenses",
+
+  "estimatedTime": "Estimated Time",
+  "estimatedTimeNone": "Not set",
+  "estimatedTime5min": "5 min",
+  "estimatedTime30min": "30 min",
+  "estimatedTime1hour": "1 hour",
+  "estimatedTimeHalfDay": "Half day",
+  "estimatedTime1day": "1 day",
+  "importance": "Importance",
+  "importanceLow": "Low",
+  "importanceMedium": "Medium",
+  "importanceHigh": "High",
+  "memoHint": "Adding details improves AI sorting (e.g., city hall, weekdays only)",
+  "notifyAiAuto": "AI Auto",
+  "notifyManual": "Manual",
+
+  "aiSubtaskSuggestion": "Break it down?",
+  "aiSubtaskAdd": "Add these subtasks",
+  "aiSubtaskAdded": "Subtasks added",
+  "aiCompleteOriginal": "Mark the original task as complete?",
+  "aiNotifyUpdated": "AI set notification dates",
+
+  "calendarView": "Calendar",
+  "listView": "List",
+
+  "debugSection": "Debug",
+  "debugInsertTestData": "Insert Test Data",
+  "debugDeleteAndInsertTestData": "Delete All & Insert Test Data",
+  "debugTestDataInserted": "Test data inserted",
+  "debugConfirmInsert": "Insert test data?",
+  "debugConfirmDeleteAndInsert": "Delete all data and insert test data?"
 }

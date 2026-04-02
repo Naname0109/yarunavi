@@ -24,6 +24,8 @@ class Task with _$Task {
     int? recurrenceParentId,
     String? notifySettings,
     String? calendarEventId,
+    String? estimatedTime,
+    @Default(1) int importance,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _Task;
@@ -48,6 +50,8 @@ class Task with _$Task {
         recurrenceParentId: map['recurrence_parent_id'] as int?,
         notifySettings: map['notify_settings'] as String?,
         calendarEventId: map['calendar_event_id'] as String?,
+        estimatedTime: map['estimated_time'] as String?,
+        importance: map['importance'] as int? ?? 1,
         createdAt: DateTime.parse(map['created_at'] as String),
         updatedAt: DateTime.parse(map['updated_at'] as String),
       );
@@ -75,6 +79,8 @@ class Task with _$Task {
         'recurrence_parent_id': recurrenceParentId,
         'notify_settings': notifySettings,
         'calendar_event_id': calendarEventId,
+        'estimated_time': estimatedTime,
+        'importance': importance,
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
       };

@@ -448,4 +448,85 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settingsLicenses => 'ライセンス';
+
+  @override
+  String get estimatedTime => '所要時間';
+
+  @override
+  String get estimatedTimeNone => '未設定';
+
+  @override
+  String get estimatedTime5min => '5分';
+
+  @override
+  String get estimatedTime30min => '30分';
+
+  @override
+  String get estimatedTime1hour => '1時間';
+
+  @override
+  String get estimatedTimeHalfDay => '半日';
+
+  @override
+  String get estimatedTime1day => '1日';
+
+  @override
+  String get importance => '重要度';
+
+  @override
+  String get importanceLow => '低';
+
+  @override
+  String get importanceMedium => '中';
+
+  @override
+  String get importanceHigh => '高';
+
+  @override
+  String get memoHint => '詳細を入力するとAIの整理精度が上がります（例: 市役所で手続き、平日のみ対応可）';
+
+  @override
+  String get notifyAiAuto => 'AIおまかせ';
+
+  @override
+  String get notifyManual => '自分で設定';
+
+  @override
+  String get aiSubtaskSuggestion => '分割して進めませんか？';
+
+  @override
+  String get aiSubtaskAdd => 'この分割で追加';
+
+  @override
+  String get aiSubtaskAdded => 'サブタスクを追加しました';
+
+  @override
+  String get aiCompleteOriginal => '元のタスクを完了にしますか？';
+
+  @override
+  String get aiNotifyUpdated => 'AIが通知日を設定しました';
+
+  @override
+  String get calendarView => 'カレンダー';
+
+  @override
+  String get listView => 'リスト';
+
+  @override
+  String get debugSection => 'デバッグ';
+
+  @override
+  String get debugInsertTestData => 'テストデータを投入';
+
+  @override
+  String get debugDeleteAndInsertTestData => '全データ削除してテストデータを投入';
+
+  @override
+  String get debugTestDataInserted => 'テストデータを投入しました';
+
+  @override
+  String get debugConfirmInsert => 'テストデータを投入しますか？';
+
+  @override
+  String get debugConfirmDeleteAndInsert => '全データを削除してテストデータを投入しますか？';
 }

@@ -35,6 +35,8 @@ mixin _$Task {
   int? get recurrenceParentId => throw _privateConstructorUsedError;
   String? get notifySettings => throw _privateConstructorUsedError;
   String? get calendarEventId => throw _privateConstructorUsedError;
+  String? get estimatedTime => throw _privateConstructorUsedError;
+  int get importance => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
@@ -67,6 +69,8 @@ abstract class $TaskCopyWith<$Res> {
     int? recurrenceParentId,
     String? notifySettings,
     String? calendarEventId,
+    String? estimatedTime,
+    int importance,
     DateTime createdAt,
     DateTime updatedAt,
   });
@@ -101,6 +105,8 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
     Object? recurrenceParentId = freezed,
     Object? notifySettings = freezed,
     Object? calendarEventId = freezed,
+    Object? estimatedTime = freezed,
+    Object? importance = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -162,6 +168,14 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
                 ? _value.calendarEventId
                 : calendarEventId // ignore: cast_nullable_to_non_nullable
                       as String?,
+            estimatedTime: freezed == estimatedTime
+                ? _value.estimatedTime
+                : estimatedTime // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            importance: null == importance
+                ? _value.importance
+                : importance // ignore: cast_nullable_to_non_nullable
+                      as int,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -199,6 +213,8 @@ abstract class _$$TaskImplCopyWith<$Res> implements $TaskCopyWith<$Res> {
     int? recurrenceParentId,
     String? notifySettings,
     String? calendarEventId,
+    String? estimatedTime,
+    int importance,
     DateTime createdAt,
     DateTime updatedAt,
   });
@@ -230,6 +246,8 @@ class __$$TaskImplCopyWithImpl<$Res>
     Object? recurrenceParentId = freezed,
     Object? notifySettings = freezed,
     Object? calendarEventId = freezed,
+    Object? estimatedTime = freezed,
+    Object? importance = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -291,6 +309,14 @@ class __$$TaskImplCopyWithImpl<$Res>
             ? _value.calendarEventId
             : calendarEventId // ignore: cast_nullable_to_non_nullable
                   as String?,
+        estimatedTime: freezed == estimatedTime
+            ? _value.estimatedTime
+            : estimatedTime // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        importance: null == importance
+            ? _value.importance
+            : importance // ignore: cast_nullable_to_non_nullable
+                  as int,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -322,6 +348,8 @@ class _$TaskImpl extends _Task {
     this.recurrenceParentId,
     this.notifySettings,
     this.calendarEventId,
+    this.estimatedTime,
+    this.importance = 1,
     required this.createdAt,
     required this.updatedAt,
   }) : super._();
@@ -360,13 +388,18 @@ class _$TaskImpl extends _Task {
   @override
   final String? calendarEventId;
   @override
+  final String? estimatedTime;
+  @override
+  @JsonKey()
+  final int importance;
+  @override
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
 
   @override
   String toString() {
-    return 'Task(id: $id, title: $title, dueDate: $dueDate, memo: $memo, categoryId: $categoryId, isCompleted: $isCompleted, completedAt: $completedAt, priority: $priority, aiComment: $aiComment, recurrenceType: $recurrenceType, recurrenceValue: $recurrenceValue, recurrenceParentId: $recurrenceParentId, notifySettings: $notifySettings, calendarEventId: $calendarEventId, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Task(id: $id, title: $title, dueDate: $dueDate, memo: $memo, categoryId: $categoryId, isCompleted: $isCompleted, completedAt: $completedAt, priority: $priority, aiComment: $aiComment, recurrenceType: $recurrenceType, recurrenceValue: $recurrenceValue, recurrenceParentId: $recurrenceParentId, notifySettings: $notifySettings, calendarEventId: $calendarEventId, estimatedTime: $estimatedTime, importance: $importance, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -398,6 +431,10 @@ class _$TaskImpl extends _Task {
                 other.notifySettings == notifySettings) &&
             (identical(other.calendarEventId, calendarEventId) ||
                 other.calendarEventId == calendarEventId) &&
+            (identical(other.estimatedTime, estimatedTime) ||
+                other.estimatedTime == estimatedTime) &&
+            (identical(other.importance, importance) ||
+                other.importance == importance) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -422,6 +459,8 @@ class _$TaskImpl extends _Task {
     recurrenceParentId,
     notifySettings,
     calendarEventId,
+    estimatedTime,
+    importance,
     createdAt,
     updatedAt,
   );
@@ -456,6 +495,8 @@ abstract class _Task extends Task {
     final int? recurrenceParentId,
     final String? notifySettings,
     final String? calendarEventId,
+    final String? estimatedTime,
+    final int importance,
     required final DateTime createdAt,
     required final DateTime updatedAt,
   }) = _$TaskImpl;
@@ -491,6 +532,10 @@ abstract class _Task extends Task {
   String? get notifySettings;
   @override
   String? get calendarEventId;
+  @override
+  String? get estimatedTime;
+  @override
+  int get importance;
   @override
   DateTime get createdAt;
   @override

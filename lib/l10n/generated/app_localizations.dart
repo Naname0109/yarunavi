@@ -937,6 +937,168 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'ライセンス'**
   String get settingsLicenses;
+
+  /// No description provided for @estimatedTime.
+  ///
+  /// In ja, this message translates to:
+  /// **'所要時間'**
+  String get estimatedTime;
+
+  /// No description provided for @estimatedTimeNone.
+  ///
+  /// In ja, this message translates to:
+  /// **'未設定'**
+  String get estimatedTimeNone;
+
+  /// No description provided for @estimatedTime5min.
+  ///
+  /// In ja, this message translates to:
+  /// **'5分'**
+  String get estimatedTime5min;
+
+  /// No description provided for @estimatedTime30min.
+  ///
+  /// In ja, this message translates to:
+  /// **'30分'**
+  String get estimatedTime30min;
+
+  /// No description provided for @estimatedTime1hour.
+  ///
+  /// In ja, this message translates to:
+  /// **'1時間'**
+  String get estimatedTime1hour;
+
+  /// No description provided for @estimatedTimeHalfDay.
+  ///
+  /// In ja, this message translates to:
+  /// **'半日'**
+  String get estimatedTimeHalfDay;
+
+  /// No description provided for @estimatedTime1day.
+  ///
+  /// In ja, this message translates to:
+  /// **'1日'**
+  String get estimatedTime1day;
+
+  /// No description provided for @importance.
+  ///
+  /// In ja, this message translates to:
+  /// **'重要度'**
+  String get importance;
+
+  /// No description provided for @importanceLow.
+  ///
+  /// In ja, this message translates to:
+  /// **'低'**
+  String get importanceLow;
+
+  /// No description provided for @importanceMedium.
+  ///
+  /// In ja, this message translates to:
+  /// **'中'**
+  String get importanceMedium;
+
+  /// No description provided for @importanceHigh.
+  ///
+  /// In ja, this message translates to:
+  /// **'高'**
+  String get importanceHigh;
+
+  /// No description provided for @memoHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'詳細を入力するとAIの整理精度が上がります（例: 市役所で手続き、平日のみ対応可）'**
+  String get memoHint;
+
+  /// No description provided for @notifyAiAuto.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIおまかせ'**
+  String get notifyAiAuto;
+
+  /// No description provided for @notifyManual.
+  ///
+  /// In ja, this message translates to:
+  /// **'自分で設定'**
+  String get notifyManual;
+
+  /// No description provided for @aiSubtaskSuggestion.
+  ///
+  /// In ja, this message translates to:
+  /// **'分割して進めませんか？'**
+  String get aiSubtaskSuggestion;
+
+  /// No description provided for @aiSubtaskAdd.
+  ///
+  /// In ja, this message translates to:
+  /// **'この分割で追加'**
+  String get aiSubtaskAdd;
+
+  /// No description provided for @aiSubtaskAdded.
+  ///
+  /// In ja, this message translates to:
+  /// **'サブタスクを追加しました'**
+  String get aiSubtaskAdded;
+
+  /// No description provided for @aiCompleteOriginal.
+  ///
+  /// In ja, this message translates to:
+  /// **'元のタスクを完了にしますか？'**
+  String get aiCompleteOriginal;
+
+  /// No description provided for @aiNotifyUpdated.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIが通知日を設定しました'**
+  String get aiNotifyUpdated;
+
+  /// No description provided for @calendarView.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダー'**
+  String get calendarView;
+
+  /// No description provided for @listView.
+  ///
+  /// In ja, this message translates to:
+  /// **'リスト'**
+  String get listView;
+
+  /// No description provided for @debugSection.
+  ///
+  /// In ja, this message translates to:
+  /// **'デバッグ'**
+  String get debugSection;
+
+  /// No description provided for @debugInsertTestData.
+  ///
+  /// In ja, this message translates to:
+  /// **'テストデータを投入'**
+  String get debugInsertTestData;
+
+  /// No description provided for @debugDeleteAndInsertTestData.
+  ///
+  /// In ja, this message translates to:
+  /// **'全データ削除してテストデータを投入'**
+  String get debugDeleteAndInsertTestData;
+
+  /// No description provided for @debugTestDataInserted.
+  ///
+  /// In ja, this message translates to:
+  /// **'テストデータを投入しました'**
+  String get debugTestDataInserted;
+
+  /// No description provided for @debugConfirmInsert.
+  ///
+  /// In ja, this message translates to:
+  /// **'テストデータを投入しますか？'**
+  String get debugConfirmInsert;
+
+  /// No description provided for @debugConfirmDeleteAndInsert.
+  ///
+  /// In ja, this message translates to:
+  /// **'全データを削除してテストデータを投入しますか？'**
+  String get debugConfirmDeleteAndInsert;
 }
 
 class _AppLocalizationsDelegate

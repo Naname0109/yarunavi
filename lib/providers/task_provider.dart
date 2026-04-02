@@ -101,6 +101,8 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
           recurrenceValue: task.recurrenceValue,
           recurrenceParentId: task.recurrenceParentId,
           notifySettings: task.notifySettings,
+          estimatedTime: task.estimatedTime,
+          importance: task.importance,
           createdAt: task.createdAt,
           updatedAt: task.updatedAt,
         );

@@ -6,7 +6,9 @@ import 'package:intl/intl.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../models/task.dart';
 import '../providers/task_provider.dart';
+import '../services/ai_service.dart';
 import '../theme/colors.dart';
+import '../widgets/ai_sort_button.dart';
 import '../widgets/responsive_wrapper.dart';
 
 class AiResultScreen extends ConsumerWidget {
@@ -17,9 +19,15 @@ class AiResultScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
     final tasksAsync = ref.watch(tasksProvider);
-    final sortedAtStr = DateFormat.yMMMd(locale)
-        .add_Hm()
-        .format(DateTime.now());
+    final aiResults = ref.watch(aiSortResultsProvider);
+    final sortedAtStr =
+        DateFormat.yMMMd(locale).add_Hm().format(DateTime.now());
+
+    // AI結果をtaskIdでマップ化
+    final resultsMap = <int, AiSortResult>{};
+    for (final r in aiResults) {
+      resultsMap[r.taskId] = r;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -31,7 +39,6 @@ class AiResultScreen extends ConsumerWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('$e')),
           data: (tasks) {
-            // 未完了タスクをpriority別にグループ化
             final incompleteTasks =
                 tasks.where((t) => !t.isCompleted && t.priority > 0).toList();
 
@@ -39,6 +46,8 @@ class AiResultScreen extends ConsumerWidget {
             for (final t in incompleteTasks) {
               groups.putIfAbsent(t.priority, () => []).add(t);
             }
+
+            final isDark = Theme.of(context).brightness == Brightness.dark;
 
             return ListView(
               padding: const EdgeInsets.all(16),
@@ -52,36 +61,26 @@ class AiResultScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 ..._buildPrioritySection(
-                  context,
-                  l10n.aiPriorityUrgent,
-                  AppColors.priorityUrgent,
-                  groups[1] ?? [],
-                  locale,
+                  context, ref, l10n, locale,
+                  l10n.aiPriorityUrgent, AppColors.priorityUrgent,
+                  groups[1] ?? [], resultsMap,
                 ),
                 ..._buildPrioritySection(
-                  context,
-                  l10n.aiPriorityWarning,
-                  AppColors.priorityWarning,
-                  groups[2] ?? [],
-                  locale,
+                  context, ref, l10n, locale,
+                  l10n.aiPriorityWarning, AppColors.priorityWarning,
+                  groups[2] ?? [], resultsMap,
                 ),
                 ..._buildPrioritySection(
-                  context,
+                  context, ref, l10n, locale,
                   l10n.aiPriorityNormal,
-                  Theme.of(context).brightness == Brightness.dark
-                      ? AppColors.priorityNormalDark
-                      : AppColors.priorityNormal,
-                  groups[3] ?? [],
-                  locale,
+                  isDark ? AppColors.priorityNormalDark : AppColors.priorityNormal,
+                  groups[3] ?? [], resultsMap,
                 ),
                 ..._buildPrioritySection(
-                  context,
+                  context, ref, l10n, locale,
                   l10n.aiPriorityRelaxed,
-                  Theme.of(context).brightness == Brightness.dark
-                      ? AppColors.priorityRelaxedDark
-                      : AppColors.priorityRelaxed,
-                  groups[4] ?? [],
-                  locale,
+                  isDark ? AppColors.priorityRelaxedDark : AppColors.priorityRelaxed,
+                  groups[4] ?? [], resultsMap,
                 ),
                 const SizedBox(height: 24),
                 FilledButton.icon(
@@ -100,10 +99,13 @@ class AiResultScreen extends ConsumerWidget {
 
   List<Widget> _buildPrioritySection(
     BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+    String locale,
     String title,
     Color color,
     List<Task> tasks,
-    String locale,
+    Map<int, AiSortResult> resultsMap,
   ) {
     if (tasks.isEmpty) return [];
 
@@ -119,49 +121,162 @@ class AiResultScreen extends ConsumerWidget {
           ),
         ),
       ),
-      ...tasks.map((task) => Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 4,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(2),
+      ...tasks.map((task) {
+        final result = task.id != null ? resultsMap[task.id] : null;
+        final subtasks = locale == 'ja'
+            ? (result?.suggestedSubtasksJa ?? [])
+            : (result?.suggestedSubtasksEn ?? []);
+
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          task.title,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        if (task.aiComment != null) ...[
-                          const SizedBox(height: 4),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Text(
-                            task.aiComment!,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Theme.of(context).colorScheme.outline,
+                            task.title,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
+                          if (task.aiComment != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              task.aiComment!,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color:
+                                    Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
+                    ),
+                  ],
+                ),
+                // サブタスク提案
+                if (subtasks.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  const Divider(height: 1),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Text('💡 ', style: TextStyle(fontSize: 14)),
+                      Text(
+                        l10n.aiSubtaskSuggestion,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  ...subtasks.map((s) => Padding(
+                        padding: const EdgeInsets.only(left: 24, top: 2),
+                        child: Row(
+                          children: [
+                            const Text('• ', style: TextStyle(fontSize: 13)),
+                            Expanded(
+                              child:
+                                  Text(s, style: const TextStyle(fontSize: 13)),
+                            ),
+                          ],
+                        ),
+                      )),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: () => _addSubtasks(
+                        context, ref, l10n, task, subtasks,
+                      ),
+                      icon: const Icon(Icons.add, size: 16),
+                      label: Text(l10n.aiSubtaskAdd),
                     ),
                   ),
                 ],
-              ),
+              ],
             ),
-          )),
+          ),
+        );
+      }),
     ];
+  }
+
+  Future<void> _addSubtasks(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+    Task originalTask,
+    List<String> subtasks,
+  ) async {
+    final now = DateTime.now();
+    // 期限切れの場合は今日から各サブタスクに1日ずつ割り振り
+    final daysUntilDue = originalTask.dueDate.difference(now).inDays;
+    final totalDays = daysUntilDue > 0 ? daysUntilDue : subtasks.length;
+    final interval = (totalDays / subtasks.length).ceil().clamp(1, 365);
+
+    for (var i = 0; i < subtasks.length; i++) {
+      final subDueDate = now.add(Duration(days: (i + 1) * interval));
+      final subTask = Task(
+        title: subtasks[i],
+        dueDate: daysUntilDue > 0 && subDueDate.isAfter(originalTask.dueDate)
+            ? originalTask.dueDate
+            : subDueDate,
+        categoryId: originalTask.categoryId,
+        importance: originalTask.importance,
+        createdAt: now,
+        updatedAt: now,
+      );
+      await ref.read(tasksProvider.notifier).addTask(subTask);
+    }
+
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.aiSubtaskAdded)),
+    );
+
+    // 元タスクを完了にするか確認
+    final shouldComplete = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.aiCompleteOriginal),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.markComplete),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldComplete == true) {
+      await ref.read(tasksProvider.notifier).toggleComplete(originalTask);
+    }
   }
 }

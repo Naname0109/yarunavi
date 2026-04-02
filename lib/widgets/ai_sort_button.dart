@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +10,7 @@ import '../providers/purchase_provider.dart';
 import '../providers/task_provider.dart';
 import '../services/ad_service.dart';
 import '../services/ai_service.dart';
+import '../utils/category_helper.dart';
 import '../utils/constants.dart';
 import '../utils/feature_gate.dart';
 
@@ -15,6 +18,10 @@ import '../utils/feature_gate.dart';
 final adServiceProvider = Provider<AdService>((ref) {
   throw UnimplementedError('adServiceProvider must be overridden');
 });
+
+/// AI整理結果を保持するProvider（結果画面で使用）
+final aiSortResultsProvider =
+    StateProvider<List<AiSortResult>>((ref) => []);
 
 class AiSortButton extends ConsumerStatefulWidget {
   const AiSortButton({super.key});
@@ -89,7 +96,6 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     final isPremium = ref.read(isPremiumProvider);
     final locale = Localizations.localeOf(context).languageCode;
 
-    // 回数チェック
     final canUse = await FeatureGate.canUseAiSort(db, isPremium);
     if (!canUse) {
       if (!mounted) return;
@@ -103,7 +109,6 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
   Future<void> _executeAiSort(AppLocalizations l10n, String locale) async {
     final db = ref.read(databaseServiceProvider);
 
-    // タスク取得
     final tasks = await db.getAllTasks();
     final incompleteTasks = tasks.where((t) => !t.isCompleted).toList();
 
@@ -118,10 +123,24 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     setState(() => _isLoading = true);
 
     try {
-      final results = await AiService.sortTasks(incompleteTasks);
+      // カテゴリ名マップを構築
+      final categories = await db.getAllCategories();
+      final categoryNames = <int, String>{};
+      for (final cat in categories) {
+        if (cat.id != null) {
+          categoryNames[cat.id!] =
+              getCategoryDisplayName(cat.name, l10n);
+        }
+      }
+
+      final results = await AiService.sortTasks(
+        incompleteTasks,
+        categoryNames: categoryNames,
+      );
 
       final isRealApiCall = AppConstants.anthropicApiKey.isNotEmpty;
 
+      // priority/aiComment更新
       final updates = <int, ({int priority, String? aiComment})>{};
       for (final r in results) {
         final comment = locale == 'ja' ? r.commentJa : r.commentEn;
@@ -129,9 +148,42 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       }
       await db.updateTaskPriorities(updates);
 
+      // "ai_auto"のタスクの通知をAI推奨日で更新
+      final isPremium = ref.read(isPremiumProvider);
+      final notifyService = ref.read(notificationServiceProvider);
+      for (final r in results) {
+        if (r.recommendedNotifyDates.isEmpty) continue;
+        final task = incompleteTasks
+            .where((t) => t.id == r.taskId)
+            .firstOrNull;
+        if (task == null) continue;
+
+        // ai_autoのタスクのみ通知を更新
+        bool isAiAuto = false;
+        if (task.notifySettings != null) {
+          try {
+            final decoded =
+                List<String>.from(jsonDecode(task.notifySettings!) as List);
+            isAiAuto = decoded.length == 1 && decoded.first == 'ai_auto';
+          } catch (_) {}
+        }
+
+        if (isAiAuto) {
+          await notifyService.scheduleNotificationsForDates(
+            task,
+            dates: r.recommendedNotifyDates,
+            isPremium: isPremium,
+            locale: locale,
+          );
+        }
+      }
+
       if (isRealApiCall) {
         await db.recordAiUsage();
       }
+
+      // 結果をProviderに保存（結果画面で使用）
+      ref.read(aiSortResultsProvider.notifier).state = results;
 
       ref.invalidate(tasksProvider);
       _refreshRemaining();

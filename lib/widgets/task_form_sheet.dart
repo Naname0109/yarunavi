@@ -42,8 +42,11 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
   late final TextEditingController _memoController;
   late DateTime _dueDate;
   int? _categoryId;
+  String? _estimatedTime;
+  int _importance = 1;
   String? _recurrenceType;
   int? _recurrenceValue;
+  bool _notifyAiAuto = true;
   List<String> _notifySettings = [];
   bool _addToCalendar = false;
   bool _isSaving = false;
@@ -58,15 +61,25 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
     _memoController = TextEditingController(text: task?.memo ?? '');
     _dueDate = task?.dueDate ?? DateTime.now().add(const Duration(days: 7));
     _categoryId = task?.categoryId;
+    _estimatedTime = task?.estimatedTime;
+    _importance = task?.importance ?? 1;
     _recurrenceType = task?.recurrenceType;
     _recurrenceValue = task?.recurrenceValue;
     _addToCalendar = task?.calendarEventId != null;
 
     if (task?.notifySettings != null) {
       try {
-        _notifySettings =
+        final decoded =
             List<String>.from(jsonDecode(task!.notifySettings!) as List);
+        if (decoded.length == 1 && decoded.first == 'ai_auto') {
+          _notifyAiAuto = true;
+          _notifySettings = [];
+        } else {
+          _notifyAiAuto = false;
+          _notifySettings = decoded;
+        }
       } catch (_) {
+        _notifyAiAuto = true;
         _notifySettings = [];
       }
     }
@@ -98,10 +111,8 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
             key: _formKey,
             child: Column(
               children: [
-                // ハンドルバー + ヘッダー
                 _buildHeader(l10n),
                 const Divider(height: 1),
-                // フォーム本体
                 Expanded(
                   child: ListView(
                     controller: scrollController,
@@ -114,6 +125,10 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
                       _buildMemoField(l10n),
                       const SizedBox(height: 16),
                       _buildCategoryField(l10n, categoriesAsync),
+                      const SizedBox(height: 16),
+                      _buildEstimatedTimeField(l10n),
+                      const SizedBox(height: 16),
+                      _buildImportanceField(l10n),
                       const SizedBox(height: 16),
                       _buildRecurrenceField(l10n),
                       const SizedBox(height: 16),
@@ -137,13 +152,13 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
       child: Column(
         children: [
-          // ドラッグハンドル
           Container(
             width: 40,
             height: 4,
             margin: const EdgeInsets.only(bottom: 8),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
+              color:
+                  Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -214,23 +229,16 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
   }
 
   Widget _buildMemoField(AppLocalizations l10n) {
-    return ExpansionTile(
-      tilePadding: EdgeInsets.zero,
-      title: Text(l10n.memo),
-      leading: const Icon(Icons.note),
-      initiallyExpanded: _memoController.text.isNotEmpty,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: TextFormField(
-            controller: _memoController,
-            maxLines: 3,
-            decoration: InputDecoration(
-              hintText: l10n.memo,
-            ),
-          ),
-        ),
-      ],
+    return TextFormField(
+      controller: _memoController,
+      minLines: 2,
+      maxLines: 3,
+      decoration: InputDecoration(
+        labelText: l10n.memo,
+        hintText: l10n.memoHint,
+        hintMaxLines: 3,
+        prefixIcon: const Icon(Icons.note),
+      ),
     );
   }
 
@@ -256,7 +264,6 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
             spacing: 8,
             runSpacing: 4,
             children: [
-              // 「なし」チップ
               ChoiceChip(
                 label: Text(l10n.noCategory),
                 selected: _categoryId == null,
@@ -271,6 +278,77 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
                   )),
             ],
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEstimatedTimeField(AppLocalizations l10n) {
+    final options = <(String?, String)>[
+      (null, l10n.estimatedTimeNone),
+      ('5min', l10n.estimatedTime5min),
+      ('30min', l10n.estimatedTime30min),
+      ('1hour', l10n.estimatedTime1hour),
+      ('half_day', l10n.estimatedTimeHalfDay),
+      ('1day', l10n.estimatedTime1day),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.timer_outlined, size: 24),
+            const SizedBox(width: 16),
+            Text(l10n.estimatedTime, style: const TextStyle(fontSize: 16)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          children: options.map((o) {
+            final (value, label) = o;
+            return ChoiceChip(
+              label: Text(label),
+              selected: _estimatedTime == value,
+              onSelected: (_) => setState(() => _estimatedTime = value),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImportanceField(AppLocalizations l10n) {
+    final options = <(int, String, IconData, Color?)>[
+      (0, l10n.importanceLow, Icons.arrow_downward, Colors.grey),
+      (1, l10n.importanceMedium, Icons.remove, Theme.of(context).colorScheme.primary),
+      (2, l10n.importanceHigh, Icons.arrow_upward, Theme.of(context).colorScheme.error),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.flag_outlined, size: 24),
+            const SizedBox(width: 16),
+            Text(l10n.importance, style: const TextStyle(fontSize: 16)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          children: options.map((o) {
+            final (value, label, icon, color) = o;
+            return ChoiceChip(
+              avatar: Icon(icon, size: 18, color: _importance == value ? null : color),
+              label: Text(label),
+              selected: _importance == value,
+              onSelected: (_) => setState(() => _importance = value),
+            );
+          }).toList(),
         ),
       ],
     );
@@ -331,8 +409,7 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
   Widget _buildWeekdaySelector() {
     final locale = Localizations.localeOf(context).languageCode;
     final dayNames = List.generate(7, (i) {
-      // Monday=1 ~ Sunday=7
-      final date = DateTime(2024, 1, 1 + i); // 2024-01-01 is Monday
+      final date = DateTime(2024, 1, 1 + i);
       return DateFormat.E(locale).format(date);
     });
 
@@ -365,8 +442,8 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
   }
 
   Widget _buildMonthDaySelector(AppLocalizations l10n) {
-    // yearly: value = month * 100 + day
-    final currentMonth = _recurrenceValue != null ? _recurrenceValue! ~/ 100 : 0;
+    final currentMonth =
+        _recurrenceValue != null ? _recurrenceValue! ~/ 100 : 0;
     final currentDay = _recurrenceValue != null ? _recurrenceValue! % 100 : 0;
 
     return Row(
@@ -374,17 +451,20 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
         Expanded(
           child: DropdownButtonFormField<int>(
             key: ValueKey('yearly_month_$currentMonth'),
-            value: currentMonth > 0 && currentMonth <= 12 ? currentMonth : null,
+            value:
+                currentMonth > 0 && currentMonth <= 12 ? currentMonth : null,
             items: List.generate(12, (i) {
               final month = i + 1;
               final locale = Localizations.localeOf(context).languageCode;
-              final name = DateFormat.MMM(locale).format(DateTime(2024, month));
+              final name =
+                  DateFormat.MMM(locale).format(DateTime(2024, month));
               return DropdownMenuItem(value: month, child: Text(name));
             }),
             onChanged: (month) {
               if (month != null) {
                 setState(() {
-                  _recurrenceValue = month * 100 + (currentDay > 0 ? currentDay : 1);
+                  _recurrenceValue =
+                      month * 100 + (currentDay > 0 ? currentDay : 1);
                 });
               }
             },
@@ -431,13 +511,6 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
   }
 
   Widget _buildNotifyField(AppLocalizations l10n) {
-    final options = <(String, String)>[
-      ('on_due', l10n.notifyOnDue),
-      ('1_day_before', l10n.notifyOneDayBefore),
-      ('3_days_before', l10n.notifyThreeDaysBefore),
-      ('1_week_before', l10n.notifyOneWeekBefore),
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -449,33 +522,56 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
           ],
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 4,
-          children: options.map((o) {
-            final (key, label) = o;
-            final isSelected = _notifySettings.contains(key);
-            return FilterChip(
-              label: Text(label),
-              selected: isSelected,
-              onSelected: (selected) {
-                setState(() {
-                  if (selected) {
-                    _notifySettings.add(key);
-                  } else {
-                    _notifySettings.remove(key);
-                  }
-                });
-              },
-            );
-          }).toList(),
+        SegmentedButton<bool>(
+          segments: [
+            ButtonSegment(value: true, label: Text(l10n.notifyAiAuto)),
+            ButtonSegment(value: false, label: Text(l10n.notifyManual)),
+          ],
+          selected: {_notifyAiAuto},
+          onSelectionChanged: (set) {
+            setState(() => _notifyAiAuto = set.first);
+          },
         ),
+        if (!_notifyAiAuto) ...[
+          const SizedBox(height: 8),
+          _buildManualNotifyChips(l10n),
+        ],
       ],
     );
   }
 
+  Widget _buildManualNotifyChips(AppLocalizations l10n) {
+    final options = <(String, String)>[
+      ('on_due', l10n.notifyOnDue),
+      ('1_day_before', l10n.notifyOneDayBefore),
+      ('3_days_before', l10n.notifyThreeDaysBefore),
+      ('1_week_before', l10n.notifyOneWeekBefore),
+    ];
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 4,
+      children: options.map((o) {
+        final (key, label) = o;
+        final isSelected = _notifySettings.contains(key);
+        return FilterChip(
+          label: Text(label),
+          selected: isSelected,
+          onSelected: (selected) {
+            setState(() {
+              if (selected) {
+                _notifySettings.add(key);
+              } else {
+                _notifySettings.remove(key);
+              }
+            });
+          },
+        );
+      }).toList(),
+    );
+  }
+
   Widget _buildCalendarToggle(AppLocalizations l10n) {
-    // プレミアムのみ表示（isPremiumProviderはkDebugMode時にtrue）
     final isPremium = ref.watch(isPremiumProvider);
     if (!isPremium) return const SizedBox.shrink();
 
@@ -500,8 +596,14 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
       final memo = _memoController.text.trim().isEmpty
           ? null
           : _memoController.text.trim();
-      final notifyJson =
-          _notifySettings.isNotEmpty ? jsonEncode(_notifySettings) : null;
+
+      // 通知設定のシリアライズ
+      String? notifyJson;
+      if (_notifyAiAuto) {
+        notifyJson = jsonEncode(['ai_auto']);
+      } else if (_notifySettings.isNotEmpty) {
+        notifyJson = jsonEncode(_notifySettings);
+      }
 
       CalendarResult? calResult;
 
@@ -522,6 +624,8 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
           recurrenceParentId: original.recurrenceParentId,
           notifySettings: notifyJson,
           calendarEventId: original.calendarEventId,
+          estimatedTime: _estimatedTime,
+          importance: _importance,
           createdAt: original.createdAt,
           updatedAt: now,
         );
@@ -538,6 +642,8 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
           recurrenceType: _recurrenceType,
           recurrenceValue: _recurrenceValue,
           notifySettings: notifyJson,
+          estimatedTime: _estimatedTime,
+          importance: _importance,
           createdAt: now,
           updatedAt: now,
         );
@@ -548,7 +654,6 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
       }
 
       if (mounted) {
-        // カレンダー操作のフィードバック
         if (calResult == CalendarResult.permissionDenied) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(l10n.calendarPermissionDenied)),

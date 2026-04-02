@@ -23,6 +23,8 @@ _$TaskImpl _$$TaskImplFromJson(Map<String, dynamic> json) => _$TaskImpl(
   recurrenceParentId: (json['recurrenceParentId'] as num?)?.toInt(),
   notifySettings: json['notifySettings'] as String?,
   calendarEventId: json['calendarEventId'] as String?,
+  estimatedTime: json['estimatedTime'] as String?,
+  importance: (json['importance'] as num?)?.toInt() ?? 1,
   createdAt: DateTime.parse(json['createdAt'] as String),
   updatedAt: DateTime.parse(json['updatedAt'] as String),
 );
@@ -43,6 +45,8 @@ Map<String, dynamic> _$$TaskImplToJson(_$TaskImpl instance) =>
       'recurrenceParentId': instance.recurrenceParentId,
       'notifySettings': instance.notifySettings,
       'calendarEventId': instance.calendarEventId,
+      'estimatedTime': instance.estimatedTime,
+      'importance': instance.importance,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
     };

@@ -136,6 +136,61 @@ class NotificationService {
     }
   }
 
+  /// AI推奨日付でタスクの通知をスケジュール
+  Future<void> scheduleNotificationsForDates(
+    Task task, {
+    required List<String> dates,
+    required bool isPremium,
+    String locale = 'ja',
+  }) async {
+    if (!isPremium && !kDebugMode) return;
+    if (task.id == null || task.isCompleted) return;
+
+    // 既存通知をクリア
+    await cancelTaskNotifications(task.id!);
+
+    for (var i = 0; i < dates.length && i < 4; i++) {
+      final date = DateTime.tryParse(dates[i]);
+      if (date == null) continue;
+
+      final scheduledDateTime = tz.TZDateTime(
+        tz.local,
+        date.year,
+        date.month,
+        date.day,
+        AppConstants.notificationHour,
+      );
+
+      if (scheduledDateTime.isBefore(tz.TZDateTime.now(tz.local))) continue;
+
+      final notificationId = task.id! * 10 + i;
+
+      final body = locale == 'ja'
+          ? '${task.title} の期限が近づいています'
+          : '${task.title} deadline is approaching';
+
+      await _plugin.zonedSchedule(
+        notificationId,
+        AppConstants.appName,
+        body,
+        scheduledDateTime,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            AppConstants.notificationChannelId,
+            AppConstants.notificationChannelName,
+            importance: Importance.high,
+            priority: Priority.high,
+          ),
+          iOS: DarwinNotificationDetails(),
+        ),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: task.id.toString(),
+      );
+    }
+  }
+
   /// タスクの通知を全キャンセル
   Future<void> cancelTaskNotifications(int taskId) async {
     for (final offset in AppConstants.notifyOffsets.values) {

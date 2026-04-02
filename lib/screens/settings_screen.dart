@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +15,7 @@ import '../providers/purchase_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/task_provider.dart';
 import '../utils/constants.dart';
+import '../utils/test_data.dart';
 import '../widgets/banner_ad_widget.dart';
 import '../widgets/responsive_wrapper.dart';
 
@@ -200,6 +202,24 @@ class SettingsScreen extends ConsumerWidget {
                       applicationName: AppConstants.appName,
                     ),
                   ),
+                  // --- デバッグ（kDebugModeのみ）---
+                  if (kDebugMode) ...[
+                    const Divider(),
+                    _buildSectionHeader(context, l10n.debugSection),
+                    ListTile(
+                      leading: const Icon(Icons.science_outlined),
+                      title: Text(l10n.debugInsertTestData),
+                      onTap: () => _insertTestData(context, ref, l10n, false),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.delete_sweep,
+                        color: theme.colorScheme.error,
+                      ),
+                      title: Text(l10n.debugDeleteAndInsertTestData),
+                      onTap: () => _insertTestData(context, ref, l10n, true),
+                    ),
+                  ],
                   const SizedBox(height: 16),
                 ],
               ),
@@ -281,6 +301,49 @@ class SettingsScreen extends ConsumerWidget {
 
   String _escapeCsv(String value) {
     return value.replaceAll('"', '""').replaceAll('\n', ' ');
+  }
+
+  Future<void> _insertTestData(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+    bool deleteFirst,
+  ) async {
+    final message = deleteFirst
+        ? l10n.debugConfirmDeleteAndInsert
+        : l10n.debugConfirmInsert;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.debugSection),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final db = ref.read(databaseServiceProvider);
+      if (deleteFirst) {
+        await db.deleteAllData();
+      }
+      await insertTestData(db);
+      ref.invalidate(tasksProvider);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.debugTestDataInserted)),
+        );
+      }
+    }
   }
 
   Future<void> _showDeleteAllDialog(
