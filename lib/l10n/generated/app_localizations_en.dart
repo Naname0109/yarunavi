@@ -300,4 +300,159 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarAddFailed => 'Failed to add to calendar';
+
+  @override
+  String get storePremiumTitle => 'Premium Plan';
+
+  @override
+  String get storeFeatureAiUnlimited => 'Unlimited AI Sort (Free: 3/month)';
+
+  @override
+  String get storeFeatureTaskUnlimited => 'Unlimited Tasks (Free: 10)';
+
+  @override
+  String get storeFeatureRecurringUnlimited =>
+      'Unlimited Recurring Tasks (Free: 1)';
+
+  @override
+  String get storeFeatureCategoryUnlimited => 'Unlimited Categories (Free: 2)';
+
+  @override
+  String get storeFeatureCalendar => 'Calendar Export';
+
+  @override
+  String get storeFeatureNotification =>
+      'Due Date Notifications (Free: in-app only)';
+
+  @override
+  String get storeFeatureNoAds => 'No Ads';
+
+  @override
+  String get storeMonthlyPrice => '¥580/mo';
+
+  @override
+  String get storeYearlyPrice => '¥4,200/yr (¥350/mo, save 40%)';
+
+  @override
+  String get storeMonthlyTrial => '7-day free trial → then ¥580/mo';
+
+  @override
+  String get storeYearlyTrial => '7-day free trial → then ¥4,200/yr';
+
+  @override
+  String get storeAutoRenewWarning1 =>
+      'You will be charged after the free trial ends';
+
+  @override
+  String get storeAutoRenewWarning2 =>
+      'Cancel anytime. No charge if cancelled during free trial';
+
+  @override
+  String get storeRestore => 'Restore Purchases';
+
+  @override
+  String get storePurchaseSuccess => 'You are now a Premium member!';
+
+  @override
+  String get storePurchaseFailed => 'Purchase failed. Please try again';
+
+  @override
+  String get storeRestoreSuccess => 'Purchases restored';
+
+  @override
+  String get storeRestoreNone => 'No purchases to restore';
+
+  @override
+  String get storeAlreadyPremium => 'Premium Active';
+
+  @override
+  String get storeStoreUnavailable => 'Store is unavailable';
+
+  @override
+  String get onboardingTitle1 => 'Just enter a task and deadline';
+
+  @override
+  String get onboardingDesc1 =>
+      'No complicated setup needed.\nJust enter a task name and due date\nto get started right away.';
+
+  @override
+  String get onboardingTitle2 => 'AI organizes your priorities';
+
+  @override
+  String get onboardingDesc2 =>
+      '\"What should I do first?\"\nAI figures it out for you.\nSuggests the best order based on deadlines.';
+
+  @override
+  String get onboardingTitle3 => 'Get notified when it\'s time';
+
+  @override
+  String get onboardingDesc3 =>
+      'Push notifications as deadlines approach.\nNever forget again.\nAllow notifications to stay on track.';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingStart => 'Get Started';
+
+  @override
+  String get settingsAccount => 'Account';
+
+  @override
+  String get settingsPremiumStatus => 'Premium Status';
+
+  @override
+  String get settingsPremiumActive => 'Premium Active';
+
+  @override
+  String get settingsFreeUser => 'Free Plan';
+
+  @override
+  String get settingsUpgradeToPremium => 'Upgrade to Premium';
+
+  @override
+  String get settingsDefaultNotify => 'Default Notification Timing';
+
+  @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsJapanese => '日本語';
+
+  @override
+  String get settingsEnglish => 'English';
+
+  @override
+  String get settingsTheme => 'Theme';
+
+  @override
+  String get settingsExportCsv => 'Export CSV';
+
+  @override
+  String get settingsExportSuccess => 'CSV exported successfully';
+
+  @override
+  String get settingsExportFailed => 'Export failed';
+
+  @override
+  String get settingsDeleteAllData => 'Delete All Data';
+
+  @override
+  String get settingsDeleteAllConfirmTitle => 'Confirm Delete All';
+
+  @override
+  String get settingsDeleteAllConfirmMessage =>
+      'All tasks and data will be permanently deleted. This cannot be undone. Are you sure?';
+
+  @override
+  String get settingsDeleteAllSuccess => 'All data deleted';
+
+  @override
+  String get settingsVersion => 'Version';
+
+  @override
+  String get settingsLicenses => 'Licenses';
 }

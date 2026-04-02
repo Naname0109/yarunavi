@@ -643,6 +643,300 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'カレンダーへの追加に失敗しました'**
   String get calendarAddFailed;
+
+  /// No description provided for @storePremiumTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムプラン'**
+  String get storePremiumTitle;
+
+  /// No description provided for @storeFeatureAiUnlimited.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理 無制限（無料は月3回）'**
+  String get storeFeatureAiUnlimited;
+
+  /// No description provided for @storeFeatureTaskUnlimited.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク登録 無制限（無料は10件）'**
+  String get storeFeatureTaskUnlimited;
+
+  /// No description provided for @storeFeatureRecurringUnlimited.
+  ///
+  /// In ja, this message translates to:
+  /// **'定期タスク 無制限（無料は1件）'**
+  String get storeFeatureRecurringUnlimited;
+
+  /// No description provided for @storeFeatureCategoryUnlimited.
+  ///
+  /// In ja, this message translates to:
+  /// **'カテゴリ 無制限（無料は2つ）'**
+  String get storeFeatureCategoryUnlimited;
+
+  /// No description provided for @storeFeatureCalendar.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダー書き出し'**
+  String get storeFeatureCalendar;
+
+  /// No description provided for @storeFeatureNotification.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限日の通知（無料はアプリ内のみ）'**
+  String get storeFeatureNotification;
+
+  /// No description provided for @storeFeatureNoAds.
+  ///
+  /// In ja, this message translates to:
+  /// **'広告非表示'**
+  String get storeFeatureNoAds;
+
+  /// No description provided for @storeMonthlyPrice.
+  ///
+  /// In ja, this message translates to:
+  /// **'¥580/月'**
+  String get storeMonthlyPrice;
+
+  /// No description provided for @storeYearlyPrice.
+  ///
+  /// In ja, this message translates to:
+  /// **'¥4,200/年（¥350/月相当・40%おトク）'**
+  String get storeYearlyPrice;
+
+  /// No description provided for @storeMonthlyTrial.
+  ///
+  /// In ja, this message translates to:
+  /// **'7日間無料 → その後 月額¥580'**
+  String get storeMonthlyTrial;
+
+  /// No description provided for @storeYearlyTrial.
+  ///
+  /// In ja, this message translates to:
+  /// **'7日間無料 → その後 年額¥4,200'**
+  String get storeYearlyTrial;
+
+  /// No description provided for @storeAutoRenewWarning1.
+  ///
+  /// In ja, this message translates to:
+  /// **'無料体験終了後、自動的に課金されます'**
+  String get storeAutoRenewWarning1;
+
+  /// No description provided for @storeAutoRenewWarning2.
+  ///
+  /// In ja, this message translates to:
+  /// **'いつでもキャンセル可能。無料体験中のキャンセルで課金されません'**
+  String get storeAutoRenewWarning2;
+
+  /// No description provided for @storeRestore.
+  ///
+  /// In ja, this message translates to:
+  /// **'購入を復元'**
+  String get storeRestore;
+
+  /// No description provided for @storePurchaseSuccess.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムプランに登録しました'**
+  String get storePurchaseSuccess;
+
+  /// No description provided for @storePurchaseFailed.
+  ///
+  /// In ja, this message translates to:
+  /// **'購入に失敗しました。もう一度お試しください'**
+  String get storePurchaseFailed;
+
+  /// No description provided for @storeRestoreSuccess.
+  ///
+  /// In ja, this message translates to:
+  /// **'購入を復元しました'**
+  String get storeRestoreSuccess;
+
+  /// No description provided for @storeRestoreNone.
+  ///
+  /// In ja, this message translates to:
+  /// **'復元可能な購入が見つかりません'**
+  String get storeRestoreNone;
+
+  /// No description provided for @storeAlreadyPremium.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアム登録済み'**
+  String get storeAlreadyPremium;
+
+  /// No description provided for @storeStoreUnavailable.
+  ///
+  /// In ja, this message translates to:
+  /// **'ストアに接続できません'**
+  String get storeStoreUnavailable;
+
+  /// No description provided for @onboardingTitle1.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク名と期限を入れるだけ'**
+  String get onboardingTitle1;
+
+  /// No description provided for @onboardingDesc1.
+  ///
+  /// In ja, this message translates to:
+  /// **'複雑な設定は不要。\nタスク名と期限日を入力するだけで\nすぐに使い始められます。'**
+  String get onboardingDesc1;
+
+  /// No description provided for @onboardingTitle2.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIが優先順位を整理'**
+  String get onboardingTitle2;
+
+  /// No description provided for @onboardingDesc2.
+  ///
+  /// In ja, this message translates to:
+  /// **'「何から手をつければいい？」を\nAIがあなたに代わって考えます。\n期限やカテゴリから最適な順番を提案。'**
+  String get onboardingDesc2;
+
+  /// No description provided for @onboardingTitle3.
+  ///
+  /// In ja, this message translates to:
+  /// **'やるべき日に通知でお知らせ'**
+  String get onboardingTitle3;
+
+  /// No description provided for @onboardingDesc3.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限が近づいたらプッシュ通知。\n「忘れてた！」をなくします。\n通知を許可して便利に使いましょう。'**
+  String get onboardingDesc3;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In ja, this message translates to:
+  /// **'スキップ'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In ja, this message translates to:
+  /// **'次へ'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingStart.
+  ///
+  /// In ja, this message translates to:
+  /// **'はじめる'**
+  String get onboardingStart;
+
+  /// No description provided for @settingsAccount.
+  ///
+  /// In ja, this message translates to:
+  /// **'アカウント'**
+  String get settingsAccount;
+
+  /// No description provided for @settingsPremiumStatus.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムステータス'**
+  String get settingsPremiumStatus;
+
+  /// No description provided for @settingsPremiumActive.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアム有効'**
+  String get settingsPremiumActive;
+
+  /// No description provided for @settingsFreeUser.
+  ///
+  /// In ja, this message translates to:
+  /// **'無料プラン'**
+  String get settingsFreeUser;
+
+  /// No description provided for @settingsUpgradeToPremium.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムに登録'**
+  String get settingsUpgradeToPremium;
+
+  /// No description provided for @settingsDefaultNotify.
+  ///
+  /// In ja, this message translates to:
+  /// **'デフォルト通知タイミング'**
+  String get settingsDefaultNotify;
+
+  /// No description provided for @settingsLanguage.
+  ///
+  /// In ja, this message translates to:
+  /// **'言語'**
+  String get settingsLanguage;
+
+  /// No description provided for @settingsJapanese.
+  ///
+  /// In ja, this message translates to:
+  /// **'日本語'**
+  String get settingsJapanese;
+
+  /// No description provided for @settingsEnglish.
+  ///
+  /// In ja, this message translates to:
+  /// **'English'**
+  String get settingsEnglish;
+
+  /// No description provided for @settingsTheme.
+  ///
+  /// In ja, this message translates to:
+  /// **'テーマ'**
+  String get settingsTheme;
+
+  /// No description provided for @settingsExportCsv.
+  ///
+  /// In ja, this message translates to:
+  /// **'CSVエクスポート'**
+  String get settingsExportCsv;
+
+  /// No description provided for @settingsExportSuccess.
+  ///
+  /// In ja, this message translates to:
+  /// **'CSVをエクスポートしました'**
+  String get settingsExportSuccess;
+
+  /// No description provided for @settingsExportFailed.
+  ///
+  /// In ja, this message translates to:
+  /// **'エクスポートに失敗しました'**
+  String get settingsExportFailed;
+
+  /// No description provided for @settingsDeleteAllData.
+  ///
+  /// In ja, this message translates to:
+  /// **'全データ削除'**
+  String get settingsDeleteAllData;
+
+  /// No description provided for @settingsDeleteAllConfirmTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'全データ削除の確認'**
+  String get settingsDeleteAllConfirmTitle;
+
+  /// No description provided for @settingsDeleteAllConfirmMessage.
+  ///
+  /// In ja, this message translates to:
+  /// **'すべてのタスクとデータが削除されます。この操作は取り消せません。本当に削除しますか？'**
+  String get settingsDeleteAllConfirmMessage;
+
+  /// No description provided for @settingsDeleteAllSuccess.
+  ///
+  /// In ja, this message translates to:
+  /// **'全データを削除しました'**
+  String get settingsDeleteAllSuccess;
+
+  /// No description provided for @settingsVersion.
+  ///
+  /// In ja, this message translates to:
+  /// **'バージョン'**
+  String get settingsVersion;
+
+  /// No description provided for @settingsLicenses.
+  ///
+  /// In ja, this message translates to:
+  /// **'ライセンス'**
+  String get settingsLicenses;
 }
 
 class _AppLocalizationsDelegate

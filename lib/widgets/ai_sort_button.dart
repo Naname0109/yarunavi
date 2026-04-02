@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../l10n/generated/app_localizations.dart';
+import '../providers/purchase_provider.dart';
 import '../providers/task_provider.dart';
 import '../services/ad_service.dart';
 import '../services/ai_service.dart';
@@ -195,7 +196,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
           FilledButton(
             onPressed: () {
               Navigator.of(dialogContext).pop();
-              // TODO: ステップ10でストア画面に遷移
+              context.push('/store');
             },
             child: Text(l10n.aiSortUpgradeToPremium),
           ),

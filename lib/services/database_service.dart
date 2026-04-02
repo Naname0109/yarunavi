@@ -289,6 +289,12 @@ class DatabaseService {
     await batch.commit(noResult: true);
   }
 
+  /// 全データ削除（タスク + AI利用履歴）
+  Future<void> deleteAllData() async {
+    await db.delete('tasks');
+    await db.delete('ai_usage');
+  }
+
   Future<void> close() async {
     await _db?.close();
     _db = null;

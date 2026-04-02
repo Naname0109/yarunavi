@@ -1,10 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/task.dart';
 import '../services/calendar_service.dart';
 import '../services/database_service.dart';
 import '../services/notification_service.dart';
+import 'purchase_provider.dart';
 
 /// DatabaseServiceのProvider（main.dartでoverrideされる）
 final databaseServiceProvider = Provider<DatabaseService>((ref) {
@@ -21,9 +21,6 @@ final calendarServiceProvider = Provider<CalendarService>((ref) {
   throw UnimplementedError('calendarServiceProvider must be overridden');
 });
 
-/// プレミアム状態のプレースホルダー（ステップ10で本実装）
-final isPremiumProvider = StateProvider<bool>((ref) => false);
-
 /// 現在のフィルター状態
 final filterProvider = StateProvider<String>((ref) => 'all');
 
@@ -35,7 +32,7 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
   DatabaseService get _db => ref.read(databaseServiceProvider);
   NotificationService get _notify => ref.read(notificationServiceProvider);
   CalendarService get _calendar => ref.read(calendarServiceProvider);
-  bool get _isPremium => ref.read(isPremiumProvider) || kDebugMode;
+  bool get _isPremium => ref.read(isPremiumProvider);
 
   @override
   Future<List<Task>> build() async {

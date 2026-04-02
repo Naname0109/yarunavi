@@ -25,6 +25,7 @@ class AppColors {
   static const priorityNormal = Color(0xFF2563EB);
   static const priorityRelaxed = Color(0xFF9CA3AF);
   // ダークテーマ用: コントラスト比 4.5:1以上を確保
+  static const priorityNormalDark = Color(0xFF93C5FD);
   static const priorityRelaxedDark = Color(0xFFD1D5DB);
 
   /// 優先度に基づく色を返す

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../l10n/generated/app_localizations.dart';
@@ -43,12 +44,13 @@ class HomeScreen extends ConsumerWidget {
           const AiSortButton(),
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.settings)),
-              );
-            },
+            onPressed: () => context.push('/settings'),
             tooltip: l10n.settings,
+          ),
+          IconButton(
+            icon: const Icon(Icons.workspace_premium),
+            onPressed: () => context.push('/store'),
+            tooltip: l10n.store,
           ),
         ],
       ),
@@ -94,7 +96,10 @@ class HomeScreen extends ConsumerWidget {
                           ? categoryMap[task.categoryId]
                           : null;
 
-                      return TaskCard(
+                      return _FadeInItem(
+                        key: ValueKey(task.id),
+                        index: index,
+                        child: TaskCard(
                         task: task,
                         category: category,
                         onTap: () {
@@ -122,6 +127,7 @@ class HomeScreen extends ConsumerWidget {
                         onDelete: () {
                           ref.read(tasksProvider.notifier).deleteTask(task.id!);
                         },
+                      ),
                       );
                     },
                   );
@@ -156,5 +162,60 @@ class HomeScreen extends ConsumerWidget {
       default:
         return l10n.emptyTaskMessage;
     }
+  }
+}
+
+/// タスクリストアイテムのフェードインアニメーション
+class _FadeInItem extends StatefulWidget {
+  const _FadeInItem({super.key, required this.index, required this.child});
+
+  final int index;
+  final Widget child;
+
+  @override
+  State<_FadeInItem> createState() => _FadeInItemState();
+}
+
+class _FadeInItemState extends State<_FadeInItem>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+  late final Animation<Offset> _offset;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _offset = Tween<Offset>(
+      begin: const Offset(0, 0.05),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    // 最初の10件のみ段階的にアニメーション
+    final delay = widget.index < 10 ? widget.index * 50 : 0;
+    Future.delayed(Duration(milliseconds: delay), () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _opacity,
+      child: SlideTransition(
+        position: _offset,
+        child: widget.child,
+      ),
+    );
   }
 }

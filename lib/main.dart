@@ -6,11 +6,14 @@ import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'app.dart';
+import 'providers/purchase_provider.dart';
+import 'providers/settings_provider.dart';
 import 'providers/task_provider.dart';
 import 'services/ad_service.dart';
 import 'services/calendar_service.dart';
 import 'services/database_service.dart';
 import 'services/notification_service.dart';
+import 'services/purchase_service.dart';
 import 'widgets/ai_sort_button.dart';
 
 void main() async {
@@ -28,6 +31,10 @@ void main() async {
   final dbService = DatabaseService();
   await dbService.initialize();
 
+  // 課金サービス
+  final purchaseService = PurchaseService.instance;
+  await purchaseService.initialize();
+
   // 通知初期化
   final notificationService = NotificationService();
   await notificationService.initialize();
@@ -36,11 +43,14 @@ void main() async {
   final allTasks = await dbService.getAllTasks();
   await notificationService.rescheduleAllNotifications(
     allTasks,
-    isPremium: false, // TODO: ステップ10でSharedPreferencesから読み取り
+    isPremium: purchaseService.isPremium,
   );
 
   // カレンダーサービス
   final calendarService = CalendarService();
+
+  // 設定読み込み（フリッカー防止のため先に読む）
+  final settings = await loadSettingsFromPrefs();
 
   // 広告サービス
   final adService = AdService();
@@ -52,7 +62,10 @@ void main() async {
         databaseServiceProvider.overrideWithValue(dbService),
         notificationServiceProvider.overrideWithValue(notificationService),
         calendarServiceProvider.overrideWithValue(calendarService),
+        purchaseServiceProvider.overrideWithValue(purchaseService),
         adServiceProvider.overrideWithValue(adService),
+        initialLocaleProvider.overrideWithValue(settings.locale),
+        initialThemeModeProvider.overrideWithValue(settings.themeMode),
       ],
       child: const YaruNaviApp(),
     ),

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +8,7 @@ import '../l10n/generated/app_localizations.dart';
 import '../models/task.dart';
 import '../models/category.dart' as model;
 import '../providers/category_provider.dart';
+import '../providers/purchase_provider.dart';
 import '../providers/task_provider.dart';
 import '../services/calendar_service.dart';
 import '../utils/category_helper.dart';
@@ -24,6 +24,7 @@ class TaskFormSheet extends ConsumerStatefulWidget {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
+      constraints: const BoxConstraints(maxWidth: 700),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -142,7 +143,7 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
             height: 4,
             margin: const EdgeInsets.only(bottom: 8),
             decoration: BoxDecoration(
-              color: Colors.grey[400],
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -474,8 +475,8 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
   }
 
   Widget _buildCalendarToggle(AppLocalizations l10n) {
-    // プレミアム or kDebugMode のみ表示
-    final isPremium = ref.watch(isPremiumProvider) || kDebugMode;
+    // プレミアムのみ表示（isPremiumProviderはkDebugMode時にtrue）
+    final isPremium = ref.watch(isPremiumProvider);
     if (!isPremium) return const SizedBox.shrink();
 
     return SwitchListTile(
@@ -559,7 +560,8 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
         }
         Navigator.of(context).pop();
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Task save error: $e');
       if (mounted) {
         setState(() => _isSaving = false);
       }

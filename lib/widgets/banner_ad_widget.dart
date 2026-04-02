@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import '../providers/task_provider.dart';
+import '../providers/purchase_provider.dart';
 import '../utils/ad_helper.dart';
 
 class BannerAdWidget extends ConsumerStatefulWidget {

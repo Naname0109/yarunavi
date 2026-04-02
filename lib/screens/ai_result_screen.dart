@@ -68,20 +68,24 @@ class AiResultScreen extends ConsumerWidget {
                 ..._buildPrioritySection(
                   context,
                   l10n.aiPriorityNormal,
-                  AppColors.priorityNormal,
+                  Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.priorityNormalDark
+                      : AppColors.priorityNormal,
                   groups[3] ?? [],
                   locale,
                 ),
                 ..._buildPrioritySection(
                   context,
                   l10n.aiPriorityRelaxed,
-                  AppColors.priorityRelaxed,
+                  Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.priorityRelaxedDark
+                      : AppColors.priorityRelaxed,
                   groups[4] ?? [],
                   locale,
                 ),
                 const SizedBox(height: 24),
                 FilledButton.icon(
-                  onPressed: () => context.go('/'),
+                  onPressed: () => context.go('/home'),
                   icon: const Icon(Icons.home),
                   label: Text(l10n.backToHome),
                 ),

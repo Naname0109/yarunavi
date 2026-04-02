@@ -298,4 +298,154 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get calendarAddFailed => 'カレンダーへの追加に失敗しました';
+
+  @override
+  String get storePremiumTitle => 'プレミアムプラン';
+
+  @override
+  String get storeFeatureAiUnlimited => 'AI整理 無制限（無料は月3回）';
+
+  @override
+  String get storeFeatureTaskUnlimited => 'タスク登録 無制限（無料は10件）';
+
+  @override
+  String get storeFeatureRecurringUnlimited => '定期タスク 無制限（無料は1件）';
+
+  @override
+  String get storeFeatureCategoryUnlimited => 'カテゴリ 無制限（無料は2つ）';
+
+  @override
+  String get storeFeatureCalendar => 'カレンダー書き出し';
+
+  @override
+  String get storeFeatureNotification => '期限日の通知（無料はアプリ内のみ）';
+
+  @override
+  String get storeFeatureNoAds => '広告非表示';
+
+  @override
+  String get storeMonthlyPrice => '¥580/月';
+
+  @override
+  String get storeYearlyPrice => '¥4,200/年（¥350/月相当・40%おトク）';
+
+  @override
+  String get storeMonthlyTrial => '7日間無料 → その後 月額¥580';
+
+  @override
+  String get storeYearlyTrial => '7日間無料 → その後 年額¥4,200';
+
+  @override
+  String get storeAutoRenewWarning1 => '無料体験終了後、自動的に課金されます';
+
+  @override
+  String get storeAutoRenewWarning2 => 'いつでもキャンセル可能。無料体験中のキャンセルで課金されません';
+
+  @override
+  String get storeRestore => '購入を復元';
+
+  @override
+  String get storePurchaseSuccess => 'プレミアムプランに登録しました';
+
+  @override
+  String get storePurchaseFailed => '購入に失敗しました。もう一度お試しください';
+
+  @override
+  String get storeRestoreSuccess => '購入を復元しました';
+
+  @override
+  String get storeRestoreNone => '復元可能な購入が見つかりません';
+
+  @override
+  String get storeAlreadyPremium => 'プレミアム登録済み';
+
+  @override
+  String get storeStoreUnavailable => 'ストアに接続できません';
+
+  @override
+  String get onboardingTitle1 => 'タスク名と期限を入れるだけ';
+
+  @override
+  String get onboardingDesc1 => '複雑な設定は不要。\nタスク名と期限日を入力するだけで\nすぐに使い始められます。';
+
+  @override
+  String get onboardingTitle2 => 'AIが優先順位を整理';
+
+  @override
+  String get onboardingDesc2 =>
+      '「何から手をつければいい？」を\nAIがあなたに代わって考えます。\n期限やカテゴリから最適な順番を提案。';
+
+  @override
+  String get onboardingTitle3 => 'やるべき日に通知でお知らせ';
+
+  @override
+  String get onboardingDesc3 =>
+      '期限が近づいたらプッシュ通知。\n「忘れてた！」をなくします。\n通知を許可して便利に使いましょう。';
+
+  @override
+  String get onboardingSkip => 'スキップ';
+
+  @override
+  String get onboardingNext => '次へ';
+
+  @override
+  String get onboardingStart => 'はじめる';
+
+  @override
+  String get settingsAccount => 'アカウント';
+
+  @override
+  String get settingsPremiumStatus => 'プレミアムステータス';
+
+  @override
+  String get settingsPremiumActive => 'プレミアム有効';
+
+  @override
+  String get settingsFreeUser => '無料プラン';
+
+  @override
+  String get settingsUpgradeToPremium => 'プレミアムに登録';
+
+  @override
+  String get settingsDefaultNotify => 'デフォルト通知タイミング';
+
+  @override
+  String get settingsLanguage => '言語';
+
+  @override
+  String get settingsJapanese => '日本語';
+
+  @override
+  String get settingsEnglish => 'English';
+
+  @override
+  String get settingsTheme => 'テーマ';
+
+  @override
+  String get settingsExportCsv => 'CSVエクスポート';
+
+  @override
+  String get settingsExportSuccess => 'CSVをエクスポートしました';
+
+  @override
+  String get settingsExportFailed => 'エクスポートに失敗しました';
+
+  @override
+  String get settingsDeleteAllData => '全データ削除';
+
+  @override
+  String get settingsDeleteAllConfirmTitle => '全データ削除の確認';
+
+  @override
+  String get settingsDeleteAllConfirmMessage =>
+      'すべてのタスクとデータが削除されます。この操作は取り消せません。本当に削除しますか？';
+
+  @override
+  String get settingsDeleteAllSuccess => '全データを削除しました';
+
+  @override
+  String get settingsVersion => 'バージョン';
+
+  @override
+  String get settingsLicenses => 'ライセンス';
 }
