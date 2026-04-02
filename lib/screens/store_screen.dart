@@ -248,20 +248,45 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
 
         const SizedBox(height: 16),
 
-        // 年額ボタン
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton.tonal(
-            onPressed: () => _purchaseYearly(l10n, purchaseService),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+        // 年額ボタン（おすすめバッジ付き）
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.tonal(
+                onPressed: () => _purchaseYearly(l10n, purchaseService),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(
+                  yearlyPrice,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
-            child: Text(
-              yearlyPrice,
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Positioned(
+              top: -8,
+              right: 12,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  l10n.storeRecommended,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
         const SizedBox(height: 4),
         Text(

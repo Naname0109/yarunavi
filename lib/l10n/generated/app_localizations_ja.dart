@@ -226,16 +226,16 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get aiPriorityUrgent => '🔴 今すぐやるべき';
+  String get aiPriorityUrgent => '🔴 今日これだけやろう';
 
   @override
-  String get aiPriorityWarning => '🟠 今週中に';
+  String get aiPriorityWarning => '🟠 今週のうちに片付けよう';
 
   @override
-  String get aiPriorityNormal => '🔵 来週以降';
+  String get aiPriorityNormal => '🔵 来週以降でOK';
 
   @override
-  String get aiPriorityRelaxed => '⚪ 急がないが忘れずに';
+  String get aiPriorityRelaxed => '⚪ 忘れずにキープ';
 
   @override
   String get backToHome => 'ホームに戻る';
@@ -529,4 +529,75 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get debugConfirmDeleteAndInsert => '全データを削除してテストデータを投入しますか？';
+
+  @override
+  String get aiTodayPlan => '今日のプラン';
+
+  @override
+  String aiTodayTasks(int count) {
+    return '今日やること: $count件';
+  }
+
+  @override
+  String aiWeekTasks(int count) {
+    return '今週中: $count件';
+  }
+
+  @override
+  String aiLaterTasks(int count) {
+    return '急がない: $count件';
+  }
+
+  @override
+  String get aiViewSchedule => '整理後のスケジュールを確認';
+
+  @override
+  String get aiQuestions => 'AIからの質問';
+
+  @override
+  String get aiAnswerAndResort => '回答してもう一度整理';
+
+  @override
+  String get aiAnswerHint => '回答を入力...';
+
+  @override
+  String get aiNotifySchedule => '通知予定';
+
+  @override
+  String get aiLoadingAnalyze => 'タスクを分析しています...';
+
+  @override
+  String get aiLoadingPriority => '優先順位を判断しています...';
+
+  @override
+  String get aiLoadingNotify => '通知スケジュールを最適化中...';
+
+  @override
+  String get aiLoadingAdvice => 'あなたへのアドバイスを作成中...';
+
+  @override
+  String get aiLoadingAlmost => 'もう少しで完了します...';
+
+  @override
+  String get aiRunBackground => 'バックグラウンドで実行';
+
+  @override
+  String get aiCompleteNotify => 'AI整理が完了しました。結果を確認しましょう';
+
+  @override
+  String get aiCompleteBanner => 'AI整理完了 — タップで結果を見る';
+
+  @override
+  String get aiHistory => 'AI整理の履歴';
+
+  @override
+  String get aiHistoryEmpty => 'AI整理の履歴はありません';
+
+  @override
+  String aiHistoryCount(int count) {
+    return '$count件のタスクを整理';
+  }
+
+  @override
+  String get storeRecommended => 'おすすめ';
 }

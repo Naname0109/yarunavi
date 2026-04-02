@@ -160,13 +160,13 @@
       "dateTime": { "type": "String" }
     }
   },
-  "aiPriorityUrgent": "🔴 今すぐやるべき",
+  "aiPriorityUrgent": "🔴 今日これだけやろう",
   "@aiPriorityUrgent": {},
-  "aiPriorityWarning": "🟠 今週中に",
+  "aiPriorityWarning": "🟠 今週のうちに片付けよう",
   "@aiPriorityWarning": {},
-  "aiPriorityNormal": "🔵 来週以降",
+  "aiPriorityNormal": "🔵 来週以降でOK",
   "@aiPriorityNormal": {},
-  "aiPriorityRelaxed": "⚪ 急がないが忘れずに",
+  "aiPriorityRelaxed": "⚪ 忘れずにキープ",
   "@aiPriorityRelaxed": {},
   "backToHome": "ホームに戻る",
   "@backToHome": {},
@@ -375,5 +375,59 @@
   "debugConfirmInsert": "テストデータを投入しますか？",
   "@debugConfirmInsert": {},
   "debugConfirmDeleteAndInsert": "全データを削除してテストデータを投入しますか？",
-  "@debugConfirmDeleteAndInsert": {}
+  "@debugConfirmDeleteAndInsert": {},
+
+  "aiTodayPlan": "今日のプラン",
+  "@aiTodayPlan": {},
+  "aiTodayTasks": "今日やること: {count}件",
+  "@aiTodayTasks": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiWeekTasks": "今週中: {count}件",
+  "@aiWeekTasks": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiLaterTasks": "急がない: {count}件",
+  "@aiLaterTasks": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiViewSchedule": "整理後のスケジュールを確認",
+  "@aiViewSchedule": {},
+  "aiQuestions": "AIからの質問",
+  "@aiQuestions": {},
+  "aiAnswerAndResort": "回答してもう一度整理",
+  "@aiAnswerAndResort": {},
+  "aiAnswerHint": "回答を入力...",
+  "@aiAnswerHint": {},
+  "aiNotifySchedule": "通知予定",
+  "@aiNotifySchedule": {},
+
+  "aiLoadingAnalyze": "タスクを分析しています...",
+  "@aiLoadingAnalyze": {},
+  "aiLoadingPriority": "優先順位を判断しています...",
+  "@aiLoadingPriority": {},
+  "aiLoadingNotify": "通知スケジュールを最適化中...",
+  "@aiLoadingNotify": {},
+  "aiLoadingAdvice": "あなたへのアドバイスを作成中...",
+  "@aiLoadingAdvice": {},
+  "aiLoadingAlmost": "もう少しで完了します...",
+  "@aiLoadingAlmost": {},
+  "aiRunBackground": "バックグラウンドで実行",
+  "@aiRunBackground": {},
+  "aiCompleteNotify": "AI整理が完了しました。結果を確認しましょう",
+  "@aiCompleteNotify": {},
+  "aiCompleteBanner": "AI整理完了 — タップで結果を見る",
+  "@aiCompleteBanner": {},
+
+  "aiHistory": "AI整理の履歴",
+  "@aiHistory": {},
+  "aiHistoryEmpty": "AI整理の履歴はありません",
+  "@aiHistoryEmpty": {},
+  "aiHistoryCount": "{count}件のタスクを整理",
+  "@aiHistoryCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "storeRecommended": "おすすめ",
+  "@storeRecommended": {}
 }

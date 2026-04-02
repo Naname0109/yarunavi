@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import 'providers/settings_provider.dart';
 import 'theme/app_theme.dart';
+import 'screens/ai_history_screen.dart';
 import 'screens/ai_result_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/onboarding_screen.dart';
@@ -39,6 +40,10 @@ final _router = GoRouter(
     GoRoute(
       path: '/settings',
       builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/ai-history',
+      builder: (context, state) => const AiHistoryScreen(),
     ),
   ],
 );

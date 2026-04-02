@@ -22,7 +22,7 @@ class DatabaseService {
 
     _db = await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -74,6 +74,17 @@ class DatabaseService {
       'CREATE INDEX idx_ai_usage_month ON ai_usage(month_key)',
     );
 
+    await db.execute('''
+      CREATE TABLE ai_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        summary_ja TEXT,
+        summary_en TEXT,
+        result_json TEXT NOT NULL,
+        task_count INTEGER NOT NULL,
+        created_at TEXT NOT NULL
+      )
+    ''');
+
     // デフォルトカテゴリ投入（nameはi18nキーとして保存）
     final now = DateTime.now().toIso8601String();
     final defaultCategories = [
@@ -103,6 +114,18 @@ class DatabaseService {
       await db.execute('ALTER TABLE tasks ADD COLUMN estimated_time TEXT');
       await db.execute(
           'ALTER TABLE tasks ADD COLUMN importance INTEGER NOT NULL DEFAULT 1');
+    }
+    if (oldVersion < 4) {
+      await db.execute('''
+        CREATE TABLE ai_history (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          summary_ja TEXT,
+          summary_en TEXT,
+          result_json TEXT NOT NULL,
+          task_count INTEGER NOT NULL,
+          created_at TEXT NOT NULL
+        )
+      ''');
     }
   }
 
@@ -298,10 +321,38 @@ class DatabaseService {
     await batch.commit(noResult: true);
   }
 
-  /// 全データ削除（タスク + AI利用履歴）
+  // --- AI History ---
+
+  Future<int> insertAiHistory({
+    required String? summaryJa,
+    required String? summaryEn,
+    required String resultJson,
+    required int taskCount,
+  }) async {
+    return db.insert('ai_history', {
+      'summary_ja': summaryJa,
+      'summary_en': summaryEn,
+      'result_json': resultJson,
+      'task_count': taskCount,
+      'created_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getAiHistory() async {
+    return db.query('ai_history', orderBy: 'created_at DESC');
+  }
+
+  Future<Map<String, dynamic>?> getAiHistoryById(int id) async {
+    final maps =
+        await db.query('ai_history', where: 'id = ?', whereArgs: [id]);
+    return maps.isNotEmpty ? maps.first : null;
+  }
+
+  /// 全データ削除（タスク + AI利用履歴 + AI整理履歴）
   Future<void> deleteAllData() async {
     await db.delete('tasks');
     await db.delete('ai_usage');
+    await db.delete('ai_history');
   }
 
   Future<void> close() async {

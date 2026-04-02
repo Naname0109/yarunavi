@@ -227,16 +227,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get aiPriorityUrgent => '🔴 Do it now';
+  String get aiPriorityUrgent => '🔴 Focus on these today';
 
   @override
-  String get aiPriorityWarning => '🟠 This week';
+  String get aiPriorityWarning => '🟠 Get it done this week';
 
   @override
-  String get aiPriorityNormal => '🔵 Next week or later';
+  String get aiPriorityNormal => '🔵 Next week is fine';
 
   @override
-  String get aiPriorityRelaxed => '⚪ Not urgent, don\'t forget';
+  String get aiPriorityRelaxed => '⚪ Keep in mind';
 
   @override
   String get backToHome => 'Back to Home';
@@ -538,4 +538,75 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get debugConfirmDeleteAndInsert =>
       'Delete all data and insert test data?';
+
+  @override
+  String get aiTodayPlan => 'Today\'s Plan';
+
+  @override
+  String aiTodayTasks(int count) {
+    return 'Today: $count';
+  }
+
+  @override
+  String aiWeekTasks(int count) {
+    return 'This week: $count';
+  }
+
+  @override
+  String aiLaterTasks(int count) {
+    return 'Later: $count';
+  }
+
+  @override
+  String get aiViewSchedule => 'View organized schedule';
+
+  @override
+  String get aiQuestions => 'Questions from AI';
+
+  @override
+  String get aiAnswerAndResort => 'Answer and re-sort';
+
+  @override
+  String get aiAnswerHint => 'Type your answer...';
+
+  @override
+  String get aiNotifySchedule => 'Notification schedule';
+
+  @override
+  String get aiLoadingAnalyze => 'Analyzing tasks...';
+
+  @override
+  String get aiLoadingPriority => 'Determining priorities...';
+
+  @override
+  String get aiLoadingNotify => 'Optimizing notifications...';
+
+  @override
+  String get aiLoadingAdvice => 'Creating advice for you...';
+
+  @override
+  String get aiLoadingAlmost => 'Almost done...';
+
+  @override
+  String get aiRunBackground => 'Run in background';
+
+  @override
+  String get aiCompleteNotify => 'AI sorting is complete. Check the results!';
+
+  @override
+  String get aiCompleteBanner => 'AI sorting complete — tap to view';
+
+  @override
+  String get aiHistory => 'AI Sort History';
+
+  @override
+  String get aiHistoryEmpty => 'No AI sort history';
+
+  @override
+  String aiHistoryCount(int count) {
+    return 'Sorted $count tasks';
+  }
+
+  @override
+  String get storeRecommended => 'Recommended';
 }

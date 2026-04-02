@@ -69,10 +69,10 @@
   "recurringTaskCreated": "Next task created: {date}",
   "aiResultTitle": "AI has organized your tasks",
   "aiResultSortedAt": "Sorted at: {dateTime}",
-  "aiPriorityUrgent": "🔴 Do it now",
-  "aiPriorityWarning": "🟠 This week",
-  "aiPriorityNormal": "🔵 Next week or later",
-  "aiPriorityRelaxed": "⚪ Not urgent, don't forget",
+  "aiPriorityUrgent": "🔴 Focus on these today",
+  "aiPriorityWarning": "🟠 Get it done this week",
+  "aiPriorityNormal": "🔵 Next week is fine",
+  "aiPriorityRelaxed": "⚪ Keep in mind",
   "backToHome": "Back to Home",
   "aiSortRemaining": "{count} remaining",
   "aiSortLimitReached": "You've used all free AI sorts this month",
@@ -173,5 +173,30 @@
   "debugDeleteAndInsertTestData": "Delete All & Insert Test Data",
   "debugTestDataInserted": "Test data inserted",
   "debugConfirmInsert": "Insert test data?",
-  "debugConfirmDeleteAndInsert": "Delete all data and insert test data?"
+  "debugConfirmDeleteAndInsert": "Delete all data and insert test data?",
+
+  "aiTodayPlan": "Today's Plan",
+  "aiTodayTasks": "Today: {count}",
+  "aiWeekTasks": "This week: {count}",
+  "aiLaterTasks": "Later: {count}",
+  "aiViewSchedule": "View organized schedule",
+  "aiQuestions": "Questions from AI",
+  "aiAnswerAndResort": "Answer and re-sort",
+  "aiAnswerHint": "Type your answer...",
+  "aiNotifySchedule": "Notification schedule",
+
+  "aiLoadingAnalyze": "Analyzing tasks...",
+  "aiLoadingPriority": "Determining priorities...",
+  "aiLoadingNotify": "Optimizing notifications...",
+  "aiLoadingAdvice": "Creating advice for you...",
+  "aiLoadingAlmost": "Almost done...",
+  "aiRunBackground": "Run in background",
+  "aiCompleteNotify": "AI sorting is complete. Check the results!",
+  "aiCompleteBanner": "AI sorting complete — tap to view",
+
+  "aiHistory": "AI Sort History",
+  "aiHistoryEmpty": "No AI sort history",
+  "aiHistoryCount": "Sorted {count} tasks",
+
+  "storeRecommended": "Recommended"
 }

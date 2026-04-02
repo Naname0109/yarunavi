@@ -19,9 +19,18 @@ final adServiceProvider = Provider<AdService>((ref) {
   throw UnimplementedError('adServiceProvider must be overridden');
 });
 
-/// AI整理結果を保持するProvider（結果画面で使用）
+/// AI整理レスポンスを保持するProvider
+final aiSortResponseProvider =
+    StateProvider<AiSortResponse?>((ref) => null);
+
+/// AI整理結果を保持（後方互換）
 final aiSortResultsProvider =
-    StateProvider<List<AiSortResult>>((ref) => []);
+    Provider<List<AiSortResult>>((ref) {
+  return ref.watch(aiSortResponseProvider)?.tasks ?? [];
+});
+
+/// AI整理完了バナー表示フラグ
+final aiCompleteBannerProvider = StateProvider<bool>((ref) => false);
 
 class AiSortButton extends ConsumerStatefulWidget {
   const AiSortButton({super.key});
@@ -106,7 +115,11 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     await _executeAiSort(l10n, locale);
   }
 
-  Future<void> _executeAiSort(AppLocalizations l10n, String locale) async {
+  Future<void> _executeAiSort(
+    AppLocalizations l10n,
+    String locale, {
+    String? additionalContext,
+  }) async {
     final db = ref.read(databaseServiceProvider);
 
     final tasks = await db.getAllTasks();
@@ -122,43 +135,50 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
 
     setState(() => _isLoading = true);
 
+    // ローディングモーダル表示
+    bool backgroundMode = false;
+    bool dialogDismissed = false;
+    if (mounted) {
+      _showLoadingModal(l10n, () {
+        backgroundMode = true;
+        dialogDismissed = true;
+      });
+    }
+
     try {
-      // カテゴリ名マップを構築
       final categories = await db.getAllCategories();
       final categoryNames = <int, String>{};
       for (final cat in categories) {
         if (cat.id != null) {
-          categoryNames[cat.id!] =
-              getCategoryDisplayName(cat.name, l10n);
+          categoryNames[cat.id!] = getCategoryDisplayName(cat.name, l10n);
         }
       }
 
-      final results = await AiService.sortTasks(
+      final response = await AiService.sortTasks(
         incompleteTasks,
         categoryNames: categoryNames,
+        additionalContext: additionalContext,
       );
 
       final isRealApiCall = AppConstants.anthropicApiKey.isNotEmpty;
 
       // priority/aiComment更新
       final updates = <int, ({int priority, String? aiComment})>{};
-      for (final r in results) {
+      for (final r in response.tasks) {
         final comment = locale == 'ja' ? r.commentJa : r.commentEn;
         updates[r.taskId] = (priority: r.priority, aiComment: comment);
       }
       await db.updateTaskPriorities(updates);
 
-      // "ai_auto"のタスクの通知をAI推奨日で更新
+      // ai_autoのタスクの通知をAI推奨日で更新
       final isPremium = ref.read(isPremiumProvider);
       final notifyService = ref.read(notificationServiceProvider);
-      for (final r in results) {
+      for (final r in response.tasks) {
         if (r.recommendedNotifyDates.isEmpty) continue;
-        final task = incompleteTasks
-            .where((t) => t.id == r.taskId)
-            .firstOrNull;
+        final task =
+            incompleteTasks.where((t) => t.id == r.taskId).firstOrNull;
         if (task == null) continue;
 
-        // ai_autoのタスクのみ通知を更新
         bool isAiAuto = false;
         if (task.notifySettings != null) {
           try {
@@ -182,16 +202,34 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         await db.recordAiUsage();
       }
 
-      // 結果をProviderに保存（結果画面で使用）
-      ref.read(aiSortResultsProvider.notifier).state = results;
+      // AI履歴に保存
+      await db.insertAiHistory(
+        summaryJa: response.summaryJa,
+        summaryEn: response.summaryEn,
+        resultJson: jsonEncode(response.toJson()),
+        taskCount: response.tasks.length,
+      );
 
+      // 結果をProviderに保存
+      ref.read(aiSortResponseProvider.notifier).state = response;
       ref.invalidate(tasksProvider);
       _refreshRemaining();
 
-      if (mounted) {
+      // モーダルを閉じる（まだ閉じていない場合のみ）
+      if (mounted && !dialogDismissed) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      if (backgroundMode) {
+        // バックグラウンドモード: バナー表示
+        ref.read(aiCompleteBannerProvider.notifier).state = true;
+      } else if (mounted) {
         context.push('/ai-result');
       }
     } on AiServiceException catch (e) {
+      if (mounted && !dialogDismissed) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
       if (!mounted) return;
       final message = switch (e.type) {
         AiErrorType.network => l10n.aiErrorNetwork,
@@ -202,22 +240,34 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         SnackBar(content: Text(message)),
       );
     } catch (_) {
-      if (mounted) {
+      if (mounted && !dialogDismissed) {
+        Navigator.of(context, rootNavigator: true).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.aiErrorNetwork)),
         );
       }
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
+  void _showLoadingModal(AppLocalizations l10n, VoidCallback onBackground) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => _AiLoadingDialog(
+        l10n: l10n,
+        onBackground: () {
+          onBackground();
+          Navigator.of(ctx).pop();
+        },
+      ),
+    );
+  }
+
   Future<void> _showLimitDialog(AppLocalizations l10n, bool isPremium) async {
-    final message = isPremium
-        ? l10n.aiSortDailyLimitReached
-        : l10n.aiSortLimitReached;
+    final message =
+        isPremium ? l10n.aiSortDailyLimitReached : l10n.aiSortLimitReached;
     final canShowReward = await FeatureGate.canShowRewardAd(isPremium);
     final adService = ref.read(adServiceProvider);
 
@@ -253,6 +303,107 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
             child: Text(l10n.aiSortUpgradeToPremium),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// AI整理中ローディングダイアログ
+class _AiLoadingDialog extends StatefulWidget {
+  const _AiLoadingDialog({
+    required this.l10n,
+    required this.onBackground,
+  });
+
+  final AppLocalizations l10n;
+  final VoidCallback onBackground;
+
+  @override
+  State<_AiLoadingDialog> createState() => _AiLoadingDialogState();
+}
+
+class _AiLoadingDialogState extends State<_AiLoadingDialog>
+    with SingleTickerProviderStateMixin {
+  int _messageIndex = 0;
+  late final AnimationController _pulseController;
+
+  List<String> get _messages => [
+        widget.l10n.aiLoadingAnalyze,
+        widget.l10n.aiLoadingPriority,
+        widget.l10n.aiLoadingNotify,
+        widget.l10n.aiLoadingAdvice,
+        widget.l10n.aiLoadingAlmost,
+      ];
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+    _cycleMessages();
+  }
+
+  void _cycleMessages() {
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _messageIndex = (_messageIndex + 1) % _messages.length;
+        });
+        _cycleMessages();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Dialog(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedBuilder(
+              animation: _pulseController,
+              builder: (context, child) {
+                final scale = 1.0 + _pulseController.value * 0.15;
+                return Transform.scale(
+                  scale: scale,
+                  child: Icon(
+                    Icons.auto_awesome,
+                    size: 48,
+                    color: theme.colorScheme.primary,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: Text(
+                _messages[_messageIndex],
+                key: ValueKey(_messageIndex),
+                style: theme.textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const LinearProgressIndicator(),
+            const SizedBox(height: 20),
+            OutlinedButton(
+              onPressed: widget.onBackground,
+              child: Text(widget.l10n.aiRunBackground),
+            ),
+          ],
+        ),
       ),
     );
   }

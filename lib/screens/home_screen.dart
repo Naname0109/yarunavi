@@ -30,6 +30,7 @@ class HomeScreen extends ConsumerWidget {
     final categoriesAsync = ref.watch(categoriesProvider);
     final currentFilter = ref.watch(filterProvider);
     final isCalendarView = ref.watch(_viewModeProvider);
+    final showAiBanner = ref.watch(aiCompleteBannerProvider);
 
     final categoryMap = <int, model.Category>{};
     categoriesAsync.whenData((categories) {
@@ -64,6 +65,29 @@ class HomeScreen extends ConsumerWidget {
       body: ResponsiveWrapper(
         child: Column(
           children: [
+            // AI整理完了バナー
+            if (showAiBanner)
+              MaterialBanner(
+                content: Text(l10n.aiCompleteBanner),
+                leading: const Icon(Icons.auto_awesome),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      ref.read(aiCompleteBannerProvider.notifier).state =
+                          false;
+                      context.push('/ai-result');
+                    },
+                    child: Text(l10n.aiResultTitle),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      ref.read(aiCompleteBannerProvider.notifier).state =
+                          false;
+                    },
+                    child: Text(l10n.cancel),
+                  ),
+                ],
+              ),
             if (isCalendarView)
               const Expanded(child: CalendarScreen())
             else ...[

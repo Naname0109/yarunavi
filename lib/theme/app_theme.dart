@@ -8,35 +8,60 @@ class AppTheme {
         useMaterial3: true,
         brightness: Brightness.light,
         colorSchemeSeed: AppColors.primaryLight,
-        scaffoldBackgroundColor: AppColors.backgroundLight,
+        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
         appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.surfaceLight,
+          backgroundColor: Colors.white,
           foregroundColor: AppColors.textPrimaryLight,
           elevation: 0,
           scrolledUnderElevation: 1,
         ),
-        cardTheme: const CardThemeData(
-          color: AppColors.surfaceLight,
+        cardTheme: CardThemeData(
+          color: Colors.white,
           elevation: 1,
-          margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          shadowColor: Colors.black.withValues(alpha: 0.08),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
           backgroundColor: AppColors.primaryLight,
           foregroundColor: Colors.white,
+          elevation: 3,
         ),
         chipTheme: ChipThemeData(
           selectedColor: AppColors.primaryLight.withAlpha(30),
           labelStyle: const TextStyle(color: AppColors.textPrimaryLight),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
         ),
-        dividerTheme: const DividerThemeData(
-          color: Color(0xFFE0E0E0),
+        dividerTheme: DividerThemeData(
+          color: Colors.grey.withValues(alpha: 0.15),
+          space: 1,
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
           ),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            minimumSize: const Size(0, 48),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            minimumSize: const Size(0, 48),
+          ),
         ),
       );
 
@@ -51,28 +76,53 @@ class AppTheme {
           elevation: 0,
           scrolledUnderElevation: 1,
         ),
-        cardTheme: const CardThemeData(
+        cardTheme: CardThemeData(
           color: AppColors.surfaceDark,
           elevation: 1,
-          margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          shadowColor: Colors.black.withValues(alpha: 0.3),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
           backgroundColor: AppColors.primaryDark,
           foregroundColor: Colors.black,
+          elevation: 3,
         ),
         chipTheme: ChipThemeData(
           selectedColor: AppColors.primaryDark.withAlpha(50),
           labelStyle: const TextStyle(color: AppColors.textPrimaryDark),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
         ),
-        dividerTheme: const DividerThemeData(
-          color: Color(0xFF333333),
+        dividerTheme: DividerThemeData(
+          color: Colors.white.withValues(alpha: 0.1),
+          space: 1,
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
           ),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            minimumSize: const Size(0, 48),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            minimumSize: const Size(0, 48),
+          ),
         ),
       );
 }

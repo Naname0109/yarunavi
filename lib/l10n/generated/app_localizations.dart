@@ -515,25 +515,25 @@ abstract class AppLocalizations {
   /// No description provided for @aiPriorityUrgent.
   ///
   /// In ja, this message translates to:
-  /// **'🔴 今すぐやるべき'**
+  /// **'🔴 今日これだけやろう'**
   String get aiPriorityUrgent;
 
   /// No description provided for @aiPriorityWarning.
   ///
   /// In ja, this message translates to:
-  /// **'🟠 今週中に'**
+  /// **'🟠 今週のうちに片付けよう'**
   String get aiPriorityWarning;
 
   /// No description provided for @aiPriorityNormal.
   ///
   /// In ja, this message translates to:
-  /// **'🔵 来週以降'**
+  /// **'🔵 来週以降でOK'**
   String get aiPriorityNormal;
 
   /// No description provided for @aiPriorityRelaxed.
   ///
   /// In ja, this message translates to:
-  /// **'⚪ 急がないが忘れずに'**
+  /// **'⚪ 忘れずにキープ'**
   String get aiPriorityRelaxed;
 
   /// No description provided for @backToHome.
@@ -1099,6 +1099,132 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'全データを削除してテストデータを投入しますか？'**
   String get debugConfirmDeleteAndInsert;
+
+  /// No description provided for @aiTodayPlan.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日のプラン'**
+  String get aiTodayPlan;
+
+  /// No description provided for @aiTodayTasks.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日やること: {count}件'**
+  String aiTodayTasks(int count);
+
+  /// No description provided for @aiWeekTasks.
+  ///
+  /// In ja, this message translates to:
+  /// **'今週中: {count}件'**
+  String aiWeekTasks(int count);
+
+  /// No description provided for @aiLaterTasks.
+  ///
+  /// In ja, this message translates to:
+  /// **'急がない: {count}件'**
+  String aiLaterTasks(int count);
+
+  /// No description provided for @aiViewSchedule.
+  ///
+  /// In ja, this message translates to:
+  /// **'整理後のスケジュールを確認'**
+  String get aiViewSchedule;
+
+  /// No description provided for @aiQuestions.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIからの質問'**
+  String get aiQuestions;
+
+  /// No description provided for @aiAnswerAndResort.
+  ///
+  /// In ja, this message translates to:
+  /// **'回答してもう一度整理'**
+  String get aiAnswerAndResort;
+
+  /// No description provided for @aiAnswerHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'回答を入力...'**
+  String get aiAnswerHint;
+
+  /// No description provided for @aiNotifySchedule.
+  ///
+  /// In ja, this message translates to:
+  /// **'通知予定'**
+  String get aiNotifySchedule;
+
+  /// No description provided for @aiLoadingAnalyze.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクを分析しています...'**
+  String get aiLoadingAnalyze;
+
+  /// No description provided for @aiLoadingPriority.
+  ///
+  /// In ja, this message translates to:
+  /// **'優先順位を判断しています...'**
+  String get aiLoadingPriority;
+
+  /// No description provided for @aiLoadingNotify.
+  ///
+  /// In ja, this message translates to:
+  /// **'通知スケジュールを最適化中...'**
+  String get aiLoadingNotify;
+
+  /// No description provided for @aiLoadingAdvice.
+  ///
+  /// In ja, this message translates to:
+  /// **'あなたへのアドバイスを作成中...'**
+  String get aiLoadingAdvice;
+
+  /// No description provided for @aiLoadingAlmost.
+  ///
+  /// In ja, this message translates to:
+  /// **'もう少しで完了します...'**
+  String get aiLoadingAlmost;
+
+  /// No description provided for @aiRunBackground.
+  ///
+  /// In ja, this message translates to:
+  /// **'バックグラウンドで実行'**
+  String get aiRunBackground;
+
+  /// No description provided for @aiCompleteNotify.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理が完了しました。結果を確認しましょう'**
+  String get aiCompleteNotify;
+
+  /// No description provided for @aiCompleteBanner.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理完了 — タップで結果を見る'**
+  String get aiCompleteBanner;
+
+  /// No description provided for @aiHistory.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理の履歴'**
+  String get aiHistory;
+
+  /// No description provided for @aiHistoryEmpty.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理の履歴はありません'**
+  String get aiHistoryEmpty;
+
+  /// No description provided for @aiHistoryCount.
+  ///
+  /// In ja, this message translates to:
+  /// **'{count}件のタスクを整理'**
+  String aiHistoryCount(int count);
+
+  /// No description provided for @storeRecommended.
+  ///
+  /// In ja, this message translates to:
+  /// **'おすすめ'**
+  String get storeRecommended;
 }
 
 class _AppLocalizationsDelegate

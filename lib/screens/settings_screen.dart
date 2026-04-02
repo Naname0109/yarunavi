@@ -63,6 +63,15 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                   const Divider(),
 
+                  // --- AI ---
+                  ListTile(
+                    leading: const Icon(Icons.history),
+                    title: Text(l10n.aiHistory),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/ai-history'),
+                  ),
+                  const Divider(),
+
                   // --- 通知 ---
                   _buildSectionHeader(context, l10n.notification),
                   ListTile(

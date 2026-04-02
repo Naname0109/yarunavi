@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/task.dart';
@@ -27,6 +28,71 @@ class AiSortResult {
     this.suggestedSubtasksJa = const [],
     this.suggestedSubtasksEn = const [],
   });
+
+  Map<String, dynamic> toJson() => {
+        'task_id': taskId,
+        'priority': priority,
+        'comment_ja': commentJa,
+        'comment_en': commentEn,
+        'recommended_notify_dates': recommendedNotifyDates,
+        'suggested_subtasks_ja': suggestedSubtasksJa,
+        'suggested_subtasks_en': suggestedSubtasksEn,
+      };
+}
+
+/// AI整理のレスポンス全体
+class AiSortResponse {
+  final String? summaryJa;
+  final String? summaryEn;
+  final List<AiSortResult> tasks;
+  final List<String> questionsJa;
+  final List<String> questionsEn;
+
+  const AiSortResponse({
+    this.summaryJa,
+    this.summaryEn,
+    required this.tasks,
+    this.questionsJa = const [],
+    this.questionsEn = const [],
+  });
+
+  Map<String, dynamic> toJson() => {
+        'summary_ja': summaryJa,
+        'summary_en': summaryEn,
+        'tasks': tasks.map((t) => t.toJson()).toList(),
+        'questions_ja': questionsJa,
+        'questions_en': questionsEn,
+      };
+
+  factory AiSortResponse.fromJson(Map<String, dynamic> json) {
+    return AiSortResponse(
+      summaryJa: json['summary_ja'] as String?,
+      summaryEn: json['summary_en'] as String?,
+      tasks: (json['tasks'] as List?)?.map((r) {
+            final map = r as Map<String, dynamic>;
+            return AiSortResult(
+              taskId: map['task_id'] as int,
+              priority: (map['priority'] as int).clamp(1, 4),
+              commentJa: map['comment_ja'] as String?,
+              commentEn: map['comment_en'] as String?,
+              recommendedNotifyDates:
+                  (map['recommended_notify_dates'] as List?)?.cast<String>() ??
+                      [],
+              suggestedSubtasksJa:
+                  (map['suggested_subtasks_ja'] as List?)?.cast<String>() ??
+                      [],
+              suggestedSubtasksEn:
+                  (map['suggested_subtasks_en'] as List?)?.cast<String>() ??
+                      [],
+            );
+          }).toList() ??
+          [],
+      questionsJa:
+          (json['questions_ja'] as List?)?.cast<String>() ?? [],
+      questionsEn:
+          (json['questions_en'] as List?)?.cast<String>() ?? [],
+    );
+  }
 }
 
 /// AI整理で発生しうるエラー種別
@@ -41,77 +107,90 @@ class AiServiceException implements Exception {
 class AiService {
   static const _systemPrompt =
       '''あなたはタスク管理の専門家であり、ユーザーの生活をサポートするパーソナルアシスタントです。
-ユーザーのタスクリストを受け取り、以下のルールに従って優先順位の整理、実用的なアドバイス、通知日の提案を行ってください。
+ユーザーのタスクリストを受け取り、優先順位の整理、実用的なアドバイス、通知日の提案を行ってください。
 
 ## 分類ルール
-- priority 1（緊急）: 期限切れ、または今日が期限
-- priority 2（要注意）: 期限まで1-3日
-- priority 3（通常）: 期限まで4-7日
-- priority 4（余裕）: 期限まで8日以上
+- priority 1（今日これだけやろう）: 今日最優先で着手すべき1-3件に限定
+  - 期限切れ・今日期限でも、重要度「低」や所要時間「5分」はpriority 2に
+  - 1日にpriority 1は最大3件まで
+  - 所要時間の合計が8時間を超えないよう配慮
+- priority 2（今週のうちに片付けよう）: 期限まで1-7日
+- priority 3（来週以降でOK）: 期限まで8日以上
+- priority 4（忘れずにキープ）: 余裕がある、または定期タスクの将来分
 
 ## 重要度の考慮
-- importance=2（高）のタスクはpriorityを1段階上げる（最高は1）
-- importance=0（低）のタスクはpriorityを1段階下げる（最低は4）
+- importance=2（高）: priorityを1段階上げる（最高は1）
+- importance=0（低）: priorityを1段階下げる（最低は4）
+
+## 1日のタスク配分ルール
+- 5分タスク5件+1時間タスク1件=十分こなせる
+- 半日タスク2件=1件は明日に回す提案をする
+- コメントで「午前にA、午後にB」のように時間帯を提案
 
 ## コメントのルール（最も重要）
-comment_jaとcomment_enには、ユーザーにとって実用的で具体的なアドバイスを1-2文で書いてください。
-以下のようなアドバイスを心がけてください:
-
-- タスクの性質に応じた具体的な行動提案
-  例: 「市役所は平日17時まで。明日の午前中に行くのがおすすめです」
-  例: 「引き落とし日の前日です。残高を確認しておきましょう」
-- 時間のかかるタスクには分割の提案
-  例: 「半日かかるタスクです。今日書類を準備し、明日提出する2段階がおすすめ」
-- 関連タスクのまとめ提案
-  例: 「買い物系が3件あります。週末にまとめて回ると効率的です」
-- 期限に余裕がある場合の着手タイミング提案
-  例: 「期限まで2週間ありますが、写真撮影が先に必要です。来週前半に撮影を」
-- メモの内容を活用した判断
-  例: メモに「平日のみ」→「明後日は土曜なので、明日中に対応しましょう」
-- 所要時間を考慮した提案
-  例: 所要時間1日+期限3日後→「明日1日使って片付けると余裕が持てます」
-
-単に「期限が近いです」のような機械的なコメントは避け、
-ユーザーが「なるほど、そうしよう」と思えるような具体的なアドバイスにしてください。
+comment_ja/comment_enには、実用的で具体的なアドバイスを1-2文で書いてください。
+- 行動提案: 「市役所は平日17時まで。明日の午前中に行くのがおすすめ」
+- 分割提案: 「半日かかります。今日書類準備、明日提出の2段階で」
+- まとめ提案: 「買い物系が3件。週末にまとめて回ると効率的」
+- 着手提案: 「写真撮影が先に必要。来週前半に撮影を」
+- メモ活用: メモに「平日のみ」→「明後日は土曜。明日中に対応を」
+- 時間考慮: 所要時間1日+期限3日後→「明日1日使って片付けましょう」
+- キャパ超え時: 「今日は他の優先タスクがあるので、明日に回しても大丈夫です」
+機械的な「期限が近いです」は避けてください。
 
 ## 通知日の決定ルール
-recommended_notify_datesには、そのタスクについてユーザーに思い出してほしい日を設定してください。
-- 緊急タスク（priority 1）: 当日のみ
-- 手続き・届出系: 期限の3営業日前 + 前営業日（土日を避ける）
-- 支払い系: 引き落とし日の3日前 + 前日
-- 所要時間が「半日」「1日」: 着手推奨日（期限の2-3日前）+ 期限前日
-- 重要度「高」: 通常より1段階早く通知（例: 1週間前にも追加）
-- 通常タスク: 期限の1日前
-- 余裕があるタスク: 期限の1週間前 + 3日前
-- 過去の日付は含めないでください
+recommended_notify_datesにユーザーに思い出してほしい日を設定:
+- 緊急(priority 1): 当日のみ
+- 手続き・届出系: 期限の3営業日前+前営業日
+- 支払い系: 引き落とし3日前+前日
+- 半日/1日タスク: 着手推奨日(期限2-3日前)+期限前日
+- 重要度「高」: 1週間前にも追加
+- 通常: 期限1日前
+- 余裕あり: 1週間前+3日前
+- 過去の日付は含めない
 
 ## タスク分割の提案ルール
-suggested_subtasksには、タスクを分割して進めた方がよい場合に具体的なサブタスク名を提案してください。
-基本方針は「1日でやり切る」。分割はあくまで例外的な提案です。
-- 所要時間が「1日」かつメモに複数ステップが読み取れる場合のみ分割を提案
-- 所要時間が「半日」以下のタスクは原則分割しない
-- 明らかに数日にわたる大型タスク（引越し、確定申告、大掃除等）は積極的に分割
-- 分割不要な大多数のタスクは空配列[]
-- サブタスクは2-4個程度、具体的なアクション名にする
-- 分割タスクだらけにならないよう、全タスクの2割以下に抑える意識で
+- 所要時間「1日」かつメモに複数ステップがある場合のみ
+- 半日以下は原則分割しない
+- 大型タスク(引越し等)は積極的に分割
+- 分割不要なタスクは空配列[]
+- 全タスクの2割以下に抑える
+
+## 質問ルール
+タスクの情報が不十分で適切な判断ができない場合、questionsに質問を入れてください。
+- 最大3件まで
+- 場所、予算、方法など具体的な判断に必要な情報を聞く
+- 質問不要なら空配列[]
+
+## 全体サマリルール
+summary_ja/summary_enに、今日のプランを1-2文でまとめてください。
+例: 「今日は3件に集中。電気代の振込と歯医者の電話を午前中に、午後は書類準備に取りかかりましょう。」
 
 ## 出力形式
-JSON配列で返してください。各要素:
+JSONオブジェクトで返してください:
 {
-  "task_id": <int>,
-  "priority": <1-4>,
-  "comment_ja": "<日本語の実用的アドバイス>",
-  "comment_en": "<英語の実用的アドバイス>",
-  "recommended_notify_dates": ["yyyy-MM-dd", ...],
-  "suggested_subtasks_ja": ["<サブタスク1>", ...],
-  "suggested_subtasks_en": ["<subtask 1>", ...]
+  "summary_ja": "<日本語の全体サマリ>",
+  "summary_en": "<英語の全体サマリ>",
+  "tasks": [
+    {
+      "task_id": <int>,
+      "priority": <1-4>,
+      "comment_ja": "<日本語アドバイス>",
+      "comment_en": "<英語アドバイス>",
+      "recommended_notify_dates": ["yyyy-MM-dd", ...],
+      "suggested_subtasks_ja": [...],
+      "suggested_subtasks_en": [...]
+    }
+  ],
+  "questions_ja": ["<質問1>", ...],
+  "questions_en": ["<question 1>", ...]
 }''';
 
   /// タスクリストをAIで整理する
-  /// [categories] はカテゴリID→名前のマップ（コンテキスト情報としてAIに渡す）
-  static Future<List<AiSortResult>> sortTasks(
+  static Future<AiSortResponse> sortTasks(
     List<Task> tasks, {
     Map<int, String> categoryNames = const {},
+    String? additionalContext,
   }) async {
     if (AppConstants.anthropicApiKey.isEmpty) {
       return _fallbackSort(tasks);
@@ -138,6 +217,12 @@ JSON配列で返してください。各要素:
       };
     }).toList();
 
+    var userPrompt =
+        '今日の日付: $todayStr\n曜日: $dayOfWeek\n\nタスクリスト:\n${jsonEncode(tasksJson)}';
+    if (additionalContext != null) {
+      userPrompt += '\n\n追加情報:\n$additionalContext';
+    }
+
     final requestBody = jsonEncode({
       'model': AppConstants.anthropicModel,
       'max_tokens': 4096,
@@ -149,55 +234,66 @@ JSON配列で返してください。各要素:
         }
       ],
       'messages': [
-        {
-          'role': 'user',
-          'content':
-              '今日の日付: $todayStr\n曜日: $dayOfWeek\n\nタスクリスト:\n${jsonEncode(tasksJson)}',
-        }
+        {'role': 'user', 'content': userPrompt}
       ],
     });
 
-    try {
-      final response = await http
-          .post(
-            Uri.parse(AppConstants.anthropicApiUrl),
-            headers: {
-              'Content-Type': 'application/json',
-              'x-api-key': AppConstants.anthropicApiKey,
-              'anthropic-version': AppConstants.anthropicVersion,
-            },
-            body: requestBody,
-          )
-          .timeout(const Duration(seconds: 30));
+    // リトライ付きAPI呼び出し（最大2回）
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        final response = await http
+            .post(
+              Uri.parse(AppConstants.anthropicApiUrl),
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': AppConstants.anthropicApiKey,
+                'anthropic-version': AppConstants.anthropicVersion,
+              },
+              body: requestBody,
+            )
+            .timeout(const Duration(seconds: 60));
 
-      if (response.statusCode == 429) {
+        if (response.statusCode == 429) {
+          throw const AiServiceException(
+              AiErrorType.rateLimit, 'Rate limited');
+        }
+
+        if (response.statusCode != 200) {
+          throw AiServiceException(
+              AiErrorType.network, 'API error: ${response.statusCode}');
+        }
+
+        return _parseResponse(response.body, tasks);
+      } on AiServiceException {
+        rethrow;
+      } on TimeoutException {
+        if (attempt == 0) {
+          await Future.delayed(const Duration(seconds: 3));
+          continue;
+        }
+        throw const AiServiceException(AiErrorType.network, 'Timeout');
+      } on SocketException {
+        if (attempt == 0) {
+          await Future.delayed(const Duration(seconds: 3));
+          continue;
+        }
         throw const AiServiceException(
-          AiErrorType.rateLimit,
-          'Rate limited',
-        );
+            AiErrorType.network, 'Network error');
+      } catch (e) {
+        debugPrint('AI service error: $e');
+        if (attempt == 0) {
+          await Future.delayed(const Duration(seconds: 3));
+          continue;
+        }
+        return _fallbackSort(tasks);
       }
-
-      if (response.statusCode != 200) {
-        throw AiServiceException(
-          AiErrorType.network,
-          'API error: ${response.statusCode}',
-        );
-      }
-
-      return _parseResponse(response.body, tasks);
-    } on AiServiceException {
-      rethrow;
-    } on TimeoutException {
-      throw const AiServiceException(AiErrorType.network, 'Timeout');
-    } on SocketException {
-      throw const AiServiceException(AiErrorType.network, 'Network error');
-    } catch (_) {
-      return _fallbackSort(tasks);
     }
+
+    return _fallbackSort(tasks);
   }
 
   /// APIレスポンスをパースする
-  static List<AiSortResult> _parseResponse(
+  static AiSortResponse _parseResponse(
       String responseBody, List<Task> tasks) {
     try {
       final json = jsonDecode(responseBody) as Map<String, dynamic>;
@@ -213,42 +309,53 @@ JSON配列で返してください。各要素:
         }
       }
 
-      final results = jsonDecode(jsonStr) as List;
-      return results.map((r) {
+      final parsed = jsonDecode(jsonStr) as Map<String, dynamic>;
+
+      final taskResults = (parsed['tasks'] as List).map((r) {
         final map = r as Map<String, dynamic>;
         return AiSortResult(
           taskId: map['task_id'] as int,
           priority: (map['priority'] as int).clamp(1, 4),
           commentJa: map['comment_ja'] as String?,
           commentEn: map['comment_en'] as String?,
-          recommendedNotifyDates: (map['recommended_notify_dates'] as List?)
-                  ?.cast<String>() ??
-              [],
-          suggestedSubtasksJa: (map['suggested_subtasks_ja'] as List?)
-                  ?.cast<String>() ??
-              [],
-          suggestedSubtasksEn: (map['suggested_subtasks_en'] as List?)
-                  ?.cast<String>() ??
-              [],
+          recommendedNotifyDates:
+              (map['recommended_notify_dates'] as List?)?.cast<String>() ??
+                  [],
+          suggestedSubtasksJa:
+              (map['suggested_subtasks_ja'] as List?)?.cast<String>() ?? [],
+          suggestedSubtasksEn:
+              (map['suggested_subtasks_en'] as List?)?.cast<String>() ?? [],
         );
       }).toList();
+
+      return AiSortResponse(
+        summaryJa: parsed['summary_ja'] as String?,
+        summaryEn: parsed['summary_en'] as String?,
+        tasks: taskResults,
+        questionsJa:
+            (parsed['questions_ja'] as List?)?.cast<String>() ?? [],
+        questionsEn:
+            (parsed['questions_en'] as List?)?.cast<String>() ?? [],
+      );
     } catch (_) {
       return _fallbackSort(tasks);
     }
   }
 
-  /// 期限日ベースのフォールバック優先度計算
-  static List<AiSortResult> _fallbackSort(List<Task> tasks) {
+  /// 期限日ベースのフォールバック
+  static AiSortResponse _fallbackSort(List<Task> tasks) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
+    var p1Count = 0;
 
-    return tasks.map((t) {
+    final results = tasks.where((t) => t.id != null).map((t) {
       final due = DateTime(t.dueDate.year, t.dueDate.month, t.dueDate.day);
       final diff = due.difference(today).inDays;
 
       int priority;
       if (diff <= 0) {
-        priority = 1;
+        priority = p1Count < 3 ? 1 : 2;
+        if (priority == 1) p1Count++;
       } else if (diff <= 3) {
         priority = 2;
       } else if (diff <= 7) {
@@ -257,11 +364,9 @@ JSON配列で返してください。各要素:
         priority = 4;
       }
 
-      // 重要度による調整
       if (t.importance == 2 && priority > 1) priority--;
       if (t.importance == 0 && priority < 4) priority++;
 
-      // フォールバック通知日
       final notifyDates = <String>[];
       if (diff > 0) {
         final oneDayBefore = due.subtract(const Duration(days: 1));
@@ -285,5 +390,11 @@ JSON配列で返してください。各要素:
         recommendedNotifyDates: notifyDates,
       );
     }).toList();
+
+    return AiSortResponse(
+      summaryJa: '期限日に基づいて自動整理しました',
+      summaryEn: 'Auto-sorted by due date',
+      tasks: results,
+    );
   }
 }
