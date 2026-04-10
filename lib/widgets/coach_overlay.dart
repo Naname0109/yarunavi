@@ -85,7 +85,7 @@ Future<void> _showSingleCoach(
               child: Material(
                 color: Colors.transparent,
                 child: Card(
-                  color: Colors.white,
+                  color: Theme.of(ctx).colorScheme.surfaceContainerHighest,
                   elevation: 6,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -98,10 +98,10 @@ Future<void> _showSingleCoach(
                       children: [
                         Text(
                           step.message,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: Theme.of(ctx).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 12),

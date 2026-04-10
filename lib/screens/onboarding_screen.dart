@@ -502,7 +502,7 @@ class _Page2BeforeAfterState extends State<_Page2BeforeAfter>
                                 fontSize: 13, fontWeight: FontWeight.w600)),
                         Text(t.$2,
                             style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: theme.colorScheme.onSurfaceVariant)),
                       ],
                     ),
@@ -897,7 +897,7 @@ class _Page5Premium extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500)),
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500)),
           Text(value,
               style: TextStyle(
                   fontSize: 12,

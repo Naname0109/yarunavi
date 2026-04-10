@@ -1184,6 +1184,18 @@ abstract class AppLocalizations {
   /// **'タスクを追加して、AIに整理してもらおう'**
   String get ob6Desc;
 
+  /// No description provided for @taskLoadError.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクの読み込みに失敗しました'**
+  String get taskLoadError;
+
+  /// No description provided for @aiQuestionAnswer.
+  ///
+  /// In ja, this message translates to:
+  /// **'質問{number}の回答: {answer}'**
+  String aiQuestionAnswer(int number, String answer);
+
   /// No description provided for @aiPremiumBannerTitle.
   ///
   /// In ja, this message translates to:

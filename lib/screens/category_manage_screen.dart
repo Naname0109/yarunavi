@@ -120,7 +120,7 @@ class _CategoryTile extends ConsumerWidget {
           child: Text(
             l10n.categoryDefault,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               color: theme.colorScheme.outline,
             ),
           ),

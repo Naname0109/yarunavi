@@ -100,7 +100,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         Expanded(
           child: tasksAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, _) => Center(child: Text('$error')),
+            error: (_, _) => Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.error_outline,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.error),
+                  const SizedBox(height: 12),
+                  Text(l10n.taskLoadError,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.error,
+                      )),
+                ],
+              ),
+            ),
             data: (tasks) {
               if (tasks.isEmpty) {
                 return Center(

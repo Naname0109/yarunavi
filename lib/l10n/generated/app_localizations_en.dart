@@ -578,6 +578,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ob6Desc => 'Add your tasks and let AI organize them';
 
   @override
+  String get taskLoadError => 'Failed to load tasks';
+
+  @override
+  String aiQuestionAnswer(int number, String answer) {
+    return 'Answer to Q$number: $answer';
+  }
+
+  @override
   String get aiPremiumBannerTitle =>
       'Unlock AI comments, notifications & calendar with Premium';
 

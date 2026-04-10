@@ -347,7 +347,7 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
     for (final entry in _answerControllers.entries) {
       final text = entry.value.text.trim();
       if (text.isNotEmpty) {
-        answers.add('質問${entry.key + 1}の回答: $text');
+        answers.add(l10n.aiQuestionAnswer(entry.key + 1, text));
       }
     }
 

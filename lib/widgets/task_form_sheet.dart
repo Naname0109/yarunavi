@@ -584,7 +584,7 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
     // 無料: ロックして案内 (calendar toggle と同じボトムシート)
     return GestureDetector(
       onTap: () => _showPremiumGate(l10n),
-      child: AbsorbPointer(child: Opacity(opacity: 0.5, child: inner)),
+      child: AbsorbPointer(child: Opacity(opacity: 0.6, child: inner)),
     );
   }
 

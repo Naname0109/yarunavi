@@ -190,6 +190,10 @@
   "ob6Title": "Let's get started",
   "ob6Desc": "Add your tasks and let AI organize them",
 
+  "taskLoadError": "Failed to load tasks",
+
+  "aiQuestionAnswer": "Answer to Q{number}: {answer}",
+
   "aiPremiumBannerTitle": "Unlock AI comments, notifications & calendar with Premium",
   "aiPremiumBannerDesc": "50 AI sorts/month, auto-notifications, calendar sync, no ads",
   "aiPremiumBannerButton": "Start 7-day free trial →",

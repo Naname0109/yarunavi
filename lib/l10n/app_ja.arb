@@ -406,6 +406,17 @@
   "ob6Desc": "タスクを追加して、AIに整理してもらおう",
   "@ob6Desc": {},
 
+  "taskLoadError": "タスクの読み込みに失敗しました",
+  "@taskLoadError": {},
+
+  "aiQuestionAnswer": "質問{number}の回答: {answer}",
+  "@aiQuestionAnswer": {
+    "placeholders": {
+      "number": { "type": "int" },
+      "answer": { "type": "String" }
+    }
+  },
+
   "aiPremiumBannerTitle": "プレミアムならAIコメント・通知・カレンダーが使えます",
   "@aiPremiumBannerTitle": {},
   "aiPremiumBannerDesc": "AI整理 月50回、通知自動設定、カレンダー連携、広告なし",

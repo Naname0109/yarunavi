@@ -570,6 +570,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ob6Desc => 'タスクを追加して、AIに整理してもらおう';
 
   @override
+  String get taskLoadError => 'タスクの読み込みに失敗しました';
+
+  @override
+  String aiQuestionAnswer(int number, String answer) {
+    return '質問$numberの回答: $answer';
+  }
+
+  @override
   String get aiPremiumBannerTitle => 'プレミアムならAIコメント・通知・カレンダーが使えます';
 
   @override
