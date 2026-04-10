@@ -363,26 +363,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get storeStoreUnavailable => 'ストアに接続できません';
 
   @override
-  String get onboardingTitle1 => 'タスク名と期限を入れるだけ';
-
-  @override
-  String get onboardingDesc1 => '複雑な設定は不要。\nタスク名と期限日を入力するだけで\nすぐに使い始められます。';
-
-  @override
-  String get onboardingTitle2 => 'AIが優先順位を整理';
-
-  @override
-  String get onboardingDesc2 =>
-      '「何から手をつければいい？」を\nAIがあなたに代わって考えます。\n期限やカテゴリから最適な順番を提案。';
-
-  @override
-  String get onboardingTitle3 => 'やるべき日に通知でお知らせ';
-
-  @override
-  String get onboardingDesc3 =>
-      '期限が近づいたらプッシュ通知。\n「忘れてた！」をなくします。\n通知を許可して便利に使いましょう。';
-
-  @override
   String get onboardingSkip => 'スキップ';
 
   @override
@@ -390,6 +370,320 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get onboardingStart => 'はじめる';
+
+  @override
+  String get ob1Title => 'やることを入れるだけ';
+
+  @override
+  String get ob1Desc => 'タスク名と期限を入れるだけ。メモも追加できます';
+
+  @override
+  String get ob1Sub => '頭の中のやることを全部ここに';
+
+  @override
+  String get ob1Task1 => '家賃振込';
+
+  @override
+  String get ob1Task2 => '免許更新';
+
+  @override
+  String get ob1Task3 => '日用品買い出し';
+
+  @override
+  String get ob1Task4 => '確定申告の書類準備...';
+
+  @override
+  String get ob2Title => 'AIが整理してくれる';
+
+  @override
+  String get ob2Desc => 'AIが優先順位を判断し、具体的なアドバイス付きで整理';
+
+  @override
+  String get ob2BeforeLabel => '整理前';
+
+  @override
+  String get ob2BeforeTask1 => '本を読む';
+
+  @override
+  String get ob2BeforeDate1 => '5/1';
+
+  @override
+  String get ob2BeforeTask2 => '家賃振込';
+
+  @override
+  String get ob2BeforeDate2 => '明日';
+
+  @override
+  String get ob2BeforeTask3 => 'パスポート更新';
+
+  @override
+  String get ob2BeforeDate3 => '5/20';
+
+  @override
+  String get ob2BeforeTask4 => '週報提出';
+
+  @override
+  String get ob2BeforeDate4 => '今日';
+
+  @override
+  String get ob2BeforeTask5 => '日用品買い出し';
+
+  @override
+  String get ob2BeforeDate5 => '4/18';
+
+  @override
+  String get ob2AfterUrgent => '今すぐやるべき';
+
+  @override
+  String get ob2AfterWarning => '今週中に';
+
+  @override
+  String get ob2AfterNormal => '来週以降';
+
+  @override
+  String get ob2AfterRelaxed => '急がない';
+
+  @override
+  String get ob2AfterTask1 => '週報提出';
+
+  @override
+  String get ob2AfterComment1 => '今日中に提出。午前中がおすすめ';
+
+  @override
+  String get ob2AfterTask2 => '家賃振込';
+
+  @override
+  String get ob2AfterComment2 => '明日が期限。ネットバンキングで今日中に';
+
+  @override
+  String get ob2AfterTask3 => '日用品買い出し';
+
+  @override
+  String get ob2AfterComment3 => '週末にまとめ買いが効率的';
+
+  @override
+  String get ob2AfterTask4 => 'パスポート更新';
+
+  @override
+  String get ob2AfterComment4 => '窓口は平日のみ。来週の午前中に';
+
+  @override
+  String get ob2AfterTask5 => '本を読む';
+
+  @override
+  String get ob2AfterComment5 => '余裕あり。週末のリラックスタイムに';
+
+  @override
+  String get ob3Title => 'カレンダーで実行日が見える';
+
+  @override
+  String get ob3Desc => 'いつやるかが一目でわかる。\nAIが最適な実行日を提案します';
+
+  @override
+  String get ob3LegendUrgent => '緊急';
+
+  @override
+  String get ob3LegendWeek => '今週';
+
+  @override
+  String get ob3LegendLater => '来週〜';
+
+  @override
+  String get ob4Title => '通知で忘れない';
+
+  @override
+  String get ob4Desc => 'AIが最適なタイミングで通知。\n必要な日だけお知らせ';
+
+  @override
+  String get ob4Sub => 'やることがない日は静かです';
+
+  @override
+  String get ob4Notify1 => '家賃振込 — ネットバンキングで今日中に';
+
+  @override
+  String get ob4NotifyPrevDay => 'YaruNavi  前日 9:00 AM';
+
+  @override
+  String get ob4Notify2 => '日用品買い出し — 明日の買い物リストを確認';
+
+  @override
+  String get ob5Title => 'プレミアムでもっと便利に';
+
+  @override
+  String get ob5Free => '無料';
+
+  @override
+  String get ob5AiSort => 'AI整理';
+
+  @override
+  String get ob5Tasks => 'タスク';
+
+  @override
+  String get ob5Notify => '通知';
+
+  @override
+  String get ob5Calendar => 'カレンダー';
+
+  @override
+  String get ob5AiComment => 'AIコメント';
+
+  @override
+  String get ob5Ads => '広告';
+
+  @override
+  String get ob5FreeAi => '月2回';
+
+  @override
+  String get ob5FreeTasks => '10件まで';
+
+  @override
+  String get ob5PremiumAi => '月50回';
+
+  @override
+  String get ob5PremiumTasks => '無制限';
+
+  @override
+  String get ob5PremiumNotify => '自動設定';
+
+  @override
+  String get ob5PremiumCalendar => '連携可';
+
+  @override
+  String get ob5PremiumComment => '全表示';
+
+  @override
+  String get ob5PremiumAds => '非表示';
+
+  @override
+  String get ob5Price => '月額¥580 / 年額¥4,200（40%おトク）';
+
+  @override
+  String get ob5TrialButton => '7日間無料で試す';
+
+  @override
+  String get ob5FreeButton => 'まずは無料で始める';
+
+  @override
+  String get ob6Title => 'さあ、始めましょう';
+
+  @override
+  String get ob6Desc => 'タスクを追加して、AIに整理してもらおう';
+
+  @override
+  String get aiPremiumBannerTitle => 'プレミアムならAIコメント・通知・カレンダーが使えます';
+
+  @override
+  String get aiPremiumBannerDesc => 'AI整理 月50回、通知自動設定、カレンダー連携、広告なし';
+
+  @override
+  String get aiPremiumBannerButton => '7日間無料で試す →';
+
+  @override
+  String get aiLimitUpgradeHint => 'AIの整理をもっと使いたい方へ';
+
+  @override
+  String get aiLimitUpgradeDesc => 'プレミアムなら月50回のAI整理、通知自動設定、カレンダー連携が使えます';
+
+  @override
+  String get settingsReplayOnboarding => '操作ガイドを再表示';
+
+  @override
+  String get coachAddTask => 'ここからタスクを追加';
+
+  @override
+  String get coachAiSort => 'AIがタスクの優先順位を整理します';
+
+  @override
+  String get coachFilterTabs => 'タブで表示を切り替えられます';
+
+  @override
+  String get coachCalendarToggle => 'カレンダー表示にも切り替えられます';
+
+  @override
+  String get coachNext => '次へ';
+
+  @override
+  String get coachDone => 'OK';
+
+  @override
+  String get tabList => 'タスク';
+
+  @override
+  String get tabCalendar => 'カレンダー';
+
+  @override
+  String get notifyPremiumOnly => 'プレミアムで通知を設定';
+
+  @override
+  String get notifyPremiumOnlySnack => '通知設定はプレミアム機能です';
+
+  @override
+  String get proBadge => 'PRO';
+
+  @override
+  String get aiNotifyPremiumPrompt => 'プレミアムで通知を受け取れます';
+
+  @override
+  String get aiSortMonthlyLimitReached => '今月のAI整理上限に達しました。来月リセットされます';
+
+  @override
+  String get premiumGateTitle => '🔔 通知 / 📅 カレンダー連携はプレミアムで';
+
+  @override
+  String get premiumGateDesc =>
+      'プレミアムに登録すると、AIが最適な通知日を自動設定、タスクをカレンダーに追加、広告非表示、AI整理 月50回まで利用できます。';
+
+  @override
+  String get premiumGateUpgrade => 'プレミアムに登録して今すぐ設定する';
+
+  @override
+  String get premiumGateLater => 'あとで';
+
+  @override
+  String aiNotifyOn(String date) {
+    return '$date に通知する';
+  }
+
+  @override
+  String get aiCalendarAdd => 'カレンダーに追加';
+
+  @override
+  String get aiCalendarAdded => 'カレンダーに追加しました';
+
+  @override
+  String get notifyScheduled => '通知をセットしました';
+
+  @override
+  String get notifyScheduledLabel => '通知予定';
+
+  @override
+  String get aiAutoNotifyHint => 'AIが整理時に通知日を決定します';
+
+  @override
+  String get calendarAddedBadge => 'カレンダー追加済み';
+
+  @override
+  String get aiNotOrganizedHint => 'AIで整理するとアドバイスが表示されます';
+
+  @override
+  String get aiCommentLockedHint => 'プレミアムでAIコメントを見る';
+
+  @override
+  String recommendedDateHint(String date) {
+    return '📌 $date にやるのがおすすめ';
+  }
+
+  @override
+  String get calendarSectionRecommended => '📋 この日にやるべきタスク';
+
+  @override
+  String get calendarSectionDue => '⏰ この日が期限のタスク';
+
+  @override
+  String get taskCardEdit => '編集';
+
+  @override
+  String get aiAutoNotifyHintFull => 'プレミアムなら整理時に通知も自動セットされます';
 
   @override
   String get settingsAccount => 'アカウント';
@@ -531,6 +825,21 @@ class AppLocalizationsJa extends AppLocalizations {
   String get debugConfirmDeleteAndInsert => '全データを削除してテストデータを投入しますか？';
 
   @override
+  String get debugAiTestData => 'AI整理テストデータ';
+
+  @override
+  String get debugAiTestDataTitle => 'AI整理テストデータ投入（15件固定）';
+
+  @override
+  String get debugAiTestDataDesc => '全データ削除後、AI評価用の固定テストデータを投入';
+
+  @override
+  String get debugAiTestDataConfirm => '全データを削除してAI評価用の15件を投入します。よろしいですか？';
+
+  @override
+  String get debugAiTestDataInserted => 'AI整理テストデータ（15件）を投入しました';
+
+  @override
   String get aiTodayPlan => '今日のプラン';
 
   @override
@@ -600,4 +909,87 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get storeRecommended => 'おすすめ';
+
+  @override
+  String get calendarNoTasks => 'この日のタスクはありません';
+
+  @override
+  String get calendarToday => '今日';
+
+  @override
+  String get swipeComplete => '完了';
+
+  @override
+  String get swipeDelete => '削除';
+
+  @override
+  String get swipeUndo => '戻す';
+
+  @override
+  String get reorderHint => '長押しでドラッグして並び替え';
+
+  @override
+  String get categoryManageTitle => 'カテゴリ管理';
+
+  @override
+  String get categoryAdd => 'カテゴリを追加';
+
+  @override
+  String get categoryEdit => 'カテゴリを編集';
+
+  @override
+  String get categoryDefault => 'デフォルト';
+
+  @override
+  String get categoryEmpty => 'カテゴリがありません';
+
+  @override
+  String get categoryNameLabel => 'カテゴリ名';
+
+  @override
+  String get categoryNameHint => '例: 健康、趣味';
+
+  @override
+  String get categoryIconLabel => 'アイコンを選択';
+
+  @override
+  String get categoryDeleteTitle => 'カテゴリを削除';
+
+  @override
+  String get categoryDeleteMessage => 'このカテゴリに割り当てられたタスクのカテゴリは未設定になります。削除しますか？';
+
+  @override
+  String get devModeSection => '開発者モード';
+
+  @override
+  String get devModeAiUnlimited => 'AI回数制限を無視';
+
+  @override
+  String get devModeAiUnlimitedDesc => 'ONでAI整理の回数制限をスキップ';
+
+  @override
+  String get devModePremium => 'プレミアム機能を解放';
+
+  @override
+  String get devModePremiumDesc => 'ONで全FeatureGateを解除';
+
+  @override
+  String get devModeResetAiUsage => 'AI使用回数リセット';
+
+  @override
+  String get devModeResetAiUsageDesc => '当月のAI使用回数をリセットします';
+
+  @override
+  String get devModeResetAiUsageDone => 'AI使用回数をリセットしました';
+
+  @override
+  String get devModeConfirmResetAiUsage => '当月のAI使用回数をリセットしますか？';
+
+  @override
+  String get devModeEnabled => '開発者モードが有効になりました';
+
+  @override
+  String devModeRemaining(int count) {
+    return 'あと$count回タップで開発者モード';
+  }
 }

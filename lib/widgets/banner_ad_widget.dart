@@ -30,10 +30,13 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
       request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
+          debugPrint('[BannerAd] loaded (test mode: $kDebugMode)');
           if (mounted) setState(() => _isLoaded = true);
         },
         onAdFailedToLoad: (ad, error) {
-          debugPrint('BannerAd failed to load: $error');
+          debugPrint(
+            '[BannerAd] failed to load: code=${error.code} domain=${error.domain} msg=${error.message}',
+          );
           ad.dispose();
           _bannerAd = null;
         },

@@ -8,7 +8,7 @@ class AppTheme {
         useMaterial3: true,
         brightness: Brightness.light,
         colorSchemeSeed: AppColors.primaryLight,
-        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+        scaffoldBackgroundColor: AppColors.backgroundLight,
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
           foregroundColor: AppColors.textPrimaryLight,
@@ -18,7 +18,7 @@ class AppTheme {
         cardTheme: CardThemeData(
           color: Colors.white,
           elevation: 1,
-          shadowColor: Colors.black.withValues(alpha: 0.08),
+          shadowColor: Colors.black.withValues(alpha: 0.10),
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -37,7 +37,7 @@ class AppTheme {
           ),
         ),
         dividerTheme: DividerThemeData(
-          color: Colors.grey.withValues(alpha: 0.15),
+          color: Colors.grey.withValues(alpha: 0.20),
           space: 1,
         ),
         inputDecorationTheme: InputDecorationTheme(

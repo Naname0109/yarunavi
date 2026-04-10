@@ -16,6 +16,11 @@ class AiSortResult {
   final String? commentJa;
   final String? commentEn;
   final List<String> recommendedNotifyDates;
+  final String? notifyDate;
+  final String? notifyReasonJa;
+  final String? notifyReasonEn;
+  final String? recommendedStart;
+  final String? recommendedEnd;
   final List<String> suggestedSubtasksJa;
   final List<String> suggestedSubtasksEn;
 
@@ -25,6 +30,11 @@ class AiSortResult {
     this.commentJa,
     this.commentEn,
     this.recommendedNotifyDates = const [],
+    this.notifyDate,
+    this.notifyReasonJa,
+    this.notifyReasonEn,
+    this.recommendedStart,
+    this.recommendedEnd,
     this.suggestedSubtasksJa = const [],
     this.suggestedSubtasksEn = const [],
   });
@@ -35,6 +45,11 @@ class AiSortResult {
         'comment_ja': commentJa,
         'comment_en': commentEn,
         'recommended_notify_dates': recommendedNotifyDates,
+        'notify_date': notifyDate,
+        'notify_reason_ja': notifyReasonJa,
+        'notify_reason_en': notifyReasonEn,
+        'recommended_start': recommendedStart,
+        'recommended_end': recommendedEnd,
         'suggested_subtasks_ja': suggestedSubtasksJa,
         'suggested_subtasks_en': suggestedSubtasksEn,
       };
@@ -78,6 +93,11 @@ class AiSortResponse {
               recommendedNotifyDates:
                   (map['recommended_notify_dates'] as List?)?.cast<String>() ??
                       [],
+              notifyDate: map['notify_date'] as String?,
+              notifyReasonJa: map['notify_reason_ja'] as String?,
+              notifyReasonEn: map['notify_reason_en'] as String?,
+              recommendedStart: map['recommended_start'] as String?,
+              recommendedEnd: map['recommended_end'] as String?,
               suggestedSubtasksJa:
                   (map['suggested_subtasks_ja'] as List?)?.cast<String>() ??
                       [],
@@ -106,68 +126,123 @@ class AiServiceException implements Exception {
 
 class AiService {
   static const _systemPrompt =
-      '''あなたはタスク管理の専門家であり、ユーザーの生活をサポートするパーソナルアシスタントです。
-ユーザーのタスクリストを受け取り、優先順位の整理、実用的なアドバイス、通知日の提案を行ってください。
+      '''あなたはタスク管理の専門家であり、ユーザーの日常生活をサポートするパーソナルアシスタントです。
+ユーザーのタスクリストを受け取り、優先順位付け・具体的アドバイス・通知日の提案を行ってください。
+必ず以下のルールに厳密に従ってください。
 
-## 分類ルール
-- priority 1（今日これだけやろう）: 今日最優先で着手すべき1-3件に限定
-  - 期限切れ・今日期限でも、重要度「低」や所要時間「5分」はpriority 2に
-  - 1日にpriority 1は最大3件まで
-  - 所要時間の合計が8時間を超えないよう配慮
-- priority 2（今週のうちに片付けよう）: 期限まで1-7日
-- priority 3（来週以降でOK）: 期限まで8日以上
-- priority 4（忘れずにキープ）: 余裕がある、または定期タスクの将来分
+## 分類ルール（priority 1〜4）
+まず期限日(due_date)と今日の日付の差分(残日数)で基本priorityを決め、その後importanceで調整する。
 
-## 重要度の考慮
+基本priority（残日数ベース）:
+- 残0日以下(今日期限・期限切れ) → priority 1
+- 残1〜3日 → priority 1〜2（所要時間が長いものや重要度高は1）
+- 残4〜7日 → priority 2
+- 残8〜14日 → priority 3
+- 残15日以上 → priority 4
+
+importance調整:
 - importance=2（高）: priorityを1段階上げる（最高は1）
 - importance=0（低）: priorityを1段階下げる（最低は4）
 
-## 1日のタスク配分ルール
-- 5分タスク5件+1時間タスク1件=十分こなせる
-- 半日タスク2件=1件は明日に回す提案をする
-- コメントで「午前にA、午後にB」のように時間帯を提案
+追加ルール:
+- priority 1が多すぎる場合(5件超): 重要度「低」や所要時間「5min」のタスクはpriority 2に下げてよい
+- 定期タスク(recurrence_type非null)の今日期限分は必ずpriority 1
+- 1日のpriority 1タスクは現実的にこなせる量に（目安: 合計所要時間8時間以内）
 
-## コメントのルール（最も重要）
-comment_ja/comment_enには、実用的で具体的なアドバイスを1-2文で書いてください。
-- 行動提案: 「市役所は平日17時まで。明日の午前中に行くのがおすすめ」
-- 分割提案: 「半日かかります。今日書類準備、明日提出の2段階で」
-- まとめ提案: 「買い物系が3件。週末にまとめて回ると効率的」
-- 着手提案: 「写真撮影が先に必要。来週前半に撮影を」
-- メモ活用: メモに「平日のみ」→「明後日は土曜。明日中に対応を」
-- 時間考慮: 所要時間1日+期限3日後→「明日1日使って片付けましょう」
-- キャパ超え時: 「今日は他の優先タスクがあるので、明日に回しても大丈夫です」
-機械的な「期限が近いです」は避けてください。
+## カテゴリ別コメントガイドライン（最も重要）
+comment_ja/comment_enには、カテゴリとタスクの性質に応じた具体的・実用的なアドバイスを1-2文で書く。
+機械的な「期限が近いです」「重要なタスクです」「早めに対応しましょう」は絶対に禁止。
 
-## 通知日の決定ルール
-recommended_notify_datesにユーザーに思い出してほしい日を設定:
-- 緊急(priority 1): 当日のみ
-- 手続き・届出系: 期限の3営業日前+前営業日
-- 支払い系: 引き落とし3日前+前日
-- 半日/1日タスク: 着手推奨日(期限2-3日前)+期限前日
-- 重要度「高」: 1週間前にも追加
-- 通常: 期限1日前
-- 余裕あり: 1週間前+3日前
+### 支払い・お金カテゴリ:
+- 銀行振込: 「ネットバンキングなら今日中に完了できます。窓口は15時までなので午前中がおすすめ」
+- クレジットカード: 「引き落とし口座の残高を確認し、不足なら前日までに入金を」
+- 税金(住民税等): 「コンビニ払いなら24時間対応。期限日が土曜なので金曜までに済ませましょう」
+- 共通: 振込手数料、引き落とし日、口座残高への言及を含める
+
+### 手続き・届出カテゴリ:
+- 免許更新・パスポート: 「窓口は平日のみ、混雑を避けて午前中がおすすめ。必要書類を事前確認」
+- 確定申告: 「書類準備に時間がかかります。領収書整理→計算→記入の順で進めましょう」
+- 共通: 営業日・窓口時間・必要書類・事前準備への言及を含める
+
+### 買い物カテゴリ:
+- 同カテゴリの買い物タスクが複数ある場合: 「日用品とプレゼント選びをまとめて週末に買い物に行くと効率的」
+- 日用品: 「リストを事前に作成して買い忘れ防止。近所のお店でまとめ買いが効率的」
+- プレゼント: 「予算と相手の好みを整理してから探すと迷いません」
+
+### 家事カテゴリ:
+- 大掃除: 「一度にやらず、場所ごとに分けて数日かけると負担が軽い」
+- 掃除系: 「所要時間は短め。他のタスクの合間に片付けられます」
+
+### 仕事カテゴリ:
+- 企画書・資料作成: 「テンプレートがあれば構成から着手。集中できる午前中がおすすめ」
+- 週報・定期提出物: 「ルーティン化して毎週同じ時間帯に処理するのがコツ」
+
+### その他カテゴリ:
+- 予約系(歯医者等): 「電話予約は診療時間内に。平日午前が繋がりやすい」
+- 読書・運動: 「気軽に始められるタスク。スキマ時間を活用しましょう」
+
+### メモ活用ルール:
+- メモに「平日のみ」→ 期限日が土日なら「○日は△曜日です。前日の金曜までに対応を」
+- メモに「事前予約が必要」→ 「先に予約を入れてから当日に備えましょう」
+- メモに予算情報 → コメントに予算への言及を含める
+- メモに具体的な手順 → 手順に沿ったアドバイスを提供
+
+## 推奨実行期間 (recommended_start / recommended_end) の決定ルール
+- 形式: yyyy-MM-dd
+- 制約: today ≤ start ≤ end ≤ due_date（厳守）
+- startが過去日にならないこと（最低でもtoday）
+- endがdue_dateを超えないこと
+
+priority別の基準:
+- priority 1: start = today, end = today
+- priority 2: start = todayまたはtomorrow, end = due_dateの1〜2日前（最低でもstart以降）
+- priority 3: start = 3〜5日後, end = due_dateの2〜3日前
+- priority 4: start = 7〜14日後, end = due_dateの5〜7日前
+
+特殊ルール:
+- 手続き系(窓口必要): startとendは平日(月〜金)に設定。土日は避ける
+- 支払い系: endは引き落とし日の前日以前（前営業日が理想）
+- 所要時間が「1day」以上: start〜endの幅を2日以上確保
+- ピンポイント（1日で終わる）: start = end の同じ日付
+
+## 通知日 (notify_date) の決定ルール
+- 形式: yyyy-MM-dd（1つだけ設定）
+- 通知理由を notify_reason_ja / notify_reason_en に1行で記載
+- 過去の日付は絶対に設定しない（最低でもtoday）
+
+カテゴリ別基準:
+- 支払い系: 引き落とし日の2日前（口座残高確認のため）
+- 手続き系: 期限の前営業日（窓口が平日のみのため）
+- priority 1(今日期限): today（当日通知）
+- priority 2(今週中): 期限の1〜2日前
+- priority 3(来週以降): 期限の3日前
+- priority 4(余裕あり): 期限の5〜7日前
+
+## recommended_notify_dates (補助的な複数日)
+- 緊急(priority 1): [today] のみ
+- 手続き・届出系: [期限の3営業日前, 前営業日]
+- 支払い系: [引き落とし3日前, 前日]
+- 重要度「高」(importance=2): 上記に加え1週間前も追加
+- 通常: [期限1日前]
+- 余裕あり: [1週間前, 3日前]
 - 過去の日付は含めない
 
 ## タスク分割の提案ルール
-- 所要時間「1日」かつメモに複数ステップがある場合のみ
-- 半日以下は原則分割しない
-- 大型タスク(引越し等)は積極的に分割
+- 所要時間「1day」以上かつメモに複数ステップがあるタスクのみ
+- 半日以下のタスクは原則分割しない
 - 分割不要なタスクは空配列[]
 - 全タスクの2割以下に抑える
 
 ## 質問ルール
-タスクの情報が不十分で適切な判断ができない場合、questionsに質問を入れてください。
-- 最大3件まで
-- 場所、予算、方法など具体的な判断に必要な情報を聞く
+- 情報不足で判断が困難な場合のみ、最大3件まで
 - 質問不要なら空配列[]
 
 ## 全体サマリルール
-summary_ja/summary_enに、今日のプランを1-2文でまとめてください。
-例: 「今日は3件に集中。電気代の振込と歯医者の電話を午前中に、午後は書類準備に取りかかりましょう。」
+summary_ja/summary_enに今日のアクションプランを1-2文で具体的にまとめる。
+例: 「今日は家賃振込と週報提出を午前中に済ませ、午後は企画書作成に集中しましょう。」
 
 ## 出力形式
-JSONオブジェクトで返してください:
+以下のJSON形式で返してください。マークダウンの```で囲まないでください。
 {
   "summary_ja": "<日本語の全体サマリ>",
   "summary_en": "<英語の全体サマリ>",
@@ -175,16 +250,36 @@ JSONオブジェクトで返してください:
     {
       "task_id": <int>,
       "priority": <1-4>,
-      "comment_ja": "<日本語アドバイス>",
-      "comment_en": "<英語アドバイス>",
+      "comment_ja": "<日本語アドバイス1-2文>",
+      "comment_en": "<英語アドバイス1-2文>",
       "recommended_notify_dates": ["yyyy-MM-dd", ...],
-      "suggested_subtasks_ja": [...],
-      "suggested_subtasks_en": [...]
+      "notify_date": "yyyy-MM-dd",
+      "notify_reason_ja": "<通知理由1行>",
+      "notify_reason_en": "<notify reason one line>",
+      "recommended_start": "yyyy-MM-dd",
+      "recommended_end": "yyyy-MM-dd",
+      "suggested_subtasks_ja": [],
+      "suggested_subtasks_en": []
     }
   ],
-  "questions_ja": ["<質問1>", ...],
-  "questions_en": ["<question 1>", ...]
-}''';
+  "questions_ja": [],
+  "questions_en": []
+}
+
+## 良い出力例（few-shot）
+タスク: 家賃振込（明日期限、カテゴリ: お金、importance: 2）
+→ priority: 1, comment_ja: "明日が振込期限です。ネットバンキングなら今日中に完了できます。窓口は15時までなので午前中の手続きがおすすめ。"
+
+タスク: 免許更新（10日後期限、カテゴリ: 手続き、メモ: 平日のみ対応可）
+→ priority: 3, comment_ja: "免許センターは平日のみ営業。混雑を避けて午前中に行くのがおすすめです。写真持参を忘れずに。"
+
+タスク: 住民税支払い（6日後の土曜期限、カテゴリ: お金）
+→ priority: 2, comment_ja: "期限日は土曜です。銀行窓口は平日15時まで。コンビニ払いなら土曜でもOKですが、余裕を持って金曜までに。"
+
+## 悪い出力例（これらは禁止）
+- "期限が近いので早めに対応しましょう" → 具体性がない
+- "重要なタスクです" → 当たり前すぎる
+- "頑張りましょう" → アドバイスになっていない''';
 
   /// タスクリストをAIで整理する
   static Future<AiSortResponse> sortTasks(
@@ -226,6 +321,7 @@ JSONオブジェクトで返してください:
     final requestBody = jsonEncode({
       'model': AppConstants.anthropicModel,
       'max_tokens': 4096,
+      'temperature': 0.3,
       'system': [
         {
           'type': 'text',
@@ -310,23 +406,73 @@ JSONオブジェクトで返してください:
       }
 
       final parsed = jsonDecode(jsonStr) as Map<String, dynamic>;
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final validTaskIds = tasks.map((t) => t.id).toSet();
+      final taskDueDates = <int, DateTime>{};
+      for (final t in tasks) {
+        if (t.id != null) taskDueDates[t.id!] = t.dueDate;
+      }
 
       final taskResults = (parsed['tasks'] as List).map((r) {
         final map = r as Map<String, dynamic>;
+
+        // task_idの型安全なパース（AIがstringで返す場合への対応）
+        final rawId = map['task_id'];
+        final taskId = rawId is int ? rawId : int.tryParse('$rawId') ?? -1;
+
+        // priorityの型安全なパース
+        final rawPriority = map['priority'];
+        final priority = rawPriority is int
+            ? rawPriority.clamp(1, 4)
+            : (int.tryParse('$rawPriority') ?? 2).clamp(1, 4);
+
+        // 日付バリデーション
+        final dueDate = taskDueDates[taskId];
+
+        final startResult = _validateDate(
+            map['recommended_start'] as String?, today, dueDate);
+        final endResult = _validateDate(
+            map['recommended_end'] as String?, today, dueDate);
+
+        String? startStr = startResult?.$2;
+        String? endStr = endResult?.$2;
+
+        // start <= end の保証
+        if (startResult != null && endResult != null &&
+            startResult.$1.isAfter(endResult.$1)) {
+          endStr = startStr;
+        }
+
+        final notifyResult = _validateDate(
+            map['notify_date'] as String?, today, dueDate);
+        final notifyDate = notifyResult?.$2;
+
+        final rawNotifyDates =
+            (map['recommended_notify_dates'] as List?)?.cast<String>() ?? [];
+        final validNotifyDates = rawNotifyDates
+            .map((d) => _validateDate(d, today, dueDate)?.$2)
+            .where((d) => d != null)
+            .cast<String>()
+            .toList();
+
         return AiSortResult(
-          taskId: map['task_id'] as int,
-          priority: (map['priority'] as int).clamp(1, 4),
+          taskId: taskId,
+          priority: priority,
           commentJa: map['comment_ja'] as String?,
           commentEn: map['comment_en'] as String?,
-          recommendedNotifyDates:
-              (map['recommended_notify_dates'] as List?)?.cast<String>() ??
-                  [],
+          recommendedNotifyDates: validNotifyDates,
+          notifyDate: notifyDate,
+          notifyReasonJa: map['notify_reason_ja'] as String?,
+          notifyReasonEn: map['notify_reason_en'] as String?,
+          recommendedStart: startStr,
+          recommendedEnd: endStr,
           suggestedSubtasksJa:
               (map['suggested_subtasks_ja'] as List?)?.cast<String>() ?? [],
           suggestedSubtasksEn:
               (map['suggested_subtasks_en'] as List?)?.cast<String>() ?? [],
         );
-      }).toList();
+      }).where((r) => validTaskIds.contains(r.taskId)).toList();
 
       return AiSortResponse(
         summaryJa: parsed['summary_ja'] as String?,
@@ -337,16 +483,38 @@ JSONオブジェクトで返してください:
         questionsEn:
             (parsed['questions_en'] as List?)?.cast<String>() ?? [],
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('AI response parse error: $e');
       return _fallbackSort(tasks);
     }
+  }
+
+  /// 日付文字列をバリデーションし、(正規化DateTime, フォーマット済み文字列)を返す。
+  /// 無効な入力にはnullを返す。過去日はtodayに、dueDate超過はdueDateに補正。
+  static (DateTime, String)? _validateDate(
+      String? dateStr, DateTime today, DateTime? dueDate) {
+    if (dateStr == null || dateStr.isEmpty) return null;
+    final dt = DateTime.tryParse(dateStr);
+    if (dt == null) return null;
+
+    var validated = DateTime(dt.year, dt.month, dt.day);
+    if (validated.isBefore(today)) {
+      validated = today;
+    }
+    if (dueDate != null) {
+      final dueDateNorm =
+          DateTime(dueDate.year, dueDate.month, dueDate.day);
+      if (validated.isAfter(dueDateNorm)) {
+        validated = dueDateNorm;
+      }
+    }
+    return (validated, app_date.formatDateForDb(validated));
   }
 
   /// 期限日ベースのフォールバック
   static AiSortResponse _fallbackSort(List<Task> tasks) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    var p1Count = 0;
 
     final results = tasks.where((t) => t.id != null).map((t) {
       final due = DateTime(t.dueDate.year, t.dueDate.month, t.dueDate.day);
@@ -354,8 +522,7 @@ JSONオブジェクトで返してください:
 
       int priority;
       if (diff <= 0) {
-        priority = p1Count < 3 ? 1 : 2;
-        if (priority == 1) p1Count++;
+        priority = 1;
       } else if (diff <= 3) {
         priority = 2;
       } else if (diff <= 7) {
@@ -388,6 +555,11 @@ JSONオブジェクトで返してください:
         taskId: t.id!,
         priority: priority,
         recommendedNotifyDates: notifyDates,
+        notifyDate: notifyDates.isNotEmpty ? notifyDates.first : null,
+        notifyReasonJa: '期限日に基づく自動推奨',
+        notifyReasonEn: 'Auto-suggested based on due date',
+        recommendedStart: app_date.formatDateForDb(due),
+        recommendedEnd: app_date.formatDateForDb(due),
       );
     }).toList();
 

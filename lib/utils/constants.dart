@@ -11,11 +11,10 @@ class AppConstants {
   // Free tier limits
   static const int freeTaskLimit = 10;
   static const int freeRecurringTaskLimit = 1;
-  static const int freeCategoryLimit = 2;
-  static const int freeAiSortMonthlyLimit = 3;
+  static const int freeAiSortMonthlyLimit = 2;
 
-  // Premium limits
-  static const int premiumAiSortDailyLimit = 5;
+  // Premium limits (1日上限は撤廃。月間のみ)
+  static const int premiumAiSortMonthlyLimit = 50;
 
   // Anthropic API
   // APIキーはビルド時に --dart-define=ANTHROPIC_API_KEY=xxx で注入

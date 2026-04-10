@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,21 +13,58 @@ import '../l10n/generated/app_localizations.dart';
 import '../providers/purchase_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/task_provider.dart';
+import '../providers/dev_mode_provider.dart';
 import '../utils/constants.dart';
 import '../utils/test_data.dart';
 import '../widgets/banner_ad_widget.dart';
+import '../widgets/coach_overlay.dart';
+import '../providers/secure_storage_provider.dart';
+import '../services/secure_storage_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/responsive_wrapper.dart';
 
-class SettingsScreen extends ConsumerWidget {
+/// 開発者モード解放状態（バージョン7回タップで有効化）
+final _devModeEnabledProvider = StateProvider<bool>((ref) => false);
+
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  int _versionTapCount = 0;
+
+  void _onVersionTap() {
+    _versionTapCount++;
+    final l10n = AppLocalizations.of(context)!;
+
+    if (_versionTapCount >= 7) {
+      ref.read(_devModeEnabledProvider.notifier).state = true;
+      _versionTapCount = 0;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.devModeEnabled)),
+      );
+    } else if (_versionTapCount >= 4) {
+      final remaining = 7 - _versionTapCount;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.devModeRemaining(remaining)),
+          duration: const Duration(milliseconds: 800),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isPremium = ref.watch(isPremiumProvider);
     final currentLocale = ref.watch(localeProvider);
     final currentTheme = ref.watch(themeModeProvider);
     final theme = Theme.of(context);
+    final devModeEnabled = ref.watch(_devModeEnabledProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -69,6 +105,15 @@ class SettingsScreen extends ConsumerWidget {
                     title: Text(l10n.aiHistory),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => context.push('/ai-history'),
+                  ),
+                  const Divider(),
+
+                  // --- カテゴリ ---
+                  ListTile(
+                    leading: const Icon(Icons.label_outline),
+                    title: Text(l10n.categoryManageTitle),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/category-manage'),
                   ),
                   const Divider(),
 
@@ -152,6 +197,18 @@ class SettingsScreen extends ConsumerWidget {
                     onTap: () => _exportCsv(context, ref, l10n),
                   ),
                   ListTile(
+                    leading: const Icon(Icons.help_outline),
+                    title: Text(l10n.settingsReplayOnboarding),
+                    onTap: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool('is_onboarding_completed', false);
+                      await resetCoachMarksFlag();
+                      if (context.mounted) {
+                        context.go('/onboarding');
+                      }
+                    },
+                  ),
+                  ListTile(
                     leading: Icon(
                       Icons.delete_forever,
                       color: theme.colorScheme.error,
@@ -185,7 +242,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   const Divider(),
 
-                  // --- アプリ情報 ---
+                  // --- アプリ情報（7回タップで開発者モード解放） ---
                   ListTile(
                     leading: const Icon(Icons.info_outline),
                     title: Text(l10n.appInfo),
@@ -201,6 +258,7 @@ class SettingsScreen extends ConsumerWidget {
                         return const SizedBox.shrink();
                       },
                     ),
+                    onTap: _onVersionTap,
                   ),
                   ListTile(
                     leading: const Icon(Icons.article_outlined),
@@ -211,8 +269,11 @@ class SettingsScreen extends ConsumerWidget {
                       applicationName: AppConstants.appName,
                     ),
                   ),
-                  // --- デバッグ（kDebugModeのみ）---
-                  if (kDebugMode) ...[
+                  // --- 開発者モード（7回タップで解放） ---
+                  if (devModeEnabled) ...[
+                    const Divider(),
+                    _buildSectionHeader(context, l10n.devModeSection),
+                    const _DevModeToggles(),
                     const Divider(),
                     _buildSectionHeader(context, l10n.debugSection),
                     ListTile(
@@ -227,6 +288,18 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                       title: Text(l10n.debugDeleteAndInsertTestData),
                       onTap: () => _insertTestData(context, ref, l10n, true),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.auto_awesome_outlined),
+                      title: Text(l10n.debugAiTestDataTitle),
+                      subtitle: Text(l10n.debugAiTestDataDesc),
+                      onTap: () => _insertAiTestData(context, ref, l10n),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.restart_alt),
+                      title: Text(l10n.devModeResetAiUsage),
+                      subtitle: Text(l10n.devModeResetAiUsageDesc),
+                      onTap: () => _resetAiUsage(context, ref, l10n),
                     ),
                   ],
                   const SizedBox(height: 16),
@@ -263,7 +336,6 @@ class SettingsScreen extends ConsumerWidget {
       final tasks = await db.getAllTasks();
 
       final buffer = StringBuffer();
-      // UTF-8 BOM（Excel互換のため）
       buffer.write('\uFEFF');
       buffer.writeln('id,title,due_date,memo,category_id,is_completed,'
           'completed_at,priority,ai_comment,recurrence_type,'
@@ -321,6 +393,7 @@ class SettingsScreen extends ConsumerWidget {
     final message = deleteFirst
         ? l10n.debugConfirmDeleteAndInsert
         : l10n.debugConfirmInsert;
+    final languageCode = Localizations.localeOf(context).languageCode;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -345,11 +418,85 @@ class SettingsScreen extends ConsumerWidget {
       if (deleteFirst) {
         await db.deleteAllData();
       }
-      await insertTestData(db);
+      await insertTestData(db, languageCode: languageCode);
       ref.invalidate(tasksProvider);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.debugTestDataInserted)),
+        );
+      }
+    }
+  }
+
+  Future<void> _insertAiTestData(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.debugAiTestData),
+        content: Text(l10n.debugAiTestDataConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final db = ref.read(databaseServiceProvider);
+      await db.deleteAllData();
+      await insertAiTestData(db);
+      ref.invalidate(tasksProvider);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.debugAiTestDataInserted)),
+        );
+      }
+    }
+  }
+
+  Future<void> _resetAiUsage(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.devModeResetAiUsage),
+        content: Text(l10n.devModeConfirmResetAiUsage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final db = ref.read(databaseServiceProvider);
+      await db.resetCurrentMonthAiUsage();
+      final secure = ref.read(secureStorageServiceProvider);
+      await secure.resetAiUsage(
+        SecureStorageService.currentMonthKey(DateTime.now()),
+      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.devModeResetAiUsageDone)),
         );
       }
     }
@@ -392,5 +539,40 @@ class SettingsScreen extends ConsumerWidget {
         );
       }
     }
+  }
+}
+
+/// 開発者モードのトグルスイッチ群
+class _DevModeToggles extends ConsumerWidget {
+  const _DevModeToggles();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final aiUnlimited = ref.watch(devModeAiUnlimitedProvider);
+    final premium = ref.watch(devModePremiumProvider);
+
+    return Column(
+      children: [
+        SwitchListTile(
+          secondary: const Icon(Icons.all_inclusive),
+          title: Text(l10n.devModeAiUnlimited),
+          subtitle: Text(l10n.devModeAiUnlimitedDesc),
+          value: aiUnlimited,
+          onChanged: (value) {
+            ref.read(devModeAiUnlimitedProvider.notifier).toggle(value);
+          },
+        ),
+        SwitchListTile(
+          secondary: const Icon(Icons.workspace_premium),
+          title: Text(l10n.devModePremium),
+          subtitle: Text(l10n.devModePremiumDesc),
+          value: premium,
+          onChanged: (value) {
+            ref.read(devModePremiumProvider.notifier).toggle(value);
+          },
+        ),
+      ],
+    );
   }
 }

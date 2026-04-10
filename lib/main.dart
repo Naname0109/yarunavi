@@ -6,15 +6,16 @@ import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'app.dart';
+import 'providers/dev_mode_provider.dart';
 import 'providers/purchase_provider.dart';
+import 'providers/secure_storage_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/task_provider.dart';
-import 'services/ad_service.dart';
 import 'services/calendar_service.dart';
 import 'services/database_service.dart';
 import 'services/notification_service.dart';
 import 'services/purchase_service.dart';
-import 'widgets/ai_sort_button.dart';
+import 'services/secure_storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,10 +52,11 @@ void main() async {
 
   // 設定読み込み（フリッカー防止のため先に読む）
   final settings = await loadSettingsFromPrefs();
+  final devMode = await loadDevModePrefs();
 
-  // 広告サービス
-  final adService = AdService();
-  await adService.initialize();
+  // セキュアストレージ (AI使用回数の永続化用)
+  final secureStorage = SecureStorageService();
+  await secureStorage.getInstallDate();
 
   runApp(
     ProviderScope(
@@ -63,9 +65,11 @@ void main() async {
         notificationServiceProvider.overrideWithValue(notificationService),
         calendarServiceProvider.overrideWithValue(calendarService),
         purchaseServiceProvider.overrideWithValue(purchaseService),
-        adServiceProvider.overrideWithValue(adService),
+        secureStorageServiceProvider.overrideWithValue(secureStorage),
         initialLocaleProvider.overrideWithValue(settings.locale),
         initialThemeModeProvider.overrideWithValue(settings.themeMode),
+        initialDevAiUnlimitedProvider.overrideWithValue(devMode.aiUnlimited),
+        initialDevPremiumProvider.overrideWithValue(devMode.premium),
       ],
       child: const YaruNaviApp(),
     ),

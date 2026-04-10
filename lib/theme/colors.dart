@@ -6,7 +6,7 @@ class AppColors {
   // Light Theme
   static const primaryLight = Color(0xFF2563EB);
   static const secondaryLight = Color(0xFFF59E0B);
-  static const backgroundLight = Color(0xFFFAFAFA);
+  static const backgroundLight = Color(0xFFF8FAFC);
   static const surfaceLight = Color(0xFFFFFFFF);
   static const textPrimaryLight = Color(0xDE000000); // rgba(0,0,0,0.87)
   static const textSecondaryLight = Color(0x99000000); // rgba(0,0,0,0.60)

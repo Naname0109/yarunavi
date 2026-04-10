@@ -37,6 +37,9 @@ mixin _$Task {
   String? get calendarEventId => throw _privateConstructorUsedError;
   String? get estimatedTime => throw _privateConstructorUsedError;
   int get importance => throw _privateConstructorUsedError;
+  int get sortOrder => throw _privateConstructorUsedError;
+  DateTime? get recommendedStart => throw _privateConstructorUsedError;
+  DateTime? get recommendedEnd => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
@@ -71,6 +74,9 @@ abstract class $TaskCopyWith<$Res> {
     String? calendarEventId,
     String? estimatedTime,
     int importance,
+    int sortOrder,
+    DateTime? recommendedStart,
+    DateTime? recommendedEnd,
     DateTime createdAt,
     DateTime updatedAt,
   });
@@ -107,6 +113,9 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
     Object? calendarEventId = freezed,
     Object? estimatedTime = freezed,
     Object? importance = null,
+    Object? sortOrder = null,
+    Object? recommendedStart = freezed,
+    Object? recommendedEnd = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -176,6 +185,18 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
                 ? _value.importance
                 : importance // ignore: cast_nullable_to_non_nullable
                       as int,
+            sortOrder: null == sortOrder
+                ? _value.sortOrder
+                : sortOrder // ignore: cast_nullable_to_non_nullable
+                      as int,
+            recommendedStart: freezed == recommendedStart
+                ? _value.recommendedStart
+                : recommendedStart // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            recommendedEnd: freezed == recommendedEnd
+                ? _value.recommendedEnd
+                : recommendedEnd // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -215,6 +236,9 @@ abstract class _$$TaskImplCopyWith<$Res> implements $TaskCopyWith<$Res> {
     String? calendarEventId,
     String? estimatedTime,
     int importance,
+    int sortOrder,
+    DateTime? recommendedStart,
+    DateTime? recommendedEnd,
     DateTime createdAt,
     DateTime updatedAt,
   });
@@ -248,6 +272,9 @@ class __$$TaskImplCopyWithImpl<$Res>
     Object? calendarEventId = freezed,
     Object? estimatedTime = freezed,
     Object? importance = null,
+    Object? sortOrder = null,
+    Object? recommendedStart = freezed,
+    Object? recommendedEnd = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -317,6 +344,18 @@ class __$$TaskImplCopyWithImpl<$Res>
             ? _value.importance
             : importance // ignore: cast_nullable_to_non_nullable
                   as int,
+        sortOrder: null == sortOrder
+            ? _value.sortOrder
+            : sortOrder // ignore: cast_nullable_to_non_nullable
+                  as int,
+        recommendedStart: freezed == recommendedStart
+            ? _value.recommendedStart
+            : recommendedStart // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        recommendedEnd: freezed == recommendedEnd
+            ? _value.recommendedEnd
+            : recommendedEnd // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -350,6 +389,9 @@ class _$TaskImpl extends _Task {
     this.calendarEventId,
     this.estimatedTime,
     this.importance = 1,
+    this.sortOrder = 0,
+    this.recommendedStart,
+    this.recommendedEnd,
     required this.createdAt,
     required this.updatedAt,
   }) : super._();
@@ -393,13 +435,20 @@ class _$TaskImpl extends _Task {
   @JsonKey()
   final int importance;
   @override
+  @JsonKey()
+  final int sortOrder;
+  @override
+  final DateTime? recommendedStart;
+  @override
+  final DateTime? recommendedEnd;
+  @override
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
 
   @override
   String toString() {
-    return 'Task(id: $id, title: $title, dueDate: $dueDate, memo: $memo, categoryId: $categoryId, isCompleted: $isCompleted, completedAt: $completedAt, priority: $priority, aiComment: $aiComment, recurrenceType: $recurrenceType, recurrenceValue: $recurrenceValue, recurrenceParentId: $recurrenceParentId, notifySettings: $notifySettings, calendarEventId: $calendarEventId, estimatedTime: $estimatedTime, importance: $importance, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Task(id: $id, title: $title, dueDate: $dueDate, memo: $memo, categoryId: $categoryId, isCompleted: $isCompleted, completedAt: $completedAt, priority: $priority, aiComment: $aiComment, recurrenceType: $recurrenceType, recurrenceValue: $recurrenceValue, recurrenceParentId: $recurrenceParentId, notifySettings: $notifySettings, calendarEventId: $calendarEventId, estimatedTime: $estimatedTime, importance: $importance, sortOrder: $sortOrder, recommendedStart: $recommendedStart, recommendedEnd: $recommendedEnd, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -435,6 +484,12 @@ class _$TaskImpl extends _Task {
                 other.estimatedTime == estimatedTime) &&
             (identical(other.importance, importance) ||
                 other.importance == importance) &&
+            (identical(other.sortOrder, sortOrder) ||
+                other.sortOrder == sortOrder) &&
+            (identical(other.recommendedStart, recommendedStart) ||
+                other.recommendedStart == recommendedStart) &&
+            (identical(other.recommendedEnd, recommendedEnd) ||
+                other.recommendedEnd == recommendedEnd) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -443,7 +498,7 @@ class _$TaskImpl extends _Task {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     title,
@@ -461,9 +516,12 @@ class _$TaskImpl extends _Task {
     calendarEventId,
     estimatedTime,
     importance,
+    sortOrder,
+    recommendedStart,
+    recommendedEnd,
     createdAt,
     updatedAt,
-  );
+  ]);
 
   /// Create a copy of Task
   /// with the given fields replaced by the non-null parameter values.
@@ -497,6 +555,9 @@ abstract class _Task extends Task {
     final String? calendarEventId,
     final String? estimatedTime,
     final int importance,
+    final int sortOrder,
+    final DateTime? recommendedStart,
+    final DateTime? recommendedEnd,
     required final DateTime createdAt,
     required final DateTime updatedAt,
   }) = _$TaskImpl;
@@ -536,6 +597,12 @@ abstract class _Task extends Task {
   String? get estimatedTime;
   @override
   int get importance;
+  @override
+  int get sortOrder;
+  @override
+  DateTime? get recommendedStart;
+  @override
+  DateTime? get recommendedEnd;
   @override
   DateTime get createdAt;
   @override

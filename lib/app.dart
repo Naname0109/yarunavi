@@ -8,6 +8,7 @@ import 'providers/settings_provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/ai_history_screen.dart';
 import 'screens/ai_result_screen.dart';
+import 'screens/category_manage_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/settings_screen.dart';
@@ -44,6 +45,10 @@ final _router = GoRouter(
     GoRoute(
       path: '/ai-history',
       builder: (context, state) => const AiHistoryScreen(),
+    ),
+    GoRoute(
+      path: '/category-manage',
+      builder: (context, state) => const CategoryManageScreen(),
     ),
   ],
 );

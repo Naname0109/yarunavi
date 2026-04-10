@@ -22,7 +22,7 @@ class DatabaseService {
 
     _db = await openDatabase(
       path,
-      version: 4,
+      version: 8,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -47,6 +47,9 @@ class DatabaseService {
         calendar_event_id TEXT,
         estimated_time TEXT,
         importance INTEGER NOT NULL DEFAULT 1,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        recommended_start TEXT,
+        recommended_end TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
@@ -58,6 +61,7 @@ class DatabaseService {
         name TEXT NOT NULL,
         icon TEXT NOT NULL,
         sort_order INTEGER NOT NULL DEFAULT 0,
+        is_default INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL
       )
     ''');
@@ -88,12 +92,12 @@ class DatabaseService {
     // デフォルトカテゴリ投入（nameはi18nキーとして保存）
     final now = DateTime.now().toIso8601String();
     final defaultCategories = [
-      {'name': 'categoryPayment', 'icon': '💰', 'sort_order': 0},
-      {'name': 'categoryPaperwork', 'icon': '📋', 'sort_order': 1},
-      {'name': 'categoryShopping', 'icon': '🛒', 'sort_order': 2},
-      {'name': 'categoryHousehold', 'icon': '🏠', 'sort_order': 3},
-      {'name': 'categoryWork', 'icon': '💼', 'sort_order': 4},
-      {'name': 'categoryOther', 'icon': '🎯', 'sort_order': 5},
+      {'name': 'categoryPayment', 'icon': '💰', 'sort_order': 0, 'is_default': 1},
+      {'name': 'categoryPaperwork', 'icon': '📋', 'sort_order': 1, 'is_default': 1},
+      {'name': 'categoryShopping', 'icon': '🛒', 'sort_order': 2, 'is_default': 1},
+      {'name': 'categoryHousehold', 'icon': '🏠', 'sort_order': 3, 'is_default': 1},
+      {'name': 'categoryWork', 'icon': '💼', 'sort_order': 4, 'is_default': 1},
+      {'name': 'categoryOther', 'icon': '🎯', 'sort_order': 5, 'is_default': 1},
     ];
 
     final batch = db.batch();
@@ -126,6 +130,31 @@ class DatabaseService {
           created_at TEXT NOT NULL
         )
       ''');
+    }
+    if (oldVersion < 5) {
+      await db.execute(
+          'ALTER TABLE tasks ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0');
+    }
+    if (oldVersion < 6) {
+      await db.execute('ALTER TABLE tasks ADD COLUMN recommended_date TEXT');
+    }
+    if (oldVersion < 7) {
+      await db.execute('ALTER TABLE tasks ADD COLUMN recommended_start TEXT');
+      await db.execute('ALTER TABLE tasks ADD COLUMN recommended_end TEXT');
+      await db.execute(
+        'UPDATE tasks SET recommended_start = recommended_date, '
+        'recommended_end = recommended_date WHERE recommended_date IS NOT NULL',
+      );
+    }
+    if (oldVersion < 8) {
+      await db.execute(
+        'ALTER TABLE categories ADD COLUMN is_default INTEGER NOT NULL DEFAULT 0',
+      );
+      await db.execute(
+        "UPDATE categories SET is_default = 1 WHERE name IN "
+        "('categoryPayment','categoryPaperwork','categoryShopping',"
+        "'categoryHousehold','categoryWork','categoryOther')",
+      );
     }
   }
 
@@ -260,7 +289,7 @@ class DatabaseService {
         final maps = await db.query(
           'tasks',
           where: 'is_completed = 0',
-          orderBy: 'due_date ASC, priority ASC',
+          orderBy: 'CASE WHEN sort_order > 0 THEN 0 ELSE 1 END, sort_order ASC, due_date ASC, priority ASC',
         );
         return maps.map(Task.fromMap).toList();
     }
@@ -271,6 +300,32 @@ class DatabaseService {
   Future<List<model.Category>> getAllCategories() async {
     final maps = await db.query('categories', orderBy: 'sort_order ASC');
     return maps.map(model.Category.fromMap).toList();
+  }
+
+  Future<int> addCategory(model.Category category) async {
+    return db.insert('categories', category.toMap());
+  }
+
+  Future<int> updateCategory(model.Category category) async {
+    return db.update(
+      'categories',
+      category.toMap(),
+      where: 'id = ?',
+      whereArgs: [category.id],
+    );
+  }
+
+  /// カテゴリ削除。関連タスクのcategory_idをnullに更新。
+  Future<void> deleteCategory(int id) async {
+    await db.transaction((txn) async {
+      await txn.update(
+        'tasks',
+        {'category_id': null},
+        where: 'category_id = ?',
+        whereArgs: [id],
+      );
+      await txn.delete('categories', where: 'id = ?', whereArgs: [id]);
+    });
   }
 
   // --- AI Usage ---
@@ -301,9 +356,18 @@ class DatabaseService {
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
-  /// AI整理結果でタスクのpriority/ai_commentを一括更新
+  /// AI整理結果でタスクのpriority/ai_comment/recommended_start/endを一括更新
   Future<void> updateTaskPriorities(
-      Map<int, ({int priority, String? aiComment})> updates) async {
+    Map<
+            int,
+            ({
+              int priority,
+              String? aiComment,
+              DateTime? recommendedStart,
+              DateTime? recommendedEnd,
+            })>
+        updates,
+  ) async {
     final now = DateTime.now().toIso8601String();
     final batch = db.batch();
     for (final entry in updates.entries) {
@@ -312,6 +376,12 @@ class DatabaseService {
         {
           'priority': entry.value.priority,
           'ai_comment': entry.value.aiComment,
+          'recommended_start': entry.value.recommendedStart != null
+              ? app_date.formatDateForDb(entry.value.recommendedStart!)
+              : null,
+          'recommended_end': entry.value.recommendedEnd != null
+              ? app_date.formatDateForDb(entry.value.recommendedEnd!)
+              : null,
           'updated_at': now,
         },
         where: 'id = ?',
@@ -346,6 +416,28 @@ class DatabaseService {
     final maps =
         await db.query('ai_history', where: 'id = ?', whereArgs: [id]);
     return maps.isNotEmpty ? maps.first : null;
+  }
+
+  /// タスクの並び順を一括更新
+  Future<void> updateTaskSortOrders(List<({int id, int sortOrder})> orders) async {
+    final batch = db.batch();
+    for (final order in orders) {
+      batch.update(
+        'tasks',
+        {'sort_order': order.sortOrder},
+        where: 'id = ?',
+        whereArgs: [order.id],
+      );
+    }
+    await batch.commit(noResult: true);
+  }
+
+  /// 当月のAI使用回数をリセット
+  Future<void> resetCurrentMonthAiUsage() async {
+    final now = DateTime.now();
+    final monthKey =
+        '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}';
+    await db.delete('ai_usage', where: 'month_key = ?', whereArgs: [monthKey]);
   }
 
   /// 全データ削除（タスク + AI利用履歴 + AI整理履歴）

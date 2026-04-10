@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../services/purchase_service.dart';
+import 'dev_mode_provider.dart';
 
 /// PurchaseServiceのProvider（main.dartでoverrideされる）
 final purchaseServiceProvider = Provider<PurchaseService>((ref) {
@@ -12,16 +13,27 @@ class PremiumNotifier extends Notifier<bool> {
   @override
   bool build() {
     final purchaseService = ref.read(purchaseServiceProvider);
-    // PurchaseServiceの状態変更を監視
     purchaseService.onPremiumChanged = () {
-      state = purchaseService.isPremium;
+      _updateState();
     };
+    // 開発者モードのプレミアムトグルを監視
+    final devPremium = ref.watch(devModePremiumProvider);
+    if (devPremium) return true;
     return purchaseService.isPremium;
   }
 
-  void refresh() {
+  void _updateState() {
     final purchaseService = ref.read(purchaseServiceProvider);
-    state = purchaseService.isPremium;
+    final devPremium = ref.read(devModePremiumProvider);
+    if (devPremium) {
+      state = true;
+    } else {
+      state = purchaseService.isPremium;
+    }
+  }
+
+  void refresh() {
+    _updateState();
   }
 }
 

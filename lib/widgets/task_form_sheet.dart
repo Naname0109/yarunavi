@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../l10n/generated/app_localizations.dart';
@@ -12,6 +13,7 @@ import '../providers/purchase_provider.dart';
 import '../providers/task_provider.dart';
 import '../services/calendar_service.dart';
 import '../utils/category_helper.dart';
+import '../utils/notification_utils.dart';
 
 class TaskFormSheet extends ConsumerStatefulWidget {
   const TaskFormSheet({super.key, this.task});
@@ -69,8 +71,9 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
 
     if (task?.notifySettings != null) {
       try {
-        final decoded =
-            List<String>.from(jsonDecode(task!.notifySettings!) as List);
+        final decoded = List<String>.from(
+          jsonDecode(task!.notifySettings!) as List,
+        );
         if (decoded.length == 1 && decoded.first == 'ai_auto') {
           _notifyAiAuto = true;
           _notifySettings = [];
@@ -157,8 +160,9 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
             height: 4,
             margin: const EdgeInsets.only(bottom: 8),
             decoration: BoxDecoration(
-              color:
-                  Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -269,13 +273,15 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
                 selected: _categoryId == null,
                 onSelected: (_) => setState(() => _categoryId = null),
               ),
-              ...categories.map((cat) => ChoiceChip(
-                    label: Text(
-                      '${cat.icon} ${getCategoryDisplayName(cat.name, l10n)}',
-                    ),
-                    selected: _categoryId == cat.id,
-                    onSelected: (_) => setState(() => _categoryId = cat.id),
-                  )),
+              ...categories.map(
+                (cat) => ChoiceChip(
+                  label: Text(
+                    '${cat.icon} ${getCategoryDisplayName(cat.name, l10n)}',
+                  ),
+                  selected: _categoryId == cat.id,
+                  onSelected: (_) => setState(() => _categoryId = cat.id),
+                ),
+              ),
             ],
           ),
         ),
@@ -323,8 +329,18 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
   Widget _buildImportanceField(AppLocalizations l10n) {
     final options = <(int, String, IconData, Color?)>[
       (0, l10n.importanceLow, Icons.arrow_downward, Colors.grey),
-      (1, l10n.importanceMedium, Icons.remove, Theme.of(context).colorScheme.primary),
-      (2, l10n.importanceHigh, Icons.arrow_upward, Theme.of(context).colorScheme.error),
+      (
+        1,
+        l10n.importanceMedium,
+        Icons.remove,
+        Theme.of(context).colorScheme.primary,
+      ),
+      (
+        2,
+        l10n.importanceHigh,
+        Icons.arrow_upward,
+        Theme.of(context).colorScheme.error,
+      ),
     ];
 
     return Column(
@@ -343,7 +359,12 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
           children: options.map((o) {
             final (value, label, icon, color) = o;
             return ChoiceChip(
-              avatar: Icon(icon, size: 18, color: _importance == value ? null : color),
+              showCheckmark: false,
+              avatar: Icon(
+                icon,
+                size: 18,
+                color: _importance == value ? null : color,
+              ),
               label: Text(label),
               selected: _importance == value,
               onSelected: (_) => setState(() => _importance = value),
@@ -435,15 +456,14 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
         return DropdownMenuItem(value: day, child: Text('$day'));
       }),
       onChanged: (value) => setState(() => _recurrenceValue = value),
-      decoration: const InputDecoration(
-        prefixIcon: Icon(Icons.calendar_month),
-      ),
+      decoration: const InputDecoration(prefixIcon: Icon(Icons.calendar_month)),
     );
   }
 
   Widget _buildMonthDaySelector(AppLocalizations l10n) {
-    final currentMonth =
-        _recurrenceValue != null ? _recurrenceValue! ~/ 100 : 0;
+    final currentMonth = _recurrenceValue != null
+        ? _recurrenceValue! ~/ 100
+        : 0;
     final currentDay = _recurrenceValue != null ? _recurrenceValue! % 100 : 0;
 
     return Row(
@@ -451,13 +471,11 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
         Expanded(
           child: DropdownButtonFormField<int>(
             key: ValueKey('yearly_month_$currentMonth'),
-            value:
-                currentMonth > 0 && currentMonth <= 12 ? currentMonth : null,
+            value: currentMonth > 0 && currentMonth <= 12 ? currentMonth : null,
             items: List.generate(12, (i) {
               final month = i + 1;
               final locale = Localizations.localeOf(context).languageCode;
-              final name =
-                  DateFormat.MMM(locale).format(DateTime(2024, month));
+              final name = DateFormat.MMM(locale).format(DateTime(2024, month));
               return DropdownMenuItem(value: month, child: Text(name));
             }),
             onChanged: (month) {
@@ -511,7 +529,10 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
   }
 
   Widget _buildNotifyField(AppLocalizations l10n) {
-    return Column(
+    final isPremium = ref.watch(isPremiumProvider);
+    final theme = Theme.of(context);
+
+    final inner = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
@@ -519,6 +540,23 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
             const Icon(Icons.notifications_outlined, size: 24),
             const SizedBox(width: 16),
             Text(l10n.notifySettings, style: const TextStyle(fontSize: 16)),
+            const SizedBox(width: 8),
+            if (!isPremium)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  l10n.proBadge,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
           ],
         ),
         const SizedBox(height: 8),
@@ -536,6 +574,48 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
           const SizedBox(height: 8),
           _buildManualNotifyChips(l10n),
         ],
+        const SizedBox(height: 8),
+        _buildNotifyPreview(l10n),
+      ],
+    );
+
+    if (isPremium) return inner;
+
+    // 無料: ロックして案内 (calendar toggle と同じボトムシート)
+    return GestureDetector(
+      onTap: () => _showPremiumGate(l10n),
+      child: AbsorbPointer(child: Opacity(opacity: 0.5, child: inner)),
+    );
+  }
+
+  Widget _buildNotifyPreview(AppLocalizations l10n) {
+    final outline = Theme.of(context).colorScheme.outline;
+    final style = TextStyle(fontSize: 12, color: outline);
+    final locale = Localizations.localeOf(context).languageCode;
+
+    if (_notifyAiAuto) {
+      return Row(
+        children: [
+          Icon(Icons.auto_awesome, size: 13, color: outline),
+          const SizedBox(width: 4),
+          Expanded(child: Text(l10n.aiAutoNotifyHint, style: style)),
+        ],
+      );
+    }
+
+    final json = _notifySettings.isEmpty ? null : jsonEncode(_notifySettings);
+    final dates = getScheduledNotificationDates(_dueDate, json);
+    if (dates.isEmpty) return const SizedBox.shrink();
+    final fmt = DateFormat.Md(locale).add_Hm();
+    final formatted = dates.map(fmt.format).join(', ');
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.notifications_outlined, size: 13, color: outline),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text('${l10n.notifyScheduledLabel}: $formatted', style: style),
+        ),
       ],
     );
   }
@@ -573,15 +653,82 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
 
   Widget _buildCalendarToggle(AppLocalizations l10n) {
     final isPremium = ref.watch(isPremiumProvider);
-    if (!isPremium) return const SizedBox.shrink();
 
-    return SwitchListTile(
+    final tile = SwitchListTile(
       contentPadding: EdgeInsets.zero,
       secondary: const Icon(Icons.calendar_month),
-      title: Text(l10n.addToCalendar),
-      subtitle: Text(l10n.premiumOnly),
-      value: _addToCalendar,
-      onChanged: (value) => setState(() => _addToCalendar = value),
+      title: Row(
+        children: [
+          Expanded(child: Text(l10n.addToCalendar)),
+          if (!isPremium) _proBadge(l10n),
+        ],
+      ),
+      value: isPremium && _addToCalendar,
+      onChanged: isPremium
+          ? (value) => setState(() => _addToCalendar = value)
+          : null,
+    );
+
+    if (isPremium) return tile;
+
+    return GestureDetector(
+      onTap: () => _showPremiumGate(l10n),
+      child: AbsorbPointer(
+        child: Opacity(opacity: 0.6, child: tile),
+      ),
+    );
+  }
+
+  Widget _proBadge(AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        l10n.proBadge,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showPremiumGate(AppLocalizations l10n) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.premiumGateTitle,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Text(l10n.premiumGateDesc),
+            const SizedBox(height: 20),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                context.push('/store');
+              },
+              child: Text(l10n.premiumGateUpgrade),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(l10n.premiumGateLater),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -629,10 +776,9 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
           createdAt: original.createdAt,
           updatedAt: now,
         );
-        calResult = await ref.read(tasksProvider.notifier).updateTask(
-              updated,
-              addToCalendar: _addToCalendar,
-            );
+        calResult = await ref
+            .read(tasksProvider.notifier)
+            .updateTask(updated, addToCalendar: _addToCalendar);
       } else {
         final task = Task(
           title: _titleController.text.trim(),
@@ -647,10 +793,9 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
           createdAt: now,
           updatedAt: now,
         );
-        calResult = await ref.read(tasksProvider.notifier).addTask(
-              task,
-              addToCalendar: _addToCalendar,
-            );
+        calResult = await ref
+            .read(tasksProvider.notifier)
+            .addTask(task, addToCalendar: _addToCalendar);
       }
 
       if (mounted) {
@@ -659,9 +804,9 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
             SnackBar(content: Text(l10n.calendarPermissionDenied)),
           );
         } else if (calResult == CalendarResult.failed) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.calendarAddFailed)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.calendarAddFailed)));
         }
         Navigator.of(context).pop();
       }

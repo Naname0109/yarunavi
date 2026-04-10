@@ -369,27 +369,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storeStoreUnavailable => 'Store is unavailable';
 
   @override
-  String get onboardingTitle1 => 'Just enter a task and deadline';
-
-  @override
-  String get onboardingDesc1 =>
-      'No complicated setup needed.\nJust enter a task name and due date\nto get started right away.';
-
-  @override
-  String get onboardingTitle2 => 'AI organizes your priorities';
-
-  @override
-  String get onboardingDesc2 =>
-      '\"What should I do first?\"\nAI figures it out for you.\nSuggests the best order based on deadlines.';
-
-  @override
-  String get onboardingTitle3 => 'Get notified when it\'s time';
-
-  @override
-  String get onboardingDesc3 =>
-      'Push notifications as deadlines approach.\nNever forget again.\nAllow notifications to stay on track.';
-
-  @override
   String get onboardingSkip => 'Skip';
 
   @override
@@ -397,6 +376,327 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingStart => 'Get Started';
+
+  @override
+  String get ob1Title => 'Just add your tasks';
+
+  @override
+  String get ob1Desc => 'Enter a task name and due date. You can add notes too';
+
+  @override
+  String get ob1Sub => 'Get everything out of your head';
+
+  @override
+  String get ob1Task1 => 'Pay rent';
+
+  @override
+  String get ob1Task2 => 'Renew license';
+
+  @override
+  String get ob1Task3 => 'Buy groceries';
+
+  @override
+  String get ob1Task4 => 'Tax filing prep...';
+
+  @override
+  String get ob2Title => 'AI organizes for you';
+
+  @override
+  String get ob2Desc => 'AI prioritizes and gives actionable advice';
+
+  @override
+  String get ob2BeforeLabel => 'Before';
+
+  @override
+  String get ob2BeforeTask1 => 'Read a book';
+
+  @override
+  String get ob2BeforeDate1 => 'May 1';
+
+  @override
+  String get ob2BeforeTask2 => 'Pay rent';
+
+  @override
+  String get ob2BeforeDate2 => 'Tomorrow';
+
+  @override
+  String get ob2BeforeTask3 => 'Renew passport';
+
+  @override
+  String get ob2BeforeDate3 => 'May 20';
+
+  @override
+  String get ob2BeforeTask4 => 'Weekly report';
+
+  @override
+  String get ob2BeforeDate4 => 'Today';
+
+  @override
+  String get ob2BeforeTask5 => 'Buy groceries';
+
+  @override
+  String get ob2BeforeDate5 => 'Apr 18';
+
+  @override
+  String get ob2AfterUrgent => 'Do now';
+
+  @override
+  String get ob2AfterWarning => 'This week';
+
+  @override
+  String get ob2AfterNormal => 'Next week+';
+
+  @override
+  String get ob2AfterRelaxed => 'No rush';
+
+  @override
+  String get ob2AfterTask1 => 'Weekly report';
+
+  @override
+  String get ob2AfterComment1 => 'Submit today. Morning is best';
+
+  @override
+  String get ob2AfterTask2 => 'Pay rent';
+
+  @override
+  String get ob2AfterComment2 => 'Due tomorrow. Use online banking today';
+
+  @override
+  String get ob2AfterTask3 => 'Buy groceries';
+
+  @override
+  String get ob2AfterComment3 => 'Batch your shopping on the weekend';
+
+  @override
+  String get ob2AfterTask4 => 'Renew passport';
+
+  @override
+  String get ob2AfterComment4 => 'Office is weekdays only. Go next week AM';
+
+  @override
+  String get ob2AfterTask5 => 'Read a book';
+
+  @override
+  String get ob2AfterComment5 => 'Plenty of time. Weekend relaxation';
+
+  @override
+  String get ob3Title => 'See it on the calendar';
+
+  @override
+  String get ob3Desc =>
+      'See at a glance when to do what.\nAI suggests the best execution days';
+
+  @override
+  String get ob3LegendUrgent => 'Urgent';
+
+  @override
+  String get ob3LegendWeek => 'This week';
+
+  @override
+  String get ob3LegendLater => 'Later';
+
+  @override
+  String get ob4Title => 'Never forget';
+
+  @override
+  String get ob4Desc =>
+      'AI notifies you at the right time.\nOnly on the days you need';
+
+  @override
+  String get ob4Sub => 'Quiet on days with nothing to do';
+
+  @override
+  String get ob4Notify1 => 'Pay rent — Use online banking today';
+
+  @override
+  String get ob4NotifyPrevDay => 'YaruNavi  Day before 9:00 AM';
+
+  @override
+  String get ob4Notify2 => 'Buy groceries — Check your shopping list';
+
+  @override
+  String get ob5Title => 'Do more with Premium';
+
+  @override
+  String get ob5Free => 'Free';
+
+  @override
+  String get ob5AiSort => 'AI Sort';
+
+  @override
+  String get ob5Tasks => 'Tasks';
+
+  @override
+  String get ob5Notify => 'Notifications';
+
+  @override
+  String get ob5Calendar => 'Calendar';
+
+  @override
+  String get ob5AiComment => 'AI Comments';
+
+  @override
+  String get ob5Ads => 'Ads';
+
+  @override
+  String get ob5FreeAi => '2/month';
+
+  @override
+  String get ob5FreeTasks => 'Up to 10';
+
+  @override
+  String get ob5PremiumAi => '50/month';
+
+  @override
+  String get ob5PremiumTasks => 'Unlimited';
+
+  @override
+  String get ob5PremiumNotify => 'Auto-set';
+
+  @override
+  String get ob5PremiumCalendar => 'Sync';
+
+  @override
+  String get ob5PremiumComment => 'Full access';
+
+  @override
+  String get ob5PremiumAds => 'None';
+
+  @override
+  String get ob5Price => '\$4.99/mo or \$39.99/yr (save 40%)';
+
+  @override
+  String get ob5TrialButton => 'Start 7-day free trial';
+
+  @override
+  String get ob5FreeButton => 'Start free';
+
+  @override
+  String get ob6Title => 'Let\'s get started';
+
+  @override
+  String get ob6Desc => 'Add your tasks and let AI organize them';
+
+  @override
+  String get aiPremiumBannerTitle =>
+      'Unlock AI comments, notifications & calendar with Premium';
+
+  @override
+  String get aiPremiumBannerDesc =>
+      '50 AI sorts/month, auto-notifications, calendar sync, no ads';
+
+  @override
+  String get aiPremiumBannerButton => 'Start 7-day free trial →';
+
+  @override
+  String get aiLimitUpgradeHint => 'Want more AI sorting?';
+
+  @override
+  String get aiLimitUpgradeDesc =>
+      'Premium gives you 50 AI sorts/month, auto-notifications, and calendar sync';
+
+  @override
+  String get settingsReplayOnboarding => 'Show guide again';
+
+  @override
+  String get coachAddTask => 'Add a task from here';
+
+  @override
+  String get coachAiSort => 'AI organizes your priorities';
+
+  @override
+  String get coachFilterTabs => 'Switch views with tabs';
+
+  @override
+  String get coachCalendarToggle => 'Toggle calendar view here';
+
+  @override
+  String get coachNext => 'Next';
+
+  @override
+  String get coachDone => 'OK';
+
+  @override
+  String get tabList => 'Tasks';
+
+  @override
+  String get tabCalendar => 'Calendar';
+
+  @override
+  String get notifyPremiumOnly => 'Set notifications with Premium';
+
+  @override
+  String get notifyPremiumOnlySnack => 'Notifications are a Premium feature';
+
+  @override
+  String get proBadge => 'PRO';
+
+  @override
+  String get aiNotifyPremiumPrompt => 'Get reminders with Premium';
+
+  @override
+  String get aiSortMonthlyLimitReached =>
+      'You\'ve hit this month\'s AI sort limit. Resets next month.';
+
+  @override
+  String get premiumGateTitle => '🔔 Notifications & 📅 Calendar are Premium';
+
+  @override
+  String get premiumGateDesc =>
+      'Upgrade to Premium for AI-suggested notifications, calendar sync, ad-free experience, and 50 AI sorts per month.';
+
+  @override
+  String get premiumGateUpgrade => 'Upgrade and set it up now';
+
+  @override
+  String get premiumGateLater => 'Later';
+
+  @override
+  String aiNotifyOn(String date) {
+    return 'Notify on $date';
+  }
+
+  @override
+  String get aiCalendarAdd => 'Add to calendar';
+
+  @override
+  String get aiCalendarAdded => 'Added to calendar';
+
+  @override
+  String get notifyScheduled => 'Notification scheduled';
+
+  @override
+  String get notifyScheduledLabel => 'Reminders';
+
+  @override
+  String get aiAutoNotifyHint => 'AI will pick the date when you organize';
+
+  @override
+  String get calendarAddedBadge => 'Added to calendar';
+
+  @override
+  String get aiNotOrganizedHint => 'Run AI sort to get personalized advice';
+
+  @override
+  String get aiCommentLockedHint => 'See AI comment with Premium';
+
+  @override
+  String recommendedDateHint(String date) {
+    return '📌 Best to do on $date';
+  }
+
+  @override
+  String get calendarSectionRecommended => '📋 Do on this day';
+
+  @override
+  String get calendarSectionDue => '⏰ Due on this day';
+
+  @override
+  String get taskCardEdit => 'Edit';
+
+  @override
+  String get aiAutoNotifyHintFull =>
+      'Premium auto-schedules reminders during AI sort';
 
   @override
   String get settingsAccount => 'Account';
@@ -540,6 +840,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'Delete all data and insert test data?';
 
   @override
+  String get debugAiTestData => 'AI Sort Test Data';
+
+  @override
+  String get debugAiTestDataTitle => 'Insert AI Test Data (15 fixed tasks)';
+
+  @override
+  String get debugAiTestDataDesc =>
+      'Delete all data and insert fixed test data for AI evaluation';
+
+  @override
+  String get debugAiTestDataConfirm =>
+      'Delete all data and insert 15 AI evaluation tasks?';
+
+  @override
+  String get debugAiTestDataInserted => 'AI test data (15 tasks) inserted';
+
+  @override
   String get aiTodayPlan => 'Today\'s Plan';
 
   @override
@@ -609,4 +926,89 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storeRecommended => 'Recommended';
+
+  @override
+  String get calendarNoTasks => 'No tasks for this day';
+
+  @override
+  String get calendarToday => 'Today';
+
+  @override
+  String get swipeComplete => 'Done';
+
+  @override
+  String get swipeDelete => 'Delete';
+
+  @override
+  String get swipeUndo => 'Undo';
+
+  @override
+  String get reorderHint => 'Long press to drag and reorder';
+
+  @override
+  String get categoryManageTitle => 'Manage Categories';
+
+  @override
+  String get categoryAdd => 'Add Category';
+
+  @override
+  String get categoryEdit => 'Edit Category';
+
+  @override
+  String get categoryDefault => 'Default';
+
+  @override
+  String get categoryEmpty => 'No categories';
+
+  @override
+  String get categoryNameLabel => 'Category Name';
+
+  @override
+  String get categoryNameHint => 'e.g. Health, Hobby';
+
+  @override
+  String get categoryIconLabel => 'Choose Icon';
+
+  @override
+  String get categoryDeleteTitle => 'Delete Category';
+
+  @override
+  String get categoryDeleteMessage =>
+      'Tasks assigned to this category will become uncategorized. Delete?';
+
+  @override
+  String get devModeSection => 'Developer Mode';
+
+  @override
+  String get devModeAiUnlimited => 'Ignore AI Limit';
+
+  @override
+  String get devModeAiUnlimitedDesc => 'Skip AI sort usage limit';
+
+  @override
+  String get devModePremium => 'Unlock Premium';
+
+  @override
+  String get devModePremiumDesc => 'Unlock all FeatureGates';
+
+  @override
+  String get devModeResetAiUsage => 'Reset AI Usage';
+
+  @override
+  String get devModeResetAiUsageDesc => 'Reset current month AI usage count';
+
+  @override
+  String get devModeResetAiUsageDone => 'AI usage count reset';
+
+  @override
+  String get devModeConfirmResetAiUsage =>
+      'Reset this month\'s AI usage count?';
+
+  @override
+  String get devModeEnabled => 'Developer mode enabled';
+
+  @override
+  String devModeRemaining(int count) {
+    return '$count more taps for developer mode';
+  }
 }

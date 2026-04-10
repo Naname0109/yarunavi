@@ -2,22 +2,21 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../l10n/generated/app_localizations.dart';
 import '../providers/purchase_provider.dart';
+import '../providers/secure_storage_provider.dart';
 import '../providers/task_provider.dart';
-import '../services/ad_service.dart';
 import '../services/ai_service.dart';
+import '../services/secure_storage_service.dart';
 import '../utils/category_helper.dart';
 import '../utils/constants.dart';
+import '../providers/dev_mode_provider.dart';
 import '../utils/feature_gate.dart';
-
-/// AdServiceのProvider（main.dartでoverrideされる）
-final adServiceProvider = Provider<AdService>((ref) {
-  throw UnimplementedError('adServiceProvider must be overridden');
-});
+import '../utils/notification_utils.dart';
 
 /// AI整理レスポンスを保持するProvider
 final aiSortResponseProvider =
@@ -42,7 +41,6 @@ class AiSortButton extends ConsumerStatefulWidget {
 class _AiSortButtonState extends ConsumerState<AiSortButton> {
   bool _isLoading = false;
   late Future<int> _remainingFuture;
-  Future<bool> _rewardUnlockedFuture = Future.value(false);
 
   @override
   void initState() {
@@ -51,10 +49,14 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
   }
 
   void _refreshRemaining() {
-    final db = ref.read(databaseServiceProvider);
+    final secure = ref.read(secureStorageServiceProvider);
     final isPremium = ref.read(isPremiumProvider);
-    _remainingFuture = FeatureGate.getRemainingAiSortCount(db, isPremium);
-    _rewardUnlockedFuture = AdService.isRewardUnlocked();
+    final devAiUnlimited = ref.read(devModeAiUnlimitedProvider);
+    _remainingFuture = FeatureGate.getRemainingAiSortCount(
+      secure,
+      isPremium,
+      devAiUnlimited: devAiUnlimited,
+    );
   }
 
   @override
@@ -67,45 +69,41 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       builder: (context, snapshot) {
         final remaining = snapshot.data ?? 0;
 
-        return FutureBuilder<bool>(
-          future: _rewardUnlockedFuture,
-          builder: (context, rewardSnapshot) {
-            final rewardUnlocked = rewardSnapshot.data ?? false;
+        String label;
+        if (_isLoading) {
+          label = l10n.aiSorting;
+        } else if (isPremium || kDebugMode) {
+          label = l10n.aiSort;
+        } else {
+          label = '${l10n.aiSort} (${l10n.aiSortRemaining(remaining)})';
+        }
 
-            String label;
-            if (_isLoading) {
-              label = l10n.aiSorting;
-            } else if (isPremium || kDebugMode) {
-              label = l10n.aiSort;
-            } else if (rewardUnlocked) {
-              label = l10n.aiSort;
-            } else {
-              label = '${l10n.aiSort} (${l10n.aiSortRemaining(remaining)})';
-            }
-
-            return TextButton.icon(
-              onPressed: _isLoading ? null : () => _onTap(l10n),
-              icon: _isLoading
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.auto_awesome, size: 20),
-              label: Text(label),
-            );
-          },
+        return TextButton.icon(
+          onPressed: _isLoading ? null : () => _onTap(l10n),
+          icon: _isLoading
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.auto_awesome, size: 20),
+          label: Text(label),
         );
       },
     );
   }
 
   Future<void> _onTap(AppLocalizations l10n) async {
-    final db = ref.read(databaseServiceProvider);
+    final secure = ref.read(secureStorageServiceProvider);
     final isPremium = ref.read(isPremiumProvider);
     final locale = Localizations.localeOf(context).languageCode;
 
-    final canUse = await FeatureGate.canUseAiSort(db, isPremium);
+    final devAiUnlimited = ref.read(devModeAiUnlimitedProvider);
+    final canUse = await FeatureGate.canUseAiSort(
+      secure,
+      isPremium,
+      devAiUnlimited: devAiUnlimited,
+    );
     if (!canUse) {
       if (!mounted) return;
       await _showLimitDialog(l10n, isPremium);
@@ -162,44 +160,68 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
 
       final isRealApiCall = AppConstants.anthropicApiKey.isNotEmpty;
 
-      // priority/aiComment更新
-      final updates = <int, ({int priority, String? aiComment})>{};
+      // priority/aiComment/recommendedStart/end更新
+      final updates = <int,
+          ({
+            int priority,
+            String? aiComment,
+            DateTime? recommendedStart,
+            DateTime? recommendedEnd,
+          })>{};
       for (final r in response.tasks) {
         final comment = locale == 'ja' ? r.commentJa : r.commentEn;
-        updates[r.taskId] = (priority: r.priority, aiComment: comment);
+        final start = (r.recommendedStart != null &&
+                r.recommendedStart!.isNotEmpty)
+            ? DateTime.tryParse(r.recommendedStart!)
+            : null;
+        final end = (r.recommendedEnd != null && r.recommendedEnd!.isNotEmpty)
+            ? DateTime.tryParse(r.recommendedEnd!)
+            : null;
+        updates[r.taskId] = (
+          priority: r.priority,
+          aiComment: comment,
+          recommendedStart: start,
+          recommendedEnd: end,
+        );
       }
       await db.updateTaskPriorities(updates);
 
-      // ai_autoのタスクの通知をAI推奨日で更新
+      // プレミアム: AIのnotify_dateで自動通知スケジュール (手動設定済みは尊重)
       final isPremium = ref.read(isPremiumProvider);
       final notifyService = ref.read(notificationServiceProvider);
-      for (final r in response.tasks) {
-        if (r.recommendedNotifyDates.isEmpty) continue;
-        final task =
-            incompleteTasks.where((t) => t.id == r.taskId).firstOrNull;
-        if (task == null) continue;
+      if (isPremium) {
+        for (final r in response.tasks) {
+          final notifyDate = r.notifyDate;
+          if (notifyDate == null || notifyDate.isEmpty) continue;
+          final task =
+              incompleteTasks.where((t) => t.id == r.taskId).firstOrNull;
+          if (task == null) continue;
 
-        bool isAiAuto = false;
-        if (task.notifySettings != null) {
-          try {
-            final decoded =
-                List<String>.from(jsonDecode(task.notifySettings!) as List);
-            isAiAuto = decoded.length == 1 && decoded.first == 'ai_auto';
-          } catch (_) {}
-        }
+          // 手動設定済み (ai_auto以外で非null) はスキップ
+          final hasManual = task.notifySettings != null &&
+              !isAiAutoNotify(task.notifySettings);
+          if (hasManual) continue;
 
-        if (isAiAuto) {
           await notifyService.scheduleNotificationsForDates(
             task,
-            dates: r.recommendedNotifyDates,
-            isPremium: isPremium,
+            dates: [notifyDate],
+            isPremium: true,
             locale: locale,
           );
+          // notify_settings を ai_auto に統一
+          await db.updateTask(task.copyWith(
+            notifySettings: jsonEncode(['ai_auto']),
+            updatedAt: DateTime.now(),
+          ));
         }
       }
 
       if (isRealApiCall) {
         await db.recordAiUsage();
+        final secure = ref.read(secureStorageServiceProvider);
+        await secure.incrementAiUsage(
+          SecureStorageService.currentMonthKey(DateTime.now()),
+        );
       }
 
       // AI履歴に保存
@@ -209,6 +231,9 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         resultJson: jsonEncode(response.toJson()),
         taskCount: response.tasks.length,
       );
+
+      // AI整理完了ハプティクス
+      HapticFeedback.heavyImpact();
 
       // 結果をProviderに保存
       ref.read(aiSortResponseProvider.notifier).state = response;
@@ -266,42 +291,66 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
   }
 
   Future<void> _showLimitDialog(AppLocalizations l10n, bool isPremium) async {
-    final message =
-        isPremium ? l10n.aiSortDailyLimitReached : l10n.aiSortLimitReached;
-    final canShowReward = await FeatureGate.canShowRewardAd(isPremium);
-    final adService = ref.read(adServiceProvider);
-
-    if (!mounted) return;
+    final theme = Theme.of(context);
 
     await showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(l10n.aiSort),
-        content: Text(message),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(isPremium
+                ? l10n.aiSortMonthlyLimitReached
+                : l10n.aiSortLimitReached),
+            if (!isPremium) ...[
+              const SizedBox(height: 16),
+              // ミニ訴求
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.aiLimitUpgradeHint,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      l10n.aiLimitUpgradeDesc,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(l10n.cancel),
           ),
-          if (canShowReward && adService.isRewardedAdReady)
-            TextButton(
-              onPressed: () async {
+          if (!isPremium)
+            FilledButton(
+              onPressed: () {
                 Navigator.of(dialogContext).pop();
-                final rewarded = await adService.showRewardedAd();
-                if (rewarded && mounted) {
-                  final locale = Localizations.localeOf(context).languageCode;
-                  await _executeAiSort(l10n, locale);
-                }
+                context.push('/store');
               },
-              child: Text(l10n.aiSortWatchAd),
+              child: Text(l10n.aiSortUpgradeToPremium),
             ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              context.push('/store');
-            },
-            child: Text(l10n.aiSortUpgradeToPremium),
-          ),
         ],
       ),
     );

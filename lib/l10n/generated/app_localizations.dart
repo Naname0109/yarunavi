@@ -770,42 +770,6 @@ abstract class AppLocalizations {
   /// **'ストアに接続できません'**
   String get storeStoreUnavailable;
 
-  /// No description provided for @onboardingTitle1.
-  ///
-  /// In ja, this message translates to:
-  /// **'タスク名と期限を入れるだけ'**
-  String get onboardingTitle1;
-
-  /// No description provided for @onboardingDesc1.
-  ///
-  /// In ja, this message translates to:
-  /// **'複雑な設定は不要。\nタスク名と期限日を入力するだけで\nすぐに使い始められます。'**
-  String get onboardingDesc1;
-
-  /// No description provided for @onboardingTitle2.
-  ///
-  /// In ja, this message translates to:
-  /// **'AIが優先順位を整理'**
-  String get onboardingTitle2;
-
-  /// No description provided for @onboardingDesc2.
-  ///
-  /// In ja, this message translates to:
-  /// **'「何から手をつければいい？」を\nAIがあなたに代わって考えます。\n期限やカテゴリから最適な順番を提案。'**
-  String get onboardingDesc2;
-
-  /// No description provided for @onboardingTitle3.
-  ///
-  /// In ja, this message translates to:
-  /// **'やるべき日に通知でお知らせ'**
-  String get onboardingTitle3;
-
-  /// No description provided for @onboardingDesc3.
-  ///
-  /// In ja, this message translates to:
-  /// **'期限が近づいたらプッシュ通知。\n「忘れてた！」をなくします。\n通知を許可して便利に使いましょう。'**
-  String get onboardingDesc3;
-
   /// No description provided for @onboardingSkip.
   ///
   /// In ja, this message translates to:
@@ -823,6 +787,624 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'はじめる'**
   String get onboardingStart;
+
+  /// No description provided for @ob1Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'やることを入れるだけ'**
+  String get ob1Title;
+
+  /// No description provided for @ob1Desc.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク名と期限を入れるだけ。メモも追加できます'**
+  String get ob1Desc;
+
+  /// No description provided for @ob1Sub.
+  ///
+  /// In ja, this message translates to:
+  /// **'頭の中のやることを全部ここに'**
+  String get ob1Sub;
+
+  /// No description provided for @ob1Task1.
+  ///
+  /// In ja, this message translates to:
+  /// **'家賃振込'**
+  String get ob1Task1;
+
+  /// No description provided for @ob1Task2.
+  ///
+  /// In ja, this message translates to:
+  /// **'免許更新'**
+  String get ob1Task2;
+
+  /// No description provided for @ob1Task3.
+  ///
+  /// In ja, this message translates to:
+  /// **'日用品買い出し'**
+  String get ob1Task3;
+
+  /// No description provided for @ob1Task4.
+  ///
+  /// In ja, this message translates to:
+  /// **'確定申告の書類準備...'**
+  String get ob1Task4;
+
+  /// No description provided for @ob2Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIが整理してくれる'**
+  String get ob2Title;
+
+  /// No description provided for @ob2Desc.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIが優先順位を判断し、具体的なアドバイス付きで整理'**
+  String get ob2Desc;
+
+  /// No description provided for @ob2BeforeLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'整理前'**
+  String get ob2BeforeLabel;
+
+  /// No description provided for @ob2BeforeTask1.
+  ///
+  /// In ja, this message translates to:
+  /// **'本を読む'**
+  String get ob2BeforeTask1;
+
+  /// No description provided for @ob2BeforeDate1.
+  ///
+  /// In ja, this message translates to:
+  /// **'5/1'**
+  String get ob2BeforeDate1;
+
+  /// No description provided for @ob2BeforeTask2.
+  ///
+  /// In ja, this message translates to:
+  /// **'家賃振込'**
+  String get ob2BeforeTask2;
+
+  /// No description provided for @ob2BeforeDate2.
+  ///
+  /// In ja, this message translates to:
+  /// **'明日'**
+  String get ob2BeforeDate2;
+
+  /// No description provided for @ob2BeforeTask3.
+  ///
+  /// In ja, this message translates to:
+  /// **'パスポート更新'**
+  String get ob2BeforeTask3;
+
+  /// No description provided for @ob2BeforeDate3.
+  ///
+  /// In ja, this message translates to:
+  /// **'5/20'**
+  String get ob2BeforeDate3;
+
+  /// No description provided for @ob2BeforeTask4.
+  ///
+  /// In ja, this message translates to:
+  /// **'週報提出'**
+  String get ob2BeforeTask4;
+
+  /// No description provided for @ob2BeforeDate4.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日'**
+  String get ob2BeforeDate4;
+
+  /// No description provided for @ob2BeforeTask5.
+  ///
+  /// In ja, this message translates to:
+  /// **'日用品買い出し'**
+  String get ob2BeforeTask5;
+
+  /// No description provided for @ob2BeforeDate5.
+  ///
+  /// In ja, this message translates to:
+  /// **'4/18'**
+  String get ob2BeforeDate5;
+
+  /// No description provided for @ob2AfterUrgent.
+  ///
+  /// In ja, this message translates to:
+  /// **'今すぐやるべき'**
+  String get ob2AfterUrgent;
+
+  /// No description provided for @ob2AfterWarning.
+  ///
+  /// In ja, this message translates to:
+  /// **'今週中に'**
+  String get ob2AfterWarning;
+
+  /// No description provided for @ob2AfterNormal.
+  ///
+  /// In ja, this message translates to:
+  /// **'来週以降'**
+  String get ob2AfterNormal;
+
+  /// No description provided for @ob2AfterRelaxed.
+  ///
+  /// In ja, this message translates to:
+  /// **'急がない'**
+  String get ob2AfterRelaxed;
+
+  /// No description provided for @ob2AfterTask1.
+  ///
+  /// In ja, this message translates to:
+  /// **'週報提出'**
+  String get ob2AfterTask1;
+
+  /// No description provided for @ob2AfterComment1.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日中に提出。午前中がおすすめ'**
+  String get ob2AfterComment1;
+
+  /// No description provided for @ob2AfterTask2.
+  ///
+  /// In ja, this message translates to:
+  /// **'家賃振込'**
+  String get ob2AfterTask2;
+
+  /// No description provided for @ob2AfterComment2.
+  ///
+  /// In ja, this message translates to:
+  /// **'明日が期限。ネットバンキングで今日中に'**
+  String get ob2AfterComment2;
+
+  /// No description provided for @ob2AfterTask3.
+  ///
+  /// In ja, this message translates to:
+  /// **'日用品買い出し'**
+  String get ob2AfterTask3;
+
+  /// No description provided for @ob2AfterComment3.
+  ///
+  /// In ja, this message translates to:
+  /// **'週末にまとめ買いが効率的'**
+  String get ob2AfterComment3;
+
+  /// No description provided for @ob2AfterTask4.
+  ///
+  /// In ja, this message translates to:
+  /// **'パスポート更新'**
+  String get ob2AfterTask4;
+
+  /// No description provided for @ob2AfterComment4.
+  ///
+  /// In ja, this message translates to:
+  /// **'窓口は平日のみ。来週の午前中に'**
+  String get ob2AfterComment4;
+
+  /// No description provided for @ob2AfterTask5.
+  ///
+  /// In ja, this message translates to:
+  /// **'本を読む'**
+  String get ob2AfterTask5;
+
+  /// No description provided for @ob2AfterComment5.
+  ///
+  /// In ja, this message translates to:
+  /// **'余裕あり。週末のリラックスタイムに'**
+  String get ob2AfterComment5;
+
+  /// No description provided for @ob3Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダーで実行日が見える'**
+  String get ob3Title;
+
+  /// No description provided for @ob3Desc.
+  ///
+  /// In ja, this message translates to:
+  /// **'いつやるかが一目でわかる。\nAIが最適な実行日を提案します'**
+  String get ob3Desc;
+
+  /// No description provided for @ob3LegendUrgent.
+  ///
+  /// In ja, this message translates to:
+  /// **'緊急'**
+  String get ob3LegendUrgent;
+
+  /// No description provided for @ob3LegendWeek.
+  ///
+  /// In ja, this message translates to:
+  /// **'今週'**
+  String get ob3LegendWeek;
+
+  /// No description provided for @ob3LegendLater.
+  ///
+  /// In ja, this message translates to:
+  /// **'来週〜'**
+  String get ob3LegendLater;
+
+  /// No description provided for @ob4Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'通知で忘れない'**
+  String get ob4Title;
+
+  /// No description provided for @ob4Desc.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIが最適なタイミングで通知。\n必要な日だけお知らせ'**
+  String get ob4Desc;
+
+  /// No description provided for @ob4Sub.
+  ///
+  /// In ja, this message translates to:
+  /// **'やることがない日は静かです'**
+  String get ob4Sub;
+
+  /// No description provided for @ob4Notify1.
+  ///
+  /// In ja, this message translates to:
+  /// **'家賃振込 — ネットバンキングで今日中に'**
+  String get ob4Notify1;
+
+  /// No description provided for @ob4NotifyPrevDay.
+  ///
+  /// In ja, this message translates to:
+  /// **'YaruNavi  前日 9:00 AM'**
+  String get ob4NotifyPrevDay;
+
+  /// No description provided for @ob4Notify2.
+  ///
+  /// In ja, this message translates to:
+  /// **'日用品買い出し — 明日の買い物リストを確認'**
+  String get ob4Notify2;
+
+  /// No description provided for @ob5Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムでもっと便利に'**
+  String get ob5Title;
+
+  /// No description provided for @ob5Free.
+  ///
+  /// In ja, this message translates to:
+  /// **'無料'**
+  String get ob5Free;
+
+  /// No description provided for @ob5AiSort.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理'**
+  String get ob5AiSort;
+
+  /// No description provided for @ob5Tasks.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク'**
+  String get ob5Tasks;
+
+  /// No description provided for @ob5Notify.
+  ///
+  /// In ja, this message translates to:
+  /// **'通知'**
+  String get ob5Notify;
+
+  /// No description provided for @ob5Calendar.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダー'**
+  String get ob5Calendar;
+
+  /// No description provided for @ob5AiComment.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIコメント'**
+  String get ob5AiComment;
+
+  /// No description provided for @ob5Ads.
+  ///
+  /// In ja, this message translates to:
+  /// **'広告'**
+  String get ob5Ads;
+
+  /// No description provided for @ob5FreeAi.
+  ///
+  /// In ja, this message translates to:
+  /// **'月2回'**
+  String get ob5FreeAi;
+
+  /// No description provided for @ob5FreeTasks.
+  ///
+  /// In ja, this message translates to:
+  /// **'10件まで'**
+  String get ob5FreeTasks;
+
+  /// No description provided for @ob5PremiumAi.
+  ///
+  /// In ja, this message translates to:
+  /// **'月50回'**
+  String get ob5PremiumAi;
+
+  /// No description provided for @ob5PremiumTasks.
+  ///
+  /// In ja, this message translates to:
+  /// **'無制限'**
+  String get ob5PremiumTasks;
+
+  /// No description provided for @ob5PremiumNotify.
+  ///
+  /// In ja, this message translates to:
+  /// **'自動設定'**
+  String get ob5PremiumNotify;
+
+  /// No description provided for @ob5PremiumCalendar.
+  ///
+  /// In ja, this message translates to:
+  /// **'連携可'**
+  String get ob5PremiumCalendar;
+
+  /// No description provided for @ob5PremiumComment.
+  ///
+  /// In ja, this message translates to:
+  /// **'全表示'**
+  String get ob5PremiumComment;
+
+  /// No description provided for @ob5PremiumAds.
+  ///
+  /// In ja, this message translates to:
+  /// **'非表示'**
+  String get ob5PremiumAds;
+
+  /// No description provided for @ob5Price.
+  ///
+  /// In ja, this message translates to:
+  /// **'月額¥580 / 年額¥4,200（40%おトク）'**
+  String get ob5Price;
+
+  /// No description provided for @ob5TrialButton.
+  ///
+  /// In ja, this message translates to:
+  /// **'7日間無料で試す'**
+  String get ob5TrialButton;
+
+  /// No description provided for @ob5FreeButton.
+  ///
+  /// In ja, this message translates to:
+  /// **'まずは無料で始める'**
+  String get ob5FreeButton;
+
+  /// No description provided for @ob6Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'さあ、始めましょう'**
+  String get ob6Title;
+
+  /// No description provided for @ob6Desc.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクを追加して、AIに整理してもらおう'**
+  String get ob6Desc;
+
+  /// No description provided for @aiPremiumBannerTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムならAIコメント・通知・カレンダーが使えます'**
+  String get aiPremiumBannerTitle;
+
+  /// No description provided for @aiPremiumBannerDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理 月50回、通知自動設定、カレンダー連携、広告なし'**
+  String get aiPremiumBannerDesc;
+
+  /// No description provided for @aiPremiumBannerButton.
+  ///
+  /// In ja, this message translates to:
+  /// **'7日間無料で試す →'**
+  String get aiPremiumBannerButton;
+
+  /// No description provided for @aiLimitUpgradeHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIの整理をもっと使いたい方へ'**
+  String get aiLimitUpgradeHint;
+
+  /// No description provided for @aiLimitUpgradeDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムなら月50回のAI整理、通知自動設定、カレンダー連携が使えます'**
+  String get aiLimitUpgradeDesc;
+
+  /// No description provided for @settingsReplayOnboarding.
+  ///
+  /// In ja, this message translates to:
+  /// **'操作ガイドを再表示'**
+  String get settingsReplayOnboarding;
+
+  /// No description provided for @coachAddTask.
+  ///
+  /// In ja, this message translates to:
+  /// **'ここからタスクを追加'**
+  String get coachAddTask;
+
+  /// No description provided for @coachAiSort.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIがタスクの優先順位を整理します'**
+  String get coachAiSort;
+
+  /// No description provided for @coachFilterTabs.
+  ///
+  /// In ja, this message translates to:
+  /// **'タブで表示を切り替えられます'**
+  String get coachFilterTabs;
+
+  /// No description provided for @coachCalendarToggle.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダー表示にも切り替えられます'**
+  String get coachCalendarToggle;
+
+  /// No description provided for @coachNext.
+  ///
+  /// In ja, this message translates to:
+  /// **'次へ'**
+  String get coachNext;
+
+  /// No description provided for @coachDone.
+  ///
+  /// In ja, this message translates to:
+  /// **'OK'**
+  String get coachDone;
+
+  /// No description provided for @tabList.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク'**
+  String get tabList;
+
+  /// No description provided for @tabCalendar.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダー'**
+  String get tabCalendar;
+
+  /// No description provided for @notifyPremiumOnly.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムで通知を設定'**
+  String get notifyPremiumOnly;
+
+  /// No description provided for @notifyPremiumOnlySnack.
+  ///
+  /// In ja, this message translates to:
+  /// **'通知設定はプレミアム機能です'**
+  String get notifyPremiumOnlySnack;
+
+  /// No description provided for @proBadge.
+  ///
+  /// In ja, this message translates to:
+  /// **'PRO'**
+  String get proBadge;
+
+  /// No description provided for @aiNotifyPremiumPrompt.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムで通知を受け取れます'**
+  String get aiNotifyPremiumPrompt;
+
+  /// No description provided for @aiSortMonthlyLimitReached.
+  ///
+  /// In ja, this message translates to:
+  /// **'今月のAI整理上限に達しました。来月リセットされます'**
+  String get aiSortMonthlyLimitReached;
+
+  /// No description provided for @premiumGateTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'🔔 通知 / 📅 カレンダー連携はプレミアムで'**
+  String get premiumGateTitle;
+
+  /// No description provided for @premiumGateDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムに登録すると、AIが最適な通知日を自動設定、タスクをカレンダーに追加、広告非表示、AI整理 月50回まで利用できます。'**
+  String get premiumGateDesc;
+
+  /// No description provided for @premiumGateUpgrade.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムに登録して今すぐ設定する'**
+  String get premiumGateUpgrade;
+
+  /// No description provided for @premiumGateLater.
+  ///
+  /// In ja, this message translates to:
+  /// **'あとで'**
+  String get premiumGateLater;
+
+  /// No description provided for @aiNotifyOn.
+  ///
+  /// In ja, this message translates to:
+  /// **'{date} に通知する'**
+  String aiNotifyOn(String date);
+
+  /// No description provided for @aiCalendarAdd.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダーに追加'**
+  String get aiCalendarAdd;
+
+  /// No description provided for @aiCalendarAdded.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダーに追加しました'**
+  String get aiCalendarAdded;
+
+  /// No description provided for @notifyScheduled.
+  ///
+  /// In ja, this message translates to:
+  /// **'通知をセットしました'**
+  String get notifyScheduled;
+
+  /// No description provided for @notifyScheduledLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'通知予定'**
+  String get notifyScheduledLabel;
+
+  /// No description provided for @aiAutoNotifyHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIが整理時に通知日を決定します'**
+  String get aiAutoNotifyHint;
+
+  /// No description provided for @calendarAddedBadge.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダー追加済み'**
+  String get calendarAddedBadge;
+
+  /// No description provided for @aiNotOrganizedHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIで整理するとアドバイスが表示されます'**
+  String get aiNotOrganizedHint;
+
+  /// No description provided for @aiCommentLockedHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムでAIコメントを見る'**
+  String get aiCommentLockedHint;
+
+  /// No description provided for @recommendedDateHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'📌 {date} にやるのがおすすめ'**
+  String recommendedDateHint(String date);
+
+  /// No description provided for @calendarSectionRecommended.
+  ///
+  /// In ja, this message translates to:
+  /// **'📋 この日にやるべきタスク'**
+  String get calendarSectionRecommended;
+
+  /// No description provided for @calendarSectionDue.
+  ///
+  /// In ja, this message translates to:
+  /// **'⏰ この日が期限のタスク'**
+  String get calendarSectionDue;
+
+  /// No description provided for @taskCardEdit.
+  ///
+  /// In ja, this message translates to:
+  /// **'編集'**
+  String get taskCardEdit;
+
+  /// No description provided for @aiAutoNotifyHintFull.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムなら整理時に通知も自動セットされます'**
+  String get aiAutoNotifyHintFull;
 
   /// No description provided for @settingsAccount.
   ///
@@ -1100,6 +1682,36 @@ abstract class AppLocalizations {
   /// **'全データを削除してテストデータを投入しますか？'**
   String get debugConfirmDeleteAndInsert;
 
+  /// No description provided for @debugAiTestData.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理テストデータ'**
+  String get debugAiTestData;
+
+  /// No description provided for @debugAiTestDataTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理テストデータ投入（15件固定）'**
+  String get debugAiTestDataTitle;
+
+  /// No description provided for @debugAiTestDataDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'全データ削除後、AI評価用の固定テストデータを投入'**
+  String get debugAiTestDataDesc;
+
+  /// No description provided for @debugAiTestDataConfirm.
+  ///
+  /// In ja, this message translates to:
+  /// **'全データを削除してAI評価用の15件を投入します。よろしいですか？'**
+  String get debugAiTestDataConfirm;
+
+  /// No description provided for @debugAiTestDataInserted.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理テストデータ（15件）を投入しました'**
+  String get debugAiTestDataInserted;
+
   /// No description provided for @aiTodayPlan.
   ///
   /// In ja, this message translates to:
@@ -1225,6 +1837,168 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'おすすめ'**
   String get storeRecommended;
+
+  /// No description provided for @calendarNoTasks.
+  ///
+  /// In ja, this message translates to:
+  /// **'この日のタスクはありません'**
+  String get calendarNoTasks;
+
+  /// No description provided for @calendarToday.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日'**
+  String get calendarToday;
+
+  /// No description provided for @swipeComplete.
+  ///
+  /// In ja, this message translates to:
+  /// **'完了'**
+  String get swipeComplete;
+
+  /// No description provided for @swipeDelete.
+  ///
+  /// In ja, this message translates to:
+  /// **'削除'**
+  String get swipeDelete;
+
+  /// No description provided for @swipeUndo.
+  ///
+  /// In ja, this message translates to:
+  /// **'戻す'**
+  String get swipeUndo;
+
+  /// No description provided for @reorderHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'長押しでドラッグして並び替え'**
+  String get reorderHint;
+
+  /// No description provided for @categoryManageTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'カテゴリ管理'**
+  String get categoryManageTitle;
+
+  /// No description provided for @categoryAdd.
+  ///
+  /// In ja, this message translates to:
+  /// **'カテゴリを追加'**
+  String get categoryAdd;
+
+  /// No description provided for @categoryEdit.
+  ///
+  /// In ja, this message translates to:
+  /// **'カテゴリを編集'**
+  String get categoryEdit;
+
+  /// No description provided for @categoryDefault.
+  ///
+  /// In ja, this message translates to:
+  /// **'デフォルト'**
+  String get categoryDefault;
+
+  /// No description provided for @categoryEmpty.
+  ///
+  /// In ja, this message translates to:
+  /// **'カテゴリがありません'**
+  String get categoryEmpty;
+
+  /// No description provided for @categoryNameLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'カテゴリ名'**
+  String get categoryNameLabel;
+
+  /// No description provided for @categoryNameHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'例: 健康、趣味'**
+  String get categoryNameHint;
+
+  /// No description provided for @categoryIconLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'アイコンを選択'**
+  String get categoryIconLabel;
+
+  /// No description provided for @categoryDeleteTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'カテゴリを削除'**
+  String get categoryDeleteTitle;
+
+  /// No description provided for @categoryDeleteMessage.
+  ///
+  /// In ja, this message translates to:
+  /// **'このカテゴリに割り当てられたタスクのカテゴリは未設定になります。削除しますか？'**
+  String get categoryDeleteMessage;
+
+  /// No description provided for @devModeSection.
+  ///
+  /// In ja, this message translates to:
+  /// **'開発者モード'**
+  String get devModeSection;
+
+  /// No description provided for @devModeAiUnlimited.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI回数制限を無視'**
+  String get devModeAiUnlimited;
+
+  /// No description provided for @devModeAiUnlimitedDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'ONでAI整理の回数制限をスキップ'**
+  String get devModeAiUnlimitedDesc;
+
+  /// No description provided for @devModePremium.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアム機能を解放'**
+  String get devModePremium;
+
+  /// No description provided for @devModePremiumDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'ONで全FeatureGateを解除'**
+  String get devModePremiumDesc;
+
+  /// No description provided for @devModeResetAiUsage.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI使用回数リセット'**
+  String get devModeResetAiUsage;
+
+  /// No description provided for @devModeResetAiUsageDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'当月のAI使用回数をリセットします'**
+  String get devModeResetAiUsageDesc;
+
+  /// No description provided for @devModeResetAiUsageDone.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI使用回数をリセットしました'**
+  String get devModeResetAiUsageDone;
+
+  /// No description provided for @devModeConfirmResetAiUsage.
+  ///
+  /// In ja, this message translates to:
+  /// **'当月のAI使用回数をリセットしますか？'**
+  String get devModeConfirmResetAiUsage;
+
+  /// No description provided for @devModeEnabled.
+  ///
+  /// In ja, this message translates to:
+  /// **'開発者モードが有効になりました'**
+  String get devModeEnabled;
+
+  /// No description provided for @devModeRemaining.
+  ///
+  /// In ja, this message translates to:
+  /// **'あと{count}回タップで開発者モード'**
+  String devModeRemaining(int count);
 }
 
 class _AppLocalizationsDelegate

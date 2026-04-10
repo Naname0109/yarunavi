@@ -12,6 +12,7 @@ _$CategoryImpl _$$CategoryImplFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       icon: json['icon'] as String,
       sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
+      isDefault: json['isDefault'] as bool? ?? false,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
@@ -21,5 +22,6 @@ Map<String, dynamic> _$$CategoryImplToJson(_$CategoryImpl instance) =>
       'name': instance.name,
       'icon': instance.icon,
       'sortOrder': instance.sortOrder,
+      'isDefault': instance.isDefault,
       'createdAt': instance.createdAt.toIso8601String(),
     };

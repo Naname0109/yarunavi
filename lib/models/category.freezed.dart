@@ -25,6 +25,7 @@ mixin _$Category {
   String get name => throw _privateConstructorUsedError;
   String get icon => throw _privateConstructorUsedError;
   int get sortOrder => throw _privateConstructorUsedError;
+  bool get isDefault => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this Category to a JSON map.
@@ -47,6 +48,7 @@ abstract class $CategoryCopyWith<$Res> {
     String name,
     String icon,
     int sortOrder,
+    bool isDefault,
     DateTime createdAt,
   });
 }
@@ -70,6 +72,7 @@ class _$CategoryCopyWithImpl<$Res, $Val extends Category>
     Object? name = null,
     Object? icon = null,
     Object? sortOrder = null,
+    Object? isDefault = null,
     Object? createdAt = null,
   }) {
     return _then(
@@ -90,6 +93,10 @@ class _$CategoryCopyWithImpl<$Res, $Val extends Category>
                 ? _value.sortOrder
                 : sortOrder // ignore: cast_nullable_to_non_nullable
                       as int,
+            isDefault: null == isDefault
+                ? _value.isDefault
+                : isDefault // ignore: cast_nullable_to_non_nullable
+                      as bool,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -114,6 +121,7 @@ abstract class _$$CategoryImplCopyWith<$Res>
     String name,
     String icon,
     int sortOrder,
+    bool isDefault,
     DateTime createdAt,
   });
 }
@@ -136,6 +144,7 @@ class __$$CategoryImplCopyWithImpl<$Res>
     Object? name = null,
     Object? icon = null,
     Object? sortOrder = null,
+    Object? isDefault = null,
     Object? createdAt = null,
   }) {
     return _then(
@@ -156,6 +165,10 @@ class __$$CategoryImplCopyWithImpl<$Res>
             ? _value.sortOrder
             : sortOrder // ignore: cast_nullable_to_non_nullable
                   as int,
+        isDefault: null == isDefault
+            ? _value.isDefault
+            : isDefault // ignore: cast_nullable_to_non_nullable
+                  as bool,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -173,6 +186,7 @@ class _$CategoryImpl extends _Category {
     required this.name,
     required this.icon,
     this.sortOrder = 0,
+    this.isDefault = false,
     required this.createdAt,
   }) : super._();
 
@@ -189,11 +203,14 @@ class _$CategoryImpl extends _Category {
   @JsonKey()
   final int sortOrder;
   @override
+  @JsonKey()
+  final bool isDefault;
+  @override
   final DateTime createdAt;
 
   @override
   String toString() {
-    return 'Category(id: $id, name: $name, icon: $icon, sortOrder: $sortOrder, createdAt: $createdAt)';
+    return 'Category(id: $id, name: $name, icon: $icon, sortOrder: $sortOrder, isDefault: $isDefault, createdAt: $createdAt)';
   }
 
   @override
@@ -206,6 +223,8 @@ class _$CategoryImpl extends _Category {
             (identical(other.icon, icon) || other.icon == icon) &&
             (identical(other.sortOrder, sortOrder) ||
                 other.sortOrder == sortOrder) &&
+            (identical(other.isDefault, isDefault) ||
+                other.isDefault == isDefault) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
@@ -213,7 +232,7 @@ class _$CategoryImpl extends _Category {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, id, name, icon, sortOrder, createdAt);
+      Object.hash(runtimeType, id, name, icon, sortOrder, isDefault, createdAt);
 
   /// Create a copy of Category
   /// with the given fields replaced by the non-null parameter values.
@@ -235,6 +254,7 @@ abstract class _Category extends Category {
     required final String name,
     required final String icon,
     final int sortOrder,
+    final bool isDefault,
     required final DateTime createdAt,
   }) = _$CategoryImpl;
   const _Category._() : super._();
@@ -250,6 +270,8 @@ abstract class _Category extends Category {
   String get icon;
   @override
   int get sortOrder;
+  @override
+  bool get isDefault;
   @override
   DateTime get createdAt;
 

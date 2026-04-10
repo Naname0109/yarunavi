@@ -12,6 +12,7 @@ class Category with _$Category {
     required String name,
     required String icon,
     @Default(0) int sortOrder,
+    @Default(false) bool isDefault,
     required DateTime createdAt,
   }) = _Category;
 
@@ -24,6 +25,7 @@ class Category with _$Category {
         name: map['name'] as String,
         icon: map['icon'] as String,
         sortOrder: map['sort_order'] as int? ?? 0,
+        isDefault: (map['is_default'] as int? ?? 0) == 1,
         createdAt: DateTime.parse(map['created_at'] as String),
       );
 
@@ -33,6 +35,7 @@ class Category with _$Category {
         'name': name,
         'icon': icon,
         'sort_order': sortOrder,
+        'is_default': isDefault ? 1 : 0,
         'created_at': createdAt.toIso8601String(),
       };
 }
