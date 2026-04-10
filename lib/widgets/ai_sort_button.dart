@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +10,7 @@ import '../providers/purchase_provider.dart';
 import '../providers/secure_storage_provider.dart';
 import '../providers/task_provider.dart';
 import '../services/ai_service.dart';
+import '../services/rewarded_ad_service.dart';
 import '../services/secure_storage_service.dart';
 import '../utils/category_helper.dart';
 import '../utils/constants.dart';
@@ -40,56 +40,35 @@ class AiSortButton extends ConsumerStatefulWidget {
 
 class _AiSortButtonState extends ConsumerState<AiSortButton> {
   bool _isLoading = false;
-  late Future<int> _remainingFuture;
+  final _rewardedAdService = RewardedAdService();
 
   @override
   void initState() {
     super.initState();
-    _refreshRemaining();
+    // リワード広告をプリロード
+    _rewardedAdService.preload();
   }
 
-  void _refreshRemaining() {
-    final secure = ref.read(secureStorageServiceProvider);
-    final isPremium = ref.read(isPremiumProvider);
-    final devAiUnlimited = ref.read(devModeAiUnlimitedProvider);
-    _remainingFuture = FeatureGate.getRemainingAiSortCount(
-      secure,
-      isPremium,
-      devAiUnlimited: devAiUnlimited,
-    );
+  @override
+  void dispose() {
+    _rewardedAdService.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final isPremium = ref.watch(isPremiumProvider);
 
-    return FutureBuilder<int>(
-      future: _remainingFuture,
-      builder: (context, snapshot) {
-        final remaining = snapshot.data ?? 0;
-
-        String label;
-        if (_isLoading) {
-          label = l10n.aiSorting;
-        } else if (isPremium || kDebugMode) {
-          label = l10n.aiSort;
-        } else {
-          label = '${l10n.aiSort} (${l10n.aiSortRemaining(remaining)})';
-        }
-
-        return TextButton.icon(
-          onPressed: _isLoading ? null : () => _onTap(l10n),
-          icon: _isLoading
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.auto_awesome, size: 20),
-          label: Text(label),
-        );
-      },
+    return TextButton.icon(
+      onPressed: _isLoading ? null : () => _onTap(l10n),
+      icon: _isLoading
+          ? const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(Icons.auto_awesome, size: 20),
+      label: Text(_isLoading ? l10n.aiSorting : l10n.aiSort),
     );
   }
 
@@ -97,20 +76,27 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     final secure = ref.read(secureStorageServiceProvider);
     final isPremium = ref.read(isPremiumProvider);
     final locale = Localizations.localeOf(context).languageCode;
-
     final devAiUnlimited = ref.read(devModeAiUnlimitedProvider);
-    final canUse = await FeatureGate.canUseAiSort(
+
+    final access = await FeatureGate.checkAiSortAccess(
       secure,
       isPremium,
       devAiUnlimited: devAiUnlimited,
     );
-    if (!canUse) {
-      if (!mounted) return;
-      await _showLimitDialog(l10n, isPremium);
-      return;
-    }
 
-    await _executeAiSort(l10n, locale);
+    switch (access) {
+      case AiSortAccess.allowed:
+        await _executeAiSort(l10n, locale);
+      case AiSortAccess.rewardedAdRequired:
+        if (!mounted) return;
+        await _showRewardedAdDialog(l10n, locale);
+      case AiSortAccess.rewardedAdUsedToday:
+        if (!mounted) return;
+        await _showTodayLimitDialog(l10n);
+      case AiSortAccess.premiumMonthlyLimitReached:
+        if (!mounted) return;
+        await _showPremiumLimitDialog(l10n);
+    }
   }
 
   Future<void> _executeAiSort(
@@ -219,9 +205,15 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       if (isRealApiCall) {
         await db.recordAiUsage();
         final secure = ref.read(secureStorageServiceProvider);
-        await secure.incrementAiUsage(
-          SecureStorageService.currentMonthKey(DateTime.now()),
-        );
+        final isPremium = ref.read(isPremiumProvider);
+        if (isPremium) {
+          await secure.incrementAiUsage(
+            SecureStorageService.currentMonthKey(DateTime.now()),
+          );
+        } else {
+          // 無料ユーザー: 永続カウンターをインクリメント
+          await secure.incrementLifetimeFreeUsage();
+        }
       }
 
       // AI履歴に保存
@@ -238,11 +230,17 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       // 結果をProviderに保存
       ref.read(aiSortResponseProvider.notifier).state = response;
       ref.invalidate(tasksProvider);
-      _refreshRemaining();
 
       // モーダルを閉じる（まだ閉じていない場合のみ）
       if (mounted && !dialogDismissed) {
         Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      // フォールバック時はSnackbarで通知
+      if (response.isFallback && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.aiFallbackNotice)),
+        );
       }
 
       if (backgroundMode) {
@@ -290,67 +288,112 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     );
   }
 
-  Future<void> _showLimitDialog(AppLocalizations l10n, bool isPremium) async {
-    final theme = Theme.of(context);
-
-    await showDialog(
+  /// リワード広告を視聴してAI整理する
+  Future<void> _showRewardedAdDialog(
+      AppLocalizations l10n, String locale) async {
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: Text(l10n.aiSort),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(isPremium
-                ? l10n.aiSortMonthlyLimitReached
-                : l10n.aiSortLimitReached),
-            if (!isPremium) ...[
-              const SizedBox(height: 16),
-              // ミニ訴求
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.aiLimitUpgradeHint,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      l10n.aiLimitUpgradeDesc,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            Text(l10n.aiRewardedAdPrompt),
+            const SizedBox(height: 12),
+            Text(l10n.aiRewardedAdDesc,
+                style: TextStyle(
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
+            onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(l10n.cancel),
           ),
-          if (!isPremium)
-            FilledButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                context.push('/store');
-              },
-              child: Text(l10n.aiSortUpgradeToPremium),
-            ),
+          FilledButton.icon(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            icon: const Icon(Icons.play_circle_outline, size: 18),
+            label: Text(l10n.aiWatchAdButton),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    // 広告準備
+    if (!_rewardedAdService.isReady) {
+      await _rewardedAdService.preload();
+      await Future.delayed(const Duration(seconds: 2));
+    }
+
+    if (!_rewardedAdService.isReady) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.aiRewardedAdNotReady)),
+      );
+      return;
+    }
+
+    final rewarded = await _rewardedAdService.show();
+    if (!rewarded || !mounted) return;
+
+    // リワード成功 → 使用記録
+    final secure = ref.read(secureStorageServiceProvider);
+    await secure.recordRewardedUsage();
+
+    await _executeAiSort(l10n, locale);
+  }
+
+  /// 今日はリワード広告を使用済み
+  Future<void> _showTodayLimitDialog(AppLocalizations l10n) async {
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.aiSort),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.aiRewardedAdUsedToday),
+            const SizedBox(height: 12),
+            Text(l10n.aiRewardedAdTomorrow,
+                style: TextStyle(
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              context.push('/store');
+            },
+            child: Text(l10n.aiSortUpgradeToPremium),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// プレミアムの月間上限到達
+  Future<void> _showPremiumLimitDialog(AppLocalizations l10n) async {
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.aiSort),
+        content: Text(l10n.aiSortMonthlyLimitReached),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.cancel),
+          ),
         ],
       ),
     );

@@ -20,7 +20,8 @@ import '../widgets/task_form_sheet.dart';
 import 'calendar_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, this.initialTab = 0});
+  final int initialTab;
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
@@ -32,7 +33,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final _filterTabsKey = GlobalKey();
   final _bottomNavKey = GlobalKey();
   final _calendarKey = GlobalKey<CalendarScreenState>();
-  int _tabIndex = 0; // 0=List, 1=Calendar
+  late int _tabIndex = widget.initialTab.clamp(0, 1);
 
   @override
   void initState() {

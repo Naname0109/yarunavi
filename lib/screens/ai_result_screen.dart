@@ -164,7 +164,7 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
                 const SizedBox(height: 24),
                 FilledButton.icon(
                   onPressed: () {
-                    context.go('/home');
+                    context.go('/home?tab=1');
                   },
                   icon: const Icon(Icons.calendar_month),
                   label: Text(l10n.aiViewSchedule),
@@ -226,20 +226,20 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
               Text(summary, style: theme.textTheme.bodyMedium),
             ],
             const SizedBox(height: 12),
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
               children: [
                 _buildCountChip(
                   context,
                   l10n.aiTodayTasks(todayCount),
                   AppColors.priorityUrgent,
                 ),
-                const SizedBox(width: 8),
                 _buildCountChip(
                   context,
                   l10n.aiWeekTasks(weekCount),
                   AppColors.priorityWarning,
                 ),
-                const SizedBox(width: 8),
                 _buildCountChip(
                   context,
                   l10n.aiLaterTasks(laterCount),
@@ -458,6 +458,7 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
             _buildTaskHeader(context, task, color),
             _buildAiCommentBlock(context, l10n, task, isPremium,
                 isUrgent: task.priority == 1),
+            _buildRecommendedPeriod(context, l10n, task),
             _buildPremiumGates(context, l10n, locale, task, result),
             _buildSubtaskSection(context, l10n, task, subtasks),
           ],
@@ -496,6 +497,7 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
         children: [
           _buildAiCommentBlock(context, l10n, task, isPremium,
               isUrgent: task.priority == 1),
+          _buildRecommendedPeriod(context, l10n, task),
           _buildPremiumGates(context, l10n, locale, task, result),
           _buildSubtaskSection(context, l10n, task, subtasks),
         ],
@@ -536,12 +538,14 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
         children: [
           Icon(Icons.lock_outline, size: 13, color: theme.colorScheme.outline),
           const SizedBox(width: 4),
-          Text(
-            l10n.aiCommentLockedHint,
-            style: TextStyle(
-              fontSize: 12,
-              fontStyle: FontStyle.italic,
-              color: theme.colorScheme.outline,
+          Flexible(
+            child: Text(
+              l10n.aiCommentLockedHint,
+              style: TextStyle(
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+                color: theme.colorScheme.outline,
+              ),
             ),
           ),
         ],
@@ -568,6 +572,49 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  /// 推奨実行期間の表示
+  Widget _buildRecommendedPeriod(
+    BuildContext context,
+    AppLocalizations l10n,
+    Task task,
+  ) {
+    if (task.recommendedStart == null && task.recommendedEnd == null) {
+      return const SizedBox.shrink();
+    }
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
+    final fmt = DateFormat.MMMd(locale);
+
+    String period;
+    if (task.recommendedStart != null && task.recommendedEnd != null) {
+      final s = fmt.format(task.recommendedStart!);
+      final e = fmt.format(task.recommendedEnd!);
+      period = s == e ? s : '$s〜$e';
+    } else {
+      period = fmt.format(task.recommendedStart ?? task.recommendedEnd!);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, top: 4),
+      child: Row(
+        children: [
+          Icon(Icons.date_range,
+              size: 14, color: theme.colorScheme.primary),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              l10n.aiRecommendedPeriod(period),
+              style: TextStyle(
+                fontSize: 12,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

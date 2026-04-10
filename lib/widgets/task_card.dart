@@ -133,6 +133,24 @@ class _TaskCardState extends ConsumerState<TaskCard>
                                   widget.task.dueDate, context),
                             ),
                           ),
+                          // 折りたたみ時のAIコメントプレビュー
+                          if (!_expanded &&
+                              widget.task.aiComment != null &&
+                              widget.task.aiComment!.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(
+                                widget.task.aiComment!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -375,15 +393,31 @@ class _TaskCardState extends ConsumerState<TaskCard>
     if (isPremium &&
         widget.task.aiComment != null &&
         widget.task.aiComment!.isNotEmpty) {
-      children.add(const SizedBox(height: 2));
-      children.add(Text(
-        widget.task.aiComment!,
-        style: TextStyle(
-          fontSize: 12,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+      children.add(const SizedBox(height: 4));
+      children.add(Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(8),
         ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.auto_awesome,
+                size: 14,
+                color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                widget.task.aiComment!,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+        ),
       ));
     }
 

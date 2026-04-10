@@ -381,7 +381,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ob1Title => 'Just add your tasks';
 
   @override
-  String get ob1Desc => 'Enter a task name and due date. You can add notes too';
+  String get ob1Desc =>
+      'Enter a task name and due date.\nYou can add notes too.';
 
   @override
   String get ob1Sub => 'Get everything out of your head';
@@ -403,6 +404,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ob2Desc => 'AI prioritizes and gives actionable advice';
+
+  @override
+  String get ob2ArrowLabel => 'AI Sort';
 
   @override
   String get ob2BeforeLabel => 'Before';
@@ -506,10 +510,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ob4Sub => 'Quiet on days with nothing to do';
 
   @override
+  String get ob4MockLabel => 'You\'ll get notifications like this';
+
+  @override
+  String get ob4Time1 => 'Today 9:00';
+
+  @override
   String get ob4Notify1 => 'Pay rent — Use online banking today';
 
   @override
-  String get ob4NotifyPrevDay => 'YaruNavi  Day before 9:00 AM';
+  String get ob4Time2 => 'Tomorrow 9:00';
 
   @override
   String get ob4Notify2 => 'Buy groceries — Check your shopping list';
@@ -539,10 +549,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ob5Ads => 'Ads';
 
   @override
-  String get ob5FreeAi => '2/month';
+  String get ob5Recurring => 'Recurring';
+
+  @override
+  String get ob5FreeAi => '2 free + ads';
 
   @override
   String get ob5FreeTasks => 'Up to 10';
+
+  @override
+  String get ob5FreeRecurring => '1';
+
+  @override
+  String get ob5FreeAds => 'Yes';
 
   @override
   String get ob5PremiumAi => '50/month';
@@ -558,6 +577,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ob5PremiumComment => 'Full access';
+
+  @override
+  String get ob5PremiumRecurring => 'Unlimited';
 
   @override
   String get ob5PremiumAds => 'None';
@@ -579,6 +601,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get taskLoadError => 'Failed to load tasks';
+
+  @override
+  String get aiFallbackNotice =>
+      'AI sort encountered an error. Sorted by due date instead';
+
+  @override
+  String get aiRewardedAdPrompt => 'You\'ve used all free AI sorts';
+
+  @override
+  String get aiRewardedAdDesc =>
+      'Watch a video to unlock one AI sort today. Or go premium for unlimited access.';
+
+  @override
+  String get aiWatchAdButton => 'Watch & Sort';
+
+  @override
+  String get aiRewardedAdNotReady =>
+      'Ad not ready yet. Please try again shortly';
+
+  @override
+  String get aiRewardedAdUsedToday =>
+      'You\'ve already used today\'s video AI sort';
+
+  @override
+  String get aiRewardedAdTomorrow =>
+      'Come back tomorrow for another free sort, or go premium for unlimited access.';
+
+  @override
+  String aiRecommendedPeriod(String period) {
+    return 'Recommended: $period';
+  }
 
   @override
   String aiQuestionAnswer(int number, String answer) {

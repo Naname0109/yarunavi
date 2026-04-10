@@ -15,7 +15,6 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _pageController = PageController();
-  final _page2Key = GlobalKey<_Page2BeforeAfterState>();
   int _currentPage = 0;
 
   @override
@@ -30,9 +29,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (prefs.getBool('coachmarks_shown') == null) {
       await prefs.setBool('coachmarks_shown', false);
     }
-    if (mounted) {
-      context.go('/home');
-    }
+    if (mounted) context.go('/home');
   }
 
   @override
@@ -42,20 +39,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final isDark = theme.brightness == Brightness.dark;
 
     final pages = <Widget>[
-      _Page1AddTasks(l10n: l10n, isDark: isDark),
-      _Page2BeforeAfter(key: _page2Key, l10n: l10n, isDark: isDark),
-      _Page3Calendar(l10n: l10n, isDark: isDark),
-      _Page4Notification(l10n: l10n, isDark: isDark),
+      _Page1AddTasks(l10n: l10n),
+      _Page2BeforeAfter(l10n: l10n),
+      _Page3Calendar(l10n: l10n),
+      _Page4Notification(l10n: l10n),
       _Page5Premium(
         l10n: l10n,
-        isDark: isDark,
         onFreeTap: _completeOnboarding,
         onPremiumTap: () {
           _completeOnboarding();
           if (mounted) context.push('/store');
         },
       ),
-      _Page6Start(l10n: l10n, isDark: isDark),
+      _Page6Start(l10n: l10n),
     ];
 
     return Scaffold(
@@ -73,7 +69,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           child: ResponsiveWrapper(
             child: Column(
               children: [
-                // スキップボタン
                 Align(
                   alignment: Alignment.topRight,
                   child: Padding(
@@ -86,14 +81,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         : const SizedBox(height: 40),
                   ),
                 ),
-                // ページビュー
                 Expanded(
                   child: PageView(
                     controller: _pageController,
-                    onPageChanged: (i) {
-                      setState(() => _currentPage = i);
-                      if (i == 1) _page2Key.currentState?.replay();
-                    },
+                    onPageChanged: (i) => setState(() => _currentPage = i),
                     children: pages,
                   ),
                 ),
@@ -120,7 +111,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     }),
                   ),
                 ),
-                // ボタン
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
                   child: SizedBox(
@@ -136,12 +126,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 style: const TextStyle(fontSize: 16)),
                           )
                         : FilledButton.tonal(
-                            onPressed: () {
-                              _pageController.nextPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            },
+                            onPressed: () => _pageController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            ),
                             style: FilledButton.styleFrom(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 16),
@@ -160,203 +148,117 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 }
 
-// ─────────────────────────────────────────────
-// 画面1: やることを入れるだけ
-// ─────────────────────────────────────────────
+// ─── 画面1: やることを入れるだけ ───
 class _Page1AddTasks extends StatelessWidget {
-  const _Page1AddTasks({required this.l10n, required this.isDark});
+  const _Page1AddTasks({required this.l10n});
   final AppLocalizations l10n;
-  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final tasks = [
-      l10n.ob1Task1,
-      l10n.ob1Task2,
-      l10n.ob1Task3,
-      l10n.ob1Task4,
-    ];
+    final tasks = [l10n.ob1Task1, l10n.ob1Task2, l10n.ob1Task3, l10n.ob1Task4];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
+      padding: const EdgeInsets.symmetric(horizontal: 28),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // タスクリストのモック
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerLow,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: theme.colorScheme.outlineVariant,
-              ),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
             ),
             child: Column(
-              children: tasks.map((task) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Row(
-                    children: [
-                      Icon(Icons.check_box_outline_blank,
-                          size: 20, color: theme.colorScheme.outline),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(task,
-                            style: const TextStyle(fontSize: 15)),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+              children: tasks
+                  .map((t) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Row(
+                          children: [
+                            Icon(Icons.check_box_outline_blank,
+                                size: 20, color: theme.colorScheme.outline),
+                            const SizedBox(width: 12),
+                            Expanded(
+                                child: Text(t,
+                                    style: const TextStyle(fontSize: 15))),
+                          ],
+                        ),
+                      ))
+                  .toList(),
             ),
           ),
           const SizedBox(height: 32),
-          Text(
-            l10n.ob1Title,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Text(l10n.ob1Title,
+              style: theme.textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center),
           const SizedBox(height: 12),
-          Text(
-            l10n.ob1Desc,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Text(l10n.ob1Desc,
+              style: theme.textTheme.bodyLarge
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              textAlign: TextAlign.center),
           const SizedBox(height: 8),
-          Text(
-            l10n.ob1Sub,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Text(l10n.ob1Sub,
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: theme.colorScheme.outline),
+              textAlign: TextAlign.center),
         ],
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────
-// 画面2: AIが整理してくれる（ビフォーアフター）
-// ─────────────────────────────────────────────
-class _Page2BeforeAfter extends StatefulWidget {
-  const _Page2BeforeAfter({super.key, required this.l10n, required this.isDark});
+// ─── 画面2: ビフォーアフター（静止画・上下並列） ───
+class _Page2BeforeAfter extends StatelessWidget {
+  const _Page2BeforeAfter({required this.l10n});
   final AppLocalizations l10n;
-  final bool isDark;
-
-  @override
-  State<_Page2BeforeAfter> createState() => _Page2BeforeAfterState();
-}
-
-class _Page2BeforeAfterState extends State<_Page2BeforeAfter>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _beforeOpacity;
-  late Animation<double> _afterOpacity;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 3500),
-    );
-
-    // 0-2s: Before visible, 2-2.5s: fade out, 2.5-3s: After fade in, 3-3.5s: hold
-    _beforeOpacity = TweenSequence<double>([
-      TweenSequenceItem(tween: ConstantTween(1.0), weight: 57), // 0-2s
-      TweenSequenceItem(
-          tween: Tween(begin: 1.0, end: 0.0), weight: 14), // 2-2.5s
-      TweenSequenceItem(tween: ConstantTween(0.0), weight: 29), // rest
-    ]).animate(_controller);
-
-    _afterOpacity = TweenSequence<double>([
-      TweenSequenceItem(tween: ConstantTween(0.0), weight: 64), // 0-2.25s
-      TweenSequenceItem(
-          tween: Tween(begin: 0.0, end: 1.0), weight: 14), // 2.25-2.75s
-      TweenSequenceItem(tween: ConstantTween(1.0), weight: 22), // rest
-    ]).animate(_controller);
-
-    // 初回表示でアニメーション開始
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _controller.forward();
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  /// PageViewで再度このページに戻った際にアニメーションを再生
-  void replay() {
-    _controller.reset();
-    _controller.forward();
-  }
 
   @override
   Widget build(BuildContext context) {
-
     final theme = Theme.of(context);
-    final l10n = widget.l10n;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // ビフォーアフターコンテナ
-          SizedBox(
-            height: 320,
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (context, _) {
-                return Stack(
-                  children: [
-                    // Before
-                    Opacity(
-                      opacity: _beforeOpacity.value,
-                      child: _buildBefore(theme, l10n),
-                    ),
-                    // After
-                    Opacity(
-                      opacity: _afterOpacity.value,
-                      child: _buildAfter(theme, l10n),
-                    ),
-                  ],
-                );
-              },
+          Text(l10n.ob2Title,
+              style: theme.textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center),
+          const SizedBox(height: 4),
+          Text(l10n.ob2Desc,
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              textAlign: TextAlign.center),
+          const SizedBox(height: 12),
+          // Before
+          _buildBefore(theme),
+          // 矢印 + ラベル
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.arrow_downward,
+                    size: 18, color: theme.colorScheme.primary),
+                const SizedBox(width: 4),
+                Text(l10n.ob2ArrowLabel,
+                    style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary)),
+              ],
             ),
           ),
-          const SizedBox(height: 20),
-          Text(
-            l10n.ob2Title,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.ob2Desc,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          // After
+          _buildAfter(theme),
         ],
       ),
     );
   }
 
-  Widget _buildBefore(ThemeData theme, AppLocalizations l10n) {
+  Widget _buildBefore(ThemeData theme) {
     final items = [
       (l10n.ob2BeforeTask1, l10n.ob2BeforeDate1),
       (l10n.ob2BeforeTask2, l10n.ob2BeforeDate2),
@@ -366,37 +268,37 @@ class _Page2BeforeAfterState extends State<_Page2BeforeAfter>
     ];
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
-              Icon(Icons.list, size: 18, color: theme.colorScheme.outline),
-              const SizedBox(width: 6),
+              Icon(Icons.list, size: 16, color: theme.colorScheme.outline),
+              const SizedBox(width: 4),
               Text(l10n.ob2BeforeLabel,
                   style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: theme.colorScheme.outline)),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 6),
           ...items.map((item) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
+                padding: const EdgeInsets.symmetric(vertical: 3),
                 child: Row(
                   children: [
-                    Icon(Icons.circle, size: 6, color: theme.colorScheme.outline),
-                    const SizedBox(width: 10),
+                    Icon(Icons.circle,
+                        size: 5, color: theme.colorScheme.outline),
+                    const SizedBox(width: 8),
                     Expanded(
                         child: Text(item.$1,
-                            style: const TextStyle(fontSize: 14))),
+                            style: const TextStyle(fontSize: 13))),
                     Text(item.$2,
                         style: TextStyle(
                             fontSize: 12,
@@ -409,62 +311,50 @@ class _Page2BeforeAfterState extends State<_Page2BeforeAfter>
     );
   }
 
-  Widget _buildAfter(ThemeData theme, AppLocalizations l10n) {
+  Widget _buildAfter(ThemeData theme) {
+    final sections = [
+      (
+        l10n.ob2AfterUrgent,
+        AppColors.priorityUrgent,
+        [
+          (l10n.ob2AfterTask1, l10n.ob2AfterComment1),
+          (l10n.ob2AfterTask2, l10n.ob2AfterComment2),
+        ]
+      ),
+      (
+        l10n.ob2AfterWarning,
+        AppColors.priorityWarning,
+        [(l10n.ob2AfterTask3, l10n.ob2AfterComment3)]
+      ),
+      (
+        l10n.ob2AfterNormal,
+        AppColors.priorityNormal,
+        [(l10n.ob2AfterTask4, l10n.ob2AfterComment4)]
+      ),
+      (
+        l10n.ob2AfterRelaxed,
+        AppColors.priorityRelaxed,
+        [(l10n.ob2AfterTask5, l10n.ob2AfterComment5)]
+      ),
+    ];
+
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+            color: theme.colorScheme.primary.withValues(alpha: 0.3)),
       ),
-      child: SingleChildScrollView(
-        physics: const NeverScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 緊急
-            _afterSection(
-              theme,
-              l10n.ob2AfterUrgent,
-              AppColors.priorityUrgent,
-              [
-                (l10n.ob2AfterTask1, l10n.ob2AfterComment1),
-                (l10n.ob2AfterTask2, l10n.ob2AfterComment2),
-              ],
-            ),
-            const SizedBox(height: 8),
-            // 今週中
-            _afterSection(
-              theme,
-              l10n.ob2AfterWarning,
-              AppColors.priorityWarning,
-              [
-                (l10n.ob2AfterTask3, l10n.ob2AfterComment3),
-              ],
-            ),
-            const SizedBox(height: 8),
-            // 来週以降
-            _afterSection(
-              theme,
-              l10n.ob2AfterNormal,
-              AppColors.priorityNormal,
-              [
-                (l10n.ob2AfterTask4, l10n.ob2AfterComment4),
-              ],
-            ),
-            const SizedBox(height: 8),
-            // 急がない
-            _afterSection(
-              theme,
-              l10n.ob2AfterRelaxed,
-              AppColors.priorityRelaxed,
-              [
-                (l10n.ob2AfterTask5, l10n.ob2AfterComment5),
-              ],
-            ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < sections.length; i++) ...[
+            if (i > 0) const SizedBox(height: 4),
+            _afterSection(theme, sections[i].$1, sections[i].$2,
+                sections[i].$3),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -476,18 +366,16 @@ class _Page2BeforeAfterState extends State<_Page2BeforeAfter>
       children: [
         Text(label,
             style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: color)),
+                fontSize: 12, fontWeight: FontWeight.bold, color: color)),
         ...tasks.map((t) => Padding(
-              padding: const EdgeInsets.only(left: 4, top: 4),
+              padding: const EdgeInsets.only(left: 4, top: 2),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     width: 3,
-                    height: 28,
-                    margin: const EdgeInsets.only(right: 8),
+                    height: 24,
+                    margin: const EdgeInsets.only(right: 6),
                     decoration: BoxDecoration(
                       color: color,
                       borderRadius: BorderRadius.circular(2),
@@ -499,7 +387,7 @@ class _Page2BeforeAfterState extends State<_Page2BeforeAfter>
                       children: [
                         Text(t.$1,
                             style: const TextStyle(
-                                fontSize: 13, fontWeight: FontWeight.w600)),
+                                fontSize: 12, fontWeight: FontWeight.w600)),
                         Text(t.$2,
                             style: TextStyle(
                                 fontSize: 12,
@@ -515,24 +403,20 @@ class _Page2BeforeAfterState extends State<_Page2BeforeAfter>
   }
 }
 
-// ─────────────────────────────────────────────
-// 画面3: カレンダーで実行日が見える
-// ─────────────────────────────────────────────
+// ─── 画面3: カレンダーで実行日が見える ───
 class _Page3Calendar extends StatelessWidget {
-  const _Page3Calendar({required this.l10n, required this.isDark});
+  const _Page3Calendar({required this.l10n});
   final AppLocalizations l10n;
-  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
+      padding: const EdgeInsets.symmetric(horizontal: 28),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // カレンダーモック
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -542,7 +426,6 @@ class _Page3Calendar extends StatelessWidget {
             ),
             child: Column(
               children: [
-                // 曜日ヘッダ
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: ['M', 'T', 'W', 'T', 'F', 'S', 'S']
@@ -557,27 +440,18 @@ class _Page3Calendar extends StatelessWidget {
                       .toList(),
                 ),
                 const SizedBox(height: 8),
-                // 3行のモック日付 + 色バー
-                _calendarRow(theme, [14, 15, 16, 17, 18, 19, 20], {
-                  14: AppColors.priorityUrgent,
-                  15: AppColors.priorityUrgent,
-                }, 14),
+                _calendarRow(theme, [14, 15, 16, 17, 18, 19, 20],
+                    {14: AppColors.priorityUrgent, 15: AppColors.priorityUrgent}, 14),
                 const SizedBox(height: 4),
-                _calendarRow(theme, [21, 22, 23, 24, 25, 26, 27], {
-                  21: AppColors.priorityWarning,
-                  22: AppColors.priorityWarning,
-                }, null),
+                _calendarRow(theme, [21, 22, 23, 24, 25, 26, 27],
+                    {21: AppColors.priorityWarning, 22: AppColors.priorityWarning}, null),
                 const SizedBox(height: 4),
-                _calendarRow(theme, [28, 29, 30, 1, 2, 3, 4], {
-                  29: AppColors.priorityNormal,
-                  30: AppColors.priorityNormal,
-                  1: AppColors.priorityNormal,
-                }, null),
+                _calendarRow(theme, [28, 29, 30, 1, 2, 3, 4],
+                    {29: AppColors.priorityNormal, 30: AppColors.priorityNormal, 1: AppColors.priorityNormal}, null),
               ],
             ),
           ),
           const SizedBox(height: 8),
-          // 凡例
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -589,28 +463,22 @@ class _Page3Calendar extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          Text(
-            l10n.ob3Title,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Text(l10n.ob3Title,
+              style: theme.textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center),
           const SizedBox(height: 12),
-          Text(
-            l10n.ob3Desc,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Text(l10n.ob3Desc,
+              style: theme.textTheme.bodyLarge
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              textAlign: TextAlign.center),
         ],
       ),
     );
   }
 
-  Widget _calendarRow(ThemeData theme, List<int> days,
-      Map<int, Color> bars, int? today) {
+  Widget _calendarRow(
+      ThemeData theme, List<int> days, Map<int, Color> bars, int? today) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: days.map((d) {
@@ -622,23 +490,17 @@ class _Page3Calendar extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                width: 22,
-                height: 22,
+                width: 22, height: 22,
                 decoration: BoxDecoration(
-                  color: isToday
-                      ? theme.colorScheme.primary.withValues(alpha: 0.15)
-                      : null,
-                  border: isToday
-                      ? Border.all(color: theme.colorScheme.primary, width: 1.5)
-                      : null,
+                  color: isToday ? theme.colorScheme.primary.withValues(alpha: 0.15) : null,
+                  border: isToday ? Border.all(color: theme.colorScheme.primary, width: 1.5) : null,
                   borderRadius: BorderRadius.circular(11),
                 ),
                 alignment: Alignment.center,
                 child: Text('$d',
                     style: TextStyle(
                       fontSize: 11,
-                      fontWeight:
-                          isToday ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
                       color: isToday ? theme.colorScheme.primary : null,
                     )),
               ),
@@ -663,82 +525,70 @@ class _Page3Calendar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 12,
-          height: 4,
+          width: 12, height: 4,
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
         const SizedBox(width: 4),
-        Text(label,
-            style: const TextStyle(fontSize: 11)),
+        Text(label, style: const TextStyle(fontSize: 12)),
       ],
     );
   }
 }
 
-// ─────────────────────────────────────────────
-// 画面4: 通知で忘れない
-// ─────────────────────────────────────────────
+// ─── 画面4: 通知で忘れない ───
 class _Page4Notification extends StatelessWidget {
-  const _Page4Notification({required this.l10n, required this.isDark});
+  const _Page4Notification({required this.l10n});
   final AppLocalizations l10n;
-  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
+      padding: const EdgeInsets.symmetric(horizontal: 28),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // 通知モック
-          _notificationMock(
-            theme,
-            'YaruNavi 9:00 AM',
-            l10n.ob4Notify1,
-          ),
-          const SizedBox(height: 10),
-          _notificationMock(
-            theme,
-            l10n.ob4NotifyPrevDay,
-            l10n.ob4Notify2,
-          ),
-          const SizedBox(height: 32),
-          Text(
-            l10n.ob4Title,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            l10n.ob4Desc,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Text(l10n.ob4Title,
+              style: theme.textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center),
           const SizedBox(height: 8),
-          Text(
-            l10n.ob4Sub,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Text(l10n.ob4Desc,
+              style: theme.textTheme.bodyLarge
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              textAlign: TextAlign.center),
+          const SizedBox(height: 20),
+          // 説明ラベル
+          Text(l10n.ob4MockLabel,
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: theme.colorScheme.outline)),
+          const SizedBox(height: 10),
+          // 通知モック1
+          _notificationMock(theme, 'YaruNavi', l10n.ob4Time1, l10n.ob4Notify1),
+          const SizedBox(height: 10),
+          // 通知モック2
+          _notificationMock(theme, 'YaruNavi', l10n.ob4Time2, l10n.ob4Notify2),
+          const SizedBox(height: 16),
+          Text(l10n.ob4Sub,
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: theme.colorScheme.outline),
+              textAlign: TextAlign.center),
         ],
       ),
     );
   }
 
-  Widget _notificationMock(ThemeData theme, String header, String body) {
+  Widget _notificationMock(
+      ThemeData theme, String appName, String time, String body) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(14),
@@ -753,12 +603,31 @@ class _Page4Notification extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(header,
-              style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: theme.colorScheme.outline)),
-          const SizedBox(height: 4),
+          Row(
+            children: [
+              Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: const Icon(Icons.auto_awesome,
+                    size: 12, color: Colors.white),
+              ),
+              const SizedBox(width: 8),
+              Text(appName,
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface)),
+              const Spacer(),
+              Text(time,
+                  style: TextStyle(
+                      fontSize: 12, color: theme.colorScheme.outline)),
+            ],
+          ),
+          const SizedBox(height: 6),
           Text(body, style: const TextStyle(fontSize: 14)),
         ],
       ),
@@ -766,18 +635,14 @@ class _Page4Notification extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-// 画面5: プレミアムでもっと便利に
-// ─────────────────────────────────────────────
+// ─── 画面5: プレミアム比較表 ───
 class _Page5Premium extends StatelessWidget {
   const _Page5Premium({
     required this.l10n,
-    required this.isDark,
     required this.onFreeTap,
     required this.onPremiumTap,
   });
   final AppLocalizations l10n;
-  final bool isDark;
   final VoidCallback onFreeTap;
   final VoidCallback onPremiumTap;
 
@@ -785,93 +650,119 @@ class _Page5Premium extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    final rows = [
+      (l10n.ob5AiSort, l10n.ob5FreeAi, l10n.ob5PremiumAi),
+      (l10n.ob5Tasks, l10n.ob5FreeTasks, l10n.ob5PremiumTasks),
+      (l10n.ob5Recurring, l10n.ob5FreeRecurring, l10n.ob5PremiumRecurring),
+      (l10n.ob5Notify, '—', l10n.ob5PremiumNotify),
+      (l10n.ob5Calendar, '—', l10n.ob5PremiumCalendar),
+      (l10n.ob5AiComment, '—', l10n.ob5PremiumComment),
+      (l10n.ob5Ads, l10n.ob5FreeAds, l10n.ob5PremiumAds),
+    ];
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              l10n.ob5Title,
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
+            Text(l10n.ob5Title,
+                style: theme.textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center),
+            const SizedBox(height: 16),
             // 比較テーブル
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 無料
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
+            Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: theme.colorScheme.outlineVariant),
+              ),
+              child: Column(
+                children: [
+                  // ヘッダー行
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(13)),
+                      color: theme.colorScheme.surfaceContainerHighest,
                     ),
-                    child: Column(
+                    child: Row(
                       children: [
-                        Text(l10n.ob5Free,
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.outline)),
-                        const SizedBox(height: 12),
-                        _featureRow(l10n.ob5AiSort, l10n.ob5FreeAi, false),
-                        _featureRow(l10n.ob5Tasks, l10n.ob5FreeTasks, false),
-                        _featureRow(l10n.ob5Notify, '—', false),
-                        _featureRow(l10n.ob5Calendar, '—', false),
+                        const Expanded(flex: 3, child: SizedBox()),
+                        Expanded(
+                          flex: 2,
+                          child: Text(l10n.ob5Free,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.outline)),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(l10n.premium,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.primary)),
+                        ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                // プレミアム
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          theme.colorScheme.primary.withValues(alpha: 0.08),
-                          theme.colorScheme.primary.withValues(alpha: 0.02),
+                  // データ行
+                  for (var i = 0; i < rows.length; i++) ...[
+                    if (i > 0)
+                      Divider(
+                          height: 1,
+                          indent: 12,
+                          endIndent: 12,
+                          color: theme.colorScheme.outlineVariant),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: Text(rows[i].$1,
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color:
+                                        theme.colorScheme.onSurfaceVariant)),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(rows[i].$2,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color: theme.colorScheme.outline)),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(rows[i].$3,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: theme.colorScheme.primary)),
+                          ),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: theme.colorScheme.primary.withValues(alpha: 0.3),
-                        width: 1.5,
-                      ),
                     ),
-                    child: Column(
-                      children: [
-                        Text(l10n.premium,
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.primary)),
-                        const SizedBox(height: 12),
-                        _featureRow(l10n.ob5AiSort, l10n.ob5PremiumAi, true),
-                        _featureRow(l10n.ob5Tasks, l10n.ob5PremiumTasks, true),
-                        _featureRow(l10n.ob5Notify, l10n.ob5PremiumNotify, true),
-                        _featureRow(l10n.ob5Calendar, l10n.ob5PremiumCalendar, true),
-                        _featureRow(l10n.ob5AiComment, l10n.ob5PremiumComment, true),
-                        _featureRow(l10n.ob5Ads, l10n.ob5PremiumAds, true),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                  ],
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
             Text(l10n.ob5Price,
                 style: TextStyle(
-                    fontSize: 13, color: theme.colorScheme.onSurfaceVariant)),
-            const SizedBox(height: 16),
+                    fontSize: 13,
+                    color: theme.colorScheme.onSurfaceVariant)),
+            const SizedBox(height: 14),
             SizedBox(
               width: double.infinity,
               child: FilledButton(
@@ -889,32 +780,12 @@ class _Page5Premium extends StatelessWidget {
       ),
     );
   }
-
-  Widget _featureRow(String label, String value, bool isPremium) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500)),
-          Text(value,
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isPremium ? FontWeight.w600 : FontWeight.normal)),
-        ],
-      ),
-    );
-  }
 }
 
-// ─────────────────────────────────────────────
-// 画面6: さあ、始めましょう
-// ─────────────────────────────────────────────
+// ─── 画面6: さあ、始めましょう ───
 class _Page6Start extends StatelessWidget {
-  const _Page6Start({required this.l10n, required this.isDark});
+  const _Page6Start({required this.l10n});
   final AppLocalizations l10n;
-  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -928,21 +799,15 @@ class _Page6Start extends StatelessWidget {
           Icon(Icons.rocket_launch,
               size: 80, color: theme.colorScheme.primary),
           const SizedBox(height: 32),
-          Text(
-            l10n.ob6Title,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Text(l10n.ob6Title,
+              style: theme.textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center),
           const SizedBox(height: 12),
-          Text(
-            l10n.ob6Desc,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Text(l10n.ob6Desc,
+              style: theme.textTheme.bodyLarge
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              textAlign: TextAlign.center),
         ],
       ),
     );

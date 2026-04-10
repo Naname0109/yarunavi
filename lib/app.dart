@@ -28,7 +28,12 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: '/home',
-      builder: (context, state) => const HomeScreen(),
+      builder: (context, state) {
+        final tab = int.tryParse(
+                state.uri.queryParameters['tab'] ?? '') ??
+            0;
+        return HomeScreen(initialTab: tab);
+      },
     ),
     GoRoute(
       path: '/ai-result',

@@ -653,7 +653,7 @@ abstract class AppLocalizations {
   /// No description provided for @storeFeatureAiUnlimited.
   ///
   /// In ja, this message translates to:
-  /// **'AI整理 無制限（無料は月3回）'**
+  /// **'AI整理 月30回（無料は動画視聴で1日1回）'**
   String get storeFeatureAiUnlimited;
 
   /// No description provided for @storeFeatureTaskUnlimited.
@@ -797,7 +797,7 @@ abstract class AppLocalizations {
   /// No description provided for @ob1Desc.
   ///
   /// In ja, this message translates to:
-  /// **'タスク名と期限を入れるだけ。メモも追加できます'**
+  /// **'タスク名と期限を入れるだけ。\nメモも追加できます。'**
   String get ob1Desc;
 
   /// No description provided for @ob1Sub.
@@ -841,6 +841,12 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'AIが優先順位を判断し、具体的なアドバイス付きで整理'**
   String get ob2Desc;
+
+  /// No description provided for @ob2ArrowLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIで整理'**
+  String get ob2ArrowLabel;
 
   /// No description provided for @ob2BeforeLabel.
   ///
@@ -1040,22 +1046,34 @@ abstract class AppLocalizations {
   /// **'やることがない日は静かです'**
   String get ob4Sub;
 
+  /// No description provided for @ob4MockLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'こんな通知が届きます'**
+  String get ob4MockLabel;
+
+  /// No description provided for @ob4Time1.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日 9:00'**
+  String get ob4Time1;
+
   /// No description provided for @ob4Notify1.
   ///
   /// In ja, this message translates to:
   /// **'家賃振込 — ネットバンキングで今日中に'**
   String get ob4Notify1;
 
-  /// No description provided for @ob4NotifyPrevDay.
+  /// No description provided for @ob4Time2.
   ///
   /// In ja, this message translates to:
-  /// **'YaruNavi  前日 9:00 AM'**
-  String get ob4NotifyPrevDay;
+  /// **'明日 9:00'**
+  String get ob4Time2;
 
   /// No description provided for @ob4Notify2.
   ///
   /// In ja, this message translates to:
-  /// **'日用品買い出し — 明日の買い物リストを確認'**
+  /// **'日用品買い出し — 買い物リストを確認'**
   String get ob4Notify2;
 
   /// No description provided for @ob5Title.
@@ -1106,10 +1124,16 @@ abstract class AppLocalizations {
   /// **'広告'**
   String get ob5Ads;
 
+  /// No description provided for @ob5Recurring.
+  ///
+  /// In ja, this message translates to:
+  /// **'定期タスク'**
+  String get ob5Recurring;
+
   /// No description provided for @ob5FreeAi.
   ///
   /// In ja, this message translates to:
-  /// **'月2回'**
+  /// **'初回2回+動画'**
   String get ob5FreeAi;
 
   /// No description provided for @ob5FreeTasks.
@@ -1117,6 +1141,18 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'10件まで'**
   String get ob5FreeTasks;
+
+  /// No description provided for @ob5FreeRecurring.
+  ///
+  /// In ja, this message translates to:
+  /// **'1件'**
+  String get ob5FreeRecurring;
+
+  /// No description provided for @ob5FreeAds.
+  ///
+  /// In ja, this message translates to:
+  /// **'あり'**
+  String get ob5FreeAds;
 
   /// No description provided for @ob5PremiumAi.
   ///
@@ -1148,10 +1184,16 @@ abstract class AppLocalizations {
   /// **'全表示'**
   String get ob5PremiumComment;
 
+  /// No description provided for @ob5PremiumRecurring.
+  ///
+  /// In ja, this message translates to:
+  /// **'無制限'**
+  String get ob5PremiumRecurring;
+
   /// No description provided for @ob5PremiumAds.
   ///
   /// In ja, this message translates to:
-  /// **'非表示'**
+  /// **'なし'**
   String get ob5PremiumAds;
 
   /// No description provided for @ob5Price.
@@ -1189,6 +1231,54 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'タスクの読み込みに失敗しました'**
   String get taskLoadError;
+
+  /// No description provided for @aiFallbackNotice.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理でエラーが発生しました。期限日ベースで整理しました'**
+  String get aiFallbackNotice;
+
+  /// No description provided for @aiRewardedAdPrompt.
+  ///
+  /// In ja, this message translates to:
+  /// **'無料のAI整理回数を使い切りました'**
+  String get aiRewardedAdPrompt;
+
+  /// No description provided for @aiRewardedAdDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'動画を視聴すると、今日1回AI整理を利用できます。プレミアムなら制限なしで利用できます。'**
+  String get aiRewardedAdDesc;
+
+  /// No description provided for @aiWatchAdButton.
+  ///
+  /// In ja, this message translates to:
+  /// **'動画を視聴して整理'**
+  String get aiWatchAdButton;
+
+  /// No description provided for @aiRewardedAdNotReady.
+  ///
+  /// In ja, this message translates to:
+  /// **'広告の準備ができていません。しばらく待ってからお試しください'**
+  String get aiRewardedAdNotReady;
+
+  /// No description provided for @aiRewardedAdUsedToday.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日の動画視聴によるAI整理は使用済みです'**
+  String get aiRewardedAdUsedToday;
+
+  /// No description provided for @aiRewardedAdTomorrow.
+  ///
+  /// In ja, this message translates to:
+  /// **'明日またご利用いただけます。プレミアムなら制限なしでいつでも利用できます。'**
+  String get aiRewardedAdTomorrow;
+
+  /// No description provided for @aiRecommendedPeriod.
+  ///
+  /// In ja, this message translates to:
+  /// **'{period}に実行がおすすめ'**
+  String aiRecommendedPeriod(String period);
 
   /// No description provided for @aiQuestionAnswer.
   ///

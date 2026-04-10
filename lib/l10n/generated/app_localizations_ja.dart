@@ -303,7 +303,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get storePremiumTitle => 'プレミアムプラン';
 
   @override
-  String get storeFeatureAiUnlimited => 'AI整理 無制限（無料は月3回）';
+  String get storeFeatureAiUnlimited => 'AI整理 月30回（無料は動画視聴で1日1回）';
 
   @override
   String get storeFeatureTaskUnlimited => 'タスク登録 無制限（無料は10件）';
@@ -375,7 +375,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ob1Title => 'やることを入れるだけ';
 
   @override
-  String get ob1Desc => 'タスク名と期限を入れるだけ。メモも追加できます';
+  String get ob1Desc => 'タスク名と期限を入れるだけ。\nメモも追加できます。';
 
   @override
   String get ob1Sub => '頭の中のやることを全部ここに';
@@ -397,6 +397,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get ob2Desc => 'AIが優先順位を判断し、具体的なアドバイス付きで整理';
+
+  @override
+  String get ob2ArrowLabel => 'AIで整理';
 
   @override
   String get ob2BeforeLabel => '整理前';
@@ -498,13 +501,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ob4Sub => 'やることがない日は静かです';
 
   @override
+  String get ob4MockLabel => 'こんな通知が届きます';
+
+  @override
+  String get ob4Time1 => '今日 9:00';
+
+  @override
   String get ob4Notify1 => '家賃振込 — ネットバンキングで今日中に';
 
   @override
-  String get ob4NotifyPrevDay => 'YaruNavi  前日 9:00 AM';
+  String get ob4Time2 => '明日 9:00';
 
   @override
-  String get ob4Notify2 => '日用品買い出し — 明日の買い物リストを確認';
+  String get ob4Notify2 => '日用品買い出し — 買い物リストを確認';
 
   @override
   String get ob5Title => 'プレミアムでもっと便利に';
@@ -531,10 +540,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ob5Ads => '広告';
 
   @override
-  String get ob5FreeAi => '月2回';
+  String get ob5Recurring => '定期タスク';
+
+  @override
+  String get ob5FreeAi => '初回2回+動画';
 
   @override
   String get ob5FreeTasks => '10件まで';
+
+  @override
+  String get ob5FreeRecurring => '1件';
+
+  @override
+  String get ob5FreeAds => 'あり';
 
   @override
   String get ob5PremiumAi => '月50回';
@@ -552,7 +570,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ob5PremiumComment => '全表示';
 
   @override
-  String get ob5PremiumAds => '非表示';
+  String get ob5PremiumRecurring => '無制限';
+
+  @override
+  String get ob5PremiumAds => 'なし';
 
   @override
   String get ob5Price => '月額¥580 / 年額¥4,200（40%おトク）';
@@ -571,6 +592,32 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get taskLoadError => 'タスクの読み込みに失敗しました';
+
+  @override
+  String get aiFallbackNotice => 'AI整理でエラーが発生しました。期限日ベースで整理しました';
+
+  @override
+  String get aiRewardedAdPrompt => '無料のAI整理回数を使い切りました';
+
+  @override
+  String get aiRewardedAdDesc => '動画を視聴すると、今日1回AI整理を利用できます。プレミアムなら制限なしで利用できます。';
+
+  @override
+  String get aiWatchAdButton => '動画を視聴して整理';
+
+  @override
+  String get aiRewardedAdNotReady => '広告の準備ができていません。しばらく待ってからお試しください';
+
+  @override
+  String get aiRewardedAdUsedToday => '今日の動画視聴によるAI整理は使用済みです';
+
+  @override
+  String get aiRewardedAdTomorrow => '明日またご利用いただけます。プレミアムなら制限なしでいつでも利用できます。';
+
+  @override
+  String aiRecommendedPeriod(String period) {
+    return '$periodに実行がおすすめ';
+  }
 
   @override
   String aiQuestionAnswer(int number, String answer) {

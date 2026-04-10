@@ -4,6 +4,17 @@ import 'dart:math';
 import '../models/task.dart';
 import '../services/database_service.dart';
 
+/// 次の土曜日までの日数を返す。直近すぎる場合（3日以内）はその次の土曜に。
+/// テストデータの住民税支払い用（priority 2の「残3-7日」帯に入れるため最低4日後）
+int _nextSaturdayOffset(DateTime now) {
+  // DateTime.saturday == 6
+  final daysUntilSat = (DateTime.saturday - now.weekday) % 7;
+  // 0（今日が土曜）の場合は7日後の土曜
+  final offset = daysUntilSat == 0 ? 7 : daysUntilSat;
+  // 最低4日後を保証
+  return offset < 4 ? offset + 7 : offset;
+}
+
 /// AI整理テスト用の固定テストデータ（15件）をDBに投入する
 Future<void> insertAiTestData(DatabaseService db) async {
   final now = DateTime.now();
@@ -24,7 +35,7 @@ Future<void> insertAiTestData(DatabaseService db) async {
     (title: '歯医者予約', dayOffset: 8, categoryId: 6, recurrenceType: null, recurrenceValue: null, memo: '電話予約。平日午前希望', estimatedTime: '5min', importance: 1),
     (title: '本を読む', dayOffset: 21, categoryId: 6, recurrenceType: null, recurrenceValue: null, memo: null, estimatedTime: '1hour', importance: 0),
     (title: 'ジムに行く', dayOffset: 4, categoryId: 6, recurrenceType: null, recurrenceValue: null, memo: null, estimatedTime: '1hour', importance: 0),
-    (title: '住民税支払い', dayOffset: 6, categoryId: 1, recurrenceType: null, recurrenceValue: null, memo: 'コンビニ払いまたは銀行窓口', estimatedTime: '30min', importance: 2),
+    (title: '住民税支払い', dayOffset: _nextSaturdayOffset(now), categoryId: 1, recurrenceType: null, recurrenceValue: null, memo: 'コンビニ払いまたは銀行窓口。期限日は土曜', estimatedTime: '30min', importance: 2),
     (title: 'パスポート更新', dayOffset: 45, categoryId: 2, recurrenceType: null, recurrenceValue: null, memo: '平日のみ。写真撮影が先に必要。戸籍謄本も取得', estimatedTime: '1day', importance: 1),
   ];
 
