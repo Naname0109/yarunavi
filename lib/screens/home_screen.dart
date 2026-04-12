@@ -31,28 +31,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final _fabKey = GlobalKey();
   final _aiSortKey = GlobalKey();
   final _filterTabsKey = GlobalKey();
-  final _bottomNavKey = GlobalKey();
   final _calendarKey = GlobalKey<CalendarScreenState>();
-  late int _tabIndex = widget.initialTab.clamp(0, 1);
+  late int _tabIndex = widget.initialTab.clamp(0, 2);
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    // フィルターを初期タブに合わせる
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _syncFilter();
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      await maybeShowCoachMarks(
+      maybeShowCoachMarks(
         context,
         steps: [
           CoachStep(targetKey: _fabKey, message: l10n.coachAddTask),
           CoachStep(targetKey: _aiSortKey, message: l10n.coachAiSort),
-          CoachStep(
-            targetKey: _bottomNavKey,
-            message: l10n.coachCalendarToggle,
-          ),
         ],
       );
     });
+  }
+
+  void _syncFilter() {
+    switch (_tabIndex) {
+      case 0:
+      case 1: // カレンダータブも未完了タスク基準
+        ref.read(filterProvider.notifier).state = 'all';
+      case 2:
+        ref.read(filterProvider.notifier).state = 'completed';
+    }
+  }
+
+  void _onTabChanged(int index) {
+    setState(() => _tabIndex = index);
+    _syncFilter();
   }
 
   @override
@@ -61,7 +73,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final locale = Localizations.localeOf(context).languageCode;
     final tasksAsync = ref.watch(tasksProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
-    final currentFilter = ref.watch(filterProvider);
     final showAiBanner = ref.watch(aiCompleteBannerProvider);
     final isCalendarTab = _tabIndex == 1;
 
@@ -78,105 +89,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ref.watch(allTasksOverdueProvider).valueOrNull ?? false;
 
     final todayStr = DateFormat.yMMMd(locale).format(DateTime.now());
-
-    final listTab = Column(
-      children: [
-        if (showAiBanner)
-          MaterialBanner(
-            content: Text(l10n.aiCompleteBanner),
-            leading: const Icon(Icons.auto_awesome),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  ref.read(aiCompleteBannerProvider.notifier).state = false;
-                  context.push('/ai-result');
-                },
-                child: Text(l10n.aiResultTitle),
-              ),
-              TextButton(
-                onPressed: () {
-                  ref.read(aiCompleteBannerProvider.notifier).state = false;
-                },
-                child: Text(l10n.cancel),
-              ),
-            ],
-          ),
-        FilterTabs(key: _filterTabsKey),
-        const SizedBox(height: 8),
-        // 全タスク期限切れバナー
-        if (allOverdue && currentFilter != 'completed')
-          _AllExpiredBanner(l10n: l10n),
-        Expanded(
-          child: tasksAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, _) => Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.error_outline,
-                      size: 48,
-                      color: Theme.of(context).colorScheme.error),
-                  const SizedBox(height: 12),
-                  Text(l10n.taskLoadError,
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Theme.of(context).colorScheme.error,
-                      )),
-                ],
-              ),
-            ),
-            data: (tasks) {
-              if (tasks.isEmpty) {
-                // 全完了祝福画面: 完了済みが1件以上 & completedフィルター以外
-                if (completedCount > 0 && currentFilter != 'completed') {
-                  return _AllCompleteCelebration(l10n: l10n);
-                }
-                // 通常の空状態
-                return Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.checklist,
-                        size: 64,
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        _getEmptyMessage(currentFilter, l10n),
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              return RefreshIndicator(
-                onRefresh: () async {
-                  ref.invalidate(tasksProvider);
-                  await ref.read(tasksProvider.future);
-                },
-                child: currentFilter == 'all'
-                    ? _ReorderableTaskList(
-                        tasks: tasks,
-                        categoryMap: categoryMap,
-                        l10n: l10n,
-                        locale: locale,
-                      )
-                    : _StandardTaskList(
-                        tasks: tasks,
-                        categoryMap: categoryMap,
-                        l10n: l10n,
-                        locale: locale,
-                      ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
 
     return Scaffold(
       appBar: AppBar(
@@ -197,37 +109,63 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
       body: ResponsiveWrapper(
-        child: IndexedStack(
-          index: _tabIndex,
+        child: Column(
           children: [
-            listTab,
-            CalendarScreen(key: _calendarKey),
+            if (showAiBanner)
+              MaterialBanner(
+                content: Text(l10n.aiCompleteBanner),
+                leading: const Icon(Icons.auto_awesome),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      ref.read(aiCompleteBannerProvider.notifier).state = false;
+                      context.push('/ai-result');
+                    },
+                    child: Text(l10n.aiResultTitle),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      ref.read(aiCompleteBannerProvider.notifier).state = false;
+                    },
+                    child: Text(l10n.cancel),
+                  ),
+                ],
+              ),
+            FilterTabs(
+              key: _filterTabsKey,
+              currentTab: _tabIndex,
+              onTabChanged: _onTabChanged,
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: IndexedStack(
+                index: _tabIndex,
+                children: [
+                  // Tab 0: やること（今日やること + その他）
+                  _TodoTab(
+                    tasksAsync: tasksAsync,
+                    categoryMap: categoryMap,
+                    l10n: l10n,
+                    locale: locale,
+                    completedCount: completedCount,
+                    allOverdue: allOverdue,
+                  ),
+                  // Tab 1: カレンダー
+                  CalendarScreen(key: _calendarKey),
+                  // Tab 2: 完了済み
+                  _CompletedTab(
+                    tasksAsync: tasksAsync,
+                    categoryMap: categoryMap,
+                    l10n: l10n,
+                    locale: locale,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const BannerAdWidget(),
-          NavigationBar(
-            key: _bottomNavKey,
-            selectedIndex: _tabIndex,
-            onDestinationSelected: (i) => setState(() => _tabIndex = i),
-            destinations: [
-              NavigationDestination(
-                icon: const Icon(Icons.list_alt_outlined),
-                selectedIcon: const Icon(Icons.list_alt),
-                label: l10n.tabList,
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.calendar_month_outlined),
-                selectedIcon: const Icon(Icons.calendar_month),
-                label: l10n.tabCalendar,
-              ),
-            ],
-          ),
-        ],
-      ),
+      bottomNavigationBar: const BannerAdWidget(),
       floatingActionButton: isCalendarTab
           ? null
           : FloatingActionButton(
@@ -241,113 +179,226 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
     );
   }
+}
 
-  String _getEmptyMessage(String filter, AppLocalizations l10n) {
-    switch (filter) {
-      case 'today':
-        return l10n.emptyTodayMessage;
-      case 'thisWeek':
-        return l10n.emptyWeekMessage;
-      case 'overdue':
-        return l10n.emptyOverdueMessage;
-      case 'completed':
-        return l10n.emptyCompletedMessage;
-      case 'all':
-      default:
-        return l10n.emptyTaskMessage;
-    }
+/// 「やること」タブ: 今日やること + その他セクション
+class _TodoTab extends ConsumerWidget {
+  const _TodoTab({
+    required this.tasksAsync,
+    required this.categoryMap,
+    required this.l10n,
+    required this.locale,
+    required this.completedCount,
+    required this.allOverdue,
+  });
+
+  final AsyncValue<List<Task>> tasksAsync;
+  final Map<int, model.Category> categoryMap;
+  final AppLocalizations l10n;
+  final String locale;
+  final int completedCount;
+  final bool allOverdue;
+
+  /// 「今日やること」に該当するか判定
+  bool _isTodayTask(Task task) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final dueDay = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+    final isOverdue = dueDay.isBefore(today);
+    final isDueToday = dueDay == today;
+    final isPriority1 = task.priority == 1;
+    final isRecommendedToday = task.recommendedStart != null &&
+        DateTime(task.recommendedStart!.year, task.recommendedStart!.month,
+                task.recommendedStart!.day) ==
+            today;
+
+    return isOverdue || isDueToday || isPriority1 || isRecommendedToday;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return tasksAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (_, _) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline,
+                size: 48, color: Theme.of(context).colorScheme.error),
+            const SizedBox(height: 12),
+            Text(l10n.taskLoadError,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Theme.of(context).colorScheme.error,
+                )),
+          ],
+        ),
+      ),
+      data: (tasks) {
+        if (tasks.isEmpty) {
+          if (completedCount > 0) {
+            return _AllCompleteCelebration(l10n: l10n);
+          }
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.checklist, size: 64,
+                    color: Theme.of(context).colorScheme.outline),
+                const SizedBox(height: 16),
+                Text(l10n.emptyTaskMessage,
+                    style: TextStyle(fontSize: 16,
+                        color: Theme.of(context).colorScheme.outline)),
+              ],
+            ),
+          );
+        }
+
+        final todayTasks = <Task>[];
+        final otherTasks = <Task>[];
+        for (final t in tasks) {
+          (_isTodayTask(t) ? todayTasks : otherTasks).add(t);
+        }
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(tasksProvider);
+            await ref.read(tasksProvider.future);
+          },
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: 80),
+            children: [
+              // 全タスク期限切れバナー
+              if (allOverdue) _AllExpiredBanner(l10n: l10n),
+              // 今日やることセクション
+              _SectionHeader(
+                title: l10n.todaySection,
+                icon: Icons.push_pin,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              if (todayTasks.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Text(
+                    l10n.todaySectionEmpty,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                )
+              else
+                ...todayTasks.asMap().entries.map((entry) =>
+                  _FadeInItem(
+                    key: ValueKey(entry.value.id),
+                    index: entry.key,
+                    child: _buildTaskCard(context, ref, entry.value),
+                  ),
+                ),
+              // その他のタスクセクション
+              if (otherTasks.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                _SectionHeader(
+                  title: l10n.otherTasks,
+                  trailing: l10n.taskCount(otherTasks.length),
+                ),
+                ...otherTasks.asMap().entries.map((entry) =>
+                  _FadeInItem(
+                    key: ValueKey(entry.value.id),
+                    index: entry.key,
+                    child: _buildTaskCard(context, ref, entry.value),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTaskCard(BuildContext context, WidgetRef ref, Task task) {
+    final category = task.categoryId != null ? categoryMap[task.categoryId] : null;
+    return TaskCard(
+      task: task,
+      category: category,
+      onTap: () => TaskFormSheet.show(context, task: task),
+      onToggleComplete: () async {
+        final newTask = await ref.read(tasksProvider.notifier).completeTask(task);
+        if (newTask != null && context.mounted) {
+          final dateStr = app_date.formatRelativeDate(newTask.dueDate, l10n, locale);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.recurringTaskCreated(dateStr))),
+          );
+        }
+      },
+      onDelete: () => ref.read(tasksProvider.notifier).deleteTask(task.id!),
+    );
   }
 }
 
-/// 「すべて」フィルター時: ドラッグ＆ドロップ並び替え対応リスト
-class _ReorderableTaskList extends ConsumerWidget {
-  const _ReorderableTaskList({
-    required this.tasks,
+/// 「完了済み」タブ
+class _CompletedTab extends ConsumerWidget {
+  const _CompletedTab({
+    required this.tasksAsync,
     required this.categoryMap,
     required this.l10n,
     required this.locale,
   });
 
-  final List<Task> tasks;
+  final AsyncValue<List<Task>> tasksAsync;
   final Map<int, model.Category> categoryMap;
   final AppLocalizations l10n;
   final String locale;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ReorderableListView.builder(
-      padding: const EdgeInsets.only(bottom: 80),
-      itemCount: tasks.length,
-      onReorderStart: (_) {
-        HapticFeedback.selectionClick();
-      },
-      onReorder: (oldIndex, newIndex) async {
-        if (oldIndex < newIndex) newIndex -= 1;
-        final db = ref.read(databaseServiceProvider);
-        // 新しい並び順を計算
-        final reordered = List.of(tasks);
-        final item = reordered.removeAt(oldIndex);
-        reordered.insert(newIndex, item);
-
-        final orders = <({int id, int sortOrder})>[];
-        for (var i = 0; i < reordered.length; i++) {
-          final t = reordered[i];
-          if (t.id == null) continue;
-          orders.add((id: t.id!, sortOrder: i + 1));
+    return tasksAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (_, _) => const SizedBox.shrink(),
+      data: (tasks) {
+        if (tasks.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.check_circle_outline, size: 64,
+                    color: Theme.of(context).colorScheme.outline),
+                const SizedBox(height: 16),
+                Text(l10n.emptyCompletedMessage,
+                    style: TextStyle(fontSize: 16,
+                        color: Theme.of(context).colorScheme.outline)),
+              ],
+            ),
+          );
         }
-        await db.updateTaskSortOrders(orders);
-        ref.invalidate(tasksProvider);
-      },
-      proxyDecorator: (child, index, animation) {
-        return AnimatedBuilder(
-          animation: animation,
-          builder: (context, child) {
-            final elevation = Tween<double>(
-              begin: 0,
-              end: 6,
-            ).animate(animation).value;
-            return Material(
-              elevation: elevation,
-              borderRadius: BorderRadius.circular(16),
-              child: child,
-            );
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(tasksProvider);
+            await ref.read(tasksProvider.future);
           },
-          child: child,
-        );
-      },
-      itemBuilder: (context, index) {
-        final task = tasks[index];
-        final category = task.categoryId != null
-            ? categoryMap[task.categoryId]
-            : null;
-
-        return _FadeInItem(
-          key: ValueKey(task.id),
-          index: index,
-          child: TaskCard(
-            task: task,
-            category: category,
-            disableSwipe: true,
-            onTap: () {
-              TaskFormSheet.show(context, task: task);
-            },
-            onToggleComplete: () async {
-              final newTask = await ref
-                  .read(tasksProvider.notifier)
-                  .completeTask(task);
-              if (newTask != null && context.mounted) {
-                final dateStr = app_date.formatRelativeDate(
-                  newTask.dueDate,
-                  l10n,
-                  locale,
-                );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.recurringTaskCreated(dateStr))),
-                );
-              }
-            },
-            onDelete: () {
-              ref.read(tasksProvider.notifier).deleteTask(task.id!);
+          child: ListView.builder(
+            padding: const EdgeInsets.only(bottom: 80),
+            itemCount: tasks.length,
+            itemBuilder: (context, index) {
+              final task = tasks[index];
+              final category = task.categoryId != null
+                  ? categoryMap[task.categoryId]
+                  : null;
+              return _FadeInItem(
+                key: ValueKey(task.id),
+                index: index,
+                child: TaskCard(
+                  task: task,
+                  category: category,
+                  onTap: () => TaskFormSheet.show(context, task: task),
+                  onToggleComplete: () async {
+                    await ref.read(tasksProvider.notifier).completeTask(task);
+                  },
+                  onDelete: () =>
+                      ref.read(tasksProvider.notifier).deleteTask(task.id!),
+                ),
+              );
             },
           ),
         );
@@ -356,61 +407,50 @@ class _ReorderableTaskList extends ConsumerWidget {
   }
 }
 
-/// その他フィルター時: 通常リスト
-class _StandardTaskList extends ConsumerWidget {
-  const _StandardTaskList({
-    required this.tasks,
-    required this.categoryMap,
-    required this.l10n,
-    required this.locale,
+/// セクションヘッダー
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
+    required this.title,
+    this.icon,
+    this.color,
+    this.trailing,
   });
 
-  final List<Task> tasks;
-  final Map<int, model.Category> categoryMap;
-  final AppLocalizations l10n;
-  final String locale;
+  final String title;
+  final IconData? icon;
+  final Color? color;
+  final String? trailing;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 80),
-      itemCount: tasks.length,
-      itemBuilder: (context, index) {
-        final task = tasks[index];
-        final category = task.categoryId != null
-            ? categoryMap[task.categoryId]
-            : null;
-
-        return _FadeInItem(
-          key: ValueKey(task.id),
-          index: index,
-          child: TaskCard(
-            task: task,
-            category: category,
-            onTap: () {
-              TaskFormSheet.show(context, task: task);
-            },
-            onToggleComplete: () async {
-              final newTask = await ref
-                  .read(tasksProvider.notifier)
-                  .completeTask(task);
-              if (newTask != null && context.mounted) {
-                final dateStr = app_date.formatRelativeDate(
-                  newTask.dueDate,
-                  l10n,
-                  locale,
-                );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.recurringTaskCreated(dateStr))),
-                );
-              }
-            },
-            onDelete: () {
-              ref.read(tasksProvider.notifier).deleteTask(task.id!);
-            },
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 18, color: color ?? theme.colorScheme.primary),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            title,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: color ?? theme.colorScheme.onSurface,
+            ),
           ),
-        );
-      },
+          if (trailing != null) ...[
+            const Spacer(),
+            Text(
+              trailing!,
+              style: TextStyle(
+                fontSize: 13,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -491,10 +531,7 @@ class _AllCompleteCelebrationState extends State<_AllCompleteCelebration>
       duration: const Duration(milliseconds: 600),
     );
     _scale = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.elasticOut,
-      ),
+      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
     );
     _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
@@ -514,7 +551,6 @@ class _AllCompleteCelebrationState extends State<_AllCompleteCelebration>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return Center(
       child: FadeTransition(
         opacity: _opacity,
@@ -523,11 +559,8 @@ class _AllCompleteCelebrationState extends State<_AllCompleteCelebration>
           children: [
             ScaleTransition(
               scale: _scale,
-              child: Icon(
-                Icons.check_circle,
-                size: 80,
-                color: theme.colorScheme.primary,
-              ),
+              child: Icon(Icons.check_circle, size: 80,
+                  color: theme.colorScheme.primary),
             ),
             const SizedBox(height: 16),
             Text(
@@ -554,21 +587,7 @@ class _AllCompleteCelebrationState extends State<_AllCompleteCelebration>
               },
               icon: const Icon(Icons.add),
               label: Text(widget.l10n.allCompleteAddTask),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(200, 48),
-              ),
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(widget.l10n.allCompleteNoTaskForAi),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.auto_awesome, size: 18),
-              label: Text(widget.l10n.allCompleteAiSort),
+              style: FilledButton.styleFrom(minimumSize: const Size(200, 48)),
             ),
           ],
         ),
@@ -586,7 +605,6 @@ class _AllExpiredBanner extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    // ダークモードでも読みやすいオレンジ系
     final bannerColor = theme.brightness == Brightness.dark
         ? const Color(0xFF4A2800)
         : const Color(0xFFFFF3E0);
@@ -601,9 +619,7 @@ class _AllExpiredBanner extends ConsumerWidget {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
-            color: textColor.withValues(alpha: 0.3),
-          ),
+          side: BorderSide(color: textColor.withValues(alpha: 0.3)),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -612,8 +628,7 @@ class _AllExpiredBanner extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded,
-                      color: textColor, size: 20),
+                  Icon(Icons.warning_amber_rounded, color: textColor, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -655,8 +670,7 @@ class _AllExpiredBanner extends ConsumerWidget {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: textColor,
                         side: BorderSide(
-                          color: textColor.withValues(alpha: 0.5),
-                        ),
+                            color: textColor.withValues(alpha: 0.5)),
                       ),
                       child: Text(l10n.allExpiredUpdateDue),
                     ),

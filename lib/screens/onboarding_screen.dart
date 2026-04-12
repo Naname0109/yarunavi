@@ -39,11 +39,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final isDark = theme.brightness == Brightness.dark;
 
     final pages = <Widget>[
-      _Page1AddTasks(l10n: l10n),
-      _Page2BeforeAfter(l10n: l10n),
+      _Page1Input(l10n: l10n),
+      _Page2AiSort(l10n: l10n),
       _Page3Calendar(l10n: l10n),
-      _Page4Notification(l10n: l10n),
-      _Page5Premium(
+      _Page4Premium(
         l10n: l10n,
         onFreeTap: _completeOnboarding,
         onPremiumTap: () {
@@ -51,7 +50,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           if (mounted) context.push('/store');
         },
       ),
-      _Page6Start(l10n: l10n),
     ];
 
     return Scaffold(
@@ -103,8 +101,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         decoration: BoxDecoration(
                           color: isActive
                               ? theme.colorScheme.primary
-                              : theme.colorScheme.outline
-                                  .withValues(alpha: 0.3),
+                              : theme.colorScheme.outline.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       );
@@ -119,8 +116,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ? FilledButton(
                             onPressed: _completeOnboarding,
                             style: FilledButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
                             child: Text(l10n.onboardingStart,
                                 style: const TextStyle(fontSize: 16)),
@@ -131,8 +127,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               curve: Curves.easeInOut,
                             ),
                             style: FilledButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
                             child: Text(l10n.onboardingNext,
                                 style: const TextStyle(fontSize: 16)),
@@ -148,21 +143,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 }
 
-// ─── 画面1: やることを入れるだけ ───
-class _Page1AddTasks extends StatelessWidget {
-  const _Page1AddTasks({required this.l10n});
+// ─── 画面1: タスク名と期限を入れるだけ ───
+class _Page1Input extends StatelessWidget {
+  const _Page1Input({required this.l10n});
   final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final tasks = [l10n.ob1Task1, l10n.ob1Task2, l10n.ob1Task3, l10n.ob1Task4];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 28),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // タスク追加画面のシンプルなモック（タスク名+期限だけ）
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -171,37 +166,61 @@ class _Page1AddTasks extends StatelessWidget {
               border: Border.all(color: theme.colorScheme.outlineVariant),
             ),
             child: Column(
-              children: tasks
-                  .map((t) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Row(
-                          children: [
-                            Icon(Icons.check_box_outline_blank,
-                                size: 20, color: theme.colorScheme.outline),
-                            const SizedBox(width: 12),
-                            Expanded(
-                                child: Text(t,
-                                    style: const TextStyle(fontSize: 15))),
-                          ],
-                        ),
-                      ))
-                  .toList(),
+              children: [
+                // タスク名入力モック
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit_outlined, size: 18, color: theme.colorScheme.outline),
+                      const SizedBox(width: 8),
+                      Text(l10n.ob1Task1,
+                          style: TextStyle(fontSize: 15, color: theme.colorScheme.onSurface)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // 期限日モック
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.calendar_today, size: 18, color: theme.colorScheme.outline),
+                      const SizedBox(width: 8),
+                      Text(l10n.ob2BeforeDate2,
+                          style: TextStyle(fontSize: 15, color: theme.colorScheme.onSurface)),
+                      const Spacer(),
+                      Icon(Icons.chevron_right, size: 20, color: theme.colorScheme.outline),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // 保存ボタンモック
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: null,
+                    child: Text(l10n.save),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 32),
-          Text(l10n.ob1Title,
-              style: theme.textTheme.headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
+          Text(l10n.ob1TitleNew,
+              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center),
           const SizedBox(height: 12),
-          Text(l10n.ob1Desc,
-              style: theme.textTheme.bodyLarge
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-              textAlign: TextAlign.center),
-          const SizedBox(height: 8),
-          Text(l10n.ob1Sub,
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: theme.colorScheme.outline),
+          Text(l10n.ob1SubNew,
+              style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center),
         ],
       ),
@@ -209,9 +228,9 @@ class _Page1AddTasks extends StatelessWidget {
   }
 }
 
-// ─── 画面2: ビフォーアフター（静止画・上下並列） ───
-class _Page2BeforeAfter extends StatelessWidget {
-  const _Page2BeforeAfter({required this.l10n});
+// ─── 画面2: AIが全部やってくれる（before/after + 通知統合） ───
+class _Page2AiSort extends StatelessWidget {
+  const _Page2AiSort({required this.l10n});
   final AppLocalizations l10n;
 
   @override
@@ -222,36 +241,32 @@ class _Page2BeforeAfter extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Column(
         children: [
-          Text(l10n.ob2Title,
-              style: theme.textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.bold),
+          Text(l10n.ob2TitleNew,
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center),
           const SizedBox(height: 4),
-          Text(l10n.ob2Desc,
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          Text(l10n.ob2SubNew,
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center),
           const SizedBox(height: 12),
-          // Before
+          // Before（3件に削減）
           _buildBefore(theme),
-          // 矢印 + ラベル
+          // 矢印
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.arrow_downward,
-                    size: 18, color: theme.colorScheme.primary),
+                Icon(Icons.arrow_downward, size: 18, color: theme.colorScheme.primary),
                 const SizedBox(width: 4),
                 Text(l10n.ob2ArrowLabel,
                     style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 13, fontWeight: FontWeight.bold,
                         color: theme.colorScheme.primary)),
               ],
             ),
           ),
-          // After
+          // After（3件のみ）
           _buildAfter(theme),
         ],
       ),
@@ -260,11 +275,9 @@ class _Page2BeforeAfter extends StatelessWidget {
 
   Widget _buildBefore(ThemeData theme) {
     final items = [
-      (l10n.ob2BeforeTask1, l10n.ob2BeforeDate1),
-      (l10n.ob2BeforeTask2, l10n.ob2BeforeDate2),
-      (l10n.ob2BeforeTask3, l10n.ob2BeforeDate3),
-      (l10n.ob2BeforeTask4, l10n.ob2BeforeDate4),
-      (l10n.ob2BeforeTask5, l10n.ob2BeforeDate5),
+      (l10n.ob2BeforeTask4, l10n.ob2BeforeDate4), // 週報提出 - 今日
+      (l10n.ob2BeforeTask2, l10n.ob2BeforeDate2), // 家賃振込 - 明日
+      (l10n.ob2BeforeTask5, l10n.ob2BeforeDate5), // 日用品 - 4/18
     ];
 
     return Container(
@@ -282,30 +295,22 @@ class _Page2BeforeAfter extends StatelessWidget {
               Icon(Icons.list, size: 16, color: theme.colorScheme.outline),
               const SizedBox(width: 4),
               Text(l10n.ob2BeforeLabel,
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600,
                       color: theme.colorScheme.outline)),
             ],
           ),
           const SizedBox(height: 6),
           ...items.map((item) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 3),
-                child: Row(
-                  children: [
-                    Icon(Icons.circle,
-                        size: 5, color: theme.colorScheme.outline),
-                    const SizedBox(width: 8),
-                    Expanded(
-                        child: Text(item.$1,
-                            style: const TextStyle(fontSize: 13))),
-                    Text(item.$2,
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: theme.colorScheme.outline)),
-                  ],
-                ),
-              )),
+            padding: const EdgeInsets.symmetric(vertical: 3),
+            child: Row(
+              children: [
+                Icon(Icons.circle, size: 5, color: theme.colorScheme.outline),
+                const SizedBox(width: 8),
+                Expanded(child: Text(item.$1, style: const TextStyle(fontSize: 13))),
+                Text(item.$2, style: TextStyle(fontSize: 12, color: theme.colorScheme.outline)),
+              ],
+            ),
+          )),
         ],
       ),
     );
@@ -316,25 +321,17 @@ class _Page2BeforeAfter extends StatelessWidget {
       (
         l10n.ob2AfterUrgent,
         AppColors.priorityUrgent,
-        [
-          (l10n.ob2AfterTask1, l10n.ob2AfterComment1),
-          (l10n.ob2AfterTask2, l10n.ob2AfterComment2),
-        ]
+        [(l10n.ob2AfterTask1, l10n.ob2AfterComment1)],
       ),
       (
         l10n.ob2AfterWarning,
         AppColors.priorityWarning,
-        [(l10n.ob2AfterTask3, l10n.ob2AfterComment3)]
+        [(l10n.ob2AfterTask2, l10n.ob2AfterComment2)],
       ),
       (
         l10n.ob2AfterNormal,
         AppColors.priorityNormal,
-        [(l10n.ob2AfterTask4, l10n.ob2AfterComment4)]
-      ),
-      (
-        l10n.ob2AfterRelaxed,
-        AppColors.priorityRelaxed,
-        [(l10n.ob2AfterTask5, l10n.ob2AfterComment5)]
+        [(l10n.ob2AfterTask3, l10n.ob2AfterComment3)],
       ),
     ];
 
@@ -343,16 +340,14 @@ class _Page2BeforeAfter extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: theme.colorScheme.primary.withValues(alpha: 0.3)),
+        border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (var i = 0; i < sections.length; i++) ...[
             if (i > 0) const SizedBox(height: 4),
-            _afterSection(theme, sections[i].$1, sections[i].$2,
-                sections[i].$3),
+            _afterSection(theme, sections[i].$1, sections[i].$2, sections[i].$3),
           ],
         ],
       ),
@@ -365,45 +360,35 @@ class _Page2BeforeAfter extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: TextStyle(
-                fontSize: 12, fontWeight: FontWeight.bold, color: color)),
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color)),
         ...tasks.map((t) => Padding(
-              padding: const EdgeInsets.only(left: 4, top: 2),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 3,
-                    height: 24,
-                    margin: const EdgeInsets.only(right: 6),
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(t.$1,
-                            style: const TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.w600)),
-                        Text(t.$2,
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: theme.colorScheme.onSurfaceVariant)),
-                      ],
-                    ),
-                  ),
-                ],
+          padding: const EdgeInsets.only(left: 4, top: 2),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 3, height: 24,
+                margin: const EdgeInsets.only(right: 6),
+                decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
               ),
-            )),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(t.$1, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                    Text(t.$2, style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        )),
       ],
     );
   }
 }
 
-// ─── 画面3: カレンダーで実行日が見える ───
+// ─── 画面3: いつやるかが一目でわかる ───
 class _Page3Calendar extends StatelessWidget {
   const _Page3Calendar({required this.l10n});
   final AppLocalizations l10n;
@@ -431,11 +416,8 @@ class _Page3Calendar extends StatelessWidget {
                   children: ['M', 'T', 'W', 'T', 'F', 'S', 'S']
                       .map((d) => SizedBox(
                             width: 32,
-                            child: Text(d,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 11,
-                                    color: theme.colorScheme.outline)),
+                            child: Text(d, textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 11, color: theme.colorScheme.outline)),
                           ))
                       .toList(),
                 ),
@@ -463,30 +445,22 @@ class _Page3Calendar extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          Text(l10n.ob3Title,
-              style: theme.textTheme.headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          Text(l10n.ob3Desc,
-              style: theme.textTheme.bodyLarge
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          Text(l10n.ob3TitleNew,
+              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center),
         ],
       ),
     );
   }
 
-  Widget _calendarRow(
-      ThemeData theme, List<int> days, Map<int, Color> bars, int? today) {
+  Widget _calendarRow(ThemeData theme, List<int> days, Map<int, Color> bars, int? today) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: days.map((d) {
         final isToday = d == today;
         final barColor = bars[d];
         return SizedBox(
-          width: 32,
-          height: 36,
+          width: 32, height: 36,
           child: Column(
             children: [
               Container(
@@ -497,17 +471,15 @@ class _Page3Calendar extends StatelessWidget {
                   borderRadius: BorderRadius.circular(11),
                 ),
                 alignment: Alignment.center,
-                child: Text('$d',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-                      color: isToday ? theme.colorScheme.primary : null,
-                    )),
+                child: Text('$d', style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                  color: isToday ? theme.colorScheme.primary : null,
+                )),
               ),
               if (barColor != null)
                 Container(
-                  height: 4,
-                  margin: const EdgeInsets.only(top: 2),
+                  height: 4, margin: const EdgeInsets.only(top: 2),
                   decoration: BoxDecoration(
                     color: barColor.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(2),
@@ -538,106 +510,9 @@ class _Page3Calendar extends StatelessWidget {
   }
 }
 
-// ─── 画面4: 通知で忘れない ───
-class _Page4Notification extends StatelessWidget {
-  const _Page4Notification({required this.l10n});
-  final AppLocalizations l10n;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 28),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(l10n.ob4Title,
-              style: theme.textTheme.headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center),
-          const SizedBox(height: 8),
-          Text(l10n.ob4Desc,
-              style: theme.textTheme.bodyLarge
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-              textAlign: TextAlign.center),
-          const SizedBox(height: 20),
-          // 説明ラベル
-          Text(l10n.ob4MockLabel,
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: theme.colorScheme.outline)),
-          const SizedBox(height: 10),
-          // 通知モック1
-          _notificationMock(theme, 'YaruNavi', l10n.ob4Time1, l10n.ob4Notify1),
-          const SizedBox(height: 10),
-          // 通知モック2
-          _notificationMock(theme, 'YaruNavi', l10n.ob4Time2, l10n.ob4Notify2),
-          const SizedBox(height: 16),
-          Text(l10n.ob4Sub,
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: theme.colorScheme.outline),
-              textAlign: TextAlign.center),
-        ],
-      ),
-    );
-  }
-
-  Widget _notificationMock(
-      ThemeData theme, String appName, String time, String body) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary,
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: const Icon(Icons.auto_awesome,
-                    size: 12, color: Colors.white),
-              ),
-              const SizedBox(width: 8),
-              Text(appName,
-                  style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurface)),
-              const Spacer(),
-              Text(time,
-                  style: TextStyle(
-                      fontSize: 12, color: theme.colorScheme.outline)),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(body, style: const TextStyle(fontSize: 14)),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── 画面5: プレミアム比較表 ───
-class _Page5Premium extends StatelessWidget {
-  const _Page5Premium({
+// ─── 画面4: さあ始めよう + サブスク訴求 ───
+class _Page4Premium extends StatelessWidget {
+  const _Page4Premium({
     required this.l10n,
     required this.onFreeTap,
     required this.onPremiumTap,
@@ -650,13 +525,11 @@ class _Page5Premium extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // コンパクト比較表（4行に削減）
     final rows = [
       (l10n.ob5AiSort, l10n.ob5FreeAi, l10n.ob5PremiumAi),
-      (l10n.ob5Tasks, l10n.ob5FreeTasks, l10n.ob5PremiumTasks),
-      (l10n.ob5Recurring, l10n.ob5FreeRecurring, l10n.ob5PremiumRecurring),
       (l10n.ob5Notify, '—', l10n.ob5PremiumNotify),
       (l10n.ob5Calendar, '—', l10n.ob5PremiumCalendar),
-      (l10n.ob5AiComment, '—', l10n.ob5PremiumComment),
       (l10n.ob5Ads, l10n.ob5FreeAds, l10n.ob5PremiumAds),
     ];
 
@@ -665,12 +538,11 @@ class _Page5Premium extends StatelessWidget {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            Text(l10n.ob5Title,
-                style: theme.textTheme.headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.bold),
+            Text(l10n.ob4TitleNew,
+                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            // 比較テーブル
+            // コンパクト比較テーブル
             Container(
               decoration: BoxDecoration(
                 color: theme.colorScheme.surfaceContainerLow,
@@ -679,13 +551,10 @@ class _Page5Premium extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  // ヘッダー行
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(13)),
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(13)),
                       color: theme.colorScheme.surfaceContainerHighest,
                     ),
                     child: Row(
@@ -693,63 +562,37 @@ class _Page5Premium extends StatelessWidget {
                         const Expanded(flex: 3, child: SizedBox()),
                         Expanded(
                           flex: 2,
-                          child: Text(l10n.ob5Free,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
+                          child: Text(l10n.ob5Free, textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold,
                                   color: theme.colorScheme.outline)),
                         ),
                         Expanded(
                           flex: 2,
-                          child: Text(l10n.premium,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
+                          child: Text(l10n.premium, textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold,
                                   color: theme.colorScheme.primary)),
                         ),
                       ],
                     ),
                   ),
-                  // データ行
                   for (var i = 0; i < rows.length; i++) ...[
                     if (i > 0)
-                      Divider(
-                          height: 1,
-                          indent: 12,
-                          endIndent: 12,
+                      Divider(height: 1, indent: 12, endIndent: 12,
                           color: theme.colorScheme.outlineVariant),
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       child: Row(
                         children: [
-                          Expanded(
-                            flex: 3,
-                            child: Text(rows[i].$1,
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color:
-                                        theme.colorScheme.onSurfaceVariant)),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Text(rows[i].$2,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color: theme.colorScheme.outline)),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Text(rows[i].$3,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: theme.colorScheme.primary)),
-                          ),
+                          Expanded(flex: 3,
+                              child: Text(rows[i].$1, style: TextStyle(fontSize: 13,
+                                  color: theme.colorScheme.onSurfaceVariant))),
+                          Expanded(flex: 2,
+                              child: Text(rows[i].$2, textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 13, color: theme.colorScheme.outline))),
+                          Expanded(flex: 2,
+                              child: Text(rows[i].$3, textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
+                                      color: theme.colorScheme.primary))),
                         ],
                       ),
                     ),
@@ -759,9 +602,7 @@ class _Page5Premium extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Text(l10n.ob5Price,
-                style: TextStyle(
-                    fontSize: 13,
-                    color: theme.colorScheme.onSurfaceVariant)),
+                style: TextStyle(fontSize: 13, color: theme.colorScheme.onSurfaceVariant)),
             const SizedBox(height: 14),
             SizedBox(
               width: double.infinity,
@@ -772,43 +613,11 @@ class _Page5Premium extends StatelessWidget {
             ),
             TextButton(
               onPressed: onFreeTap,
-              child: Text(l10n.ob5FreeButton,
+              child: Text(l10n.ob4FreeStart,
                   style: TextStyle(color: theme.colorScheme.outline)),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ─── 画面6: さあ、始めましょう ───
-class _Page6Start extends StatelessWidget {
-  const _Page6Start({required this.l10n});
-  final AppLocalizations l10n;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.rocket_launch,
-              size: 80, color: theme.colorScheme.primary),
-          const SizedBox(height: 32),
-          Text(l10n.ob6Title,
-              style: theme.textTheme.headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          Text(l10n.ob6Desc,
-              style: theme.textTheme.bodyLarge
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-              textAlign: TextAlign.center),
-        ],
       ),
     );
   }

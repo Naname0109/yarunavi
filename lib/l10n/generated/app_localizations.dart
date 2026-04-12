@@ -1622,6 +1622,12 @@ abstract class AppLocalizations {
   /// **'ライセンス'**
   String get settingsLicenses;
 
+  /// No description provided for @advancedSettings.
+  ///
+  /// In ja, this message translates to:
+  /// **'詳細設定'**
+  String get advancedSettings;
+
   /// No description provided for @estimatedTime.
   ///
   /// In ja, this message translates to:
@@ -1634,11 +1640,11 @@ abstract class AppLocalizations {
   /// **'未設定'**
   String get estimatedTimeNone;
 
-  /// No description provided for @estimatedTime5min.
+  /// No description provided for @estimatedTime15min.
   ///
   /// In ja, this message translates to:
-  /// **'5分'**
-  String get estimatedTime5min;
+  /// **'15分'**
+  String get estimatedTime15min;
 
   /// No description provided for @estimatedTime30min.
   ///
@@ -1652,6 +1658,30 @@ abstract class AppLocalizations {
   /// **'1時間'**
   String get estimatedTime1hour;
 
+  /// No description provided for @estimatedTime1_5hour.
+  ///
+  /// In ja, this message translates to:
+  /// **'1.5時間'**
+  String get estimatedTime1_5hour;
+
+  /// No description provided for @estimatedTime2hour.
+  ///
+  /// In ja, this message translates to:
+  /// **'2時間'**
+  String get estimatedTime2hour;
+
+  /// No description provided for @estimatedTime3hour.
+  ///
+  /// In ja, this message translates to:
+  /// **'3時間'**
+  String get estimatedTime3hour;
+
+  /// No description provided for @estimatedTime4hour.
+  ///
+  /// In ja, this message translates to:
+  /// **'4時間'**
+  String get estimatedTime4hour;
+
   /// No description provided for @estimatedTimeHalfDay.
   ///
   /// In ja, this message translates to:
@@ -1663,6 +1693,18 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'1日'**
   String get estimatedTime1day;
+
+  /// No description provided for @estimatedTimeSeveralDays.
+  ///
+  /// In ja, this message translates to:
+  /// **'数日'**
+  String get estimatedTimeSeveralDays;
+
+  /// No description provided for @estimatedTime1weekPlus.
+  ///
+  /// In ja, this message translates to:
+  /// **'1週間以上'**
+  String get estimatedTime1weekPlus;
 
   /// No description provided for @importance.
   ///
@@ -2155,6 +2197,114 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'すべてのタスクの期限が過ぎました。新しいやることを追加しませんか？'**
   String get allExpiredNotification;
+
+  /// No description provided for @todaySection.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日やること'**
+  String get todaySection;
+
+  /// No description provided for @todaySectionEmpty.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日やることはありません 👍'**
+  String get todaySectionEmpty;
+
+  /// No description provided for @otherTasks.
+  ///
+  /// In ja, this message translates to:
+  /// **'その他のタスク'**
+  String get otherTasks;
+
+  /// No description provided for @taskCount.
+  ///
+  /// In ja, this message translates to:
+  /// **'全{count}件'**
+  String taskCount(int count);
+
+  /// No description provided for @tabTodo.
+  ///
+  /// In ja, this message translates to:
+  /// **'やること'**
+  String get tabTodo;
+
+  /// No description provided for @aiAutoSettingsComplete.
+  ///
+  /// In ja, this message translates to:
+  /// **'通知・カレンダーを自動設定しました'**
+  String get aiAutoSettingsComplete;
+
+  /// No description provided for @aiAutoNotifyOnly.
+  ///
+  /// In ja, this message translates to:
+  /// **'通知を自動設定しました'**
+  String get aiAutoNotifyOnly;
+
+  /// No description provided for @aiAutoCalendarPermission.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダー連携は設定からオンにできます'**
+  String get aiAutoCalendarPermission;
+
+  /// No description provided for @aiPremiumAutoPrompt.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムなら通知・カレンダーも自動設定されます'**
+  String get aiPremiumAutoPrompt;
+
+  /// No description provided for @aiPremiumAutoTrial.
+  ///
+  /// In ja, this message translates to:
+  /// **'7日間無料で試す'**
+  String get aiPremiumAutoTrial;
+
+  /// No description provided for @aiChangeSettings.
+  ///
+  /// In ja, this message translates to:
+  /// **'設定を変更'**
+  String get aiChangeSettings;
+
+  /// No description provided for @ob1TitleNew.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク名と期限を入れるだけ'**
+  String get ob1TitleNew;
+
+  /// No description provided for @ob1SubNew.
+  ///
+  /// In ja, this message translates to:
+  /// **'それだけでOK。あとはAIにおまかせ'**
+  String get ob1SubNew;
+
+  /// No description provided for @ob2TitleNew.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIが全部やってくれる'**
+  String get ob2TitleNew;
+
+  /// No description provided for @ob2SubNew.
+  ///
+  /// In ja, this message translates to:
+  /// **'優先順位もアドバイスも、通知設定も全部自動'**
+  String get ob2SubNew;
+
+  /// No description provided for @ob3TitleNew.
+  ///
+  /// In ja, this message translates to:
+  /// **'いつやるかが一目でわかる'**
+  String get ob3TitleNew;
+
+  /// No description provided for @ob4TitleNew.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムなら通知もカレンダーも自動'**
+  String get ob4TitleNew;
+
+  /// No description provided for @ob4FreeStart.
+  ///
+  /// In ja, this message translates to:
+  /// **'まずは無料で始める'**
+  String get ob4FreeStart;
 }
 
 class _AppLocalizationsDelegate

@@ -818,13 +818,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLicenses => 'Licenses';
 
   @override
+  String get advancedSettings => 'Advanced Settings';
+
+  @override
   String get estimatedTime => 'Estimated Time';
 
   @override
   String get estimatedTimeNone => 'Not set';
 
   @override
-  String get estimatedTime5min => '5 min';
+  String get estimatedTime15min => '15 min';
 
   @override
   String get estimatedTime30min => '30 min';
@@ -833,10 +836,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get estimatedTime1hour => '1 hour';
 
   @override
+  String get estimatedTime1_5hour => '1.5 hours';
+
+  @override
+  String get estimatedTime2hour => '2 hours';
+
+  @override
+  String get estimatedTime3hour => '3 hours';
+
+  @override
+  String get estimatedTime4hour => '4 hours';
+
+  @override
   String get estimatedTimeHalfDay => 'Half day';
 
   @override
   String get estimatedTime1day => '1 day';
+
+  @override
+  String get estimatedTimeSeveralDays => 'Several days';
+
+  @override
+  String get estimatedTime1weekPlus => '1 week+';
 
   @override
   String get importance => 'Importance';
@@ -1100,4 +1121,63 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get allExpiredNotification =>
       'All task deadlines have passed. Add new tasks to stay organized!';
+
+  @override
+  String get todaySection => 'Today\'s Tasks';
+
+  @override
+  String get todaySectionEmpty => 'Nothing to do today 👍';
+
+  @override
+  String get otherTasks => 'Other Tasks';
+
+  @override
+  String taskCount(int count) {
+    return '$count total';
+  }
+
+  @override
+  String get tabTodo => 'To Do';
+
+  @override
+  String get aiAutoSettingsComplete =>
+      'Auto-configured notifications & calendar';
+
+  @override
+  String get aiAutoNotifyOnly => 'Auto-configured notifications';
+
+  @override
+  String get aiAutoCalendarPermission => 'Enable calendar sync in settings';
+
+  @override
+  String get aiPremiumAutoPrompt =>
+      'Premium auto-configures notifications & calendar';
+
+  @override
+  String get aiPremiumAutoTrial => 'Start 7-day free trial';
+
+  @override
+  String get aiChangeSettings => 'Change settings';
+
+  @override
+  String get ob1TitleNew => 'Just enter a task name and due date';
+
+  @override
+  String get ob1SubNew => 'That\'s it. Leave the rest to AI';
+
+  @override
+  String get ob2TitleNew => 'AI does everything for you';
+
+  @override
+  String get ob2SubNew =>
+      'Priorities, advice, and notifications — all automatic';
+
+  @override
+  String get ob3TitleNew => 'See when to do what at a glance';
+
+  @override
+  String get ob4TitleNew => 'Premium: auto notifications & calendar';
+
+  @override
+  String get ob4FreeStart => 'Start free';
 }

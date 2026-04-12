@@ -133,46 +133,16 @@ class _TaskCardState extends ConsumerState<TaskCard>
                                   widget.task.dueDate, context),
                             ),
                           ),
-                          // 折りたたみ時のAIコメントプレビュー
-                          if (!_expanded &&
-                              widget.task.aiComment != null &&
-                              widget.task.aiComment!.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              child: Text(
-                                widget.task.aiComment!,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
-                              ),
-                            ),
+                          // 折りたたみ時はタスク名+期限のみ（シンプル表示）
                         ],
                       ),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(right: 12),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (widget.task.recurrenceType != null)
-                          const Padding(
-                            padding: EdgeInsets.only(right: 4),
-                            child: Text('🔄', style: TextStyle(fontSize: 16)),
-                          ),
-                        if (widget.category != null)
-                          Text(widget.category!.icon,
-                              style: const TextStyle(fontSize: 18)),
-                        Icon(
-                          _expanded ? Icons.expand_less : Icons.expand_more,
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                      ],
+                    child: Icon(
+                      _expanded ? Icons.expand_less : Icons.expand_more,
+                      color: Theme.of(context).colorScheme.outline,
                     ),
                   ),
                 ],
@@ -263,6 +233,27 @@ class _TaskCardState extends ConsumerState<TaskCard>
     final outline = Theme.of(context).colorScheme.outline;
     final task = widget.task;
     final children = <Widget>[];
+
+    // カテゴリ・定期タスクバッジ
+    final badges = <Widget>[];
+    if (widget.category != null) {
+      badges.add(Text('${widget.category!.icon} ${widget.category!.name}',
+          style: TextStyle(fontSize: 12, color: outline)));
+    }
+    if (task.recurrenceType != null) {
+      badges.add(Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('🔄', style: TextStyle(fontSize: 12)),
+          const SizedBox(width: 2),
+          Text(task.recurrenceType!, style: TextStyle(fontSize: 12, color: outline)),
+        ],
+      ));
+    }
+    if (badges.isNotEmpty) {
+      children.add(Wrap(spacing: 12, children: badges));
+      children.add(const SizedBox(height: 4));
+    }
 
     // 推奨日 (期限と異なる場合)
     if (task.recommendedStart != null && task.recommendedEnd != null) {

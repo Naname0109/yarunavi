@@ -52,6 +52,7 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
   List<String> _notifySettings = [];
   bool _addToCalendar = false;
   bool _isSaving = false;
+  bool _showAdvanced = false;
 
   bool get _isEditing => widget.task != null;
 
@@ -68,6 +69,18 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
     _recurrenceType = task?.recurrenceType;
     _recurrenceValue = task?.recurrenceValue;
     _addToCalendar = task?.calendarEventId != null;
+
+    // 編集時: 詳細フィールドのいずれかが設定済みなら自動展開
+    if (_isEditing) {
+      _showAdvanced = (task?.memo != null && task!.memo!.isNotEmpty) ||
+          task?.categoryId != null ||
+          task?.estimatedTime != null ||
+          task?.importance != 1 ||
+          task?.recurrenceType != null ||
+          (task?.notifySettings != null &&
+              task!.notifySettings != '["ai_auto"]') ||
+          task?.calendarEventId != null;
+    }
 
     if (task?.notifySettings != null) {
       try {
@@ -121,23 +134,39 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
                     controller: scrollController,
                     padding: const EdgeInsets.all(16),
                     children: [
+                      // メイン入力: タスク名 + 期限日のみ
                       _buildTitleField(l10n),
                       const SizedBox(height: 16),
                       _buildDueDateField(l10n, locale),
                       const SizedBox(height: 16),
-                      _buildMemoField(l10n),
-                      const SizedBox(height: 16),
-                      _buildCategoryField(l10n, categoriesAsync),
-                      const SizedBox(height: 16),
-                      _buildEstimatedTimeField(l10n),
-                      const SizedBox(height: 16),
-                      _buildImportanceField(l10n),
-                      const SizedBox(height: 16),
-                      _buildRecurrenceField(l10n),
-                      const SizedBox(height: 16),
-                      _buildNotifyField(l10n),
-                      const SizedBox(height: 16),
-                      _buildCalendarToggle(l10n),
+                      // 詳細設定の展開トグル
+                      _buildAdvancedToggle(l10n),
+                      // 詳細設定（折りたたみ）
+                      AnimatedCrossFade(
+                        duration: const Duration(milliseconds: 200),
+                        crossFadeState: _showAdvanced
+                            ? CrossFadeState.showSecond
+                            : CrossFadeState.showFirst,
+                        firstChild: const SizedBox(width: double.infinity),
+                        secondChild: Column(
+                          children: [
+                            const SizedBox(height: 16),
+                            _buildMemoField(l10n),
+                            const SizedBox(height: 16),
+                            _buildCategoryField(l10n, categoriesAsync),
+                            const SizedBox(height: 16),
+                            _buildEstimatedTimeField(l10n),
+                            const SizedBox(height: 16),
+                            _buildImportanceField(l10n),
+                            const SizedBox(height: 16),
+                            _buildRecurrenceField(l10n),
+                            const SizedBox(height: 16),
+                            _buildNotifyField(l10n),
+                            const SizedBox(height: 16),
+                            _buildCalendarToggle(l10n),
+                          ],
+                        ),
+                      ),
                       const SizedBox(height: 32),
                     ],
                   ),
@@ -232,6 +261,37 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
     );
   }
 
+  Widget _buildAdvancedToggle(AppLocalizations l10n) {
+    return GestureDetector(
+      onTap: () => setState(() => _showAdvanced = !_showAdvanced),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              l10n.advancedSettings,
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            const SizedBox(width: 4),
+            AnimatedRotation(
+              turns: _showAdvanced ? 0.5 : 0,
+              duration: const Duration(milliseconds: 200),
+              child: Icon(
+                Icons.expand_more,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildMemoField(AppLocalizations l10n) {
     return TextFormField(
       controller: _memoController,
@@ -292,11 +352,17 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
   Widget _buildEstimatedTimeField(AppLocalizations l10n) {
     final options = <(String?, String)>[
       (null, l10n.estimatedTimeNone),
-      ('5min', l10n.estimatedTime5min),
+      ('15min', l10n.estimatedTime15min),
       ('30min', l10n.estimatedTime30min),
       ('1hour', l10n.estimatedTime1hour),
+      ('1_5hour', l10n.estimatedTime1_5hour),
+      ('2hour', l10n.estimatedTime2hour),
+      ('3hour', l10n.estimatedTime3hour),
+      ('4hour', l10n.estimatedTime4hour),
       ('half_day', l10n.estimatedTimeHalfDay),
       ('1day', l10n.estimatedTime1day),
+      ('several_days', l10n.estimatedTimeSeveralDays),
+      ('1week_plus', l10n.estimatedTime1weekPlus),
     ];
 
     return Column(

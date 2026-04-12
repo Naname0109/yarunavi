@@ -799,13 +799,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsLicenses => 'ライセンス';
 
   @override
+  String get advancedSettings => '詳細設定';
+
+  @override
   String get estimatedTime => '所要時間';
 
   @override
   String get estimatedTimeNone => '未設定';
 
   @override
-  String get estimatedTime5min => '5分';
+  String get estimatedTime15min => '15分';
 
   @override
   String get estimatedTime30min => '30分';
@@ -814,10 +817,28 @@ class AppLocalizationsJa extends AppLocalizations {
   String get estimatedTime1hour => '1時間';
 
   @override
+  String get estimatedTime1_5hour => '1.5時間';
+
+  @override
+  String get estimatedTime2hour => '2時間';
+
+  @override
+  String get estimatedTime3hour => '3時間';
+
+  @override
+  String get estimatedTime4hour => '4時間';
+
+  @override
   String get estimatedTimeHalfDay => '半日';
 
   @override
   String get estimatedTime1day => '1日';
+
+  @override
+  String get estimatedTimeSeveralDays => '数日';
+
+  @override
+  String get estimatedTime1weekPlus => '1週間以上';
 
   @override
   String get importance => '重要度';
@@ -1074,4 +1095,60 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get allExpiredNotification => 'すべてのタスクの期限が過ぎました。新しいやることを追加しませんか？';
+
+  @override
+  String get todaySection => '今日やること';
+
+  @override
+  String get todaySectionEmpty => '今日やることはありません 👍';
+
+  @override
+  String get otherTasks => 'その他のタスク';
+
+  @override
+  String taskCount(int count) {
+    return '全$count件';
+  }
+
+  @override
+  String get tabTodo => 'やること';
+
+  @override
+  String get aiAutoSettingsComplete => '通知・カレンダーを自動設定しました';
+
+  @override
+  String get aiAutoNotifyOnly => '通知を自動設定しました';
+
+  @override
+  String get aiAutoCalendarPermission => 'カレンダー連携は設定からオンにできます';
+
+  @override
+  String get aiPremiumAutoPrompt => 'プレミアムなら通知・カレンダーも自動設定されます';
+
+  @override
+  String get aiPremiumAutoTrial => '7日間無料で試す';
+
+  @override
+  String get aiChangeSettings => '設定を変更';
+
+  @override
+  String get ob1TitleNew => 'タスク名と期限を入れるだけ';
+
+  @override
+  String get ob1SubNew => 'それだけでOK。あとはAIにおまかせ';
+
+  @override
+  String get ob2TitleNew => 'AIが全部やってくれる';
+
+  @override
+  String get ob2SubNew => '優先順位もアドバイスも、通知設定も全部自動';
+
+  @override
+  String get ob3TitleNew => 'いつやるかが一目でわかる';
+
+  @override
+  String get ob4TitleNew => 'プレミアムなら通知もカレンダーも自動';
+
+  @override
+  String get ob4FreeStart => 'まずは無料で始める';
 }
