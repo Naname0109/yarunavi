@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../models/task.dart';
@@ -214,5 +215,77 @@ class NotificationService {
             isPremium: isPremium, locale: locale);
       }
     }
+
+    // 全タスク期限切れチェック → 通知スケジュール
+    await _checkAndScheduleAllExpiredNotification(
+      tasks,
+      isPremium: isPremium,
+      locale: locale,
+    );
+  }
+
+  /// 全タスクが期限切れの場合、翌朝9:00に通知をスケジュール
+  Future<void> _checkAndScheduleAllExpiredNotification(
+    List<Task> tasks, {
+    required bool isPremium,
+    String locale = 'ja',
+  }) async {
+    if (!isPremium && !kDebugMode) return;
+
+    final incompleteTasks = tasks.where((t) => !t.isCompleted).toList();
+    if (incompleteTasks.isEmpty) return;
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final allOverdue = incompleteTasks.every(
+      (t) => t.dueDate.isBefore(today),
+    );
+    if (!allOverdue) return;
+
+    // フラグチェック
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(AppConstants.allExpiredNotifiedKey) == true) return;
+
+    // 翌朝9:00にスケジュール
+    final tomorrow9am = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day + 1,
+      AppConstants.notificationHour,
+    );
+
+    final body = locale == 'ja'
+        ? 'すべてのタスクの期限が過ぎました。新しいやることを追加しませんか？'
+        : 'All task deadlines have passed. Add new tasks to stay organized!';
+
+    await _plugin.zonedSchedule(
+      AppConstants.allExpiredNotificationId,
+      AppConstants.appName,
+      body,
+      tomorrow9am,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          AppConstants.notificationChannelId,
+          AppConstants.notificationChannelName,
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+
+    // フラグを保存（重複送信防止）
+    await prefs.setBool(AppConstants.allExpiredNotifiedKey, true);
+  }
+
+  /// 全期限切れ通知フラグをリセットし、スケジュール済み通知もキャンセル
+  Future<void> resetAllExpiredFlag() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(AppConstants.allExpiredNotifiedKey, false);
+    await _plugin.cancel(AppConstants.allExpiredNotificationId);
   }
 }

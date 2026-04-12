@@ -748,5 +748,25 @@
     "placeholders": {
       "count": { "type": "int" }
     }
-  }
+  },
+
+  "allCompleteTitle": "すべて完了！お疲れさまでした",
+  "@allCompleteTitle": {},
+  "allCompleteSubtitle": "新しいタスクを追加して、次のやることを整理しましょう",
+  "@allCompleteSubtitle": {},
+  "allCompleteAddTask": "タスクを追加する",
+  "@allCompleteAddTask": {},
+  "allCompleteAiSort": "AIで整理",
+  "@allCompleteAiSort": {},
+  "allCompleteNoTaskForAi": "タスクを追加してから整理しましょう",
+  "@allCompleteNoTaskForAi": {},
+
+  "allExpiredBannerTitle": "すべてのタスクの期限が過ぎています",
+  "@allExpiredBannerTitle": {},
+  "allExpiredAddTask": "新しいタスクを追加",
+  "@allExpiredAddTask": {},
+  "allExpiredUpdateDue": "期限を更新",
+  "@allExpiredUpdateDue": {},
+  "allExpiredNotification": "すべてのタスクの期限が過ぎました。新しいやることを追加しませんか？",
+  "@allExpiredNotification": {}
 }

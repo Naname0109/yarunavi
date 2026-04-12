@@ -295,6 +295,47 @@ class DatabaseService {
     }
   }
 
+  /// 完了済みタスクの件数を返す
+  Future<int> getCompletedTaskCount() async {
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) as cnt FROM tasks WHERE is_completed = 1',
+    );
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  /// 未完了タスクが1件以上あり、かつ全ての期限が過去かどうか
+  Future<bool> areAllTasksOverdue() async {
+    final today = app_date.formatDateForDb(DateTime.now());
+    // 未完了タスクの総数
+    final totalResult = await db.rawQuery(
+      'SELECT COUNT(*) as cnt FROM tasks WHERE is_completed = 0',
+    );
+    final totalCount = Sqflite.firstIntValue(totalResult) ?? 0;
+    if (totalCount == 0) return false;
+
+    // 期限が今日以降の未完了タスクの数
+    final notOverdueResult = await db.rawQuery(
+      'SELECT COUNT(*) as cnt FROM tasks WHERE is_completed = 0 AND due_date >= ?',
+      [today],
+    );
+    final notOverdueCount = Sqflite.firstIntValue(notOverdueResult) ?? 0;
+    return notOverdueCount == 0;
+  }
+
+  /// 最も古い期限切れタスクを取得
+  Future<Task?> getOldestOverdueTask() async {
+    final today = app_date.formatDateForDb(DateTime.now());
+    final maps = await db.query(
+      'tasks',
+      where: 'due_date < ? AND is_completed = 0',
+      whereArgs: [today],
+      orderBy: 'due_date ASC',
+      limit: 1,
+    );
+    if (maps.isEmpty) return null;
+    return Task.fromMap(maps.first);
+  }
+
   // --- Categories ---
 
   Future<List<model.Category>> getAllCategories() async {

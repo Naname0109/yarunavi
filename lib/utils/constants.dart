@@ -49,6 +49,11 @@ class AppConstants {
     '1_week_before': 7,
   };
 
+  // 全タスク期限切れ通知用の固定ID（タスクIDベースのIDと衝突しない）
+  static const int allExpiredNotificationId = 999999;
+  // SharedPreferencesキー
+  static const String allExpiredNotifiedKey = 'all_expired_notified';
+
   // URLs
   static const String termsOfUseUrl =
       'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';

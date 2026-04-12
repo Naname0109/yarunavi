@@ -1047,4 +1047,31 @@ class AppLocalizationsJa extends AppLocalizations {
   String devModeRemaining(int count) {
     return 'あと$count回タップで開発者モード';
   }
+
+  @override
+  String get allCompleteTitle => 'すべて完了！お疲れさまでした';
+
+  @override
+  String get allCompleteSubtitle => '新しいタスクを追加して、次のやることを整理しましょう';
+
+  @override
+  String get allCompleteAddTask => 'タスクを追加する';
+
+  @override
+  String get allCompleteAiSort => 'AIで整理';
+
+  @override
+  String get allCompleteNoTaskForAi => 'タスクを追加してから整理しましょう';
+
+  @override
+  String get allExpiredBannerTitle => 'すべてのタスクの期限が過ぎています';
+
+  @override
+  String get allExpiredAddTask => '新しいタスクを追加';
+
+  @override
+  String get allExpiredUpdateDue => '期限を更新';
+
+  @override
+  String get allExpiredNotification => 'すべてのタスクの期限が過ぎました。新しいやることを追加しませんか？';
 }

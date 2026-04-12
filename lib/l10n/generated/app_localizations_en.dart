@@ -1072,4 +1072,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String devModeRemaining(int count) {
     return '$count more taps for developer mode';
   }
+
+  @override
+  String get allCompleteTitle => 'All done! Great job';
+
+  @override
+  String get allCompleteSubtitle => 'Add new tasks and organize what\'s next';
+
+  @override
+  String get allCompleteAddTask => 'Add a Task';
+
+  @override
+  String get allCompleteAiSort => 'AI Sort';
+
+  @override
+  String get allCompleteNoTaskForAi => 'Add tasks first, then organize with AI';
+
+  @override
+  String get allExpiredBannerTitle => 'All task deadlines have passed';
+
+  @override
+  String get allExpiredAddTask => 'Add New Task';
+
+  @override
+  String get allExpiredUpdateDue => 'Update Deadline';
+
+  @override
+  String get allExpiredNotification =>
+      'All task deadlines have passed. Add new tasks to stay organized!';
 }

@@ -28,6 +28,20 @@ final filterProvider = StateProvider<String>((ref) => 'all');
 final tasksProvider =
     AsyncNotifierProvider<TasksNotifier, List<Task>>(TasksNotifier.new);
 
+/// 完了済みタスクの件数（祝福画面の表示判定用）
+final completedTaskCountProvider = FutureProvider<int>((ref) async {
+  ref.watch(tasksProvider); // tasksProvider更新時に再取得
+  final db = ref.read(databaseServiceProvider);
+  return db.getCompletedTaskCount();
+});
+
+/// 全未完了タスクが期限切れかどうか（バナー表示判定用）
+final allTasksOverdueProvider = FutureProvider<bool>((ref) async {
+  ref.watch(tasksProvider); // tasksProvider更新時に再取得
+  final db = ref.read(databaseServiceProvider);
+  return db.areAllTasksOverdue();
+});
+
 class TasksNotifier extends AsyncNotifier<List<Task>> {
   DatabaseService get _db => ref.read(databaseServiceProvider);
   NotificationService get _notify => ref.read(notificationServiceProvider);
@@ -59,6 +73,8 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
     }
 
     await _notify.scheduleTaskNotifications(savedTask, isPremium: _isPremium);
+    // 全期限切れ通知フラグをリセット
+    await _notify.resetAllExpiredFlag();
     ref.invalidateSelf();
     return calResult;
   }
@@ -114,6 +130,8 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
       await _notify.cancelTaskNotifications(updated.id!);
       await _notify.scheduleTaskNotifications(updated, isPremium: _isPremium);
     }
+    // 期限更新時に全期限切れ通知フラグをリセット
+    await _notify.resetAllExpiredFlag();
     ref.invalidateSelf();
     return calResult;
   }

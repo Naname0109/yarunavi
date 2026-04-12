@@ -358,5 +358,16 @@
   "devModeResetAiUsageDone": "AI usage count reset",
   "devModeConfirmResetAiUsage": "Reset this month's AI usage count?",
   "devModeEnabled": "Developer mode enabled",
-  "devModeRemaining": "{count} more taps for developer mode"
+  "devModeRemaining": "{count} more taps for developer mode",
+
+  "allCompleteTitle": "All done! Great job",
+  "allCompleteSubtitle": "Add new tasks and organize what's next",
+  "allCompleteAddTask": "Add a Task",
+  "allCompleteAiSort": "AI Sort",
+  "allCompleteNoTaskForAi": "Add tasks first, then organize with AI",
+
+  "allExpiredBannerTitle": "All task deadlines have passed",
+  "allExpiredAddTask": "Add New Task",
+  "allExpiredUpdateDue": "Update Deadline",
+  "allExpiredNotification": "All task deadlines have passed. Add new tasks to stay organized!"
 }

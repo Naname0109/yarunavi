@@ -2101,6 +2101,60 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'あと{count}回タップで開発者モード'**
   String devModeRemaining(int count);
+
+  /// No description provided for @allCompleteTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'すべて完了！お疲れさまでした'**
+  String get allCompleteTitle;
+
+  /// No description provided for @allCompleteSubtitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'新しいタスクを追加して、次のやることを整理しましょう'**
+  String get allCompleteSubtitle;
+
+  /// No description provided for @allCompleteAddTask.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクを追加する'**
+  String get allCompleteAddTask;
+
+  /// No description provided for @allCompleteAiSort.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIで整理'**
+  String get allCompleteAiSort;
+
+  /// No description provided for @allCompleteNoTaskForAi.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクを追加してから整理しましょう'**
+  String get allCompleteNoTaskForAi;
+
+  /// No description provided for @allExpiredBannerTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'すべてのタスクの期限が過ぎています'**
+  String get allExpiredBannerTitle;
+
+  /// No description provided for @allExpiredAddTask.
+  ///
+  /// In ja, this message translates to:
+  /// **'新しいタスクを追加'**
+  String get allExpiredAddTask;
+
+  /// No description provided for @allExpiredUpdateDue.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限を更新'**
+  String get allExpiredUpdateDue;
+
+  /// No description provided for @allExpiredNotification.
+  ///
+  /// In ja, this message translates to:
+  /// **'すべてのタスクの期限が過ぎました。新しいやることを追加しませんか？'**
+  String get allExpiredNotification;
 }
 
 class _AppLocalizationsDelegate

@@ -72,6 +72,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
     });
 
+    final completedCount =
+        ref.watch(completedTaskCountProvider).valueOrNull ?? 0;
+    final allOverdue =
+        ref.watch(allTasksOverdueProvider).valueOrNull ?? false;
+
     final todayStr = DateFormat.yMMMd(locale).format(DateTime.now());
 
     final listTab = Column(
@@ -98,6 +103,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         FilterTabs(key: _filterTabsKey),
         const SizedBox(height: 8),
+        // 全タスク期限切れバナー
+        if (allOverdue && currentFilter != 'completed')
+          _AllExpiredBanner(l10n: l10n),
         Expanded(
           child: tasksAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -119,6 +127,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             data: (tasks) {
               if (tasks.isEmpty) {
+                // 全完了祝福画面: 完了済みが1件以上 & completedフィルター以外
+                if (completedCount > 0 && currentFilter != 'completed') {
+                  return _AllCompleteCelebration(l10n: l10n);
+                }
+                // 通常の空状態
                 return Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -449,6 +462,211 @@ class _FadeInItemState extends State<_FadeInItem>
     return FadeTransition(
       opacity: _opacity,
       child: SlideTransition(position: _offset, child: widget.child),
+    );
+  }
+}
+
+/// 全タスク完了時の祝福画面
+class _AllCompleteCelebration extends StatefulWidget {
+  const _AllCompleteCelebration({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  State<_AllCompleteCelebration> createState() =>
+      _AllCompleteCelebrationState();
+}
+
+class _AllCompleteCelebrationState extends State<_AllCompleteCelebration>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scale;
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _scale = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.elasticOut,
+      ),
+    );
+    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+      ),
+    );
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Center(
+      child: FadeTransition(
+        opacity: _opacity,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ScaleTransition(
+              scale: _scale,
+              child: Icon(
+                Icons.check_circle,
+                size: 80,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '${widget.l10n.allCompleteTitle} 🎉',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              widget.l10n.allCompleteSubtitle,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            FilledButton.icon(
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                TaskFormSheet.show(context);
+              },
+              icon: const Icon(Icons.add),
+              label: Text(widget.l10n.allCompleteAddTask),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(200, 48),
+              ),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(widget.l10n.allCompleteNoTaskForAi),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: Text(widget.l10n.allCompleteAiSort),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 全タスク期限切れ時の警告バナー
+class _AllExpiredBanner extends ConsumerWidget {
+  const _AllExpiredBanner({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    // ダークモードでも読みやすいオレンジ系
+    final bannerColor = theme.brightness == Brightness.dark
+        ? const Color(0xFF4A2800)
+        : const Color(0xFFFFF3E0);
+    final textColor = theme.brightness == Brightness.dark
+        ? const Color(0xFFFFCC80)
+        : const Color(0xFFE65100);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Card(
+        color: bannerColor,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: textColor.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded,
+                      color: textColor, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      l10n.allExpiredBannerTitle,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.tonal(
+                      onPressed: () {
+                        HapticFeedback.selectionClick();
+                        TaskFormSheet.show(context);
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: textColor.withValues(alpha: 0.15),
+                        foregroundColor: textColor,
+                      ),
+                      child: Text(l10n.allExpiredAddTask),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        final db = ref.read(databaseServiceProvider);
+                        final oldest = await db.getOldestOverdueTask();
+                        if (oldest != null && context.mounted) {
+                          TaskFormSheet.show(context, task: oldest);
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: textColor,
+                        side: BorderSide(
+                          color: textColor.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: Text(l10n.allExpiredUpdateDue),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
