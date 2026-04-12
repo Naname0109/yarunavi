@@ -38,8 +38,7 @@ mixin _$Task {
   String? get estimatedTime => throw _privateConstructorUsedError;
   int get importance => throw _privateConstructorUsedError;
   int get sortOrder => throw _privateConstructorUsedError;
-  DateTime? get recommendedStart => throw _privateConstructorUsedError;
-  DateTime? get recommendedEnd => throw _privateConstructorUsedError;
+  DateTime? get recommendedDate => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
@@ -75,8 +74,7 @@ abstract class $TaskCopyWith<$Res> {
     String? estimatedTime,
     int importance,
     int sortOrder,
-    DateTime? recommendedStart,
-    DateTime? recommendedEnd,
+    DateTime? recommendedDate,
     DateTime createdAt,
     DateTime updatedAt,
   });
@@ -114,8 +112,7 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
     Object? estimatedTime = freezed,
     Object? importance = null,
     Object? sortOrder = null,
-    Object? recommendedStart = freezed,
-    Object? recommendedEnd = freezed,
+    Object? recommendedDate = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -189,13 +186,9 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
                 ? _value.sortOrder
                 : sortOrder // ignore: cast_nullable_to_non_nullable
                       as int,
-            recommendedStart: freezed == recommendedStart
-                ? _value.recommendedStart
-                : recommendedStart // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            recommendedEnd: freezed == recommendedEnd
-                ? _value.recommendedEnd
-                : recommendedEnd // ignore: cast_nullable_to_non_nullable
+            recommendedDate: freezed == recommendedDate
+                ? _value.recommendedDate
+                : recommendedDate // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
             createdAt: null == createdAt
                 ? _value.createdAt
@@ -237,8 +230,7 @@ abstract class _$$TaskImplCopyWith<$Res> implements $TaskCopyWith<$Res> {
     String? estimatedTime,
     int importance,
     int sortOrder,
-    DateTime? recommendedStart,
-    DateTime? recommendedEnd,
+    DateTime? recommendedDate,
     DateTime createdAt,
     DateTime updatedAt,
   });
@@ -273,8 +265,7 @@ class __$$TaskImplCopyWithImpl<$Res>
     Object? estimatedTime = freezed,
     Object? importance = null,
     Object? sortOrder = null,
-    Object? recommendedStart = freezed,
-    Object? recommendedEnd = freezed,
+    Object? recommendedDate = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -348,13 +339,9 @@ class __$$TaskImplCopyWithImpl<$Res>
             ? _value.sortOrder
             : sortOrder // ignore: cast_nullable_to_non_nullable
                   as int,
-        recommendedStart: freezed == recommendedStart
-            ? _value.recommendedStart
-            : recommendedStart // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        recommendedEnd: freezed == recommendedEnd
-            ? _value.recommendedEnd
-            : recommendedEnd // ignore: cast_nullable_to_non_nullable
+        recommendedDate: freezed == recommendedDate
+            ? _value.recommendedDate
+            : recommendedDate // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
         createdAt: null == createdAt
             ? _value.createdAt
@@ -390,8 +377,7 @@ class _$TaskImpl extends _Task {
     this.estimatedTime,
     this.importance = 1,
     this.sortOrder = 0,
-    this.recommendedStart,
-    this.recommendedEnd,
+    this.recommendedDate,
     required this.createdAt,
     required this.updatedAt,
   }) : super._();
@@ -438,9 +424,7 @@ class _$TaskImpl extends _Task {
   @JsonKey()
   final int sortOrder;
   @override
-  final DateTime? recommendedStart;
-  @override
-  final DateTime? recommendedEnd;
+  final DateTime? recommendedDate;
   @override
   final DateTime createdAt;
   @override
@@ -448,7 +432,7 @@ class _$TaskImpl extends _Task {
 
   @override
   String toString() {
-    return 'Task(id: $id, title: $title, dueDate: $dueDate, memo: $memo, categoryId: $categoryId, isCompleted: $isCompleted, completedAt: $completedAt, priority: $priority, aiComment: $aiComment, recurrenceType: $recurrenceType, recurrenceValue: $recurrenceValue, recurrenceParentId: $recurrenceParentId, notifySettings: $notifySettings, calendarEventId: $calendarEventId, estimatedTime: $estimatedTime, importance: $importance, sortOrder: $sortOrder, recommendedStart: $recommendedStart, recommendedEnd: $recommendedEnd, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Task(id: $id, title: $title, dueDate: $dueDate, memo: $memo, categoryId: $categoryId, isCompleted: $isCompleted, completedAt: $completedAt, priority: $priority, aiComment: $aiComment, recurrenceType: $recurrenceType, recurrenceValue: $recurrenceValue, recurrenceParentId: $recurrenceParentId, notifySettings: $notifySettings, calendarEventId: $calendarEventId, estimatedTime: $estimatedTime, importance: $importance, sortOrder: $sortOrder, recommendedDate: $recommendedDate, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -486,10 +470,8 @@ class _$TaskImpl extends _Task {
                 other.importance == importance) &&
             (identical(other.sortOrder, sortOrder) ||
                 other.sortOrder == sortOrder) &&
-            (identical(other.recommendedStart, recommendedStart) ||
-                other.recommendedStart == recommendedStart) &&
-            (identical(other.recommendedEnd, recommendedEnd) ||
-                other.recommendedEnd == recommendedEnd) &&
+            (identical(other.recommendedDate, recommendedDate) ||
+                other.recommendedDate == recommendedDate) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -517,8 +499,7 @@ class _$TaskImpl extends _Task {
     estimatedTime,
     importance,
     sortOrder,
-    recommendedStart,
-    recommendedEnd,
+    recommendedDate,
     createdAt,
     updatedAt,
   ]);
@@ -556,8 +537,7 @@ abstract class _Task extends Task {
     final String? estimatedTime,
     final int importance,
     final int sortOrder,
-    final DateTime? recommendedStart,
-    final DateTime? recommendedEnd,
+    final DateTime? recommendedDate,
     required final DateTime createdAt,
     required final DateTime updatedAt,
   }) = _$TaskImpl;
@@ -600,9 +580,7 @@ abstract class _Task extends Task {
   @override
   int get sortOrder;
   @override
-  DateTime? get recommendedStart;
-  @override
-  DateTime? get recommendedEnd;
+  DateTime? get recommendedDate;
   @override
   DateTime get createdAt;
   @override

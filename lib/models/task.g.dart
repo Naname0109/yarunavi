@@ -26,12 +26,9 @@ _$TaskImpl _$$TaskImplFromJson(Map<String, dynamic> json) => _$TaskImpl(
   estimatedTime: json['estimatedTime'] as String?,
   importance: (json['importance'] as num?)?.toInt() ?? 1,
   sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
-  recommendedStart: json['recommendedStart'] == null
+  recommendedDate: json['recommendedDate'] == null
       ? null
-      : DateTime.parse(json['recommendedStart'] as String),
-  recommendedEnd: json['recommendedEnd'] == null
-      ? null
-      : DateTime.parse(json['recommendedEnd'] as String),
+      : DateTime.parse(json['recommendedDate'] as String),
   createdAt: DateTime.parse(json['createdAt'] as String),
   updatedAt: DateTime.parse(json['updatedAt'] as String),
 );
@@ -55,8 +52,7 @@ Map<String, dynamic> _$$TaskImplToJson(_$TaskImpl instance) =>
       'estimatedTime': instance.estimatedTime,
       'importance': instance.importance,
       'sortOrder': instance.sortOrder,
-      'recommendedStart': instance.recommendedStart?.toIso8601String(),
-      'recommendedEnd': instance.recommendedEnd?.toIso8601String(),
+      'recommendedDate': instance.recommendedDate?.toIso8601String(),
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
     };

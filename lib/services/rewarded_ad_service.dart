@@ -10,6 +10,7 @@ class RewardedAdService {
 
   /// 広告をプリロード
   Future<void> preload() async {
+    if (!AdHelper.isAdSupported) return;
     if (_ad != null || _isLoading) return;
     _isLoading = true;
 

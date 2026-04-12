@@ -22,7 +22,7 @@ class DatabaseService {
 
     _db = await openDatabase(
       path,
-      version: 8,
+      version: 9,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -48,6 +48,7 @@ class DatabaseService {
         estimated_time TEXT,
         importance INTEGER NOT NULL DEFAULT 1,
         sort_order INTEGER NOT NULL DEFAULT 0,
+        recommended_date TEXT,
         recommended_start TEXT,
         recommended_end TEXT,
         created_at TEXT NOT NULL,
@@ -154,6 +155,13 @@ class DatabaseService {
         "UPDATE categories SET is_default = 1 WHERE name IN "
         "('categoryPayment','categoryPaperwork','categoryShopping',"
         "'categoryHousehold','categoryWork','categoryOther')",
+      );
+    }
+    if (oldVersion < 9) {
+      // recommended_start → recommended_date にデータ移行
+      await db.execute(
+        'UPDATE tasks SET recommended_date = recommended_start '
+        'WHERE recommended_start IS NOT NULL',
       );
     }
   }
@@ -397,15 +405,14 @@ class DatabaseService {
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
-  /// AI整理結果でタスクのpriority/ai_comment/recommended_start/endを一括更新
+  /// AI整理結果でタスクのpriority/ai_comment/recommended_dateを一括更新
   Future<void> updateTaskPriorities(
     Map<
             int,
             ({
               int priority,
               String? aiComment,
-              DateTime? recommendedStart,
-              DateTime? recommendedEnd,
+              DateTime? recommendedDate,
             })>
         updates,
   ) async {
@@ -417,11 +424,8 @@ class DatabaseService {
         {
           'priority': entry.value.priority,
           'ai_comment': entry.value.aiComment,
-          'recommended_start': entry.value.recommendedStart != null
-              ? app_date.formatDateForDb(entry.value.recommendedStart!)
-              : null,
-          'recommended_end': entry.value.recommendedEnd != null
-              ? app_date.formatDateForDb(entry.value.recommendedEnd!)
+          'recommended_date': entry.value.recommendedDate != null
+              ? app_date.formatDateForDb(entry.value.recommendedDate!)
               : null,
           'updated_at': now,
         },

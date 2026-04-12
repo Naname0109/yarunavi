@@ -27,8 +27,7 @@ class Task with _$Task {
     String? estimatedTime,
     @Default(1) int importance,
     @Default(0) int sortOrder,
-    DateTime? recommendedStart,
-    DateTime? recommendedEnd,
+    DateTime? recommendedDate,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _Task;
@@ -56,12 +55,11 @@ class Task with _$Task {
         estimatedTime: map['estimated_time'] as String?,
         importance: map['importance'] as int? ?? 1,
         sortOrder: map['sort_order'] as int? ?? 0,
-        recommendedStart: map['recommended_start'] != null
-            ? DateTime.parse(map['recommended_start'] as String)
-            : null,
-        recommendedEnd: map['recommended_end'] != null
-            ? DateTime.parse(map['recommended_end'] as String)
-            : null,
+        recommendedDate: map['recommended_date'] != null
+            ? DateTime.parse(map['recommended_date'] as String)
+            : (map['recommended_start'] != null
+                ? DateTime.parse(map['recommended_start'] as String)
+                : null),
         createdAt: DateTime.parse(map['created_at'] as String),
         updatedAt: DateTime.parse(map['updated_at'] as String),
       );
@@ -92,11 +90,8 @@ class Task with _$Task {
         'estimated_time': estimatedTime,
         'importance': importance,
         'sort_order': sortOrder,
-        'recommended_start': recommendedStart != null
-            ? app_date.formatDateForDb(recommendedStart!)
-            : null,
-        'recommended_end': recommendedEnd != null
-            ? app_date.formatDateForDb(recommendedEnd!)
+        'recommended_date': recommendedDate != null
+            ? app_date.formatDateForDb(recommendedDate!)
             : null,
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),

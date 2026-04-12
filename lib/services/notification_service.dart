@@ -12,7 +12,17 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
+  bool _initialized = false;
+  bool get isInitialized => _initialized;
+
+  /// 通知がサポートされるプラットフォームか
+  static bool get isSupported =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
+
   Future<void> initialize() async {
+    if (!isSupported) return;
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
@@ -40,6 +50,8 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
+
+    _initialized = true;
   }
 
   void _onNotificationTap(NotificationResponse response) {
@@ -49,6 +61,7 @@ class NotificationService {
 
   /// iOS通知権限をリクエスト
   Future<bool> requestPermission() async {
+    if (!isSupported) return false;
     final ios = _plugin.resolvePlatformSpecificImplementation<
         IOSFlutterLocalNotificationsPlugin>();
     if (ios != null) {
@@ -69,6 +82,7 @@ class NotificationService {
     required bool isPremium,
     String locale = 'ja',
   }) async {
+    if (!isSupported) return;
     if (!isPremium && !kDebugMode) return;
     if (task.id == null) return;
     if (task.notifySettings == null || task.isCompleted) return;
@@ -144,6 +158,7 @@ class NotificationService {
     required bool isPremium,
     String locale = 'ja',
   }) async {
+    if (!isSupported) return;
     if (!isPremium && !kDebugMode) return;
     if (task.id == null || task.isCompleted) return;
 
@@ -194,6 +209,7 @@ class NotificationService {
 
   /// タスクの通知を全キャンセル
   Future<void> cancelTaskNotifications(int taskId) async {
+    if (!isSupported) return;
     for (final offset in AppConstants.notifyOffsets.values) {
       await _plugin.cancel(taskId * 10 + offset);
     }
@@ -205,6 +221,7 @@ class NotificationService {
     required bool isPremium,
     String locale = 'ja',
   }) async {
+    if (!isSupported) return;
     await _plugin.cancelAll();
 
     if (!isPremium && !kDebugMode) return;
@@ -284,6 +301,7 @@ class NotificationService {
 
   /// 全期限切れ通知フラグをリセットし、スケジュール済み通知もキャンセル
   Future<void> resetAllExpiredFlag() async {
+    if (!isSupported) return;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(AppConstants.allExpiredNotifiedKey, false);
     await _plugin.cancel(AppConstants.allExpiredNotificationId);

@@ -207,9 +207,9 @@ class _TodoTab extends ConsumerWidget {
     final isOverdue = dueDay.isBefore(today);
     final isDueToday = dueDay == today;
     final isPriority1 = task.priority == 1;
-    final isRecommendedToday = task.recommendedStart != null &&
-        DateTime(task.recommendedStart!.year, task.recommendedStart!.month,
-                task.recommendedStart!.day) ==
+    final isRecommendedToday = task.recommendedDate != null &&
+        DateTime(task.recommendedDate!.year, task.recommendedDate!.month,
+                task.recommendedDate!.day) ==
             today;
 
     return isOverdue || isDueToday || isPriority1 || isRecommendedToday;

@@ -139,8 +139,7 @@ void main() {
         priorityCounts[r.priority] = (priorityCounts[r.priority] ?? 0) + 1;
 
         debugPrint(
-          '  $name| ${r.priority} | ${(r.recommendedStart ?? "-").padRight(10)} | '
-          '${(r.recommendedEnd ?? "-").padRight(10)} | '
+          '  $name| ${r.priority} | ${(r.recommendedDate ?? "-").padRight(10)} | '
           '${(r.notifyDate ?? "-").padRight(10)} | '
           '${r.commentJa ?? "(なし)"}',
         );
@@ -195,24 +194,14 @@ void main() {
           }
         }
 
-        // C. 推奨実行期間
-        if (r.recommendedStart != null) {
-          final start = DateTime.tryParse(r.recommendedStart!);
-          if (start != null && start.isBefore(today)) {
-            issues.add('[$title] recommended_startが過去: ${r.recommendedStart}');
+        // C. 推奨実行日
+        if (r.recommendedDate != null) {
+          final recDate = DateTime.tryParse(r.recommendedDate!);
+          if (recDate != null && recDate.isBefore(today)) {
+            issues.add('[$title] recommended_dateが過去: ${r.recommendedDate}');
           }
-        }
-        if (r.recommendedEnd != null) {
-          final end = DateTime.tryParse(r.recommendedEnd!);
-          if (end != null && end.isAfter(dueDate)) {
-            issues.add('[$title] recommended_endがdue_date超過: ${r.recommendedEnd}');
-          }
-        }
-        if (r.recommendedStart != null && r.recommendedEnd != null) {
-          final start = DateTime.tryParse(r.recommendedStart!);
-          final end = DateTime.tryParse(r.recommendedEnd!);
-          if (start != null && end != null && start.isAfter(end)) {
-            issues.add('[$title] start > end: ${r.recommendedStart} > ${r.recommendedEnd}');
+          if (recDate != null && recDate.isAfter(dueDate)) {
+            issues.add('[$title] recommended_dateがdue_date超過: ${r.recommendedDate}');
           }
         }
 

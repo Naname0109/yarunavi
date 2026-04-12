@@ -11,7 +11,6 @@ import '../theme/colors.dart';
 import '../widgets/task_card.dart';
 import '../widgets/task_form_sheet.dart';
 import '../utils/date_utils.dart' as app_date;
-import '../utils/notification_utils.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -57,41 +56,35 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('$e')),
       data: (tasks) {
+        // 期限日でグループ化
         final byDue = <DateTime, List<Task>>{};
-        final byRange = <DateTime, List<Task>>{};
+        // 推奨日でグループ化
+        final byRecommended = <DateTime, List<Task>>{};
         for (final t in tasks) {
+          if (t.isCompleted) continue;
           final dueKey =
               DateTime(t.dueDate.year, t.dueDate.month, t.dueDate.day);
           byDue.putIfAbsent(dueKey, () => []).add(t);
-          if (t.recommendedStart != null && t.recommendedEnd != null) {
-            var d = DateTime(t.recommendedStart!.year,
-                t.recommendedStart!.month, t.recommendedStart!.day);
-            final end = DateTime(t.recommendedEnd!.year,
-                t.recommendedEnd!.month, t.recommendedEnd!.day);
-            while (!d.isAfter(end)) {
-              byRange.putIfAbsent(d, () => []).add(t);
-              d = d.add(const Duration(days: 1));
-            }
+          if (t.recommendedDate != null) {
+            final recKey = DateTime(t.recommendedDate!.year,
+                t.recommendedDate!.month, t.recommendedDate!.day);
+            byRecommended.putIfAbsent(recKey, () => []).add(t);
           }
         }
 
         final selectedDayNorm = _selectedDay != null
             ? DateTime(
-                _selectedDay!.year,
-                _selectedDay!.month,
-                _selectedDay!.day,
-              )
+                _selectedDay!.year, _selectedDay!.month, _selectedDay!.day)
             : null;
+        // 推奨日が選択日のタスク
         final selectedRecommended = selectedDayNorm != null
-            ? (byRange[selectedDayNorm] ?? <Task>[])
-                .where((t) => !t.isCompleted)
-                .toList()
+            ? (byRecommended[selectedDayNorm] ?? <Task>[])
             : <Task>[];
         final selectedRecIds = selectedRecommended.map((t) => t.id).toSet();
+        // 期限日が選択日のタスク（推奨日で既に表示済みは除外）
         final selectedDueOnly = selectedDayNorm != null
             ? (byDue[selectedDayNorm] ?? <Task>[])
-                .where(
-                    (t) => !t.isCompleted && !selectedRecIds.contains(t.id))
+                .where((t) => !selectedRecIds.contains(t.id))
                 .toList()
             : <Task>[];
         final hasAny =
@@ -99,7 +92,7 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
 
         return Column(
           children: [
-            // --- 月カレンダー（上半分） ---
+            // --- 月カレンダー ---
             TableCalendar<Task>(
               firstDay: DateTime(2020),
               lastDay: DateTime(2100),
@@ -108,7 +101,7 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
               availableCalendarFormats: const {CalendarFormat.month: 'Month'},
               startingDayOfWeek: StartingDayOfWeek.monday,
               locale: locale,
-              rowHeight: 56,
+              rowHeight: 48,
               daysOfWeekHeight: 24,
               selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
               onDaySelected: (selectedDay, focusedDay) {
@@ -118,9 +111,7 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                 });
               },
               onPageChanged: (focusedDay) {
-                setState(() {
-                  _focusedDay = focusedDay;
-                });
+                setState(() => _focusedDay = focusedDay);
               },
               eventLoader: (day) {
                 final key = DateTime(day.year, day.month, day.day);
@@ -142,12 +133,12 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                 ),
               ),
               calendarBuilders: CalendarBuilders(
-                defaultBuilder: (context, day, focusedDay) => _buildDayCell(
-                  day, byDue, byRange, theme, isDark, false, false),
-                todayBuilder: (context, day, focusedDay) => _buildDayCell(
-                  day, byDue, byRange, theme, isDark, true, false),
-                selectedBuilder: (context, day, focusedDay) => _buildDayCell(
-                  day, byDue, byRange, theme, isDark, false, true),
+                defaultBuilder: (context, day, focusedDay) =>
+                    _buildDayCell(day, byDue, byRecommended, theme, isDark, false, false),
+                todayBuilder: (context, day, focusedDay) =>
+                    _buildDayCell(day, byDue, byRecommended, theme, isDark, true, false),
+                selectedBuilder: (context, day, focusedDay) =>
+                    _buildDayCell(day, byDue, byRecommended, theme, isDark, false, true),
               ),
               calendarStyle: const CalendarStyle(
                 outsideDaysVisible: false,
@@ -156,47 +147,37 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
               ),
             ),
             Divider(height: 1, color: theme.dividerColor),
-            // --- 選択日のタスクリスト（下半分） ---
+            // --- 選択日のタスクリスト ---
             Expanded(
               child: !hasAny
                   ? Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.event_available,
-                            size: 48,
-                            color: theme.colorScheme.outline,
-                          ),
+                          Icon(Icons.event_available,
+                              size: 48, color: theme.colorScheme.outline),
                           const SizedBox(height: 12),
-                          Text(
-                            l10n.calendarNoTasks,
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: theme.colorScheme.outline,
-                            ),
-                          ),
+                          Text(l10n.calendarNoTasks,
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  color: theme.colorScheme.outline)),
                         ],
                       ),
                     )
                   : ListView(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 4,
-                      ),
+                          horizontal: 4, vertical: 4),
                       children: [
                         if (selectedRecommended.isNotEmpty) ...[
                           _sectionHeader(theme, l10n.calendarSectionRecommended),
                           ...selectedRecommended.map(
-                            (t) => _buildTaskTile(
-                                t, categoryMap, l10n, locale),
+                            (t) => _buildTaskTile(t, categoryMap, l10n, locale),
                           ),
                         ],
                         if (selectedDueOnly.isNotEmpty) ...[
                           _sectionHeader(theme, l10n.calendarSectionDue),
                           ...selectedDueOnly.map(
-                            (t) => _buildTaskTile(
-                                t, categoryMap, l10n, locale),
+                            (t) => _buildTaskTile(t, categoryMap, l10n, locale),
                           ),
                         ],
                       ],
@@ -256,29 +237,27 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
     );
   }
 
-  /// カスタム日付セル: 推奨期間バー + 期限マーク
+  /// カスタム日付セル
   Widget _buildDayCell(
     DateTime day,
     Map<DateTime, List<Task>> byDue,
-    Map<DateTime, List<Task>> byRange,
+    Map<DateTime, List<Task>> byRecommended,
     ThemeData theme,
     bool isDark,
     bool isToday,
     bool isSelected,
   ) {
     final key = DateTime(day.year, day.month, day.day);
-    // 推奨期間内のタスク
-    final rangeTasks = (byRange[key] ?? [])
-        .where((t) => !t.isCompleted)
-        .toList()
+    // 推奨日のタスク
+    final recTasks = (byRecommended[key] ?? [])
       ..sort((a, b) => a.priority.compareTo(b.priority));
-    final rangeIds = rangeTasks.map((t) => t.id).toSet();
-    // 期限のみ (AI未整理) のタスク
+    final recIds = recTasks.map((t) => t.id).toSet();
+    // 期限日のみのタスク（推奨日に含まれていないもの）
     final dueOnlyTasks = (byDue[key] ?? [])
-        .where((t) => !t.isCompleted && !rangeIds.contains(t.id))
+        .where((t) => !recIds.contains(t.id))
         .toList();
-    final displayTasks = [...rangeTasks, ...dueOnlyTasks];
-    final hasDueMark = (byDue[key] ?? []).any((t) => !t.isCompleted);
+    final displayTasks = [...recTasks, ...dueOnlyTasks];
+    final hasDueMark = (byDue[key] ?? []).isNotEmpty;
 
     return Container(
       margin: EdgeInsets.zero,
@@ -286,8 +265,8 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
         color: isSelected
             ? theme.colorScheme.primary.withValues(alpha: 0.15)
             : isToday
-            ? theme.colorScheme.primary.withValues(alpha: 0.06)
-            : null,
+                ? theme.colorScheme.primary.withValues(alpha: 0.06)
+                : null,
         borderRadius: BorderRadius.circular(6),
         border: isToday
             ? Border.all(color: theme.colorScheme.primary, width: 1.5)
@@ -297,7 +276,7 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 2),
-          // 日付番号 (期限日には ▼ マーク)
+          // 日付番号
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -305,9 +284,8 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                 '${day.day}',
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight: isToday || isSelected
-                      ? FontWeight.bold
-                      : FontWeight.normal,
+                  fontWeight:
+                      isToday || isSelected ? FontWeight.bold : FontWeight.normal,
                   color: isSelected || isToday
                       ? theme.colorScheme.primary
                       : null,
@@ -315,94 +293,54 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
               ),
               if (hasDueMark) ...[
                 const SizedBox(width: 1),
-                Text(
-                  '▼',
-                  style: TextStyle(
-                    fontSize: 8,
-                    color: theme.colorScheme.outline,
-                  ),
-                ),
+                Text('▼',
+                    style: TextStyle(
+                        fontSize: 7, color: theme.colorScheme.outline)),
               ],
             ],
           ),
-          const SizedBox(height: 1),
-          // タスクバー (最大2件)
-          ...displayTasks.take(2).map((task) {
-            return _buildTaskBar(task, day, isDark);
-          }),
-          if (displayTasks.length > 2)
-            Text(
-              '+${displayTasks.length - 2}',
-              style: TextStyle(fontSize: 8, color: theme.colorScheme.outline),
+          // タスク表示（最大1件 + N）
+          if (displayTasks.isNotEmpty)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 1),
+                child: Column(
+                  children: [
+                    // 1件目のタスク名
+                    Text(
+                      displayTasks.first.title,
+                      style: TextStyle(
+                        fontSize: 8,
+                        fontWeight: FontWeight.w600,
+                        color: _getTaskColor(displayTasks.first, isDark),
+                        height: 1.1,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    // 2件以上なら +N
+                    if (displayTasks.length > 1)
+                      Text(
+                        '+${displayTasks.length - 1}',
+                        style: TextStyle(
+                            fontSize: 8, color: theme.colorScheme.outline),
+                      ),
+                  ],
+                ),
+              ),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildTaskBar(Task task, DateTime day, bool isDark) {
-    final hasRange =
-        task.recommendedStart != null && task.recommendedEnd != null;
-    final start = hasRange
-        ? DateTime(task.recommendedStart!.year, task.recommendedStart!.month,
-            task.recommendedStart!.day)
-        : null;
-    final end = hasRange
-        ? DateTime(task.recommendedEnd!.year, task.recommendedEnd!.month,
-            task.recommendedEnd!.day)
-        : null;
-    final key = DateTime(day.year, day.month, day.day);
-    final isStart = start != null && key.isAtSameMomentAs(start);
-    final isEnd = end != null && key.isAtSameMomentAs(end);
-    final isSingle = isStart && isEnd;
-    final isDueOnly = !hasRange;
-
-    final Color baseColor;
-    if (isDueOnly) {
-      baseColor = Colors.grey.shade500;
-    } else if (task.priority == 0) {
-      baseColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
-    } else {
-      baseColor = AppColors.getPriorityColor(task.priority, task.dueDate);
+  Color _getTaskColor(Task task, bool isDark) {
+    if (task.recommendedDate == null) {
+      return isDark ? Colors.grey.shade400 : Colors.grey.shade600;
     }
-
-    final radius = const Radius.circular(6);
-    final borderRadius = isSingle
-        ? BorderRadius.all(radius)
-        : isStart
-            ? BorderRadius.only(topLeft: radius, bottomLeft: radius)
-            : isEnd
-                ? BorderRadius.only(topRight: radius, bottomRight: radius)
-                : BorderRadius.zero;
-
-    final showText = isStart || isSingle || isDueOnly;
-    final hasNotify =
-        getScheduledNotificationDates(task.dueDate, task.notifySettings)
-            .isNotEmpty;
-    final label = hasNotify ? '🔔${task.title}' : task.title;
-
-    return Container(
-      margin: const EdgeInsets.only(top: 1),
-      height: 12,
-      decoration: BoxDecoration(
-        color: baseColor.withValues(alpha: 0.22),
-        borderRadius: borderRadius,
-      ),
-      alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: showText
-          ? Text(
-              label,
-              style: TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w600,
-                color: baseColor,
-                height: 1.0,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            )
-          : null,
-    );
+    if (task.priority == 0) {
+      return isDark ? Colors.grey.shade400 : Colors.grey.shade600;
+    }
+    return AppColors.getPriorityColor(task.priority, task.dueDate);
   }
 }

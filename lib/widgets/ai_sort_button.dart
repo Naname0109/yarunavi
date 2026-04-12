@@ -146,28 +146,23 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
 
       final isRealApiCall = AppConstants.anthropicApiKey.isNotEmpty;
 
-      // priority/aiComment/recommendedStart/end更新
+      // priority/aiComment/recommendedDate更新
       final updates = <int,
           ({
             int priority,
             String? aiComment,
-            DateTime? recommendedStart,
-            DateTime? recommendedEnd,
+            DateTime? recommendedDate,
           })>{};
       for (final r in response.tasks) {
         final comment = locale == 'ja' ? r.commentJa : r.commentEn;
-        final start = (r.recommendedStart != null &&
-                r.recommendedStart!.isNotEmpty)
-            ? DateTime.tryParse(r.recommendedStart!)
-            : null;
-        final end = (r.recommendedEnd != null && r.recommendedEnd!.isNotEmpty)
-            ? DateTime.tryParse(r.recommendedEnd!)
+        final date = (r.recommendedDate != null &&
+                r.recommendedDate!.isNotEmpty)
+            ? DateTime.tryParse(r.recommendedDate!)
             : null;
         updates[r.taskId] = (
           priority: r.priority,
           aiComment: comment,
-          recommendedStart: start,
-          recommendedEnd: end,
+          recommendedDate: date,
         );
       }
       await db.updateTaskPriorities(updates);
@@ -262,7 +257,9 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message)),
       );
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('[AiSort] unexpected error: $e');
+      debugPrint('[AiSort] stackTrace: $st');
       if (mounted && !dialogDismissed) {
         Navigator.of(context, rootNavigator: true).pop();
         ScaffoldMessenger.of(context).showSnackBar(

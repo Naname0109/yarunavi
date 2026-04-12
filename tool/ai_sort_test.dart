@@ -184,7 +184,7 @@ void main() async {
         : '?';
     final padName = name.padRight(18);
     print(
-        '│ $padName │ $p │ ${(r['recommended_start'] ?? '-').toString().padRight(10)} │ ${(r['recommended_end'] ?? '-').toString().padRight(10)} │ ${(r['notify_date'] ?? '-').toString().padRight(10)} │');
+        '│ $padName │ $p │ ${(r['recommended_date'] ?? '-').toString().padRight(10)} │ ${(r['notify_date'] ?? '-').toString().padRight(10)} │');
   }
   print('└──────────────────────┴───┴────────────┴────────────┴────────────┘');
 
@@ -257,23 +257,14 @@ void main() async {
     }
 
     // 日付チェック
-    final start = r['recommended_start'] as String?;
-    final end = r['recommended_end'] as String?;
-    if (start != null) {
-      final startDt = DateTime.parse(start);
-      if (startDt.isBefore(today)) {
-        issues.add('❌ [$title] startが過去: $start');
+    final recDate = r['recommended_date'] as String?;
+    if (recDate != null) {
+      final recDt = DateTime.parse(recDate);
+      if (recDt.isBefore(today)) {
+        issues.add('❌ [$title] recommended_dateが過去: $recDate');
       }
-    }
-    if (end != null) {
-      final endDt = DateTime.parse(end);
-      if (endDt.isAfter(dueDate)) {
-        issues.add('❌ [$title] endがdue_date超過: $end > $dueDate');
-      }
-    }
-    if (start != null && end != null) {
-      if (DateTime.parse(start).isAfter(DateTime.parse(end))) {
-        issues.add('❌ [$title] start > end: $start > $end');
+      if (recDt.isAfter(dueDate)) {
+        issues.add('❌ [$title] recommended_dateがdue_date超過: $recDate > $dueDate');
       }
     }
 

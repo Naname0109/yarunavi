@@ -585,28 +585,20 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
   }
 
   Widget _buildRecommendedPeriod(BuildContext context, AppLocalizations l10n, Task task) {
-    if (task.recommendedStart == null && task.recommendedEnd == null) return const SizedBox.shrink();
+    if (task.recommendedDate == null) return const SizedBox.shrink();
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).languageCode;
     final fmt = DateFormat.MMMd(locale);
-
-    String period;
-    if (task.recommendedStart != null && task.recommendedEnd != null) {
-      final s = fmt.format(task.recommendedStart!);
-      final e = fmt.format(task.recommendedEnd!);
-      period = s == e ? s : '$s〜$e';
-    } else {
-      period = fmt.format(task.recommendedStart ?? task.recommendedEnd!);
-    }
+    final dateStr = fmt.format(task.recommendedDate!);
 
     return Padding(
       padding: const EdgeInsets.only(left: 16, top: 4),
       child: Row(
         children: [
-          Icon(Icons.date_range, size: 14, color: theme.colorScheme.primary),
+          Icon(Icons.push_pin, size: 14, color: theme.colorScheme.primary),
           const SizedBox(width: 4),
           Flexible(
-            child: Text(l10n.aiRecommendedPeriod(period),
+            child: Text(l10n.recommendedDateHint(dateStr),
                 style: TextStyle(fontSize: 12, color: theme.colorScheme.primary)),
           ),
         ],

@@ -20,7 +20,7 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
   @override
   void initState() {
     super.initState();
-    _loadAd();
+    if (AdHelper.isAdSupported) _loadAd();
   }
 
   void _loadAd() {
@@ -52,9 +52,12 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // デスクトップ/Webでは広告非表示
+    if (!AdHelper.isAdSupported) return const SizedBox.shrink();
+
     final isPremium = ref.watch(isPremiumProvider);
 
-    // プレミアムユーザーは広告非表示（kDebugModeでも広告テスト可能にする）
+    // プレミアムユーザーは広告非表示（kDebugModeでも広告テス��可能にする）
     if (isPremium && !kDebugMode) return const SizedBox.shrink();
 
     if (!_isLoaded || _bannerAd == null) return const SizedBox.shrink();

@@ -256,16 +256,9 @@ class _TaskCardState extends ConsumerState<TaskCard>
     }
 
     // 推奨日 (期限と異なる場合)
-    if (task.recommendedStart != null && task.recommendedEnd != null) {
-      final start = task.recommendedStart!;
-      final end = task.recommendedEnd!;
+    if (task.recommendedDate != null) {
       final fmt = DateFormat.Md(locale);
-      final isSameDay = start.year == end.year &&
-          start.month == end.month &&
-          start.day == end.day;
-      final label = isSameDay
-          ? l10n.recommendedDateHint(fmt.format(start))
-          : l10n.recommendedDateHint('${fmt.format(start)}〜${fmt.format(end)}');
+      final label = l10n.recommendedDateHint(fmt.format(task.recommendedDate!));
       children.add(Text(
         label,
         style: TextStyle(
