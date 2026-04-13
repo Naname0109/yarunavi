@@ -1132,6 +1132,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String get otherTasks => 'Other Tasks';
 
   @override
+  String get thisWeekSection => 'This Week';
+
+  @override
+  String get laterSection => 'Later';
+
+  @override
+  String laterSectionCount(int count) {
+    return 'Later ($count)';
+  }
+
+  @override
+  String get overdueSection => 'Overdue';
+
+  @override
+  String overdueSectionCount(int count) {
+    return 'Overdue ($count)';
+  }
+
+  @override
+  String get aiHistoryTooltip => 'AI Sort History';
+
+  @override
+  String executionDateLabel(String date) {
+    return 'Do on: $date';
+  }
+
+  @override
+  String dueDateLabel(String date) {
+    return 'Due: $date';
+  }
+
+  @override
+  String dueDateSub(String date) {
+    return '(Due: $date)';
+  }
+
+  @override
+  String get calendarViewRecommended => 'Planned';
+
+  @override
+  String get calendarViewDue => 'Due Date';
+
+  @override
   String taskCount(int count) {
     return '$count total';
   }

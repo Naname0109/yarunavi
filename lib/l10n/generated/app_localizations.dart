@@ -2216,6 +2216,72 @@ abstract class AppLocalizations {
   /// **'その他のタスク'**
   String get otherTasks;
 
+  /// No description provided for @thisWeekSection.
+  ///
+  /// In ja, this message translates to:
+  /// **'今週のタスク'**
+  String get thisWeekSection;
+
+  /// No description provided for @laterSection.
+  ///
+  /// In ja, this message translates to:
+  /// **'来週以降'**
+  String get laterSection;
+
+  /// No description provided for @laterSectionCount.
+  ///
+  /// In ja, this message translates to:
+  /// **'来週以降 {count}件'**
+  String laterSectionCount(int count);
+
+  /// No description provided for @overdueSection.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限切れ'**
+  String get overdueSection;
+
+  /// No description provided for @overdueSectionCount.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限切れ {count}件'**
+  String overdueSectionCount(int count);
+
+  /// No description provided for @aiHistoryTooltip.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理の履歴'**
+  String get aiHistoryTooltip;
+
+  /// No description provided for @executionDateLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'実行日: {date}'**
+  String executionDateLabel(String date);
+
+  /// No description provided for @dueDateLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限: {date}'**
+  String dueDateLabel(String date);
+
+  /// No description provided for @dueDateSub.
+  ///
+  /// In ja, this message translates to:
+  /// **'(期限: {date})'**
+  String dueDateSub(String date);
+
+  /// No description provided for @calendarViewRecommended.
+  ///
+  /// In ja, this message translates to:
+  /// **'実行日'**
+  String get calendarViewRecommended;
+
+  /// No description provided for @calendarViewDue.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限日'**
+  String get calendarViewDue;
+
   /// No description provided for @taskCount.
   ///
   /// In ja, this message translates to:

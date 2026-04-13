@@ -15,6 +15,21 @@ import 'screens/settings_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/store_screen.dart';
 
+Widget _slideFromRight(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) {
+  return SlideTransition(
+    position: Tween<Offset>(
+      begin: const Offset(1, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+    child: child,
+  );
+}
+
 final _router = GoRouter(
   initialLocation: '/splash',
   routes: [
@@ -37,23 +52,51 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: '/ai-result',
-      builder: (context, state) => const AiResultScreen(),
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const AiResultScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 1),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+            child: child,
+          );
+        },
+      ),
     ),
     GoRoute(
       path: '/store',
-      builder: (context, state) => const StoreScreen(),
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const StoreScreen(),
+        transitionsBuilder: _slideFromRight,
+      ),
     ),
     GoRoute(
       path: '/settings',
-      builder: (context, state) => const SettingsScreen(),
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const SettingsScreen(),
+        transitionsBuilder: _slideFromRight,
+      ),
     ),
     GoRoute(
       path: '/ai-history',
-      builder: (context, state) => const AiHistoryScreen(),
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const AiHistoryScreen(),
+        transitionsBuilder: _slideFromRight,
+      ),
     ),
     GoRoute(
       path: '/category-manage',
-      builder: (context, state) => const CategoryManageScreen(),
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const CategoryManageScreen(),
+        transitionsBuilder: _slideFromRight,
+      ),
     ),
   ],
 );

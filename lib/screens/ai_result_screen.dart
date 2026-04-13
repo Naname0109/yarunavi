@@ -200,12 +200,14 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
                 // Priority 1-4 セクション
                 ..._buildPrioritySection(
                   context, l10n, locale,
-                  l10n.aiPriorityUrgent, AppColors.priorityUrgent,
+                  l10n.aiPriorityUrgent,
+                  isDark ? AppColors.priorityUrgentDark : AppColors.priorityUrgent,
                   groups[1] ?? [], resultsMap, expanded: true,
                 ),
                 ..._buildPrioritySection(
                   context, l10n, locale,
-                  l10n.aiPriorityWarning, AppColors.priorityWarning,
+                  l10n.aiPriorityWarning,
+                  isDark ? AppColors.priorityWarningDark : AppColors.priorityWarning,
                   groups[2] ?? [], resultsMap, expanded: true,
                 ),
                 ..._buildPrioritySection(
@@ -319,6 +321,7 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
     int todayCount, int weekCount, int laterCount,
   ) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
@@ -352,9 +355,12 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
             Wrap(
               spacing: 8, runSpacing: 6,
               children: [
-                _buildCountChip(context, l10n.aiTodayTasks(todayCount), AppColors.priorityUrgent),
-                _buildCountChip(context, l10n.aiWeekTasks(weekCount), AppColors.priorityWarning),
-                _buildCountChip(context, l10n.aiLaterTasks(laterCount), AppColors.priorityNormal),
+                _buildCountChip(context, l10n.aiTodayTasks(todayCount),
+                    isDark ? AppColors.priorityUrgentDark : AppColors.priorityUrgent),
+                _buildCountChip(context, l10n.aiWeekTasks(weekCount),
+                    isDark ? AppColors.priorityWarningDark : AppColors.priorityWarning),
+                _buildCountChip(context, l10n.aiLaterTasks(laterCount),
+                    isDark ? AppColors.priorityNormalDark : AppColors.priorityNormal),
               ],
             ),
           ],

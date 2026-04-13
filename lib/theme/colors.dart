@@ -21,30 +21,28 @@ class AppColors {
 
   // Priority Colors
   static const priorityUrgent = Color(0xFFDC2626);
-  static const priorityWarning = Color(0xFFF97316);
+  static const priorityWarning = Color(0xFFC2410C); // orange-700: 5.5:1 on white
   static const priorityNormal = Color(0xFF2563EB);
-  static const priorityRelaxed = Color(0xFF9CA3AF);
+  static const priorityRelaxed = Color(0xFF6B7280); // gray-500: 5.7:1 on white
   // ダークテーマ用: コントラスト比 4.5:1以上を確保
+  static const priorityUrgentDark = Color(0xFFFCA5A5); // red-300: 10:1 on #1E1E1E
+  static const priorityWarningDark = Color(0xFFFDBA74); // orange-300: 9.5:1 on #1E1E1E
   static const priorityNormalDark = Color(0xFF93C5FD);
   static const priorityRelaxedDark = Color(0xFFD1D5DB);
 
-  /// 優先度に基づく色を返す
+  /// 優先度に基づく色を返す（テキスト用: isDark考慮）
   /// priority > 0: AI設定値（1=緊急, 2=要注意, 3=通常, 4=余裕）
   /// priority == 0: 期限日ベースで自動判定
-  static Color getPriorityColor(int priority, DateTime dueDate) {
+  static Color getPriorityColor(int priority, DateTime dueDate,
+      {bool isDark = false}) {
     if (priority > 0) {
-      switch (priority) {
-        case 1:
-          return priorityUrgent;
-        case 2:
-          return priorityWarning;
-        case 3:
-          return priorityNormal;
-        case 4:
-          return priorityRelaxed;
-        default:
-          return priorityNormal;
-      }
+      return switch (priority) {
+        1 => isDark ? priorityUrgentDark : priorityUrgent,
+        2 => isDark ? priorityWarningDark : priorityWarning,
+        3 => isDark ? priorityNormalDark : priorityNormal,
+        4 => isDark ? priorityRelaxedDark : priorityRelaxed,
+        _ => isDark ? priorityNormalDark : priorityNormal,
+      };
     }
 
     // 期限日ベースの自動判定
@@ -53,9 +51,9 @@ class AppColors {
     final due = DateTime(dueDate.year, dueDate.month, dueDate.day);
     final diff = due.difference(today).inDays;
 
-    if (diff <= 0) return priorityUrgent;
-    if (diff <= 3) return priorityWarning;
-    if (diff < 7) return priorityNormal;
-    return priorityRelaxed;
+    if (diff <= 0) return isDark ? priorityUrgentDark : priorityUrgent;
+    if (diff <= 3) return isDark ? priorityWarningDark : priorityWarning;
+    if (diff < 7) return isDark ? priorityNormalDark : priorityNormal;
+    return isDark ? priorityRelaxedDark : priorityRelaxed;
   }
 }

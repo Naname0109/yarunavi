@@ -317,20 +317,21 @@ class _Page2AiSort extends StatelessWidget {
   }
 
   Widget _buildAfter(ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
     final sections = [
       (
         l10n.ob2AfterUrgent,
-        AppColors.priorityUrgent,
+        isDark ? AppColors.priorityUrgentDark : AppColors.priorityUrgent,
         [(l10n.ob2AfterTask1, l10n.ob2AfterComment1)],
       ),
       (
         l10n.ob2AfterWarning,
-        AppColors.priorityWarning,
+        isDark ? AppColors.priorityWarningDark : AppColors.priorityWarning,
         [(l10n.ob2AfterTask2, l10n.ob2AfterComment2)],
       ),
       (
         l10n.ob2AfterNormal,
-        AppColors.priorityNormal,
+        isDark ? AppColors.priorityNormalDark : AppColors.priorityNormal,
         [(l10n.ob2AfterTask3, l10n.ob2AfterComment3)],
       ),
     ];
@@ -396,6 +397,7 @@ class _Page3Calendar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -423,13 +425,17 @@ class _Page3Calendar extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 _calendarRow(theme, [14, 15, 16, 17, 18, 19, 20],
-                    {14: AppColors.priorityUrgent, 15: AppColors.priorityUrgent}, 14),
+                    {14: isDark ? AppColors.priorityUrgentDark : AppColors.priorityUrgent,
+                     15: isDark ? AppColors.priorityUrgentDark : AppColors.priorityUrgent}, 14),
                 const SizedBox(height: 4),
                 _calendarRow(theme, [21, 22, 23, 24, 25, 26, 27],
-                    {21: AppColors.priorityWarning, 22: AppColors.priorityWarning}, null),
+                    {21: isDark ? AppColors.priorityWarningDark : AppColors.priorityWarning,
+                     22: isDark ? AppColors.priorityWarningDark : AppColors.priorityWarning}, null),
                 const SizedBox(height: 4),
                 _calendarRow(theme, [28, 29, 30, 1, 2, 3, 4],
-                    {29: AppColors.priorityNormal, 30: AppColors.priorityNormal, 1: AppColors.priorityNormal}, null),
+                    {29: isDark ? AppColors.priorityNormalDark : AppColors.priorityNormal,
+                     30: isDark ? AppColors.priorityNormalDark : AppColors.priorityNormal,
+                     1: isDark ? AppColors.priorityNormalDark : AppColors.priorityNormal}, null),
               ],
             ),
           ),
@@ -437,11 +443,11 @@ class _Page3Calendar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _legend(AppColors.priorityUrgent, l10n.ob3LegendUrgent),
+              _legend(isDark ? AppColors.priorityUrgentDark : AppColors.priorityUrgent, l10n.ob3LegendUrgent),
               const SizedBox(width: 12),
-              _legend(AppColors.priorityWarning, l10n.ob3LegendWeek),
+              _legend(isDark ? AppColors.priorityWarningDark : AppColors.priorityWarning, l10n.ob3LegendWeek),
               const SizedBox(width: 12),
-              _legend(AppColors.priorityNormal, l10n.ob3LegendLater),
+              _legend(isDark ? AppColors.priorityNormalDark : AppColors.priorityNormal, l10n.ob3LegendLater),
             ],
           ),
           const SizedBox(height: 24),

@@ -158,6 +158,13 @@ class DatabaseService {
       );
     }
     if (oldVersion < 9) {
+      // recommended_dateカラムが存在しない場合は追加（v8で_onCreateされたDB対応）
+      final cols = await db.rawQuery('PRAGMA table_info(tasks)');
+      final hasRecDate = cols.any((c) => c['name'] == 'recommended_date');
+      if (!hasRecDate) {
+        await db.execute(
+            'ALTER TABLE tasks ADD COLUMN recommended_date TEXT');
+      }
       // recommended_start → recommended_date にデータ移行
       await db.execute(
         'UPDATE tasks SET recommended_date = recommended_start '

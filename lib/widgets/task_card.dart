@@ -86,8 +86,10 @@ class _TaskCardState extends ConsumerState<TaskCard>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final priorityColor =
-        AppColors.getPriorityColor(widget.task.priority, widget.task.dueDate);
+        AppColors.getPriorityColor(widget.task.priority, widget.task.dueDate,
+            isDark: isDark);
 
     Widget card = Card(
       clipBehavior: Clip.antiAlias,
@@ -124,16 +126,7 @@ class _TaskCardState extends ConsumerState<TaskCard>
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            app_date.formatRelativeDate(
-                                widget.task.dueDate, l10n, locale),
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: _getDueDateTextColor(
-                                  widget.task.dueDate, context),
-                            ),
-                          ),
-                          // 折りたたみ時はタスク名+期限のみ（シンプル表示）
+                          _buildDateRow(context, l10n, locale),
                         ],
                       ),
                     ),
@@ -237,8 +230,11 @@ class _TaskCardState extends ConsumerState<TaskCard>
     // カテゴリ・定期タスクバッジ
     final badges = <Widget>[];
     if (widget.category != null) {
-      badges.add(Text('${widget.category!.icon} ${widget.category!.name}',
-          style: TextStyle(fontSize: 12, color: outline)));
+      badges.add(Flexible(
+        child: Text('${widget.category!.icon} ${widget.category!.name}',
+            style: TextStyle(fontSize: 12, color: outline),
+            maxLines: 1, overflow: TextOverflow.ellipsis),
+      ));
     }
     if (task.recurrenceType != null) {
       badges.add(Row(
@@ -246,7 +242,10 @@ class _TaskCardState extends ConsumerState<TaskCard>
         children: [
           const Text('🔄', style: TextStyle(fontSize: 12)),
           const SizedBox(width: 2),
-          Text(task.recurrenceType!, style: TextStyle(fontSize: 12, color: outline)),
+          Flexible(
+            child: Text(task.recurrenceType!, style: TextStyle(fontSize: 12, color: outline),
+                maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
         ],
       ));
     }
@@ -255,17 +254,46 @@ class _TaskCardState extends ConsumerState<TaskCard>
       children.add(const SizedBox(height: 4));
     }
 
-    // 推奨日 (期限と異なる場合)
+    // 推奨日
     if (task.recommendedDate != null) {
       final fmt = DateFormat.Md(locale);
-      final label = l10n.recommendedDateHint(fmt.format(task.recommendedDate!));
-      children.add(Text(
-        label,
-        style: TextStyle(
-          fontSize: 13,
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.w600,
-        ),
+      children.add(Row(
+        children: [
+          Icon(Icons.push_pin, size: 14,
+              color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              l10n.recommendedDateHint(fmt.format(task.recommendedDate!)),
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ));
+      children.add(const SizedBox(height: 2));
+    }
+    // 期限日（常時表示）
+    {
+      final fmt = DateFormat.Md(locale);
+      children.add(Row(
+        children: [
+          Icon(Icons.schedule, size: 14,
+              color: Theme.of(context).colorScheme.outline),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              l10n.dueDateLabel(fmt.format(task.dueDate)),
+              style: TextStyle(
+                fontSize: 12,
+                color: _getDueDateTextColor(task.dueDate, context),
+              ),
+            ),
+          ),
+        ],
       ));
       children.add(const SizedBox(height: 4));
     }
@@ -408,6 +436,56 @@ class _TaskCardState extends ConsumerState<TaskCard>
     return children;
   }
 
+  /// 折りたたみ時の日付行: recommended_date優先、期限日併記
+  Widget _buildDateRow(
+      BuildContext context, AppLocalizations l10n, String locale) {
+    final task = widget.task;
+    final hasRec = task.recommendedDate != null;
+    final displayDate = hasRec ? task.recommendedDate! : task.dueDate;
+    final relativeStr = app_date.formatRelativeDate(displayDate, l10n, locale);
+    final label = hasRec
+        ? l10n.executionDateLabel(relativeStr)
+        : l10n.dueDateLabel(relativeStr);
+
+    final children = <Widget>[
+      Flexible(
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            color: hasRec
+                ? Theme.of(context).colorScheme.primary
+                : _getDueDateTextColor(task.dueDate, context),
+            fontWeight: hasRec ? FontWeight.w600 : FontWeight.normal,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    ];
+
+    // 実行日と期限日が異なる場合は期限日を併記
+    if (hasRec) {
+      final dueNorm = DateTime(
+          task.dueDate.year, task.dueDate.month, task.dueDate.day);
+      final recNorm = DateTime(task.recommendedDate!.year,
+          task.recommendedDate!.month, task.recommendedDate!.day);
+      if (dueNorm != recNorm) {
+        final fmt = DateFormat.Md(locale);
+        children.add(const SizedBox(width: 6));
+        children.add(Text(
+          l10n.dueDateSub(fmt.format(task.dueDate)),
+          style: TextStyle(
+            fontSize: 11,
+            color: Theme.of(context).colorScheme.outline,
+          ),
+        ));
+      }
+    }
+
+    return Row(children: children);
+  }
+
   Color _getDueDateTextColor(DateTime dueDate, BuildContext context) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -415,9 +493,9 @@ class _TaskCardState extends ConsumerState<TaskCard>
     final diff = due.difference(today).inDays;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    if (diff < 0) return AppColors.priorityUrgent;
-    if (diff == 0) return AppColors.priorityUrgent;
-    if (diff <= 3) return AppColors.priorityWarning;
+    if (diff < 0) return isDark ? AppColors.priorityUrgentDark : AppColors.priorityUrgent;
+    if (diff == 0) return isDark ? AppColors.priorityUrgentDark : AppColors.priorityUrgent;
+    if (diff <= 3) return isDark ? AppColors.priorityWarningDark : AppColors.priorityWarning;
     return isDark ? AppColors.priorityRelaxedDark : AppColors.priorityRelaxed;
   }
 }

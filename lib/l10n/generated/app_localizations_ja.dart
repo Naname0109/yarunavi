@@ -1106,6 +1106,49 @@ class AppLocalizationsJa extends AppLocalizations {
   String get otherTasks => 'その他のタスク';
 
   @override
+  String get thisWeekSection => '今週のタスク';
+
+  @override
+  String get laterSection => '来週以降';
+
+  @override
+  String laterSectionCount(int count) {
+    return '来週以降 $count件';
+  }
+
+  @override
+  String get overdueSection => '期限切れ';
+
+  @override
+  String overdueSectionCount(int count) {
+    return '期限切れ $count件';
+  }
+
+  @override
+  String get aiHistoryTooltip => 'AI整理の履歴';
+
+  @override
+  String executionDateLabel(String date) {
+    return '実行日: $date';
+  }
+
+  @override
+  String dueDateLabel(String date) {
+    return '期限: $date';
+  }
+
+  @override
+  String dueDateSub(String date) {
+    return '(期限: $date)';
+  }
+
+  @override
+  String get calendarViewRecommended => '実行日';
+
+  @override
+  String get calendarViewDue => '期限日';
+
+  @override
   String taskCount(int count) {
     return '全$count件';
   }

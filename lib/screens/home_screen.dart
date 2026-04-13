@@ -102,6 +102,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           AiSortButton(key: _aiSortKey),
           IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () => context.push('/ai-history'),
+            tooltip: l10n.aiHistoryTooltip,
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () => context.push('/settings'),
             tooltip: l10n.settings,
@@ -181,8 +186,87 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-/// 「やること」タブ: 今日やること + その他セクション
-class _TodoTab extends ConsumerWidget {
+/// タスクを4セクションに分類する
+({
+  List<Task> today,
+  List<Task> overdue,
+  List<Task> thisWeek,
+  List<Task> later,
+}) _splitTasks(List<Task> tasks) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  // 今週末（日曜日）
+  final daysUntilSunday =
+      now.weekday == DateTime.sunday ? 0 : DateTime.sunday - now.weekday;
+  final endOfWeek = today.add(Duration(days: daysUntilSunday));
+
+  final todayList = <Task>[];
+  final overdueList = <Task>[];
+  final thisWeekList = <Task>[];
+  final laterList = <Task>[];
+
+  for (final t in tasks) {
+    final dueDay = DateTime(t.dueDate.year, t.dueDate.month, t.dueDate.day);
+    final recDay = t.recommendedDate != null
+        ? DateTime(t.recommendedDate!.year, t.recommendedDate!.month,
+            t.recommendedDate!.day)
+        : null;
+    // 有効日: 推奨日があればそちら優先、なければ期限日
+    final effectiveDay = recDay ?? dueDay;
+
+    final isOverdue = dueDay.isBefore(today);
+    final isDueToday = dueDay == today;
+    final isPriority1 = t.priority == 1;
+    final isRecToday = recDay != null && recDay == today;
+
+    if (isOverdue) {
+      overdueList.add(t);
+    } else if (isDueToday || isPriority1 || isRecToday) {
+      todayList.add(t);
+    } else if (!effectiveDay.isAfter(endOfWeek)) {
+      thisWeekList.add(t);
+    } else {
+      laterList.add(t);
+    }
+  }
+
+  // ソート: 優先度順
+  todayList.sort((a, b) => a.priority.compareTo(b.priority));
+  thisWeekList.sort((a, b) {
+    final aDay = a.recommendedDate ?? a.dueDate;
+    final bDay = b.recommendedDate ?? b.dueDate;
+    final cmp = aDay.compareTo(bDay);
+    return cmp != 0 ? cmp : a.priority.compareTo(b.priority);
+  });
+  laterList.sort((a, b) {
+    final aDay = a.recommendedDate ?? a.dueDate;
+    final bDay = b.recommendedDate ?? b.dueDate;
+    return aDay.compareTo(bDay);
+  });
+  overdueList.sort((a, b) => a.dueDate.compareTo(b.dueDate));
+
+  return (
+    today: todayList,
+    overdue: overdueList,
+    thisWeek: thisWeekList,
+    later: laterList,
+  );
+}
+
+/// 日付ごとにタスクをグルーピング
+Map<DateTime, List<Task>> _groupByDate(List<Task> tasks) {
+  final map = <DateTime, List<Task>>{};
+  for (final t in tasks) {
+    final day = t.recommendedDate ?? t.dueDate;
+    final key = DateTime(day.year, day.month, day.day);
+    map.putIfAbsent(key, () => []).add(t);
+  }
+  return Map.fromEntries(
+      map.entries.toList()..sort((a, b) => a.key.compareTo(b.key)));
+}
+
+/// 「やること」タブ: 今日 / 期限切れ / 今週 / 来週以降
+class _TodoTab extends ConsumerStatefulWidget {
   const _TodoTab({
     required this.tasksAsync,
     required this.categoryMap,
@@ -199,140 +283,304 @@ class _TodoTab extends ConsumerWidget {
   final int completedCount;
   final bool allOverdue;
 
-  /// 「今日やること」に該当するか判定
-  bool _isTodayTask(Task task) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final dueDay = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
-    final isOverdue = dueDay.isBefore(today);
-    final isDueToday = dueDay == today;
-    final isPriority1 = task.priority == 1;
-    final isRecommendedToday = task.recommendedDate != null &&
-        DateTime(task.recommendedDate!.year, task.recommendedDate!.month,
-                task.recommendedDate!.day) ==
-            today;
+  @override
+  ConsumerState<_TodoTab> createState() => _TodoTabState();
+}
 
-    return isOverdue || isDueToday || isPriority1 || isRecommendedToday;
+class _TodoTabState extends ConsumerState<_TodoTab> {
+  bool _overdueExpanded = false;
+  bool _laterExpanded = false;
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return tasksAsync.when(
+  Widget build(BuildContext context) {
+    final l10n = widget.l10n;
+    final theme = Theme.of(context);
+
+    return widget.tasksAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (_, _) => Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.error_outline,
-                size: 48, color: Theme.of(context).colorScheme.error),
+                size: 48, color: theme.colorScheme.error),
             const SizedBox(height: 12),
             Text(l10n.taskLoadError,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Theme.of(context).colorScheme.error,
-                )),
+                style: TextStyle(fontSize: 15, color: theme.colorScheme.error)),
           ],
         ),
       ),
       data: (tasks) {
         if (tasks.isEmpty) {
-          if (completedCount > 0) {
+          if (widget.completedCount > 0) {
             return _AllCompleteCelebration(l10n: l10n);
           }
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.checklist, size: 64,
-                    color: Theme.of(context).colorScheme.outline),
+                Icon(Icons.checklist,
+                    size: 64, color: theme.colorScheme.outline),
                 const SizedBox(height: 16),
                 Text(l10n.emptyTaskMessage,
-                    style: TextStyle(fontSize: 16,
-                        color: Theme.of(context).colorScheme.outline)),
+                    style: TextStyle(
+                        fontSize: 16, color: theme.colorScheme.outline)),
               ],
             ),
           );
         }
 
-        final todayTasks = <Task>[];
-        final otherTasks = <Task>[];
-        for (final t in tasks) {
-          (_isTodayTask(t) ? todayTasks : otherTasks).add(t);
-        }
+        final split = _splitTasks(tasks);
 
         return RefreshIndicator(
+          color: theme.colorScheme.primary,
           onRefresh: () async {
             ref.invalidate(tasksProvider);
             await ref.read(tasksProvider.future);
+            if (mounted) HapticFeedback.mediumImpact();
           },
-          child: ListView(
-            padding: const EdgeInsets.only(bottom: 80),
-            children: [
-              // 全タスク期限切れバナー
-              if (allOverdue) _AllExpiredBanner(l10n: l10n),
-              // 今日やることセクション
-              _SectionHeader(
-                title: l10n.todaySection,
-                icon: Icons.push_pin,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              if (todayTasks.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Text(
-                    l10n.todaySectionEmpty,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                )
-              else
-                ...todayTasks.asMap().entries.map((entry) =>
-                  _FadeInItem(
-                    key: ValueKey(entry.value.id),
-                    index: entry.key,
-                    child: _buildTaskCard(context, ref, entry.value),
-                  ),
-                ),
-              // その他のタスクセクション
-              if (otherTasks.isNotEmpty) ...[
-                const SizedBox(height: 8),
+          child: Scrollbar(
+            controller: _scrollController,
+            thumbVisibility: true,
+            child: ListView(
+              controller: _scrollController,
+              padding: const EdgeInsets.only(bottom: 80),
+              children: [
+                // 全タスク期限切れバナー
+                if (widget.allOverdue) _AllExpiredBanner(l10n: l10n),
+
+                // --- セクション: 今日やること ---
                 _SectionHeader(
-                  title: l10n.otherTasks,
-                  trailing: l10n.taskCount(otherTasks.length),
+                  title: l10n.todaySection,
+                  icon: Icons.push_pin,
+                  color: theme.colorScheme.error,
                 ),
-                ...otherTasks.asMap().entries.map((entry) =>
-                  _FadeInItem(
-                    key: ValueKey(entry.value.id),
-                    index: entry.key,
-                    child: _buildTaskCard(context, ref, entry.value),
+                if (split.today.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    child: Text(l10n.todaySectionEmpty,
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: theme.colorScheme.onSurfaceVariant)),
+                  )
+                else
+                  ..._buildTaskCards(split.today),
+
+                // --- セクション: 期限切れ（折りたたみ） ---
+                if (split.overdue.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _CollapsibleSection(
+                    title: l10n.overdueSectionCount(split.overdue.length),
+                    icon: Icons.warning_amber_rounded,
+                    color: theme.colorScheme.error,
+                    badgeCount: split.overdue.length,
+                    expanded: _overdueExpanded,
+                    onToggle: () =>
+                        setState(() => _overdueExpanded = !_overdueExpanded),
+                    children: _buildTaskCards(split.overdue),
                   ),
-                ),
+                ],
+
+                // --- セクション: 今週のタスク ---
+                if (split.thisWeek.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _SectionHeader(
+                    title: l10n.thisWeekSection,
+                    icon: Icons.date_range,
+                    trailing: l10n.taskCount(split.thisWeek.length),
+                  ),
+                  ..._buildDateGroupedCards(split.thisWeek),
+                ],
+
+                // --- セクション: 来週以降（折りたたみ） ---
+                if (split.later.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _CollapsibleSection(
+                    title: l10n.laterSectionCount(split.later.length),
+                    icon: Icons.calendar_month,
+                    expanded: _laterExpanded,
+                    onToggle: () =>
+                        setState(() => _laterExpanded = !_laterExpanded),
+                    children: _buildDateGroupedCards(split.later),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         );
       },
     );
   }
 
-  Widget _buildTaskCard(BuildContext context, WidgetRef ref, Task task) {
-    final category = task.categoryId != null ? categoryMap[task.categoryId] : null;
+  List<Widget> _buildTaskCards(List<Task> tasks) {
+    return tasks.asMap().entries.map((entry) {
+      return _FadeInItem(
+        key: ValueKey(entry.value.id),
+        index: entry.key,
+        child: _buildTaskCard(entry.value),
+      );
+    }).toList();
+  }
+
+  /// 日付サブヘッダー付きタスクカードリスト
+  List<Widget> _buildDateGroupedCards(List<Task> tasks) {
+    final groups = _groupByDate(tasks);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final widgets = <Widget>[];
+    var idx = 0;
+
+    for (final entry in groups.entries) {
+      // 日付サブヘッダー
+      widgets.add(_DateSubHeader(date: entry.key, today: today));
+      for (final task in entry.value) {
+        widgets.add(_FadeInItem(
+          key: ValueKey(task.id),
+          index: idx++,
+          child: _buildTaskCard(task),
+        ));
+      }
+    }
+    return widgets;
+  }
+
+  Widget _buildTaskCard(Task task) {
+    final category =
+        task.categoryId != null ? widget.categoryMap[task.categoryId] : null;
     return TaskCard(
       task: task,
       category: category,
       onTap: () => TaskFormSheet.show(context, task: task),
       onToggleComplete: () async {
-        final newTask = await ref.read(tasksProvider.notifier).completeTask(task);
+        final newTask =
+            await ref.read(tasksProvider.notifier).completeTask(task);
         if (newTask != null && context.mounted) {
-          final dateStr = app_date.formatRelativeDate(newTask.dueDate, l10n, locale);
+          final dateStr = app_date.formatRelativeDate(
+              newTask.dueDate, widget.l10n, widget.locale);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.recurringTaskCreated(dateStr))),
+            SnackBar(
+                content: Text(widget.l10n.recurringTaskCreated(dateStr))),
           );
         }
       },
       onDelete: () => ref.read(tasksProvider.notifier).deleteTask(task.id!),
+    );
+  }
+}
+
+/// 日付サブヘッダー
+class _DateSubHeader extends StatelessWidget {
+  const _DateSubHeader({required this.date, required this.today});
+
+  final DateTime date;
+  final DateTime today;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
+    final isToday = date == today;
+    final dow = DateFormat.E(locale).format(date);
+    final fmt = DateFormat.MMMd(locale);
+    final label = '${fmt.format(date)}($dow)';
+    final l10n = AppLocalizations.of(context)!;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      color: theme.colorScheme.surfaceContainerLow,
+      child: Text(
+        isToday ? '$label - ${l10n.calendarToday}' : label,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+          color: isToday
+              ? theme.colorScheme.primary
+              : theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+}
+
+/// 折りたたみ可能なセクション（アニメーション付き）
+class _CollapsibleSection extends StatelessWidget {
+  const _CollapsibleSection({
+    required this.title,
+    required this.expanded,
+    required this.onToggle,
+    required this.children,
+    this.icon,
+    this.color,
+    this.badgeCount,
+  });
+
+  final String title;
+  final bool expanded;
+  final VoidCallback onToggle;
+  final List<Widget> children;
+  final IconData? icon;
+  final Color? color;
+  final int? badgeCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final effectiveColor = color ?? theme.colorScheme.onSurface;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: onToggle,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 18, color: effectiveColor),
+                  const SizedBox(width: 6),
+                ],
+                Text(
+                  title,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: effectiveColor,
+                  ),
+                ),
+                const Spacer(),
+                AnimatedRotation(
+                  turns: expanded ? 0.5 : 0.0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    Icons.expand_more,
+                    size: 20,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          child: expanded
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: children,
+                )
+              : const SizedBox(width: double.infinity),
+        ),
+      ],
     );
   }
 }

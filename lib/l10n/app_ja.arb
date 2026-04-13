@@ -790,6 +790,38 @@
   "@todaySectionEmpty": {},
   "otherTasks": "その他のタスク",
   "@otherTasks": {},
+  "thisWeekSection": "今週のタスク",
+  "@thisWeekSection": {},
+  "laterSection": "来週以降",
+  "@laterSection": {},
+  "laterSectionCount": "来週以降 {count}件",
+  "@laterSectionCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "overdueSection": "期限切れ",
+  "@overdueSection": {},
+  "overdueSectionCount": "期限切れ {count}件",
+  "@overdueSectionCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "aiHistoryTooltip": "AI整理の履歴",
+  "@aiHistoryTooltip": {},
+  "executionDateLabel": "実行日: {date}",
+  "@executionDateLabel": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "dueDateLabel": "期限: {date}",
+  "@dueDateLabel": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "dueDateSub": "(期限: {date})",
+  "@dueDateSub": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "calendarViewRecommended": "実行日",
+  "@calendarViewRecommended": {},
+  "calendarViewDue": "期限日",
+  "@calendarViewDue": {},
   "taskCount": "全{count}件",
   "@taskCount": {
     "placeholders": { "count": { "type": "int" } }
