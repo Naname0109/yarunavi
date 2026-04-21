@@ -230,11 +230,9 @@ class _TaskCardState extends ConsumerState<TaskCard>
     // カテゴリ・定期タスクバッジ
     final badges = <Widget>[];
     if (widget.category != null) {
-      badges.add(Flexible(
-        child: Text('${widget.category!.icon} ${widget.category!.name}',
-            style: TextStyle(fontSize: 12, color: outline),
-            maxLines: 1, overflow: TextOverflow.ellipsis),
-      ));
+      badges.add(Text('${widget.category!.icon} ${widget.category!.name}',
+          style: TextStyle(fontSize: 12, color: outline),
+          maxLines: 1, overflow: TextOverflow.ellipsis));
     }
     if (task.recurrenceType != null) {
       badges.add(Row(

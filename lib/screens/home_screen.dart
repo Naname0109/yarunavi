@@ -470,6 +470,12 @@ class _TodoTabState extends ConsumerState<_TodoTab> {
                 content: Text(widget.l10n.recurringTaskCreated(dateStr))),
           );
         }
+        // トリガーA: タスク完了後にレビュー依頼
+        final reviewService = ref.read(reviewServiceProvider);
+        await reviewService.incrementCompletedTaskCount();
+        Future.delayed(const Duration(seconds: 1), () {
+          reviewService.requestReviewIfEligible();
+        });
       },
       onDelete: () => ref.read(tasksProvider.notifier).deleteTask(task.id!),
     );
@@ -788,6 +794,12 @@ class _AllCompleteCelebrationState extends State<_AllCompleteCelebration>
       ),
     );
     _controller.forward();
+    // トリガーA（祝福画面）: 全タスク完了後2秒でレビュー依頼
+    Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
+      final container = ProviderScope.containerOf(context);
+      container.read(reviewServiceProvider).requestReviewIfEligible();
+    });
   }
 
   @override

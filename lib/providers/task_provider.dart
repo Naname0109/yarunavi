@@ -4,6 +4,7 @@ import '../models/task.dart';
 import '../services/calendar_service.dart';
 import '../services/database_service.dart';
 import '../services/notification_service.dart';
+import '../services/review_service.dart';
 import 'purchase_provider.dart';
 
 /// DatabaseServiceのProvider（main.dartでoverrideされる）
@@ -19,6 +20,11 @@ final notificationServiceProvider = Provider<NotificationService>((ref) {
 /// CalendarServiceのProvider（main.dartでoverrideされる）
 final calendarServiceProvider = Provider<CalendarService>((ref) {
   throw UnimplementedError('calendarServiceProvider must be overridden');
+});
+
+/// ReviewServiceのProvider（main.dartでoverrideされる）
+final reviewServiceProvider = Provider<ReviewService>((ref) {
+  throw UnimplementedError('reviewServiceProvider must be overridden');
 });
 
 /// 現在のフィルター状態

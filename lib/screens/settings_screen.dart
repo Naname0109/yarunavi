@@ -301,6 +301,37 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       subtitle: Text(l10n.devModeResetAiUsageDesc),
                       onTap: () => _resetAiUsage(context, ref, l10n),
                     ),
+                    const Divider(),
+                    _buildSectionHeader(context, l10n.devModeReviewSection),
+                    ListTile(
+                      leading: const Icon(Icons.rate_review_outlined),
+                      title: Text(l10n.devModeTestReview),
+                      subtitle: Text(l10n.devModeTestReviewDesc),
+                      onTap: () {
+                        ref.read(reviewServiceProvider).requestReview();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(l10n.devModeTestReviewTriggered)),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.restart_alt),
+                      title: Text(l10n.devModeResetReview),
+                      subtitle: Text(l10n.devModeResetReviewDesc),
+                      onTap: () async {
+                        await ref
+                            .read(reviewServiceProvider)
+                            .resetCounters();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text(l10n.devModeResetReviewDone)),
+                          );
+                        }
+                      },
+                    ),
                   ],
                   const SizedBox(height: 16),
                 ],

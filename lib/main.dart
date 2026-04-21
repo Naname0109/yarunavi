@@ -17,6 +17,7 @@ import 'services/calendar_service.dart';
 import 'services/database_service.dart';
 import 'services/notification_service.dart';
 import 'services/purchase_service.dart';
+import 'services/review_service.dart';
 import 'services/secure_storage_service.dart';
 
 bool get _isDesktop =>
@@ -129,6 +130,10 @@ void main() async {
     debugPrint('[INIT] secureStorage skipped: $e');
   }
 
+  // レビューサービス
+  final reviewService = ReviewService(secureStorage);
+  debugPrint('[INIT] reviewService OK');
+
   debugPrint('[INIT] all done, launching app');
 
   runApp(
@@ -139,6 +144,7 @@ void main() async {
         calendarServiceProvider.overrideWithValue(calendarService),
         purchaseServiceProvider.overrideWithValue(purchaseService),
         secureStorageServiceProvider.overrideWithValue(secureStorage),
+        reviewServiceProvider.overrideWithValue(reviewService),
         initialLocaleProvider.overrideWithValue(settings.locale),
         initialThemeModeProvider.overrideWithValue(settings.themeMode),
         initialDevAiUnlimitedProvider.overrideWithValue(devMode.aiUnlimited),
@@ -147,4 +153,9 @@ void main() async {
       child: const YaruNaviApp(),
     ),
   );
+
+  // トリガーC: アプリ起動後10秒のフォールバック（最低優先度）
+  Future.delayed(const Duration(seconds: 10), () {
+    reviewService.requestReviewIfEligible();
+  });
 }

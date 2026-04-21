@@ -364,6 +364,13 @@
   "devModeResetAiUsageDesc": "Reset current month AI usage count",
   "devModeResetAiUsageDone": "AI usage count reset",
   "devModeConfirmResetAiUsage": "Reset this month's AI usage count?",
+  "devModeReviewSection": "Review",
+  "devModeTestReview": "Test review dialog",
+  "devModeTestReviewDesc": "Show review dialog ignoring conditions",
+  "devModeTestReviewTriggered": "Review dialog requested",
+  "devModeResetReview": "Reset review counters",
+  "devModeResetReviewDesc": "Reset all review-related counters",
+  "devModeResetReviewDone": "Review counters reset",
   "devModeEnabled": "Developer mode enabled",
   "devModeRemaining": "{count} more taps for developer mode",
 

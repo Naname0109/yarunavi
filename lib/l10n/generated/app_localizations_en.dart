@@ -1087,6 +1087,27 @@ class AppLocalizationsEn extends AppLocalizations {
       'Reset this month\'s AI usage count?';
 
   @override
+  String get devModeReviewSection => 'Review';
+
+  @override
+  String get devModeTestReview => 'Test review dialog';
+
+  @override
+  String get devModeTestReviewDesc => 'Show review dialog ignoring conditions';
+
+  @override
+  String get devModeTestReviewTriggered => 'Review dialog requested';
+
+  @override
+  String get devModeResetReview => 'Reset review counters';
+
+  @override
+  String get devModeResetReviewDesc => 'Reset all review-related counters';
+
+  @override
+  String get devModeResetReviewDone => 'Review counters reset';
+
+  @override
   String get devModeEnabled => 'Developer mode enabled';
 
   @override

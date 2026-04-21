@@ -226,6 +226,13 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       ref.read(aiSortResponseProvider.notifier).state = response;
       ref.invalidate(tasksProvider);
 
+      // トリガーB: AI整理完了後にレビュー依頼
+      final reviewService = ref.read(reviewServiceProvider);
+      await reviewService.incrementAiSortCount();
+      Future.delayed(const Duration(seconds: 5), () {
+        reviewService.requestReviewIfEligible();
+      });
+
       // モーダルを閉じる（まだ閉じていない場合のみ）
       if (mounted && !dialogDismissed) {
         Navigator.of(context, rootNavigator: true).pop();

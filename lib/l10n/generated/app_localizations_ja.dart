@@ -1062,6 +1062,27 @@ class AppLocalizationsJa extends AppLocalizations {
   String get devModeConfirmResetAiUsage => '当月のAI使用回数をリセットしますか？';
 
   @override
+  String get devModeReviewSection => 'レビュー';
+
+  @override
+  String get devModeTestReview => 'レビューダイアログをテスト表示';
+
+  @override
+  String get devModeTestReviewDesc => '条件を無視してレビューダイアログを表示します';
+
+  @override
+  String get devModeTestReviewTriggered => 'レビューダイアログをリクエストしました';
+
+  @override
+  String get devModeResetReview => 'レビューカウンターリセット';
+
+  @override
+  String get devModeResetReviewDesc => 'レビュー関連の全カウンターをリセットします';
+
+  @override
+  String get devModeResetReviewDone => 'レビューカウンターをリセットしました';
+
+  @override
   String get devModeEnabled => '開発者モードが有効になりました';
 
   @override

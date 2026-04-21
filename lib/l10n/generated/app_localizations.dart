@@ -2132,6 +2132,48 @@ abstract class AppLocalizations {
   /// **'当月のAI使用回数をリセットしますか？'**
   String get devModeConfirmResetAiUsage;
 
+  /// No description provided for @devModeReviewSection.
+  ///
+  /// In ja, this message translates to:
+  /// **'レビュー'**
+  String get devModeReviewSection;
+
+  /// No description provided for @devModeTestReview.
+  ///
+  /// In ja, this message translates to:
+  /// **'レビューダイアログをテスト表示'**
+  String get devModeTestReview;
+
+  /// No description provided for @devModeTestReviewDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'条件を無視してレビューダイアログを表示します'**
+  String get devModeTestReviewDesc;
+
+  /// No description provided for @devModeTestReviewTriggered.
+  ///
+  /// In ja, this message translates to:
+  /// **'レビューダイアログをリクエストしました'**
+  String get devModeTestReviewTriggered;
+
+  /// No description provided for @devModeResetReview.
+  ///
+  /// In ja, this message translates to:
+  /// **'レビューカウンターリセット'**
+  String get devModeResetReview;
+
+  /// No description provided for @devModeResetReviewDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'レビュー関連の全カウンターをリセットします'**
+  String get devModeResetReviewDesc;
+
+  /// No description provided for @devModeResetReviewDone.
+  ///
+  /// In ja, this message translates to:
+  /// **'レビューカウンターをリセットしました'**
+  String get devModeResetReviewDone;
+
   /// No description provided for @devModeEnabled.
   ///
   /// In ja, this message translates to:
