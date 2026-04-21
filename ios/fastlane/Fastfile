@@ -1,0 +1,110 @@
+default_platform(:ios)
+
+platform :ios do
+  skip_docs
+
+  def api_key
+    key_path = File.expand_path(ENV["APP_STORE_CONNECT_KEY_PATH"], __dir__)
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_filepath: key_path,
+      in_house: false,
+    )
+  end
+
+  # Flutter ビルド共通処理
+  def flutter_build(api:, options:)
+    build_num = latest_testflight_build_number(api_key: api) + 1
+    UI.message("Build number: #{build_num}")
+
+    api_key_value = options[:anthropic_key] || ENV["ANTHROPIC_API_KEY"] || ""
+
+    Dir.chdir("../..") do
+      sh("flutter pub get")
+      sh("dart run build_runner build --delete-conflicting-outputs")
+      sh("flutter gen-l10n")
+      sh("flutter clean")
+      sh("flutter pub get")
+      sh("flutter build ipa --release " \
+         "--build-number=#{build_num} " \
+         "--dart-define=ANTHROPIC_API_KEY=#{api_key_value}")
+    end
+
+    # flutter build ipa の出力パスを返す
+    ipa_dir = File.expand_path("../../build/ios/ipa", __dir__)
+    ipa_files = Dir.glob("#{ipa_dir}/*.ipa")
+    UI.user_error!("IPA not found in #{ipa_dir}") if ipa_files.empty?
+    ipa_files.first
+  end
+
+  desc "Build and submit to App Store for review"
+  lane :release do |options|
+    api = api_key
+    ipa_path = flutter_build(api: api, options: options)
+
+    deliver(
+      api_key: api,
+      ipa: ipa_path,
+      submit_for_review: false,
+      automatic_release: false,
+      force: true,
+      skip_metadata: false,
+      skip_screenshots: false,
+      metadata_path: "./fastlane/metadata",
+      screenshots_path: "./fastlane/screenshots",
+      precheck_include_in_app_purchases: false,
+      submission_information: {
+        add_id_info_uses_idfa: true,
+        add_id_info_serves_ads: true,
+        add_id_info_tracks_action: false,
+        add_id_info_tracks_install: false,
+        export_compliance_uses_encryption: false,
+      },
+    )
+
+    UI.success("App Store Connectへのアップロード完了")
+  end
+
+  desc "Build and upload to TestFlight"
+  lane :beta do |options|
+    api = api_key
+    ipa_path = flutter_build(api: api, options: options)
+
+    upload_to_testflight(
+      api_key: api,
+      ipa: ipa_path,
+      skip_waiting_for_build_processing: true,
+    )
+
+    UI.success("TestFlightへのアップロード完了")
+  end
+
+  desc "Upload screenshots only"
+  lane :screenshots do
+    api = api_key
+    deliver(
+      api_key: api,
+      skip_binary_upload: true,
+      skip_metadata: true,
+      skip_screenshots: false,
+      screenshots_path: "./fastlane/screenshots",
+      force: true,
+    )
+    UI.success("スクリーンショットアップロード完了")
+  end
+
+  desc "Upload metadata only"
+  lane :metadata do
+    api = api_key
+    deliver(
+      api_key: api,
+      skip_binary_upload: true,
+      skip_metadata: false,
+      skip_screenshots: true,
+      metadata_path: "./fastlane/metadata",
+      force: true,
+    )
+    UI.success("メタデータアップロード完了")
+  end
+end

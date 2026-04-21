@@ -27,6 +27,18 @@ Flutter/flutter_export_environment.sh
 ServiceDefinitions.json
 Runner/GeneratedPluginRegistrant.*
 
+# Fastlane
+fastlane/.env.local
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/test_output/
+*.p8
+
+# Bundle
+vendor/
+.bundle/
+Gemfile.lock
+
 # Exceptions to above rules.
 !default.mode1v3
 !default.mode2v3

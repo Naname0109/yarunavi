@@ -1,0 +1,42 @@
+◆ Just add your tasks. AI tells you what to do and when.
+
+"When should I pay rent?"
+"I need to renew my license before it expires..."
+"What was the deadline for that paperwork?"
+
+Put everything on your mind into YaruNavi.
+AI organizes your priorities and suggests the best days to act.
+
+◆ Who is this for?
+- Too many tasks, unsure where to start
+- Forget payment deadlines and paperwork due dates
+- Don't want to mix personal tasks with work tools
+- Stressed from keeping everything in your head
+
+◆ What AI does for you
+- Automatically prioritizes your tasks
+- Sorts into "Do today" "This week" "Not urgent"
+- Gives specific advice (e.g. "Office closes at 5pm. Go by Friday")
+- Suggests optimal execution dates on calendar
+- Sends reminders so you never forget (Premium)
+
+◆ Key Features
+- Simple task entry (just name + deadline)
+- Recurring tasks (monthly bills, weekly routines)
+- AI priority sorting
+- Calendar view (color-coded recommended action dates)
+- Custom categories
+- Japanese and English
+
+◆ Premium (Monthly ¥580 / Yearly ¥4,200)
+- AI sorting 30 times/month
+- Auto notification setup
+- Calendar integration
+- Full AI comments
+- Ad-free
+- 7-day free trial
+
+◆ All data stored locally. No account required.
+
+Terms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Privacy Policy: https://naname0109.github.io/yarunavi/
