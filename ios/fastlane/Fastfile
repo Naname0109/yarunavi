@@ -18,7 +18,8 @@ platform :ios do
     build_num = latest_testflight_build_number(api_key: api) + 1
     UI.message("Build number: #{build_num}")
 
-    api_key_value = options[:anthropic_key] || ENV["ANTHROPIC_API_KEY"] || ""
+    proxy_url = ENV['AI_PROXY_URL'] || ''
+    app_token = ENV['AI_APP_TOKEN'] || ''
 
     Dir.chdir("../..") do
       sh("flutter pub get")
@@ -28,7 +29,8 @@ platform :ios do
       sh("flutter pub get")
       sh("flutter build ipa --release " \
          "--build-number=#{build_num} " \
-         "--dart-define=ANTHROPIC_API_KEY=#{api_key_value}")
+         "--dart-define=AI_PROXY_URL=#{proxy_url} " \
+         "--dart-define=AI_APP_TOKEN=#{app_token}")
     end
 
     # flutter build ipa の出力パスを返す

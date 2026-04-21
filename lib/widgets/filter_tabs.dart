@@ -34,6 +34,7 @@ class FilterTabs extends ConsumerWidget {
           final isSelected = currentTab == tabIndex;
 
           return FilterChip(
+            key: Key('filter_tab_$tabIndex'),
             avatar: Icon(icon, size: 18),
             label: Text(label),
             selected: isSelected,

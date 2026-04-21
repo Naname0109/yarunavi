@@ -73,6 +73,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     padding: const EdgeInsets.all(16),
                     child: _currentPage < pages.length - 1
                         ? TextButton(
+                            key: const Key('onboarding_skip'),
                             onPressed: _completeOnboarding,
                             child: Text(l10n.onboardingSkip),
                           )
@@ -122,6 +123,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 style: const TextStyle(fontSize: 16)),
                           )
                         : FilledButton.tonal(
+                            key: const Key('onboarding_next'),
                             onPressed: () => _pageController.nextPage(
                               duration: const Duration(milliseconds: 300),
                               curve: Curves.easeInOut,

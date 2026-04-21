@@ -102,11 +102,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           AiSortButton(key: _aiSortKey),
           IconButton(
+            key: const Key('ai_history_button'),
             icon: const Icon(Icons.history),
             onPressed: () => context.push('/ai-history'),
             tooltip: l10n.aiHistoryTooltip,
           ),
           IconButton(
+            key: const Key('settings_button'),
             icon: const Icon(Icons.settings),
             onPressed: () => context.push('/settings'),
             tooltip: l10n.settings,

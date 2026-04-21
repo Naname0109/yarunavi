@@ -1,43 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:yarunavi/app.dart';
-import 'package:yarunavi/models/task.dart';
-import 'package:yarunavi/providers/dev_mode_provider.dart';
-import 'package:yarunavi/providers/settings_provider.dart';
-import 'package:yarunavi/providers/task_provider.dart';
-import 'package:yarunavi/services/ai_service.dart';
-import 'package:yarunavi/services/database_service.dart';
-import 'package:yarunavi/services/notification_service.dart';
-import 'package:yarunavi/services/purchase_service.dart';
-import 'package:yarunavi/services/calendar_service.dart';
-import 'package:yarunavi/services/secure_storage_service.dart';
-import 'package:yarunavi/providers/purchase_provider.dart';
-import 'package:yarunavi/providers/secure_storage_provider.dart';
-import 'package:yarunavi/widgets/ai_sort_button.dart';
+import 'package:yarunavi/main.dart' as app;
 
-/// カレンダー権限ダイアログを抑制するモック
-class _NoOpCalendarService extends CalendarService {
-  @override
-  Future<bool> requestPermission() async => false;
-}
-
+/// App Store スクリーンショット全自動撮影テスト
+///
+/// 使用方法:
+///   flutter drive \
+///     --driver=test_driver/screenshot_driver.dart \
+///     --target=integration_test/screenshot_test.dart \
+///     -d "iPhone 17 Pro Max"
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  /// シミュレータ実画面をキャプチャ
-  Future<void> screenshot(WidgetTester tester, String name) async {
-    await tester.pumpAndSettle();
+  /// スクショ撮影ヘルパー: simctl用にGPUレンダリング完了を待つ
+  Future<void> takeScreenshot(String name) async {
+    // GPU描画がシミュレータ表示に反映されるのを待つ
     await Future.delayed(const Duration(milliseconds: 800));
     await binding.takeScreenshot(name);
-    debugPrint('[SCREENSHOT] $name captured');
   }
 
-  testWidgets('App Store screenshots - all in one', (tester) async {
+  testWidgets('App Store screenshots - fully automated', (tester) async {
     // レイアウト警告を抑制
     final originalOnError = FlutterError.onError;
     FlutterError.onError = (details) {
@@ -46,253 +31,327 @@ void main() {
       originalOnError?.call(details);
     };
 
-    // --- 初期化 ---
-    SharedPreferences.setMockInitialValues({});
-    final db = DatabaseService();
-    await db.initialize();
-
-    await tester.pumpWidget(ProviderScope(
-      overrides: [
-        databaseServiceProvider.overrideWithValue(db),
-        notificationServiceProvider.overrideWithValue(NotificationService()),
-        calendarServiceProvider.overrideWithValue(_NoOpCalendarService()),
-        purchaseServiceProvider.overrideWithValue(PurchaseService.instance),
-        secureStorageServiceProvider
-            .overrideWithValue(SecureStorageService()),
-        initialLocaleProvider.overrideWithValue(const Locale('ja')),
-        initialThemeModeProvider.overrideWithValue(ThemeMode.light),
-        initialDevAiUnlimitedProvider.overrideWithValue(true),
-        initialDevPremiumProvider.overrideWithValue(true),
-      ],
-      child: const YaruNaviApp(),
-    ));
-
-    // スプラッシュ → オンボーディング遷移待ち
+    // --- アプリ起動 ---
+    app.main();
+    debugPrint('[SS] Waiting for app to initialize...');
+    await Future.delayed(const Duration(seconds: 5));
     await tester.pumpAndSettle(const Duration(seconds: 5));
-    debugPrint('[TEST] Post-splash');
+    debugPrint('[SS] Post-init settle done');
 
-    // ===== Screenshot 1: オンボーディング画面2 =====
-    final nextBtn = find.text('次へ');
-    expect(nextBtn, findsWidgets, reason: 'オンボーディングが表示されていません');
-    await tester.tap(nextBtn.first);
+    // スプラッシュ → オンボーディング/ホーム遷移を待つ
+    await Future.delayed(const Duration(seconds: 3));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    debugPrint('[SS] App launched');
+
+    // =============================================
+    // 1. オンボーディング → スクショ → スキップ
+    // =============================================
+    for (var i = 0; i < 20; i++) {
+      if (find.byKey(const Key('onboarding_next')).evaluate().isNotEmpty) break;
+      if (find.byKey(const Key('settings_button')).evaluate().isNotEmpty) break;
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+
+    final nextBtn = find.byKey(const Key('onboarding_next'));
+    if (nextBtn.evaluate().isNotEmpty) {
+      await tester.tap(nextBtn);
+      await tester.pumpAndSettle();
+      debugPrint('[SS] Onboarding page 2');
+
+      await takeScreenshot('raw_05_onboarding');
+      debugPrint('[SS] ✓ raw_05_onboarding');
+
+      // スキップしてホームへ
+      await tester.tap(find.byKey(const Key('onboarding_skip')));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      debugPrint('[SS] Onboarding skipped → Home');
+    }
+
+    // コーチマークが表示されたら閉じる（showGeneralDialogで表示）
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 300));
+      final coachNext = find.text('次へ');
+      final coachDone = find.text('OK');
+      if (coachNext.evaluate().isNotEmpty) {
+        await tester.tap(coachNext.first);
+        await tester.pumpAndSettle();
+        debugPrint('[SS] Coach mark dismissed (次へ)');
+      } else if (coachDone.evaluate().isNotEmpty) {
+        await tester.tap(coachDone.first);
+        await tester.pumpAndSettle();
+        debugPrint('[SS] Coach mark dismissed (OK)');
+      } else {
+        final barrier = find.byType(ModalBarrier);
+        if (barrier.evaluate().length > 1) {
+          await tester.tapAt(const Offset(200, 400));
+          await tester.pumpAndSettle();
+          debugPrint('[SS] Coach mark dismissed (tap barrier)');
+        } else {
+          break;
+        }
+      }
+    }
     await tester.pumpAndSettle();
-    debugPrint('[TEST] On onboarding page 2');
 
-    await screenshot(tester, 'raw_05_onboarding');
+    // =============================================
+    // 2. 設定 → 開発者モード有効化 → プレミアムON → テストデータ投入
+    // =============================================
+    for (var i = 0; i < 30; i++) {
+      if (find.byKey(const Key('settings_button')).evaluate().isNotEmpty) break;
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+    debugPrint('[SS] Settings button found: ${find.byKey(const Key("settings_button")).evaluate().length}');
+    expect(find.byKey(const Key('settings_button')), findsOneWidget,
+        reason: 'ホーム画面の設定ボタンが見つかりません');
 
-    // ===== オンボーディング完了 → ホームへ =====
-    // 「スキップ」ボタンをタップ
-    final skipBtn = find.text('スキップ');
-    expect(skipBtn, findsOneWidget, reason: 'スキップボタンが見つかりません');
-    await tester.tap(skipBtn);
+    // 設定画面に遷移（直接タップ）
+    debugPrint('[SS] Tapping settings button...');
+    await tester.tap(find.byKey(const Key('settings_button')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    debugPrint('[TEST] Skipped onboarding');
 
-    // コーチマークが表示されたら閉じる
-    for (var i = 0; i < 5; i++) {
-      if (find.text('次へ').evaluate().isNotEmpty) {
-        await tester.tap(find.text('次へ').first);
+    // 設定画面が開いたか確認
+    final settingsTitle = find.text('設定');
+    debugPrint('[SS] Settings title found: ${settingsTitle.evaluate().length}');
+    debugPrint('[SS] Settings screen opened');
+
+    // バージョン情報を7回タップして開発者モード解放
+    final appInfoTile = find.byKey(const Key('app_info_tile'));
+    debugPrint('[SS] app_info_tile found: ${appInfoTile.evaluate().length}');
+
+    // scrollUntilVisible で表示させてから7回タップ
+    try {
+      await tester.scrollUntilVisible(
+        appInfoTile, 200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+
+      for (var i = 0; i < 7; i++) {
+        await tester.tap(appInfoTile);
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      debugPrint('[SS] Dev mode activated');
+    } catch (e) {
+      debugPrint('[SS] WARNING: app_info_tile scroll failed: $e');
+    }
+
+    // SnackBarを閉じる
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    // プレミアムトグルをON
+    try {
+      final premiumToggle = find.byKey(const Key('premium_mode_toggle'));
+      await tester.scrollUntilVisible(
+        premiumToggle, 200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      debugPrint('[SS] premium_mode_toggle visible');
+      final switchWidget = find.descendant(
+        of: premiumToggle,
+        matching: find.byType(Switch),
+      );
+      if (switchWidget.evaluate().isNotEmpty) {
+        final sw = tester.widget<Switch>(switchWidget);
+        if (!sw.value) {
+          await tester.tap(premiumToggle);
+          await tester.pumpAndSettle();
+          debugPrint('[SS] Premium ON');
+        } else {
+          debugPrint('[SS] Premium already ON');
+        }
+      }
+    } catch (e) {
+      debugPrint('[SS] WARNING: premium toggle failed: $e');
+    }
+
+    // AI固定テストデータ投入（家賃振込、週報提出、企画書作成 等のデモ用データ）
+    try {
+      final aiTestData = find.byKey(const Key('debug_ai_test_data'));
+      await tester.scrollUntilVisible(
+        aiTestData, 200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(aiTestData);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      // 確認ダイアログの「OK」ボタンをタップ
+      final dialogOk = find.widgetWithText(FilledButton, 'OK');
+      if (dialogOk.evaluate().isNotEmpty) {
+        await tester.tap(dialogOk);
+        await tester.pumpAndSettle(const Duration(seconds: 3));
+        debugPrint('[SS] AI test data inserted (dialog confirmed)');
+      } else {
+        debugPrint('[SS] WARNING: Insert dialog OK button not found');
+      }
+    } catch (e) {
+      debugPrint('[SS] WARNING: AI test data insertion failed: $e');
+    }
+
+    // ホームに戻る（GoRouterで確実に遷移）
+    GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/home');
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    // タスクがDBから読み込まれるのを待つ
+    for (var i = 0; i < 20; i++) {
+      final cards = find.byType(Card);
+      if (cards.evaluate().isNotEmpty) {
+        debugPrint('[SS] Tasks loaded: ${cards.evaluate().length} cards');
+        break;
+      }
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+    await tester.pumpAndSettle();
+    debugPrint('[SS] Back to home');
+
+    // =============================================
+    // 3. AI整理実行
+    // =============================================
+    final aiButton = find.byKey(const Key('ai_sort_button'));
+    debugPrint('[SS] ai_sort_button found: ${aiButton.evaluate().length}');
+    if (aiButton.evaluate().isNotEmpty) {
+      await tester.tap(aiButton);
+      debugPrint('[SS] AI sort started');
+
+      // AI整理完了を待つ（最大30秒）
+      for (var i = 0; i < 60; i++) {
+        await tester.pump(const Duration(milliseconds: 500));
+        final loading = find.byType(CircularProgressIndicator);
+        if (loading.evaluate().isEmpty) break;
+      }
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      // バックグラウンドダイアログが出ていたら閉じる
+      final bgBtn = find.text('バックグラウンドで実行');
+      if (bgBtn.evaluate().isNotEmpty) {
+        await tester.tap(bgBtn);
         await tester.pumpAndSettle();
-      } else if (find.text('OK').evaluate().isNotEmpty) {
-        await tester.tap(find.text('OK').first);
-        await tester.pumpAndSettle();
-      } else if (find.text('閉じる').evaluate().isNotEmpty) {
-        await tester.tap(find.text('閉じる').first);
+        for (var i = 0; i < 60; i++) {
+          await tester.pump(const Duration(milliseconds: 500));
+        }
+        await tester.pumpAndSettle(const Duration(seconds: 2));
+      }
+
+      debugPrint('[SS] AI sort completed');
+    }
+
+    // AI結果画面に遷移
+    final aiResultBtn = find.textContaining('AI整理結果');
+    if (aiResultBtn.evaluate().isNotEmpty) {
+      await tester.tap(aiResultBtn.first);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+    }
+
+    // AI結果画面でスクショ
+    final aiResultTitle = find.textContaining('整理しました');
+    if (aiResultTitle.evaluate().isNotEmpty) {
+      await takeScreenshot('raw_02_ai_result');
+      debugPrint('[SS] ✓ raw_02_ai_result');
+      GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/home');
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+    } else {
+      GoRouter.of(tester.element(find.byType(Scaffold).first)).push('/ai-result');
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await takeScreenshot('raw_02_ai_result');
+      debugPrint('[SS] ✓ raw_02_ai_result');
+      GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/home');
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+    }
+
+    // =============================================
+    // 4. ホーム画面スクショ
+    // =============================================
+    // ダイアログ/SnackBarを閉じる
+    for (var i = 0; i < 3; i++) {
+      final okBtn = find.text('OK');
+      if (okBtn.evaluate().isNotEmpty) {
+        await tester.tap(okBtn.first);
         await tester.pumpAndSettle();
       } else {
         break;
       }
     }
-    await tester.pumpAndSettle(const Duration(seconds: 1));
 
-    // ホーム画面の確認
-    expect(find.text('やること'), findsWidgets,
-        reason: 'ホーム画面が表示されていません');
-    debugPrint('[TEST] Home screen visible');
+    // タスクが表示されるまで待つ
+    for (var i = 0; i < 10; i++) {
+      final anyTask = find.byType(Card);
+      if (anyTask.evaluate().isNotEmpty) break;
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+    await tester.pumpAndSettle();
+    debugPrint('[SS] Home task cards: ${find.byType(Card).evaluate().length}');
 
-    // --- テストデータ投入 ---
-    final aiResponse = await _insertScreenshotData(db);
-    final ctx0 = tester.element(find.byType(Scaffold).first);
-    final container = ProviderScope.containerOf(ctx0);
-    container.read(aiSortResponseProvider.notifier).state = aiResponse;
-    container.invalidate(tasksProvider);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await takeScreenshot('raw_01_home');
+    debugPrint('[SS] ✓ raw_01_home');
 
-    // ===== Screenshot 2: ホーム画面 =====
-    debugPrint('[TEST] === Home ===');
-    await screenshot(tester, 'raw_01_home');
-
-    // ===== Screenshot 3: AI整理結果 =====
-    debugPrint('[TEST] === AI Result ===');
-    GoRouter.of(tester.element(find.byType(Scaffold).first))
-        .push('/ai-result');
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-    await screenshot(tester, 'raw_02_ai_result');
-
-    // 戻る
-    GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/home');
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    // ===== Screenshot 4: カレンダー画面 =====
-    debugPrint('[TEST] === Calendar ===');
-    // 表示されているダイアログを閉じる
-    final okBtn = find.text('OK');
-    if (okBtn.evaluate().isNotEmpty) {
-      await tester.tap(okBtn.first);
-      await tester.pumpAndSettle();
+    // =============================================
+    // 5. タスク展開（AIコメント）スクショ — ホーム画面上で直接タップ
+    // =============================================
+    bool taskTapped = false;
+    for (final name in ['週報提出', '家賃振込', '企画書', '日用品', '免許']) {
+      final taskFinder = find.textContaining(name);
+      if (taskFinder.evaluate().isNotEmpty) {
+        await tester.tap(taskFinder.first);
+        await tester.pumpAndSettle(const Duration(seconds: 1));
+        taskTapped = true;
+        debugPrint('[SS] Tapped task: $name');
+        break;
+      }
+    }
+    if (!taskTapped) {
+      final cards = find.byType(Card);
+      if (cards.evaluate().isNotEmpty) {
+        await tester.tap(cards.first);
+        await tester.pumpAndSettle(const Duration(seconds: 1));
+        debugPrint('[SS] Tapped first card');
+      } else {
+        debugPrint('[SS] WARNING: No task cards found for AI comment screenshot');
+      }
     }
 
-    final calTab = find.text('カレンダー');
-    expect(calTab, findsWidgets, reason: 'カレンダータブが見つかりません');
-    await tester.tap(calTab.first);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await takeScreenshot('raw_04_ai_comment');
+    debugPrint('[SS] ✓ raw_04_ai_comment');
 
-    // カレンダー遷移後もダイアログが出る場合
+    // =============================================
+    // 6. カレンダー画面スクショ
+    // =============================================
+    final calendarTab = find.byKey(const Key('filter_tab_1'));
+    if (calendarTab.evaluate().isNotEmpty) {
+      await tester.tap(calendarTab);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+    }
+
+    // 「期限日」モードに切り替え
+    final dueModeBtn = find.text('期限日');
+    if (dueModeBtn.evaluate().isNotEmpty) {
+      await tester.tap(dueModeBtn);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      debugPrint('[SS] Calendar switched to 期限日 mode');
+    }
+
+    // ダイアログを閉じる
     final okBtn2 = find.text('OK');
     if (okBtn2.evaluate().isNotEmpty) {
       await tester.tap(okBtn2.first);
       await tester.pumpAndSettle();
     }
 
-    await screenshot(tester, 'raw_03_calendar');
+    await takeScreenshot('raw_03_calendar');
+    debugPrint('[SS] ✓ raw_03_calendar');
 
-    // ===== Screenshot 5: タスクカード展開 (AIコメント) =====
-    debugPrint('[TEST] === Task expanded ===');
-    final todoTab = find.text('やること');
-    await tester.tap(todoTab.first);
-    await tester.pumpAndSettle();
+    // =============================================
+    // 7. ストア画面スクショ
+    // =============================================
+    GoRouter.of(tester.element(find.byType(Navigator).last)).go('/store');
+    await tester.pumpAndSettle(const Duration(seconds: 3));
 
-    final card = find.textContaining('家賃振込');
-    if (card.evaluate().isNotEmpty) {
-      await tester.tap(card.first);
-      await tester.pump(const Duration(seconds: 1));
-    }
-    await screenshot(tester, 'raw_04_ai_comment');
+    await takeScreenshot('raw_iap');
+    debugPrint('[SS] ✓ raw_iap');
 
-    // ===== Screenshot 6: ストア画面 =====
-    debugPrint('[TEST] === Store ===');
-    GoRouter.of(tester.element(find.byType(Scaffold).first))
-        .push('/store');
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-    await screenshot(tester, 'raw_iap');
-
-    // クリーンアップ
+    // エラーハンドラ復元
     FlutterError.onError = originalOnError;
-    await db.close();
 
-    debugPrint('[SCREENSHOT] All 6 iPhone screenshots captured!');
+    debugPrint('[SS] === All 6 screenshots captured! ===');
   });
-}
-
-/// テストデータ（AI整理済み）投入
-Future<AiSortResponse> _insertScreenshotData(DatabaseService db) async {
-  final now = DateTime.now();
-  final today = DateTime(now.year, now.month, now.day);
-  final createdAt = now.subtract(const Duration(days: 3));
-
-  final tasksData = [
-    (t: '家賃振込', d: 1, c: 1, i: 2, p: 1,
-        m: '銀行振込またはネットバンキング', e: '30min',
-        ja: '明日が期限です。今日中にネットバンキングで振込を済ませましょう。残高確認も忘れずに。',
-        en: 'Due tomorrow. Complete the transfer via online banking today.',
-        r: null as String?),
-    (t: '企画書作成', d: 2, c: 5, i: 2, p: 1,
-        m: '来週の会議用。テンプレートあり', e: 'half_day',
-        ja: '来週の会議に間に合わせるために、今日から着手しましょう。',
-        en: 'Start today to make the meeting deadline.',
-        r: null as String?),
-    (t: 'クレジットカード支払い', d: 3, c: 1, i: 2, p: 2,
-        m: '引き落とし口座の残高確認', e: '5min',
-        ja: '3日後が期限。引き落とし口座の残高を今日中に確認しておくと安心です。',
-        en: 'Due in 3 days. Check your account balance today.',
-        r: null as String?),
-    (t: '日用品買い出し', d: 5, c: 3, i: 1, p: 2,
-        m: '洗剤、ティッシュ、シャンプー', e: '1hour',
-        ja: '週末の買い物リストを事前にまとめておくとスムーズです。',
-        en: 'Prepare your shopping list in advance.',
-        r: today.add(const Duration(days: 4)).toIso8601String().substring(0, 10)),
-    (t: '週報提出', d: 0, c: 5, i: 1, p: 1,
-        m: '毎週提出', e: '30min',
-        ja: '今日が提出日です。午前中に済ませて午後の業務に集中しましょう。',
-        en: 'Due today. Complete it in the morning.',
-        r: null as String?),
-    (t: '大掃除', d: 7, c: 4, i: 1, p: 3,
-        m: 'キッチン、浴室、リビング', e: 'half_day',
-        ja: '週末にまとめて取り組むのがおすすめ。エリアごとに分けると負担が減ります。',
-        en: 'Tackle it on the weekend.',
-        r: today.add(const Duration(days: 6)).toIso8601String().substring(0, 10)),
-    (t: '免許更新', d: 10, c: 2, i: 2, p: 2,
-        m: '平日のみ対応可。写真持参', e: 'half_day',
-        ja: '平日のみなので、早めにスケジュールを確保しましょう。',
-        en: 'Weekdays only — secure a slot early.',
-        r: today.add(const Duration(days: 8)).toIso8601String().substring(0, 10)),
-    (t: '歯医者予約', d: 8, c: 6, i: 1, p: 3,
-        m: '電話予約。平日午前希望', e: '5min',
-        ja: '電話1本で完了します。午前中の空き時間にサッと済ませましょう。',
-        en: 'Just a quick phone call.',
-        r: today.add(const Duration(days: 2)).toIso8601String().substring(0, 10)),
-    (t: 'プレゼント選び', d: 14, c: 3, i: 1, p: 3,
-        m: '友人の誕生日プレゼント。予算5000円', e: '1hour',
-        ja: '2週間あるので余裕がありますが、配送を考えると1週間前には注文を。',
-        en: 'Order 1 week ahead considering delivery.',
-        r: today.add(const Duration(days: 7)).toIso8601String().substring(0, 10)),
-    (t: '確定申告の書類準備', d: 20, c: 2, i: 1, p: 3,
-        m: '領収書整理、医療費控除の計算', e: '1day',
-        ja: '書類が多いので週末ごとに少しずつ進めるのがおすすめです。',
-        en: 'Lots of documents — tackle a bit each weekend.',
-        r: today.add(const Duration(days: 13)).toIso8601String().substring(0, 10)),
-    (t: 'ジムに行く', d: 4, c: 6, i: 0, p: 4,
-        m: null as String?, e: '1hour',
-        ja: '体を動かしてリフレッシュしましょう。',
-        en: 'Get moving and refresh.',
-        r: today.add(const Duration(days: 4)).toIso8601String().substring(0, 10)),
-    (t: 'エアコンフィルター掃除', d: 30, c: 4, i: 0, p: 4,
-        m: null as String?, e: '30min',
-        ja: '期限に余裕があります。他のタスクが落ち着いた時に。',
-        en: 'Plenty of time.',
-        r: today.add(const Duration(days: 25)).toIso8601String().substring(0, 10)),
-  ];
-
-  final aiResults = <AiSortResult>[];
-  for (var i = 0; i < tasksData.length; i++) {
-    final x = tasksData[i];
-    final id = await db.insertTask(Task(
-      title: x.t,
-      dueDate: today.add(Duration(days: x.d)),
-      categoryId: x.c,
-      importance: x.i,
-      priority: x.p,
-      memo: x.m,
-      estimatedTime: x.e,
-      aiComment: x.ja,
-      sortOrder: i,
-      recommendedDate: x.r != null ? DateTime.parse(x.r!) : null,
-      notifySettings: '["ai_auto"]',
-      createdAt: createdAt,
-      updatedAt: createdAt,
-    ));
-    aiResults.add(AiSortResult(
-      taskId: id, priority: x.p,
-      commentJa: x.ja, commentEn: x.en,
-      recommendedDate: x.r,
-    ));
-  }
-
-  return AiSortResponse(
-    summaryJa:
-        '合計12件のタスクを分析しました。直近3日以内に期限のタスクが3件あります。'
-        '家賃振込と週報提出は今日中に対応が必要です。企画書作成も早めの着手をおすすめします。',
-    summaryEn:
-        'Analyzed 12 tasks. 3 due within 3 days. '
-        'Rent payment and weekly report need attention today.',
-    tasks: aiResults,
-    questionsJa: [
-      '企画書のテンプレートはすでに手元にありますか？',
-      '免許更新はお近くの更新センターで行いますか？',
-    ],
-    questionsEn: [
-      'Do you already have the proposal template?',
-      'Will you renew your license at a nearby center?',
-    ],
-  );
 }

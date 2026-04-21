@@ -1,0 +1,10 @@
+name = "yarunavi-api-proxy"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+ALLOWED_ORIGIN = "*"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "2bf17148c82146c599ccaab241539c63"

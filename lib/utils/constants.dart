@@ -18,15 +18,26 @@ class AppConstants {
   static const int premiumAiSortMonthlyLimit = 30;
 
   // Anthropic API
-  // APIキーはビルド時に --dart-define=ANTHROPIC_API_KEY=xxx で注入
-  static const String anthropicApiKey = String.fromEnvironment(
-    'ANTHROPIC_API_KEY',
-    defaultValue: '',
-  );
   static const String anthropicModel = 'claude-haiku-4-5-20251001';
   static const String anthropicVersion = '2023-06-01';
   static const String anthropicApiUrl =
       'https://api.anthropic.com/v1/messages';
+
+  // プロキシサーバー設定（本番用）
+  static const String aiProxyUrl = String.fromEnvironment(
+    'AI_PROXY_URL',
+    defaultValue: '',
+  );
+  static const String aiAppToken = String.fromEnvironment(
+    'AI_APP_TOKEN',
+    defaultValue: '',
+  );
+
+  // 直接APIキー（開発時のみ使用、リリースビルドでは使わない）
+  static const String anthropicApiKey = String.fromEnvironment(
+    'ANTHROPIC_API_KEY',
+    defaultValue: '',
+  );
 
   // Notifications
   static const String notificationChannelId = 'yarunavi_task_reminders';

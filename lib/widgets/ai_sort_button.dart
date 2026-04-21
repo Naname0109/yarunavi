@@ -60,6 +60,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     final l10n = AppLocalizations.of(context)!;
 
     return TextButton.icon(
+      key: const Key('ai_sort_button'),
       onPressed: _isLoading ? null : () => _onTap(l10n),
       icon: _isLoading
           ? const SizedBox(

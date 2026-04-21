@@ -92,6 +92,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   if (!isPremium)
                     ListTile(
+                      key: const Key('upgrade_to_premium'),
                       leading: const Icon(Icons.workspace_premium),
                       title: Text(l10n.settingsUpgradeToPremium),
                       trailing: const Icon(Icons.chevron_right),
@@ -244,6 +245,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
                   // --- アプリ情報（7回タップで開発者モード解放） ---
                   ListTile(
+                    key: const Key('app_info_tile'),
                     leading: const Icon(Icons.info_outline),
                     title: Text(l10n.appInfo),
                     subtitle: FutureBuilder<PackageInfo>(
@@ -277,6 +279,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     const Divider(),
                     _buildSectionHeader(context, l10n.debugSection),
                     ListTile(
+                      key: const Key('debug_insert_test_data'),
                       leading: const Icon(Icons.science_outlined),
                       title: Text(l10n.debugInsertTestData),
                       onTap: () => _insertTestData(context, ref, l10n, false),
@@ -290,6 +293,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       onTap: () => _insertTestData(context, ref, l10n, true),
                     ),
                     ListTile(
+                      key: const Key('debug_ai_test_data'),
                       leading: const Icon(Icons.auto_awesome_outlined),
                       title: Text(l10n.debugAiTestDataTitle),
                       subtitle: Text(l10n.debugAiTestDataDesc),
@@ -595,6 +599,7 @@ class _DevModeToggles extends ConsumerWidget {
           },
         ),
         SwitchListTile(
+          key: const Key('premium_mode_toggle'),
           secondary: const Icon(Icons.workspace_premium),
           title: Text(l10n.devModePremium),
           subtitle: Text(l10n.devModePremiumDesc),

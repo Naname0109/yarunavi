@@ -69,6 +69,30 @@ lib/
 14. UI仕上げ（テーマ調整、アニメーション、iPad対応）
 15. テスト + バグ修正
 
+## API設定
+
+### 開発時（直接API呼び出し）
+```bash
+flutter run --dart-define=ANTHROPIC_API_KEY=sk-ant-xxxxx
+```
+
+### 本番（プロキシ経由）
+```bash
+flutter run --dart-define=AI_PROXY_URL=https://xxx.workers.dev --dart-define=AI_APP_TOKEN=xxx
+```
+
+### リリースビルド
+Fastlaneの.env.localにAI_PROXY_URLとAI_APP_TOKENを設定
+```bash
+bundle exec fastlane release
+```
+
+### プロキシサーバー
+- `proxy/` フォルダにCloudflare Workerのコード
+- APIキーはCloudflare Workerの環境変数にのみ保存
+- アプリにはAPIキーを一切埋め込まない
+- デプロイ: `cd proxy && npx wrangler deploy`
+
 ## 重要な注意事項
 - Product IDは一度使うと再利用不可（削除しても）
 - IAPの「審査へ提出」ボタンは初回リリース時は絶対に押さない

@@ -25,10 +25,12 @@ class NotificationService {
     if (!isSupported) return;
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
+    // 初期化時はパーミッションを要求しない（シミュレータのシステムダイアログでブロックを防ぐ）
+    // パーミッションは requestPermission() で明示的にリクエストする
     const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
     );
     const settings = InitializationSettings(
       android: androidSettings,
@@ -86,6 +88,9 @@ class NotificationService {
     if (!isPremium && !kDebugMode) return;
     if (task.id == null) return;
     if (task.notifySettings == null || task.isCompleted) return;
+
+    // 通知をスケジュールする前にパーミッションを確認・要求
+    await requestPermission();
 
     List<String> settings;
     try {

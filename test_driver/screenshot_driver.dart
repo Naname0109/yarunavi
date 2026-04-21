@@ -9,6 +9,7 @@ Future<void> main() => integrationDriver(
         if (!outDir.existsSync()) outDir.createSync(recursive: true);
 
         final path = '${outDir.path}/$name.png';
+
         File(path).writeAsBytesSync(bytes);
         final kb = (bytes.length / 1024).toStringAsFixed(1);
         print('[SCREENSHOT] Saved: $path (${kb}KB)');

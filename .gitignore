@@ -50,3 +50,13 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 run_dev.sh
+
+# Proxy
+proxy/node_modules/
+proxy/.dev.vars
+
+# Fastlane secrets
+ios/fastlane/.env.local
+
+# Keys
+*.p8
