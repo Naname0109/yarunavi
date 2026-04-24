@@ -13,24 +13,70 @@ platform :ios do
     )
   end
 
+  # 署名証明書 + プロビジョニングプロファイル取得
+  def setup_signing(api:)
+    get_certificates(api_key: api, platform: "ios")
+    get_provisioning_profile(
+      api_key: api,
+      app_identifier: ENV["APP_IDENTIFIER"],
+      force: false,
+    )
+    install_provisioning_profile(
+      path: lane_context[SharedValues::SIGH_PROFILE_PATH],
+    )
+  end
+
   # Flutter ビルド共通処理
   def flutter_build(api:, options:)
     build_num = latest_testflight_build_number(api_key: api) + 1
     UI.message("Build number: #{build_num}")
 
+    setup_signing(api: api)
+
+    bundle_id = ENV["APP_IDENTIFIER"]
+    team_id = ENV["TEAM_ID"]
+    profile_name = lane_context[SharedValues::SIGH_NAME]
+
     proxy_url = ENV['AI_PROXY_URL'] || ''
     app_token = ENV['AI_APP_TOKEN'] || ''
 
     Dir.chdir("../..") do
-      sh("flutter pub get")
-      sh("dart run build_runner build --delete-conflicting-outputs")
-      sh("flutter gen-l10n")
-      sh("flutter clean")
-      sh("flutter pub get")
-      sh("flutter build ipa --release " \
-         "--build-number=#{build_num} " \
-         "--dart-define=AI_PROXY_URL=#{proxy_url} " \
-         "--dart-define=AI_APP_TOKEN=#{app_token}")
+      Bundler.with_unbundled_env do
+        sh("flutter pub get")
+        sh("dart run build_runner build --delete-conflicting-outputs")
+        sh("flutter gen-l10n")
+        sh("flutter clean")
+        sh("flutter pub get")
+
+        # flutter clean 後に ExportOptions.plist を生成
+        export_plist = "build/ExportOptions.plist"
+        FileUtils.mkdir_p("build")
+        File.write(export_plist, <<~PLIST)
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store</string>
+            <key>teamID</key>
+            <string>#{team_id}</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>#{bundle_id}</key>
+              <string>#{profile_name}</string>
+            </dict>
+          </dict>
+          </plist>
+        PLIST
+
+        sh("flutter build ipa --release " \
+           "--build-number=#{build_num} " \
+           "--export-options-plist=#{export_plist} " \
+           "--dart-define=AI_PROXY_URL=#{proxy_url} " \
+           "--dart-define=AI_APP_TOKEN=#{app_token}")
+      end
     end
 
     # flutter build ipa の出力パスを返す
