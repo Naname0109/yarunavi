@@ -147,6 +147,8 @@ void main() async {
         reviewServiceProvider.overrideWithValue(reviewService),
         initialLocaleProvider.overrideWithValue(settings.locale),
         initialThemeModeProvider.overrideWithValue(settings.themeMode),
+        initialExecutionTimingProvider
+            .overrideWithValue(settings.executionTiming),
         initialDevAiUnlimitedProvider.overrideWithValue(devMode.aiUnlimited),
         initialDevPremiumProvider.overrideWithValue(devMode.premium),
       ],

@@ -15,6 +15,7 @@ import '../services/secure_storage_service.dart';
 import '../utils/category_helper.dart';
 import '../utils/constants.dart';
 import '../providers/dev_mode_provider.dart';
+import '../providers/settings_provider.dart';
 import '../utils/feature_gate.dart';
 import '../utils/notification_utils.dart';
 
@@ -30,6 +31,9 @@ final aiSortResultsProvider =
 
 /// AI整理完了バナー表示フラグ
 final aiCompleteBannerProvider = StateProvider<bool>((ref) => false);
+
+/// AI整理後カレンダータブ強調フラグ
+final calendarHighlightProvider = StateProvider<bool>((ref) => false);
 
 class AiSortButton extends ConsumerStatefulWidget {
   const AiSortButton({super.key});
@@ -118,6 +122,35 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       return;
     }
 
+    // 手動設定の実行日があるタスクをチェック
+    final manualDateTasks =
+        incompleteTasks.where((t) => t.isRecommendedDateManual).toList();
+    var skipManualDateIds = <int>{};
+    if (manualDateTasks.isNotEmpty && mounted) {
+      final keepManual = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l10n.manualDateOverwriteTitle),
+          content: Text(
+              l10n.manualDateOverwriteMessage(manualDateTasks.length)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l10n.manualDateOverwriteAll),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l10n.manualDateKeep),
+            ),
+          ],
+        ),
+      );
+      if (keepManual == true) {
+        skipManualDateIds =
+            manualDateTasks.where((t) => t.id != null).map((t) => t.id!).toSet();
+      }
+    }
+
     setState(() => _isLoading = true);
 
     // ローディングモーダル表示
@@ -139,10 +172,13 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         }
       }
 
+      final timingFactor = ref.read(executionTimingProvider);
+
       final response = await AiService.sortTasks(
         incompleteTasks,
         categoryNames: categoryNames,
         additionalContext: additionalContext,
+        executionTimingFactor: timingFactor,
       );
 
       final isRealApiCall = AppConstants.anthropicApiKey.isNotEmpty;
@@ -166,7 +202,8 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
           recommendedDate: date,
         );
       }
-      await db.updateTaskPriorities(updates);
+      await db.updateTaskPriorities(updates,
+          skipRecommendedDateIds: skipManualDateIds);
 
       // プレミアム: AIのnotify_dateで自動通知スケジュール (手動設定済みは尊重)
       final isPremium = ref.read(isPremiumProvider);
@@ -246,8 +283,9 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         );
       }
 
+      ref.read(calendarHighlightProvider.notifier).state = true;
+
       if (backgroundMode) {
-        // バックグラウンドモード: バナー表示
         ref.read(aiCompleteBannerProvider.notifier).state = true;
       } else if (mounted) {
         context.push('/ai-result');

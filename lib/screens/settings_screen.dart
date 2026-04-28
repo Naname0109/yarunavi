@@ -100,13 +100,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                   const Divider(),
 
-                  // --- AI ---
+                  // --- AI整理 ---
+                  _buildSectionHeader(context, l10n.settingsAiSection),
                   ListTile(
                     leading: const Icon(Icons.history),
                     title: Text(l10n.aiHistory),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => context.push('/ai-history'),
                   ),
+                  const _ExecutionTimingSlider(),
                   const Divider(),
 
                   // --- カテゴリ ---
@@ -574,6 +576,72 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         );
       }
     }
+  }
+}
+
+/// 実行日タイミングスライダー
+class _ExecutionTimingSlider extends ConsumerWidget {
+  const _ExecutionTimingSlider();
+
+  String _getDescription(double factor, AppLocalizations l10n) {
+    if (factor <= 0.2) return l10n.executionTimingDesc0;
+    if (factor <= 0.4) return l10n.executionTimingDesc1;
+    if (factor <= 0.5) return l10n.executionTimingDesc2;
+    if (factor <= 0.7) return l10n.executionTimingDesc3;
+    return l10n.executionTimingDesc4;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final factor = ref.watch(executionTimingProvider);
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.tune, size: 20, color: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(width: 12),
+              Text(l10n.executionTimingLabel, style: const TextStyle(fontSize: 16)),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Center(
+            child: Text(
+              _getDescription(factor, l10n),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Text(l10n.executionTimingDeadline,
+                  style: TextStyle(fontSize: 11, color: theme.colorScheme.outline)),
+              Expanded(
+                child: Slider(
+                  value: factor,
+                  min: 0.0,
+                  max: 1.0,
+                  divisions: 10,
+                  onChanged: (v) {
+                    ref.read(executionTimingProvider.notifier).setFactor(v);
+                  },
+                ),
+              ),
+              Text(l10n.executionTimingEarly,
+                  style: TextStyle(fontSize: 11, color: theme.colorScheme.outline)),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 

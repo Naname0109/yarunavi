@@ -161,6 +161,8 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
                             const SizedBox(height: 16),
                             _buildRecurrenceField(l10n),
                             const SizedBox(height: 16),
+                            _buildRecommendedDateField(l10n, locale),
+                            const SizedBox(height: 16),
                             _buildNotifyField(l10n),
                             const SizedBox(height: 16),
                             _buildCalendarToggle(l10n),
@@ -591,6 +593,44 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
           setState(() => _recurrenceValue = parsed);
         }
       },
+    );
+  }
+
+  Widget _buildRecommendedDateField(AppLocalizations l10n, String locale) {
+    final task = widget.task;
+    final hasRecommendedDate = task?.recommendedDate != null;
+    final theme = Theme.of(context);
+
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: const Icon(Icons.push_pin),
+      title: Text(hasRecommendedDate
+          ? (task!.isRecommendedDateManual
+              ? l10n.recommendedDateManual
+              : l10n.recommendedDateAiSet)
+          : l10n.recommendedDateAiSet),
+      subtitle: hasRecommendedDate
+          ? Text(DateFormat.yMMMd(locale).format(task!.recommendedDate!))
+          : Text(l10n.recommendedDateNotSet,
+              style: TextStyle(color: theme.colorScheme.outline)),
+      trailing: hasRecommendedDate ? const Icon(Icons.chevron_right) : null,
+      onTap: hasRecommendedDate
+          ? () async {
+              final now = DateTime.now();
+              final today = DateTime(now.year, now.month, now.day);
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: task!.recommendedDate!,
+                firstDate: today,
+                lastDate: _dueDate,
+              );
+              if (picked == null || !mounted) return;
+              final db = ref.read(databaseServiceProvider);
+              await db.updateRecommendedDate(task.id!, picked);
+              ref.invalidate(tasksProvider);
+              if (mounted) Navigator.of(context).pop();
+            }
+          : null,
     );
   }
 

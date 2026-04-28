@@ -28,6 +28,7 @@ class Task with _$Task {
     @Default(1) int importance,
     @Default(0) int sortOrder,
     DateTime? recommendedDate,
+    @Default(false) bool isRecommendedDateManual,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _Task;
@@ -60,6 +61,8 @@ class Task with _$Task {
             : (map['recommended_start'] != null
                 ? DateTime.parse(map['recommended_start'] as String)
                 : null),
+        isRecommendedDateManual:
+            (map['is_recommended_date_manual'] as int? ?? 0) == 1,
         createdAt: DateTime.parse(map['created_at'] as String),
         updatedAt: DateTime.parse(map['updated_at'] as String),
       );
@@ -93,6 +96,7 @@ class Task with _$Task {
         'recommended_date': recommendedDate != null
             ? app_date.formatDateForDb(recommendedDate!)
             : null,
+        'is_recommended_date_manual': isRecommendedDateManual ? 1 : 0,
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
       };

@@ -65,6 +65,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _onTabChanged(int index) {
     setState(() => _tabIndex = index);
     _syncFilter();
+    if (index == 1) {
+      ref.read(calendarHighlightProvider.notifier).state = false;
+    }
   }
 
   @override
@@ -188,23 +191,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-/// タスクを4セクションに分類する
+/// タスクを5セクションに分類する（今日/期限切れ/今週/来週/再来週以降）
 ({
   List<Task> today,
   List<Task> overdue,
   List<Task> thisWeek,
+  List<Task> nextWeek,
   List<Task> later,
 }) _splitTasks(List<Task> tasks) {
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
-  // 今週末（日曜日）
   final daysUntilSunday =
       now.weekday == DateTime.sunday ? 0 : DateTime.sunday - now.weekday;
   final endOfWeek = today.add(Duration(days: daysUntilSunday));
+  final endOfNextWeek = endOfWeek.add(const Duration(days: 7));
 
   final todayList = <Task>[];
   final overdueList = <Task>[];
   final thisWeekList = <Task>[];
+  final nextWeekList = <Task>[];
   final laterList = <Task>[];
 
   for (final t in tasks) {
@@ -213,7 +218,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ? DateTime(t.recommendedDate!.year, t.recommendedDate!.month,
             t.recommendedDate!.day)
         : null;
-    // 有効日: 推奨日があればそちら優先、なければ期限日
     final effectiveDay = recDay ?? dueDay;
 
     final isOverdue = dueDay.isBefore(today);
@@ -227,30 +231,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       todayList.add(t);
     } else if (!effectiveDay.isAfter(endOfWeek)) {
       thisWeekList.add(t);
+    } else if (!effectiveDay.isAfter(endOfNextWeek)) {
+      nextWeekList.add(t);
     } else {
       laterList.add(t);
     }
   }
 
-  // ソート: 優先度順
   todayList.sort((a, b) => a.priority.compareTo(b.priority));
-  thisWeekList.sort((a, b) {
+  int Function(Task, Task) byDateThenPriority = (a, b) {
     final aDay = a.recommendedDate ?? a.dueDate;
     final bDay = b.recommendedDate ?? b.dueDate;
     final cmp = aDay.compareTo(bDay);
     return cmp != 0 ? cmp : a.priority.compareTo(b.priority);
-  });
-  laterList.sort((a, b) {
-    final aDay = a.recommendedDate ?? a.dueDate;
-    final bDay = b.recommendedDate ?? b.dueDate;
-    return aDay.compareTo(bDay);
-  });
+  };
+  thisWeekList.sort(byDateThenPriority);
+  nextWeekList.sort(byDateThenPriority);
+  laterList.sort(byDateThenPriority);
   overdueList.sort((a, b) => a.dueDate.compareTo(b.dueDate));
 
   return (
     today: todayList,
     overdue: overdueList,
     thisWeek: thisWeekList,
+    nextWeek: nextWeekList,
     later: laterList,
   );
 }
@@ -267,7 +271,7 @@ Map<DateTime, List<Task>> _groupByDate(List<Task> tasks) {
       map.entries.toList()..sort((a, b) => a.key.compareTo(b.key)));
 }
 
-/// 「やること」タブ: 今日 / 期限切れ / 今週 / 来週以降
+/// 「やること」タブ: 今日 / 期限切れ / 今週 | 来週 | 再来週以降
 class _TodoTab extends ConsumerStatefulWidget {
   const _TodoTab({
     required this.tasksAsync,
@@ -291,7 +295,7 @@ class _TodoTab extends ConsumerStatefulWidget {
 
 class _TodoTabState extends ConsumerState<_TodoTab> {
   bool _overdueExpanded = false;
-  bool _laterExpanded = false;
+  int _weekTabIndex = 0;
   final _scrollController = ScrollController();
 
   @override
@@ -358,67 +362,107 @@ class _TodoTabState extends ConsumerState<_TodoTab> {
                 // 全タスク期限切れバナー
                 if (widget.allOverdue) _AllExpiredBanner(l10n: l10n),
 
-                // --- セクション: 今日やること ---
-                _SectionHeader(
-                  title: l10n.todaySection,
-                  icon: Icons.push_pin,
-                  color: theme.colorScheme.error,
-                ),
-                if (split.today.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    child: Text(l10n.todaySectionEmpty,
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: theme.colorScheme.onSurfaceVariant)),
-                  )
-                else
-                  ..._buildTaskCards(split.today),
-
-                // --- セクション: 期限切れ（折りたたみ） ---
-                if (split.overdue.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  _CollapsibleSection(
-                    title: l10n.overdueSectionCount(split.overdue.length),
-                    icon: Icons.warning_amber_rounded,
-                    color: theme.colorScheme.error,
-                    badgeCount: split.overdue.length,
-                    expanded: _overdueExpanded,
-                    onToggle: () =>
-                        setState(() => _overdueExpanded = !_overdueExpanded),
-                    children: _buildTaskCards(split.overdue),
-                  ),
-                ],
-
-                // --- セクション: 今週のタスク ---
-                if (split.thisWeek.isNotEmpty) ...[
-                  const SizedBox(height: 8),
+                // --- 今日やること（今週タブのみ表示） ---
+                if (_weekTabIndex == 0) ...[
                   _SectionHeader(
-                    title: l10n.thisWeekSection,
-                    icon: Icons.date_range,
-                    trailing: l10n.taskCount(split.thisWeek.length),
+                    title: l10n.todaySection,
+                    icon: Icons.push_pin,
+                    color: theme.colorScheme.error,
                   ),
-                  ..._buildDateGroupedCards(split.thisWeek),
+                  if (split.today.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      child: Text(l10n.todaySectionEmpty,
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: theme.colorScheme.onSurfaceVariant)),
+                    )
+                  else
+                    ..._buildTaskCards(split.today),
+
+                  // --- 期限切れ（折りたたみ） ---
+                  if (split.overdue.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    _CollapsibleSection(
+                      title: l10n.overdueSectionCount(split.overdue.length),
+                      icon: Icons.warning_amber_rounded,
+                      color: theme.colorScheme.error,
+                      badgeCount: split.overdue.length,
+                      expanded: _overdueExpanded,
+                      onToggle: () =>
+                          setState(() => _overdueExpanded = !_overdueExpanded),
+                      children: _buildTaskCards(split.overdue),
+                    ),
+                  ],
                 ],
 
-                // --- セクション: 来週以降（折りたたみ） ---
-                if (split.later.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  _CollapsibleSection(
-                    title: l10n.laterSectionCount(split.later.length),
-                    icon: Icons.calendar_month,
-                    expanded: _laterExpanded,
-                    onToggle: () =>
-                        setState(() => _laterExpanded = !_laterExpanded),
-                    children: _buildDateGroupedCards(split.later),
-                  ),
-                ],
+                // --- 週タブバー ---
+                const SizedBox(height: 8),
+                _WeekTabBar(
+                  selectedIndex: _weekTabIndex,
+                  thisWeekCount: split.thisWeek.length,
+                  nextWeekCount: split.nextWeek.length,
+                  laterCount: split.later.length,
+                  l10n: l10n,
+                  onSelected: (i) => setState(() => _weekTabIndex = i),
+                ),
+                const SizedBox(height: 4),
+
+                // --- 週タブコンテンツ ---
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: _buildWeekTabContent(split, l10n, theme),
+                ),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildWeekTabContent(
+    ({
+      List<Task> today,
+      List<Task> overdue,
+      List<Task> thisWeek,
+      List<Task> nextWeek,
+      List<Task> later,
+    }) split,
+    AppLocalizations l10n,
+    ThemeData theme,
+  ) {
+    final List<Task> tasks;
+    final String emptyMessage;
+    switch (_weekTabIndex) {
+      case 1:
+        tasks = split.nextWeek;
+        emptyMessage = l10n.noTasksNextWeek;
+      case 2:
+        tasks = split.later;
+        emptyMessage = l10n.noTasksLater;
+      default:
+        tasks = split.thisWeek;
+        emptyMessage = l10n.emptyTaskMessage;
+    }
+
+    if (tasks.isEmpty) {
+      return Padding(
+        key: ValueKey('empty_$_weekTabIndex'),
+        padding: const EdgeInsets.symmetric(vertical: 32),
+        child: Center(
+          child: Text(emptyMessage,
+              style: TextStyle(
+                  fontSize: 15, color: theme.colorScheme.onSurfaceVariant)),
+        ),
+      );
+    }
+
+    return Column(
+      key: ValueKey('content_$_weekTabIndex'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _buildDateGroupedCards(tasks),
     );
   }
 
@@ -480,6 +524,55 @@ class _TodoTabState extends ConsumerState<_TodoTab> {
         });
       },
       onDelete: () => ref.read(tasksProvider.notifier).deleteTask(task.id!),
+    );
+  }
+}
+
+/// 今週 / 来週 / 再来週以降 タブバー
+class _WeekTabBar extends StatelessWidget {
+  const _WeekTabBar({
+    required this.selectedIndex,
+    required this.thisWeekCount,
+    required this.nextWeekCount,
+    required this.laterCount,
+    required this.l10n,
+    required this.onSelected,
+  });
+
+  final int selectedIndex;
+  final int thisWeekCount;
+  final int nextWeekCount;
+  final int laterCount;
+  final AppLocalizations l10n;
+  final ValueChanged<int> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final labels = [
+      l10n.weekTabThisWeek,
+      l10n.weekTabNextWeek,
+      l10n.weekTabLater,
+    ];
+    final counts = [thisWeekCount, nextWeekCount, laterCount];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Row(
+        children: List.generate(3, (i) {
+          final label = counts[i] > 0
+              ? l10n.weekTabCount(labels[i], counts[i])
+              : labels[i];
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ChoiceChip(
+              label: Text(label),
+              selected: selectedIndex == i,
+              onSelected: (_) => onSelected(i),
+              visualDensity: VisualDensity.compact,
+            ),
+          );
+        }),
+      ),
     );
   }
 }

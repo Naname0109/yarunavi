@@ -1244,4 +1244,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ob4FreeStart => 'Start free';
+
+  @override
+  String get settingsAiSection => 'AI Sort';
+
+  @override
+  String get executionTimingLabel => 'Execution Timing';
+
+  @override
+  String get executionTimingDeadline => 'Last minute';
+
+  @override
+  String get executionTimingEarly => 'Early';
+
+  @override
+  String get executionTimingDesc0 => 'Right before deadline';
+
+  @override
+  String get executionTimingDesc1 => 'Slightly closer to deadline';
+
+  @override
+  String get executionTimingDesc2 => 'Balanced';
+
+  @override
+  String get executionTimingDesc3 => 'Slightly early';
+
+  @override
+  String get executionTimingDesc4 => 'Well ahead of deadline';
+
+  @override
+  String recommendedDateEditHint(String date) {
+    return '📌 Best on $date ✏️';
+  }
+
+  @override
+  String get recommendedDateManual => 'Recommended date (manual)';
+
+  @override
+  String get recommendedDateAiSet => 'Recommended date';
+
+  @override
+  String get recommendedDateNotSet => 'Set after AI sort';
+
+  @override
+  String get manualDateOverwriteTitle => 'Manual dates found';
+
+  @override
+  String manualDateOverwriteMessage(int count) {
+    return '$count task(s) have manually set dates. Overwrite with AI suggestions?';
+  }
+
+  @override
+  String get manualDateOverwriteAll => 'Overwrite all';
+
+  @override
+  String get manualDateKeep => 'Keep manual';
+
+  @override
+  String get weekTabThisWeek => 'This Week';
+
+  @override
+  String get weekTabNextWeek => 'Next Week';
+
+  @override
+  String get weekTabLater => 'Later';
+
+  @override
+  String weekTabCount(String label, int count) {
+    return '$label ($count)';
+  }
+
+  @override
+  String get noTasksNextWeek => 'No tasks next week';
+
+  @override
+  String get noTasksLater => 'No tasks after next week';
+
+  @override
+  String get calendarHintBubble => 'Check execution dates on calendar →';
 }

@@ -22,7 +22,7 @@ class DatabaseService {
 
     _db = await openDatabase(
       path,
-      version: 9,
+      version: 10,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -49,6 +49,7 @@ class DatabaseService {
         importance INTEGER NOT NULL DEFAULT 1,
         sort_order INTEGER NOT NULL DEFAULT 0,
         recommended_date TEXT,
+        is_recommended_date_manual INTEGER NOT NULL DEFAULT 0,
         recommended_start TEXT,
         recommended_end TEXT,
         created_at TEXT NOT NULL,
@@ -169,6 +170,11 @@ class DatabaseService {
       await db.execute(
         'UPDATE tasks SET recommended_date = recommended_start '
         'WHERE recommended_start IS NOT NULL',
+      );
+    }
+    if (oldVersion < 10) {
+      await db.execute(
+        'ALTER TABLE tasks ADD COLUMN is_recommended_date_manual INTEGER NOT NULL DEFAULT 0',
       );
     }
   }
@@ -421,26 +427,46 @@ class DatabaseService {
               String? aiComment,
               DateTime? recommendedDate,
             })>
-        updates,
-  ) async {
+        updates, {
+    Set<int> skipRecommendedDateIds = const {},
+  }) async {
     final now = DateTime.now().toIso8601String();
     final batch = db.batch();
     for (final entry in updates.entries) {
+      final skipDate = skipRecommendedDateIds.contains(entry.key);
+      final values = <String, Object?>{
+        'priority': entry.value.priority,
+        'ai_comment': entry.value.aiComment,
+        'updated_at': now,
+      };
+      if (!skipDate) {
+        values['recommended_date'] = entry.value.recommendedDate != null
+            ? app_date.formatDateForDb(entry.value.recommendedDate!)
+            : null;
+        values['is_recommended_date_manual'] = 0;
+      }
       batch.update(
         'tasks',
-        {
-          'priority': entry.value.priority,
-          'ai_comment': entry.value.aiComment,
-          'recommended_date': entry.value.recommendedDate != null
-              ? app_date.formatDateForDb(entry.value.recommendedDate!)
-              : null,
-          'updated_at': now,
-        },
+        values,
         where: 'id = ?',
         whereArgs: [entry.key],
       );
     }
     await batch.commit(noResult: true);
+  }
+
+  /// 推奨実行日を手動更新
+  Future<void> updateRecommendedDate(int taskId, DateTime date) async {
+    await db.update(
+      'tasks',
+      {
+        'recommended_date': app_date.formatDateForDb(date),
+        'is_recommended_date_manual': 1,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [taskId],
+    );
   }
 
   // --- AI History ---

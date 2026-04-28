@@ -9,6 +9,8 @@ import '../models/task.dart';
 import '../utils/constants.dart';
 
 class NotificationService {
+  static const _isE2ETest = bool.fromEnvironment('E2E_TEST');
+
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
@@ -64,6 +66,7 @@ class NotificationService {
   /// iOS通知権限をリクエスト
   Future<bool> requestPermission() async {
     if (!isSupported) return false;
+    if (_isE2ETest) return true;
     final ios = _plugin.resolvePlatformSpecificImplementation<
         IOSFlutterLocalNotificationsPlugin>();
     if (ios != null) {

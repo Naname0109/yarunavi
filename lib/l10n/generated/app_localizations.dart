@@ -2413,6 +2413,150 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'まずは無料で始める'**
   String get ob4FreeStart;
+
+  /// No description provided for @settingsAiSection.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理'**
+  String get settingsAiSection;
+
+  /// No description provided for @executionTimingLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'実行日の傾向'**
+  String get executionTimingLabel;
+
+  /// No description provided for @executionTimingDeadline.
+  ///
+  /// In ja, this message translates to:
+  /// **'ギリギリ'**
+  String get executionTimingDeadline;
+
+  /// No description provided for @executionTimingEarly.
+  ///
+  /// In ja, this message translates to:
+  /// **'早めに'**
+  String get executionTimingEarly;
+
+  /// No description provided for @executionTimingDesc0.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限直前に実行'**
+  String get executionTimingDesc0;
+
+  /// No description provided for @executionTimingDesc1.
+  ///
+  /// In ja, this message translates to:
+  /// **'やや期限寄り'**
+  String get executionTimingDesc1;
+
+  /// No description provided for @executionTimingDesc2.
+  ///
+  /// In ja, this message translates to:
+  /// **'バランス'**
+  String get executionTimingDesc2;
+
+  /// No description provided for @executionTimingDesc3.
+  ///
+  /// In ja, this message translates to:
+  /// **'やや早めに'**
+  String get executionTimingDesc3;
+
+  /// No description provided for @executionTimingDesc4.
+  ///
+  /// In ja, this message translates to:
+  /// **'余裕を持って早めに'**
+  String get executionTimingDesc4;
+
+  /// No description provided for @recommendedDateEditHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'📌 {date} に実行がおすすめ ✏️'**
+  String recommendedDateEditHint(String date);
+
+  /// No description provided for @recommendedDateManual.
+  ///
+  /// In ja, this message translates to:
+  /// **'推奨実行日（手動設定）'**
+  String get recommendedDateManual;
+
+  /// No description provided for @recommendedDateAiSet.
+  ///
+  /// In ja, this message translates to:
+  /// **'推奨実行日'**
+  String get recommendedDateAiSet;
+
+  /// No description provided for @recommendedDateNotSet.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理後に設定されます'**
+  String get recommendedDateNotSet;
+
+  /// No description provided for @manualDateOverwriteTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'手動設定の実行日があります'**
+  String get manualDateOverwriteTitle;
+
+  /// No description provided for @manualDateOverwriteMessage.
+  ///
+  /// In ja, this message translates to:
+  /// **'手動設定した実行日があるタスクが{count}件あります。AIの提案で上書きしますか？'**
+  String manualDateOverwriteMessage(int count);
+
+  /// No description provided for @manualDateOverwriteAll.
+  ///
+  /// In ja, this message translates to:
+  /// **'全て上書き'**
+  String get manualDateOverwriteAll;
+
+  /// No description provided for @manualDateKeep.
+  ///
+  /// In ja, this message translates to:
+  /// **'手動設定を維持'**
+  String get manualDateKeep;
+
+  /// No description provided for @weekTabThisWeek.
+  ///
+  /// In ja, this message translates to:
+  /// **'今週'**
+  String get weekTabThisWeek;
+
+  /// No description provided for @weekTabNextWeek.
+  ///
+  /// In ja, this message translates to:
+  /// **'来週'**
+  String get weekTabNextWeek;
+
+  /// No description provided for @weekTabLater.
+  ///
+  /// In ja, this message translates to:
+  /// **'再来週以降'**
+  String get weekTabLater;
+
+  /// No description provided for @weekTabCount.
+  ///
+  /// In ja, this message translates to:
+  /// **'{label} ({count})'**
+  String weekTabCount(String label, int count);
+
+  /// No description provided for @noTasksNextWeek.
+  ///
+  /// In ja, this message translates to:
+  /// **'来週のタスクはありません'**
+  String get noTasksNextWeek;
+
+  /// No description provided for @noTasksLater.
+  ///
+  /// In ja, this message translates to:
+  /// **'再来週以降のタスクはありません'**
+  String get noTasksLater;
+
+  /// No description provided for @calendarHintBubble.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダーで実行日を確認 →'**
+  String get calendarHintBubble;
 }
 
 class _AppLocalizationsDelegate

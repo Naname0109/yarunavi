@@ -7,6 +7,7 @@ import '../l10n/generated/app_localizations.dart';
 import '../models/task.dart';
 import '../models/category.dart' as model;
 import '../providers/purchase_provider.dart';
+import '../providers/task_provider.dart';
 import '../theme/colors.dart';
 import '../utils/date_utils.dart' as app_date;
 import '../utils/notification_utils.dart';
@@ -252,25 +253,33 @@ class _TaskCardState extends ConsumerState<TaskCard>
       children.add(const SizedBox(height: 4));
     }
 
-    // 推奨日
+    // 推奨日（タップで変更可能）
     if (task.recommendedDate != null) {
       final fmt = DateFormat.Md(locale);
-      children.add(Row(
-        children: [
-          Icon(Icons.push_pin, size: 14,
-              color: Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              l10n.recommendedDateHint(fmt.format(task.recommendedDate!)),
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w600,
+      children.add(InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => _pickRecommendedDate(context, task),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.push_pin, size: 14,
+                  color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  l10n.recommendedDateEditHint(fmt.format(task.recommendedDate!)),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ));
       children.add(const SizedBox(height: 2));
     }
@@ -482,6 +491,21 @@ class _TaskCardState extends ConsumerState<TaskCard>
     }
 
     return Row(children: children);
+  }
+
+  Future<void> _pickRecommendedDate(BuildContext context, Task task) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: task.recommendedDate ?? today,
+      firstDate: today,
+      lastDate: task.dueDate,
+    );
+    if (picked == null || !mounted) return;
+    final db = ref.read(databaseServiceProvider);
+    await db.updateRecommendedDate(task.id!, picked);
+    ref.invalidate(tasksProvider);
   }
 
   Color _getDueDateTextColor(DateTime dueDate, BuildContext context) {

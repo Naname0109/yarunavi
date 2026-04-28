@@ -1215,4 +1215,82 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get ob4FreeStart => 'まずは無料で始める';
+
+  @override
+  String get settingsAiSection => 'AI整理';
+
+  @override
+  String get executionTimingLabel => '実行日の傾向';
+
+  @override
+  String get executionTimingDeadline => 'ギリギリ';
+
+  @override
+  String get executionTimingEarly => '早めに';
+
+  @override
+  String get executionTimingDesc0 => '期限直前に実行';
+
+  @override
+  String get executionTimingDesc1 => 'やや期限寄り';
+
+  @override
+  String get executionTimingDesc2 => 'バランス';
+
+  @override
+  String get executionTimingDesc3 => 'やや早めに';
+
+  @override
+  String get executionTimingDesc4 => '余裕を持って早めに';
+
+  @override
+  String recommendedDateEditHint(String date) {
+    return '📌 $date に実行がおすすめ ✏️';
+  }
+
+  @override
+  String get recommendedDateManual => '推奨実行日（手動設定）';
+
+  @override
+  String get recommendedDateAiSet => '推奨実行日';
+
+  @override
+  String get recommendedDateNotSet => 'AI整理後に設定されます';
+
+  @override
+  String get manualDateOverwriteTitle => '手動設定の実行日があります';
+
+  @override
+  String manualDateOverwriteMessage(int count) {
+    return '手動設定した実行日があるタスクが$count件あります。AIの提案で上書きしますか？';
+  }
+
+  @override
+  String get manualDateOverwriteAll => '全て上書き';
+
+  @override
+  String get manualDateKeep => '手動設定を維持';
+
+  @override
+  String get weekTabThisWeek => '今週';
+
+  @override
+  String get weekTabNextWeek => '来週';
+
+  @override
+  String get weekTabLater => '再来週以降';
+
+  @override
+  String weekTabCount(String label, int count) {
+    return '$label ($count)';
+  }
+
+  @override
+  String get noTasksNextWeek => '来週のタスクはありません';
+
+  @override
+  String get noTasksLater => '再来週以降のタスクはありません';
+
+  @override
+  String get calendarHintBubble => 'カレンダーで実行日を確認 →';
 }

@@ -869,5 +869,64 @@
   "ob4TitleNew": "プレミアムなら通知もカレンダーも自動",
   "@ob4TitleNew": {},
   "ob4FreeStart": "まずは無料で始める",
-  "@ob4FreeStart": {}
+  "@ob4FreeStart": {},
+
+  "settingsAiSection": "AI整理",
+  "@settingsAiSection": {},
+  "executionTimingLabel": "実行日の傾向",
+  "@executionTimingLabel": {},
+  "executionTimingDeadline": "ギリギリ",
+  "@executionTimingDeadline": {},
+  "executionTimingEarly": "早めに",
+  "@executionTimingEarly": {},
+  "executionTimingDesc0": "期限直前に実行",
+  "@executionTimingDesc0": {},
+  "executionTimingDesc1": "やや期限寄り",
+  "@executionTimingDesc1": {},
+  "executionTimingDesc2": "バランス",
+  "@executionTimingDesc2": {},
+  "executionTimingDesc3": "やや早めに",
+  "@executionTimingDesc3": {},
+  "executionTimingDesc4": "余裕を持って早めに",
+  "@executionTimingDesc4": {},
+
+  "recommendedDateEditHint": "📌 {date} に実行がおすすめ ✏️",
+  "@recommendedDateEditHint": {"placeholders": {"date": {"type": "String"}}},
+  "recommendedDateManual": "推奨実行日（手動設定）",
+  "@recommendedDateManual": {},
+  "recommendedDateAiSet": "推奨実行日",
+  "@recommendedDateAiSet": {},
+  "recommendedDateNotSet": "AI整理後に設定されます",
+  "@recommendedDateNotSet": {},
+  "manualDateOverwriteTitle": "手動設定の実行日があります",
+  "@manualDateOverwriteTitle": {},
+  "manualDateOverwriteMessage": "手動設定した実行日があるタスクが{count}件あります。AIの提案で上書きしますか？",
+  "@manualDateOverwriteMessage": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "manualDateOverwriteAll": "全て上書き",
+  "@manualDateOverwriteAll": {},
+  "manualDateKeep": "手動設定を維持",
+  "@manualDateKeep": {},
+
+  "weekTabThisWeek": "今週",
+  "@weekTabThisWeek": {},
+  "weekTabNextWeek": "来週",
+  "@weekTabNextWeek": {},
+  "weekTabLater": "再来週以降",
+  "@weekTabLater": {},
+  "weekTabCount": "{label} ({count})",
+  "@weekTabCount": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "noTasksNextWeek": "来週のタスクはありません",
+  "@noTasksNextWeek": {},
+  "noTasksLater": "再来週以降のタスクはありません",
+  "@noTasksLater": {},
+
+  "calendarHintBubble": "カレンダーで実行日を確認 →",
+  "@calendarHintBubble": {}
 }

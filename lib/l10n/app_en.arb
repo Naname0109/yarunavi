@@ -415,5 +415,33 @@
   "ob2SubNew": "Priorities, advice, and notifications — all automatic",
   "ob3TitleNew": "See when to do what at a glance",
   "ob4TitleNew": "Premium: auto notifications & calendar",
-  "ob4FreeStart": "Start free"
+  "ob4FreeStart": "Start free",
+
+  "settingsAiSection": "AI Sort",
+  "executionTimingLabel": "Execution Timing",
+  "executionTimingDeadline": "Last minute",
+  "executionTimingEarly": "Early",
+  "executionTimingDesc0": "Right before deadline",
+  "executionTimingDesc1": "Slightly closer to deadline",
+  "executionTimingDesc2": "Balanced",
+  "executionTimingDesc3": "Slightly early",
+  "executionTimingDesc4": "Well ahead of deadline",
+
+  "recommendedDateEditHint": "📌 Best on {date} ✏️",
+  "recommendedDateManual": "Recommended date (manual)",
+  "recommendedDateAiSet": "Recommended date",
+  "recommendedDateNotSet": "Set after AI sort",
+  "manualDateOverwriteTitle": "Manual dates found",
+  "manualDateOverwriteMessage": "{count} task(s) have manually set dates. Overwrite with AI suggestions?",
+  "manualDateOverwriteAll": "Overwrite all",
+  "manualDateKeep": "Keep manual",
+
+  "weekTabThisWeek": "This Week",
+  "weekTabNextWeek": "Next Week",
+  "weekTabLater": "Later",
+  "weekTabCount": "{label} ({count})",
+  "noTasksNextWeek": "No tasks next week",
+  "noTasksLater": "No tasks after next week",
+
+  "calendarHintBubble": "Check execution dates on calendar →"
 }

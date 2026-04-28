@@ -599,17 +599,40 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(left: 16, top: 4),
-      child: Row(
-        children: [
-          Icon(Icons.push_pin, size: 14, color: theme.colorScheme.primary),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(l10n.recommendedDateHint(dateStr),
-                style: TextStyle(fontSize: 12, color: theme.colorScheme.primary)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => _pickRecommendedDate(context, task),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.push_pin, size: 14, color: theme.colorScheme.primary),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(l10n.recommendedDateEditHint(dateStr),
+                    style: TextStyle(fontSize: 12, color: theme.colorScheme.primary)),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
+  }
+
+  Future<void> _pickRecommendedDate(BuildContext context, Task task) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: task.recommendedDate ?? today,
+      firstDate: today,
+      lastDate: task.dueDate,
+    );
+    if (picked == null || !mounted) return;
+    final db = ref.read(databaseServiceProvider);
+    await db.updateRecommendedDate(task.id!, picked);
+    ref.invalidate(tasksProvider);
   }
 
   Widget _buildSubtaskSection(BuildContext context, AppLocalizations l10n, Task task, List<String> subtasks) {
