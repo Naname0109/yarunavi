@@ -35,6 +35,9 @@ final aiCompleteBannerProvider = StateProvider<bool>((ref) => false);
 /// AI整理後カレンダータブ強調フラグ
 final calendarHighlightProvider = StateProvider<bool>((ref) => false);
 
+/// AI履歴の新着バッジフラグ（セッション単位）
+final aiHistoryBadgeProvider = StateProvider<bool>((ref) => false);
+
 class AiSortButton extends ConsumerStatefulWidget {
   const AiSortButton({super.key});
 
@@ -91,7 +94,9 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
 
     switch (access) {
       case AiSortAccess.allowed:
-        await _executeAiSort(l10n, locale);
+        if (!mounted) return;
+        final confirmed = await _showAiSortSheet(l10n);
+        if (confirmed == true) await _executeAiSort(l10n, locale);
       case AiSortAccess.rewardedAdRequired:
         if (!mounted) return;
         await _showRewardedAdDialog(l10n, locale);
@@ -102,6 +107,13 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         if (!mounted) return;
         await _showPremiumLimitDialog(l10n);
     }
+  }
+
+  Future<bool?> _showAiSortSheet(AppLocalizations l10n) {
+    return showModalBottomSheet<bool>(
+      context: context,
+      builder: (ctx) => _AiSortBottomSheet(l10n: l10n),
+    );
   }
 
   Future<void> _executeAiSort(
@@ -284,6 +296,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       }
 
       ref.read(calendarHighlightProvider.notifier).state = true;
+      ref.read(aiHistoryBadgeProvider.notifier).state = true;
 
       if (backgroundMode) {
         ref.read(aiCompleteBannerProvider.notifier).state = true;
@@ -539,6 +552,107 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// AI整理実行前のボトムシート（実行日傾向スライダー付き）
+class _AiSortBottomSheet extends ConsumerStatefulWidget {
+  const _AiSortBottomSheet({required this.l10n});
+  final AppLocalizations l10n;
+
+  @override
+  ConsumerState<_AiSortBottomSheet> createState() => _AiSortBottomSheetState();
+}
+
+class _AiSortBottomSheetState extends ConsumerState<_AiSortBottomSheet> {
+  late double _factor;
+
+  @override
+  void initState() {
+    super.initState();
+    _factor = ref.read(executionTimingProvider);
+  }
+
+  String _getDescription(double factor) {
+    final l10n = widget.l10n;
+    if (factor <= 0.1) return l10n.executionTimingDesc0;
+    if (factor <= 0.4) return l10n.executionTimingDesc1;
+    if (factor <= 0.5) return l10n.executionTimingDesc2;
+    if (factor <= 0.7) return l10n.executionTimingDesc3;
+    return l10n.executionTimingDesc4;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = widget.l10n;
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 32,
+            height: 4,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(l10n.aiSort,
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          Text(l10n.executionTimingLabel,
+              style: TextStyle(
+                  fontSize: 14, color: theme.colorScheme.onSurfaceVariant)),
+          const SizedBox(height: 4),
+          Center(
+            child: Text(
+              _getDescription(_factor),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Text(l10n.executionTimingDeadline,
+                  style: TextStyle(
+                      fontSize: 11, color: theme.colorScheme.outline)),
+              Expanded(
+                child: Slider(
+                  value: _factor,
+                  min: 0.0,
+                  max: 1.0,
+                  divisions: 10,
+                  onChanged: (v) {
+                    setState(() => _factor = v);
+                    ref.read(executionTimingProvider.notifier).setFactor(v);
+                  },
+                ),
+              ),
+              Text(l10n.executionTimingEarly,
+                  style: TextStyle(
+                      fontSize: 11, color: theme.colorScheme.outline)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => Navigator.of(context).pop(true),
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: Text(l10n.aiSortExecute),
+            ),
+          ),
+        ],
       ),
     );
   }

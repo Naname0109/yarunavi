@@ -926,5 +926,10 @@
   "@noTasksLater": {},
 
   "calendarHintBubble": "カレンダーで実行日を確認 →",
-  "@calendarHintBubble": {}
+  "@calendarHintBubble": {},
+
+  "aiSortExecute": "整理を実行する",
+  "@aiSortExecute": {},
+  "aiHistoryLabel": "AI履歴",
+  "@aiHistoryLabel": {}
 }

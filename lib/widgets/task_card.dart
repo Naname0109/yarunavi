@@ -409,9 +409,10 @@ class _TaskCardState extends ConsumerState<TaskCard>
     }
 
     final isPremium = ref.watch(isPremiumProvider);
-    if (isPremium &&
-        widget.task.aiComment != null &&
-        widget.task.aiComment!.isNotEmpty) {
+    final showComment = widget.task.aiComment != null &&
+        widget.task.aiComment!.isNotEmpty &&
+        (isPremium || widget.task.priority == 1);
+    if (showComment) {
       children.add(const SizedBox(height: 4));
       children.add(Container(
         padding: const EdgeInsets.all(8),

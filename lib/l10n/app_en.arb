@@ -442,5 +442,8 @@
   "noTasksNextWeek": "No tasks next week",
   "noTasksLater": "No tasks after next week",
 
-  "calendarHintBubble": "Check execution dates on calendar →"
+  "calendarHintBubble": "Check execution dates on calendar →",
+
+  "aiSortExecute": "Run AI Sort",
+  "aiHistoryLabel": "AI History"
 }

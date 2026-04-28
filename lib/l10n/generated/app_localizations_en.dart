@@ -1318,4 +1318,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarHintBubble => 'Check execution dates on calendar →';
+
+  @override
+  String get aiSortExecute => 'Run AI Sort';
+
+  @override
+  String get aiHistoryLabel => 'AI History';
 }

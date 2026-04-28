@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,45 +20,65 @@ class FilterTabs extends ConsumerStatefulWidget {
 }
 
 class _FilterTabsState extends ConsumerState<FilterTabs>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _bounceController;
-  late final Animation<double> _bounceAnimation;
+    with TickerProviderStateMixin {
+  AnimationController? _rippleController;
+  AnimationController? _badgeFadeController;
+  bool _isAnimating = false;
+  int _cycleCount = 0;
+  static const _maxCycles = 3;
 
-  @override
-  void initState() {
-    super.initState();
-    _bounceController = AnimationController(
+  void _startRipple() {
+    if (_isAnimating) return;
+    _isAnimating = true;
+    _cycleCount = 0;
+
+    _rippleController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 1500),
     );
-    _bounceAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0, end: -6), weight: 25),
-      TweenSequenceItem(tween: Tween(begin: -6, end: 0), weight: 25),
-      TweenSequenceItem(tween: Tween(begin: 0, end: -3), weight: 25),
-      TweenSequenceItem(tween: Tween(begin: -3, end: 0), weight: 25),
-    ]).animate(CurvedAnimation(
-      parent: _bounceController,
-      curve: Curves.easeInOut,
-    ));
+    _rippleController!.addStatusListener(_onRippleStatus);
+    _rippleController!.forward();
+
+    _badgeFadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+      value: 1.0,
+    );
+    Future.delayed(const Duration(seconds: 3), () {
+      if (_isAnimating) {
+        _badgeFadeController?.reverse();
+      }
+    });
+  }
+
+  void _onRippleStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      _cycleCount++;
+      if (_cycleCount < _maxCycles && _isAnimating) {
+        _rippleController?.forward(from: 0);
+      } else {
+        _stopRipple();
+      }
+    }
+  }
+
+  void _stopRipple() {
+    if (!_isAnimating) return;
+    _isAnimating = false;
+    _rippleController?.removeStatusListener(_onRippleStatus);
+    _rippleController?.dispose();
+    _rippleController = null;
+    _badgeFadeController?.dispose();
+    _badgeFadeController = null;
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
-    _bounceController.dispose();
+    _rippleController?.removeStatusListener(_onRippleStatus);
+    _rippleController?.dispose();
+    _badgeFadeController?.dispose();
     super.dispose();
-  }
-
-  bool _isBouncing = false;
-
-  void _syncBounce(bool highlight) {
-    if (highlight && !_isBouncing) {
-      _isBouncing = true;
-      _bounceController.repeat();
-    } else if (!highlight && _isBouncing) {
-      _isBouncing = false;
-      _bounceController.stop();
-      _bounceController.reset();
-    }
   }
 
   @override
@@ -64,7 +86,13 @@ class _FilterTabsState extends ConsumerState<FilterTabs>
     final l10n = AppLocalizations.of(context)!;
     final highlight = ref.watch(calendarHighlightProvider);
 
-    _syncBounce(highlight);
+    if (highlight && !_isAnimating) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && highlight) _startRipple();
+      });
+    } else if (!highlight && _isAnimating) {
+      _stopRipple();
+    }
 
     final tabs = [
       (0, l10n.tabTodo, Icons.list_alt),
@@ -98,9 +126,10 @@ class _FilterTabsState extends ConsumerState<FilterTabs>
             showCheckmark: false,
           );
 
-          if (isCalendar && highlight && !isSelected) {
-            chip = _CalendarHighlight(
-              bounceAnimation: _bounceAnimation,
+          if (isCalendar && highlight && !isSelected && _isAnimating) {
+            chip = _CalendarRippleHighlight(
+              rippleController: _rippleController!,
+              badgeFadeController: _badgeFadeController!,
               hintText: l10n.calendarHintBubble,
               child: chip,
             );
@@ -113,49 +142,87 @@ class _FilterTabsState extends ConsumerState<FilterTabs>
   }
 }
 
-class _CalendarHighlight extends StatelessWidget {
-  const _CalendarHighlight({
-    required this.bounceAnimation,
+class _CalendarRippleHighlight extends StatelessWidget {
+  const _CalendarRippleHighlight({
+    required this.rippleController,
+    required this.badgeFadeController,
     required this.hintText,
     required this.child,
   });
 
-  final Animation<double> bounceAnimation;
+  final AnimationController rippleController;
+  final AnimationController badgeFadeController;
   final String hintText;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AnimatedBuilder(
-          animation: bounceAnimation,
-          builder: (context, child) {
-            return Transform.translate(
-              offset: Offset(0, bounceAnimation.value),
-              child: child,
-            );
-          },
-          child: child,
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(8),
+        RepaintBoundary(
+          child: CustomPaint(
+            painter: _RipplePainter(
+              animation: rippleController,
+              color: primaryColor,
+            ),
+            child: child,
           ),
-          child: Text(
-            hintText,
-            style: TextStyle(
-              fontSize: 10,
-              color: theme.colorScheme.onPrimaryContainer,
+        ),
+        FadeTransition(
+          opacity: badgeFadeController,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              hintText,
+              style: TextStyle(
+                fontSize: 10,
+                color: theme.colorScheme.onPrimaryContainer,
+              ),
             ),
           ),
         ),
       ],
     );
   }
+}
+
+class _RipplePainter extends CustomPainter {
+  _RipplePainter({required this.animation, required this.color})
+      : super(repaint: animation);
+
+  final Animation<double> animation;
+  final Color color;
+
+  static const _minRadius = 12.0;
+  static const _maxRadius = 40.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+
+    for (var i = 0; i < 2; i++) {
+      final offset = i * 0.5;
+      final t = (animation.value + offset) % 1.0;
+      final radius = _minRadius + (_maxRadius - _minRadius) * t;
+      final opacity = 0.4 * (1.0 - t);
+
+      final paint = Paint()
+        ..color = color.withValues(alpha: opacity)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0;
+
+      canvas.drawCircle(center, math.max(radius, _minRadius), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RipplePainter old) => true;
 }

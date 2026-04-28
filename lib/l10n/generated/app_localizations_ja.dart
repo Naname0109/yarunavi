@@ -1290,4 +1290,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get calendarHintBubble => 'カレンダーで実行日を確認 →';
+
+  @override
+  String get aiSortExecute => '整理を実行する';
+
+  @override
+  String get aiHistoryLabel => 'AI履歴';
 }

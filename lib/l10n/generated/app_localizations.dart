@@ -2551,6 +2551,18 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'カレンダーで実行日を確認 →'**
   String get calendarHintBubble;
+
+  /// No description provided for @aiSortExecute.
+  ///
+  /// In ja, this message translates to:
+  /// **'整理を実行する'**
+  String get aiSortExecute;
+
+  /// No description provided for @aiHistoryLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI履歴'**
+  String get aiHistoryLabel;
 }
 
 class _AppLocalizationsDelegate

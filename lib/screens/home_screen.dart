@@ -91,11 +91,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final allOverdue =
         ref.watch(allTasksOverdueProvider).valueOrNull ?? false;
 
-    final todayStr = DateFormat.yMMMd(locale).format(DateTime.now());
+    final now = DateTime.now();
+    final todayStr = DateFormat.MMMd(locale).format(now);
+    final dow = DateFormat.E(locale).format(now);
+    final showHistoryBadge = ref.watch(aiHistoryBadgeProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(todayStr),
+        title: Text('$todayStr($dow)'),
         actions: [
           if (isCalendarTab)
             IconButton(
@@ -104,11 +107,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               onPressed: () => _calendarKey.currentState?.goToToday(),
             ),
           AiSortButton(key: _aiSortKey),
-          IconButton(
+          InkWell(
             key: const Key('ai_history_button'),
-            icon: const Icon(Icons.history),
-            onPressed: () => context.push('/ai-history'),
-            tooltip: l10n.aiHistoryTooltip,
+            borderRadius: BorderRadius.circular(8),
+            onTap: () {
+              ref.read(aiHistoryBadgeProvider.notifier).state = false;
+              context.push('/ai-history');
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Badge(
+                    isLabelVisible: showHistoryBadge,
+                    child: Icon(Icons.history,
+                        size: 20,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    l10n.aiHistoryLabel,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           IconButton(
             key: const Key('settings_button'),

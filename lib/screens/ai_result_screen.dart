@@ -156,19 +156,24 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('$e')),
           data: (tasks) {
+            // AIレスポンスのpriority値から件数をカウント（DB反映前でも正確）
+            final aiTasks = aiResponse?.tasks ?? [];
+            int p1Count = 0, p2Count = 0, laterCount = 0;
+            for (final r in aiTasks) {
+              switch (r.priority) {
+                case 1: p1Count++;
+                case 2: p2Count++;
+                case 3 || 4: laterCount++;
+              }
+            }
+
             final incompleteTasks = tasks
                 .where((t) => !t.isCompleted && t.priority > 0)
                 .toList();
-
             final groups = <int, List<Task>>{};
             for (final t in incompleteTasks) {
               groups.putIfAbsent(t.priority, () => []).add(t);
             }
-
-            final p1Count = (groups[1] ?? []).length;
-            final p2Count = (groups[2] ?? []).length;
-            final laterCount =
-                (groups[3] ?? []).length + (groups[4] ?? []).length;
 
             return ListView(
               padding: const EdgeInsets.all(16),
