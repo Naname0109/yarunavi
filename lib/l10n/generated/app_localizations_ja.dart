@@ -883,37 +883,34 @@ class AppLocalizationsJa extends AppLocalizations {
   String get listView => 'リスト';
 
   @override
-  String get debugSection => 'デバッグ';
+  String get debugSection => 'テストデータ';
 
   @override
-  String get debugInsertTestData => 'テストデータを投入';
+  String get debugSimpleData => 'シンプルデータ投入';
 
   @override
-  String get debugDeleteAndInsertTestData => '全データ削除してテストデータを投入';
+  String get debugSimpleDataDesc => 'タスク名と期限のみ（5件）';
+
+  @override
+  String get debugDetailedData => '詳細データ投入';
+
+  @override
+  String get debugDetailedDataDesc => '全フィールド活用（10件）';
+
+  @override
+  String get debugEdgeCaseData => 'エッジケースデータ投入';
+
+  @override
+  String get debugEdgeCaseDataDesc => '境界値・特殊パターン（8件）';
+
+  @override
+  String get debugConfirmInsert => '既存のタスクを全て削除して、テストデータを投入しますか？';
+
+  @override
+  String get debugConfirmInsertAction => '投入する';
 
   @override
   String get debugTestDataInserted => 'テストデータを投入しました';
-
-  @override
-  String get debugConfirmInsert => 'テストデータを投入しますか？';
-
-  @override
-  String get debugConfirmDeleteAndInsert => '全データを削除してテストデータを投入しますか？';
-
-  @override
-  String get debugAiTestData => 'AI整理テストデータ';
-
-  @override
-  String get debugAiTestDataTitle => 'AI整理テストデータ投入（15件固定）';
-
-  @override
-  String get debugAiTestDataDesc => '全データ削除後、AI評価用の固定テストデータを投入';
-
-  @override
-  String get debugAiTestDataConfirm => '全データを削除してAI評価用の15件を投入します。よろしいですか？';
-
-  @override
-  String get debugAiTestDataInserted => 'AI整理テストデータ（15件）を投入しました';
 
   @override
   String get aiTodayPlan => '今日のプラン';

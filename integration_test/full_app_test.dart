@@ -155,7 +155,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
       // テストデータ投入
-      await insertAiTestData(db);
+      await insertDetailedTestData(db);
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       // ホーム画面が表示されているか
@@ -184,7 +184,7 @@ void main() {
       await tester.pumpWidget(buildApp(themeMode: ThemeMode.dark));
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      await insertAiTestData(db);
+      await insertDetailedTestData(db);
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       expect(overflowErrors, isEmpty,
@@ -205,7 +205,7 @@ void main() {
       await tester.pumpWidget(buildApp());
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      await insertAiTestData(db);
+      await insertDetailedTestData(db);
       await tester.pumpAndSettle();
 
       // カレンダータブに切り替え
@@ -307,7 +307,7 @@ void main() {
       await tester.pumpWidget(buildApp());
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      await insertAiTestData(db);
+      await insertDetailedTestData(db);
       await tester.pumpAndSettle();
 
       debugPrint('[TEST-iPad] ホーム画面 表示確認');
@@ -342,7 +342,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
       // テストデータ投入
-      await insertAiTestData(db);
+      await insertDetailedTestData(db);
       await tester.pumpAndSettle();
 
       // AI整理ボタンをタップ

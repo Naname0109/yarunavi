@@ -1793,68 +1793,62 @@ abstract class AppLocalizations {
   /// No description provided for @debugSection.
   ///
   /// In ja, this message translates to:
-  /// **'デバッグ'**
+  /// **'テストデータ'**
   String get debugSection;
 
-  /// No description provided for @debugInsertTestData.
+  /// No description provided for @debugSimpleData.
   ///
   /// In ja, this message translates to:
-  /// **'テストデータを投入'**
-  String get debugInsertTestData;
+  /// **'シンプルデータ投入'**
+  String get debugSimpleData;
 
-  /// No description provided for @debugDeleteAndInsertTestData.
+  /// No description provided for @debugSimpleDataDesc.
   ///
   /// In ja, this message translates to:
-  /// **'全データ削除してテストデータを投入'**
-  String get debugDeleteAndInsertTestData;
+  /// **'タスク名と期限のみ（5件）'**
+  String get debugSimpleDataDesc;
+
+  /// No description provided for @debugDetailedData.
+  ///
+  /// In ja, this message translates to:
+  /// **'詳細データ投入'**
+  String get debugDetailedData;
+
+  /// No description provided for @debugDetailedDataDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'全フィールド活用（10件）'**
+  String get debugDetailedDataDesc;
+
+  /// No description provided for @debugEdgeCaseData.
+  ///
+  /// In ja, this message translates to:
+  /// **'エッジケースデータ投入'**
+  String get debugEdgeCaseData;
+
+  /// No description provided for @debugEdgeCaseDataDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'境界値・特殊パターン（8件）'**
+  String get debugEdgeCaseDataDesc;
+
+  /// No description provided for @debugConfirmInsert.
+  ///
+  /// In ja, this message translates to:
+  /// **'既存のタスクを全て削除して、テストデータを投入しますか？'**
+  String get debugConfirmInsert;
+
+  /// No description provided for @debugConfirmInsertAction.
+  ///
+  /// In ja, this message translates to:
+  /// **'投入する'**
+  String get debugConfirmInsertAction;
 
   /// No description provided for @debugTestDataInserted.
   ///
   /// In ja, this message translates to:
   /// **'テストデータを投入しました'**
   String get debugTestDataInserted;
-
-  /// No description provided for @debugConfirmInsert.
-  ///
-  /// In ja, this message translates to:
-  /// **'テストデータを投入しますか？'**
-  String get debugConfirmInsert;
-
-  /// No description provided for @debugConfirmDeleteAndInsert.
-  ///
-  /// In ja, this message translates to:
-  /// **'全データを削除してテストデータを投入しますか？'**
-  String get debugConfirmDeleteAndInsert;
-
-  /// No description provided for @debugAiTestData.
-  ///
-  /// In ja, this message translates to:
-  /// **'AI整理テストデータ'**
-  String get debugAiTestData;
-
-  /// No description provided for @debugAiTestDataTitle.
-  ///
-  /// In ja, this message translates to:
-  /// **'AI整理テストデータ投入（15件固定）'**
-  String get debugAiTestDataTitle;
-
-  /// No description provided for @debugAiTestDataDesc.
-  ///
-  /// In ja, this message translates to:
-  /// **'全データ削除後、AI評価用の固定テストデータを投入'**
-  String get debugAiTestDataDesc;
-
-  /// No description provided for @debugAiTestDataConfirm.
-  ///
-  /// In ja, this message translates to:
-  /// **'全データを削除してAI評価用の15件を投入します。よろしいですか？'**
-  String get debugAiTestDataConfirm;
-
-  /// No description provided for @debugAiTestDataInserted.
-  ///
-  /// In ja, this message translates to:
-  /// **'AI整理テストデータ（15件）を投入しました'**
-  String get debugAiTestDataInserted;
 
   /// No description provided for @aiTodayPlan.
   ///

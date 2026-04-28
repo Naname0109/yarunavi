@@ -33,7 +33,7 @@ void main() async {
   print('═══════════════════════════════════════════');
   print('');
 
-  // テストデータ（insertAiTestDataと同じ15件）
+  // テストデータ（15件）
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
   final weekdays = ['月', '火', '水', '木', '金', '土', '日'];

@@ -903,40 +903,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get listView => 'List';
 
   @override
-  String get debugSection => 'Debug';
+  String get debugSection => 'Test Data';
 
   @override
-  String get debugInsertTestData => 'Insert Test Data';
+  String get debugSimpleData => 'Simple Data';
 
   @override
-  String get debugDeleteAndInsertTestData => 'Delete All & Insert Test Data';
+  String get debugSimpleDataDesc => 'Title and due date only (5 tasks)';
+
+  @override
+  String get debugDetailedData => 'Detailed Data';
+
+  @override
+  String get debugDetailedDataDesc => 'All fields populated (10 tasks)';
+
+  @override
+  String get debugEdgeCaseData => 'Edge Case Data';
+
+  @override
+  String get debugEdgeCaseDataDesc =>
+      'Boundary values & special patterns (8 tasks)';
+
+  @override
+  String get debugConfirmInsert =>
+      'Delete all existing tasks and insert test data?';
+
+  @override
+  String get debugConfirmInsertAction => 'Insert';
 
   @override
   String get debugTestDataInserted => 'Test data inserted';
-
-  @override
-  String get debugConfirmInsert => 'Insert test data?';
-
-  @override
-  String get debugConfirmDeleteAndInsert =>
-      'Delete all data and insert test data?';
-
-  @override
-  String get debugAiTestData => 'AI Sort Test Data';
-
-  @override
-  String get debugAiTestDataTitle => 'Insert AI Test Data (15 fixed tasks)';
-
-  @override
-  String get debugAiTestDataDesc =>
-      'Delete all data and insert fixed test data for AI evaluation';
-
-  @override
-  String get debugAiTestDataConfirm =>
-      'Delete all data and insert 15 AI evaluation tasks?';
-
-  @override
-  String get debugAiTestDataInserted => 'AI test data (15 tasks) inserted';
 
   @override
   String get aiTodayPlan => 'Today\'s Plan';

@@ -281,25 +281,37 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     const Divider(),
                     _buildSectionHeader(context, l10n.debugSection),
                     ListTile(
-                      key: const Key('debug_insert_test_data'),
-                      leading: const Icon(Icons.science_outlined),
-                      title: Text(l10n.debugInsertTestData),
-                      onTap: () => _insertTestData(context, ref, l10n, false),
-                    ),
-                    ListTile(
-                      leading: Icon(
-                        Icons.delete_sweep,
-                        color: theme.colorScheme.error,
+                      key: const Key('debug_simple_data'),
+                      leading: const Icon(Icons.looks_one_outlined),
+                      title: Text(l10n.debugSimpleData),
+                      subtitle: Text(l10n.debugSimpleDataDesc),
+                      onTap: () => _insertTestDataWithConfirm(
+                        context, ref, l10n,
+                        () => insertSimpleTestData(
+                            ref.read(databaseServiceProvider)),
                       ),
-                      title: Text(l10n.debugDeleteAndInsertTestData),
-                      onTap: () => _insertTestData(context, ref, l10n, true),
                     ),
                     ListTile(
-                      key: const Key('debug_ai_test_data'),
-                      leading: const Icon(Icons.auto_awesome_outlined),
-                      title: Text(l10n.debugAiTestDataTitle),
-                      subtitle: Text(l10n.debugAiTestDataDesc),
-                      onTap: () => _insertAiTestData(context, ref, l10n),
+                      key: const Key('debug_detailed_data'),
+                      leading: const Icon(Icons.looks_two_outlined),
+                      title: Text(l10n.debugDetailedData),
+                      subtitle: Text(l10n.debugDetailedDataDesc),
+                      onTap: () => _insertTestDataWithConfirm(
+                        context, ref, l10n,
+                        () => insertDetailedTestData(
+                            ref.read(databaseServiceProvider)),
+                      ),
+                    ),
+                    ListTile(
+                      key: const Key('debug_edge_case_data'),
+                      leading: const Icon(Icons.looks_3_outlined),
+                      title: Text(l10n.debugEdgeCaseData),
+                      subtitle: Text(l10n.debugEdgeCaseDataDesc),
+                      onTap: () => _insertTestDataWithConfirm(
+                        context, ref, l10n,
+                        () => insertEdgeCaseTestData(
+                            ref.read(databaseServiceProvider)),
+                      ),
                     ),
                     ListTile(
                       leading: const Icon(Icons.restart_alt),
@@ -421,22 +433,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return value.replaceAll('"', '""').replaceAll('\n', ' ');
   }
 
-  Future<void> _insertTestData(
+  Future<void> _insertTestDataWithConfirm(
     BuildContext context,
     WidgetRef ref,
     AppLocalizations l10n,
-    bool deleteFirst,
+    Future<void> Function() insertFn,
   ) async {
-    final message = deleteFirst
-        ? l10n.debugConfirmDeleteAndInsert
-        : l10n.debugConfirmInsert;
-    final languageCode = Localizations.localeOf(context).languageCode;
-
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(l10n.debugSection),
-        content: Text(message),
+        content: Text(l10n.debugConfirmInsert),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -444,58 +451,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('OK'),
+            child: Text(l10n.debugConfirmInsertAction),
           ),
         ],
       ),
     );
 
     if (confirmed == true) {
-      final db = ref.read(databaseServiceProvider);
-      if (deleteFirst) {
-        await db.deleteAllData();
-      }
-      await insertTestData(db, languageCode: languageCode);
+      await insertFn();
       ref.invalidate(tasksProvider);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.debugTestDataInserted)),
-        );
-      }
-    }
-  }
-
-  Future<void> _insertAiTestData(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations l10n,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.debugAiTestData),
-        content: Text(l10n.debugAiTestDataConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      final db = ref.read(databaseServiceProvider);
-      await db.deleteAllData();
-      await insertAiTestData(db);
-      ref.invalidate(tasksProvider);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.debugAiTestDataInserted)),
         );
       }
     }

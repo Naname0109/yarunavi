@@ -64,7 +64,7 @@ void main() {
 
       // ─── Step 1: テストデータ投入 ───
       await db.deleteAllData();
-      await insertAiTestData(db);
+      await insertDetailedTestData(db);
       final allTasks = await db.getAllTasks();
       final incompleteTasks =
           allTasks.where((t) => !t.isCompleted).toList();
