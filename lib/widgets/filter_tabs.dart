@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,62 +20,33 @@ class FilterTabs extends ConsumerStatefulWidget {
 class _FilterTabsState extends ConsumerState<FilterTabs>
     with TickerProviderStateMixin {
   AnimationController? _rippleController;
-  AnimationController? _badgeFadeController;
   bool _isAnimating = false;
-  int _cycleCount = 0;
-  static const _maxCycles = 3;
+  final _calendarChipKey = GlobalKey();
 
   void _startRipple() {
     if (_isAnimating) return;
     _isAnimating = true;
-    _cycleCount = 0;
 
     _rippleController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 2000),
     );
-    _rippleController!.addStatusListener(_onRippleStatus);
-    _rippleController!.forward();
-
-    _badgeFadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-      value: 1.0,
-    );
-    Future.delayed(const Duration(seconds: 3), () {
-      if (_isAnimating) {
-        _badgeFadeController?.reverse();
-      }
-    });
-  }
-
-  void _onRippleStatus(AnimationStatus status) {
-    if (status == AnimationStatus.completed) {
-      _cycleCount++;
-      if (_cycleCount < _maxCycles && _isAnimating) {
-        _rippleController?.forward(from: 0);
-      } else {
-        _stopRipple();
-      }
-    }
+    _rippleController!.repeat();
+    setState(() {});
   }
 
   void _stopRipple() {
     if (!_isAnimating) return;
     _isAnimating = false;
-    _rippleController?.removeStatusListener(_onRippleStatus);
+    _rippleController?.stop();
     _rippleController?.dispose();
     _rippleController = null;
-    _badgeFadeController?.dispose();
-    _badgeFadeController = null;
     if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
-    _rippleController?.removeStatusListener(_onRippleStatus);
     _rippleController?.dispose();
-    _badgeFadeController?.dispose();
     super.dispose();
   }
 
@@ -88,7 +57,7 @@ class _FilterTabsState extends ConsumerState<FilterTabs>
 
     if (highlight && !_isAnimating) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && highlight) _startRipple();
+        if (mounted && ref.read(calendarHighlightProvider)) _startRipple();
       });
     } else if (!highlight && _isAnimating) {
       _stopRipple();
@@ -113,7 +82,7 @@ class _FilterTabsState extends ConsumerState<FilterTabs>
           final isCalendar = tabIndex == 1;
 
           Widget chip = FilterChip(
-            key: Key('filter_tab_$tabIndex'),
+            key: isCalendar ? _calendarChipKey : Key('filter_tab_$tabIndex'),
             avatar: Icon(icon, size: 18),
             label: Text(label),
             selected: isSelected,
@@ -124,12 +93,17 @@ class _FilterTabsState extends ConsumerState<FilterTabs>
               widget.onTabChanged(tabIndex);
             },
             showCheckmark: false,
+            side: isCalendar && highlight && !isSelected
+                ? BorderSide(
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                    width: 2,
+                  )
+                : null,
           );
 
           if (isCalendar && highlight && !isSelected && _isAnimating) {
             chip = _CalendarRippleHighlight(
               rippleController: _rippleController!,
-              badgeFadeController: _badgeFadeController!,
               hintText: l10n.calendarHintBubble,
               child: chip,
             );
@@ -145,13 +119,11 @@ class _FilterTabsState extends ConsumerState<FilterTabs>
 class _CalendarRippleHighlight extends StatelessWidget {
   const _CalendarRippleHighlight({
     required this.rippleController,
-    required this.badgeFadeController,
     required this.hintText,
     required this.child,
   });
 
   final AnimationController rippleController;
-  final AnimationController badgeFadeController;
   final String hintText;
   final Widget child;
 
@@ -164,28 +136,31 @@ class _CalendarRippleHighlight extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         RepaintBoundary(
-          child: CustomPaint(
-            painter: _RipplePainter(
-              animation: rippleController,
-              color: primaryColor,
-            ),
+          child: AnimatedBuilder(
+            animation: rippleController,
+            builder: (context, child) {
+              return CustomPaint(
+                painter: _EllipseRipplePainter(
+                  progress: rippleController.value,
+                  color: primaryColor,
+                ),
+                child: child,
+              );
+            },
             child: child,
           ),
         ),
-        FadeTransition(
-          opacity: badgeFadeController,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              hintText,
-              style: TextStyle(
-                fontSize: 10,
-                color: theme.colorScheme.onPrimaryContainer,
-              ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            hintText,
+            style: TextStyle(
+              fontSize: 10,
+              color: theme.colorScheme.onPrimaryContainer,
             ),
           ),
         ),
@@ -194,35 +169,42 @@ class _CalendarRippleHighlight extends StatelessWidget {
   }
 }
 
-class _RipplePainter extends CustomPainter {
-  _RipplePainter({required this.animation, required this.color})
-      : super(repaint: animation);
+class _EllipseRipplePainter extends CustomPainter {
+  _EllipseRipplePainter({required this.progress, required this.color});
 
-  final Animation<double> animation;
+  final double progress;
   final Color color;
-
-  static const _minRadius = 12.0;
-  static const _maxRadius = 40.0;
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
+    final baseRect = Rect.fromCenter(
+      center: center,
+      width: size.width,
+      height: size.height,
+    );
 
     for (var i = 0; i < 2; i++) {
-      final offset = i * 0.5;
-      final t = (animation.value + offset) % 1.0;
-      final radius = _minRadius + (_maxRadius - _minRadius) * t;
-      final opacity = 0.4 * (1.0 - t);
+      final t = (progress + i * 0.5) % 1.0;
+      final scale = 1.0 + t * 0.5;
+      final opacity = 0.6 * (1.0 - t);
+
+      final rippleRect = Rect.fromCenter(
+        center: center,
+        width: baseRect.width * scale,
+        height: baseRect.height * scale,
+      );
 
       final paint = Paint()
         ..color = color.withValues(alpha: opacity)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.0;
 
-      canvas.drawCircle(center, math.max(radius, _minRadius), paint);
+      final rrect = RRect.fromRectAndRadius(rippleRect, const Radius.circular(20));
+      canvas.drawRRect(rrect, paint);
     }
   }
 
   @override
-  bool shouldRepaint(_RipplePainter old) => true;
+  bool shouldRepaint(_EllipseRipplePainter old) => old.progress != progress;
 }

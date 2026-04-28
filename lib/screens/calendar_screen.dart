@@ -191,8 +191,9 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                       )
                     : ListView.builder(
                         key: ValueKey('$_viewMode-$selectedDayNorm'),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 4),
+                        padding: EdgeInsets.only(
+                            left: 4, right: 4, top: 4,
+                            bottom: 80 + MediaQuery.of(context).padding.bottom),
                         itemCount: selectedTasks.length,
                         itemBuilder: (context, index) =>
                             _buildTaskTile(selectedTasks[index], categoryMap, l10n, locale),
@@ -287,22 +288,33 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 1),
                 child: Column(
                   children: [
-                    Text(
-                      displayTasks.first.title,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: _getTaskColor(displayTasks.first, isDark),
-                        height: 1.1,
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                      decoration: displayTasks.first.priority > 0
+                          ? BoxDecoration(
+                              color: _getTaskColor(displayTasks.first, isDark)
+                                  .withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(3),
+                            )
+                          : null,
+                      child: Text(
+                        displayTasks.first.title,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: _getTaskColor(displayTasks.first, isDark),
+                          height: 1.1,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     if (displayTasks.length > 1)
                       Text(
                         '+${displayTasks.length - 1}',
                         style: TextStyle(
-                            fontSize: 11, color: theme.colorScheme.outline),
+                            fontSize: 10, color: theme.colorScheme.outline),
                       ),
                   ],
                 ),

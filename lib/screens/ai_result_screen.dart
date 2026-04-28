@@ -494,11 +494,18 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
         final subtasks = locale == 'ja'
             ? (result?.suggestedSubtasksJa ?? [])
             : (result?.suggestedSubtasksEn ?? []);
+        // AIレスポンスのコメントを優先（DB反映前でも表示）
+        final aiComment = locale == 'ja'
+            ? (result?.commentJa ?? task.aiComment)
+            : (result?.commentEn ?? task.aiComment);
+        final taskWithComment = aiComment != null && aiComment != task.aiComment
+            ? task.copyWith(aiComment: aiComment)
+            : task;
 
         if (expanded) {
-          return _buildExpandedCard(context, l10n, locale, task, color, subtasks);
+          return _buildExpandedCard(context, l10n, locale, taskWithComment, color, subtasks);
         } else {
-          return _buildCollapsibleCard(context, l10n, locale, task, color, subtasks);
+          return _buildCollapsibleCard(context, l10n, locale, taskWithComment, color, subtasks);
         }
       }),
     ];
@@ -509,6 +516,8 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
     Task task, Color color, List<String> subtasks,
   ) {
     final isPremium = ref.watch(isPremiumProvider);
+    final theme = Theme.of(context);
+    final fmt = DateFormat.MMMd(locale);
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -519,6 +528,18 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
             _buildTaskHeader(task, color),
             _buildAiCommentBlock(context, l10n, task, isPremium, isUrgent: task.priority == 1),
             _buildRecommendedPeriod(context, l10n, task),
+            // 期限日
+            Padding(
+              padding: const EdgeInsets.only(left: 16, top: 4),
+              child: Row(
+                children: [
+                  Icon(Icons.schedule, size: 14, color: theme.colorScheme.outline),
+                  const SizedBox(width: 4),
+                  Text(l10n.dueDateLabel(fmt.format(task.dueDate)),
+                      style: TextStyle(fontSize: 12, color: theme.colorScheme.outline)),
+                ],
+              ),
+            ),
             _buildSubtaskSection(context, l10n, task, subtasks),
           ],
         ),
