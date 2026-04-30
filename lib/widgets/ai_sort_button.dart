@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -208,13 +209,68 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
                 r.recommendedDate!.isNotEmpty)
             ? DateTime.tryParse(r.recommendedDate!)
             : null;
+        if (kDebugMode) debugPrint('[AI-DEBUG] response: id=${r.taskId} comment=$comment rec=${r.recommendedDate}');
         updates[r.taskId] = (
           priority: r.priority,
           aiComment: comment,
           recommendedDate: date,
         );
       }
-      await db.updateTaskPriorities(updates,
+
+      // Safety net: recommended_date != due_date を強制保証
+      final now2 = DateTime.now();
+      final today2 = DateTime(now2.year, now2.month, now2.day);
+      final finalUpdates = <int,
+          ({
+            int priority,
+            String? aiComment,
+            DateTime? recommendedDate,
+          })>{};
+      for (final entry in updates.entries) {
+        final taskId = entry.key;
+        final data = entry.value;
+        if (skipManualDateIds.contains(taskId)) {
+          finalUpdates[taskId] = data;
+          continue;
+        }
+        final matches = incompleteTasks.where((t) => t.id == taskId);
+        if (matches.isEmpty) {
+          finalUpdates[taskId] = data;
+          continue;
+        }
+        final taskObj = matches.first;
+        final dueNorm = DateTime(taskObj.dueDate.year, taskObj.dueDate.month, taskObj.dueDate.day);
+        final recDate = data.recommendedDate;
+        final recNorm = recDate != null
+            ? DateTime(recDate.year, recDate.month, recDate.day)
+            : null;
+        final dueStr = dueNorm.toIso8601String().substring(0, 10);
+        final recStr = recNorm?.toIso8601String().substring(0, 10) ?? 'null';
+        if (kDebugMode) debugPrint('[AI-DEBUG] DB保存: ${taskObj.title} rec=$recStr due=$dueStr same=${recNorm == dueNorm}');
+
+        if (recNorm == null || recNorm == dueNorm) {
+          final daysUntilDue = dueNorm.difference(today2).inDays;
+          DateTime newRec;
+          if (daysUntilDue <= 1) {
+            newRec = today2;
+          } else if (daysUntilDue <= 3) {
+            newRec = dueNorm.subtract(const Duration(days: 1));
+          } else if (daysUntilDue <= 7) {
+            newRec = dueNorm.subtract(const Duration(days: 2));
+          } else if (daysUntilDue <= 14) {
+            newRec = dueNorm.subtract(const Duration(days: 4));
+          } else {
+            newRec = dueNorm.subtract(const Duration(days: 7));
+          }
+          if (newRec.isBefore(today2)) newRec = today2;
+          if (kDebugMode) debugPrint('[AI-DEBUG] FORCE FIX: ${taskObj.title} rec→${newRec.toIso8601String().substring(0, 10)}');
+          finalUpdates[taskId] = (priority: data.priority, aiComment: data.aiComment, recommendedDate: newRec);
+        } else {
+          finalUpdates[taskId] = data;
+        }
+      }
+
+      await db.updateTaskPriorities(finalUpdates,
           skipRecommendedDateIds: skipManualDateIds);
 
       // プレミアム: AIのnotify_dateで自動通知スケジュール (手動設定済みは尊重)

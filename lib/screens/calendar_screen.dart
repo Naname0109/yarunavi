@@ -193,7 +193,7 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                         key: ValueKey('$_viewMode-$selectedDayNorm'),
                         padding: EdgeInsets.only(
                             left: 4, right: 4, top: 4,
-                            bottom: 80 + MediaQuery.of(context).padding.bottom),
+                            bottom: 100 + MediaQuery.of(context).padding.bottom),
                         itemCount: selectedTasks.length,
                         itemBuilder: (context, index) =>
                             _buildTaskTile(selectedTasks[index], categoryMap, l10n, locale),

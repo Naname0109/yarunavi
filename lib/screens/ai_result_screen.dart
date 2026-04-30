@@ -50,7 +50,6 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
       final tasks = await db.getTasksByFilter('all');
       final taskMap = {for (final t in tasks) t.id: t};
 
-      // カレンダー権限を事前に1回だけチェック
       final hasCalendarPermission = await calendarService.requestPermission();
       bool calendarAdded = false;
 
@@ -59,7 +58,6 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
         if (task == null || task.isCompleted) continue;
 
         try {
-          // 手動通知設定のタスクはスキップ（ai_autoのみ自動設定）
           final hasManualNotify = task.notifySettings != null &&
               !isAiAutoNotify(task.notifySettings);
 
@@ -74,7 +72,6 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
             );
           }
 
-          // priority 1-2 をカレンダーに自動追加（権限がある場合のみ）
           if (hasCalendarPermission &&
               task.priority <= 2 &&
               task.calendarEventId == null) {
@@ -156,7 +153,6 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('$e')),
           data: (tasks) {
-            // AIレスポンスのpriority値から件数をカウント（DB反映前でも正確）
             final aiTasks = aiResponse?.tasks ?? [];
             int p1Count = 0, p2Count = 0, laterCount = 0;
             for (final r in aiTasks) {
@@ -178,15 +174,12 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                // 自動設定バナー（プレミアム）
                 if (isPremium && _autoSetupMessage != null)
                   _buildAutoSetupBanner(theme),
 
-                // プレミアム訴求バナー（無料ユーザー）
                 if (!isPremium)
                   _buildFreePremiumBanner(context, l10n, theme),
 
-                // サマリカード
                 _buildSummaryCard(context, l10n, summary, p1Count, p2Count, laterCount),
                 const SizedBox(height: 8),
                 Text(
@@ -194,7 +187,6 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
                   style: TextStyle(fontSize: 12, color: theme.colorScheme.outline),
                 ),
 
-                // AI質問セクション
                 if (questions.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   _buildQuestionsSection(context, l10n, locale, questions),
@@ -202,36 +194,37 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
 
                 const SizedBox(height: 12),
 
-                // Priority 1-4 セクション
                 ..._buildPrioritySection(
                   context, l10n, locale,
                   l10n.aiPriorityUrgent,
                   isDark ? AppColors.priorityUrgentDark : AppColors.priorityUrgent,
-                  groups[1] ?? [], resultsMap, expanded: true,
+                  groups[1] ?? [], resultsMap, isPremium,
                 ),
                 ..._buildPrioritySection(
                   context, l10n, locale,
                   l10n.aiPriorityWarning,
                   isDark ? AppColors.priorityWarningDark : AppColors.priorityWarning,
-                  groups[2] ?? [], resultsMap, expanded: true,
+                  groups[2] ?? [], resultsMap, isPremium,
                 ),
                 ..._buildPrioritySection(
                   context, l10n, locale,
                   l10n.aiPriorityNormal,
                   isDark ? AppColors.priorityNormalDark : AppColors.priorityNormal,
-                  groups[3] ?? [], resultsMap, expanded: false,
+                  groups[3] ?? [], resultsMap, isPremium,
                 ),
                 ..._buildPrioritySection(
                   context, l10n, locale,
                   l10n.aiPriorityRelaxed,
                   isDark ? AppColors.priorityRelaxedDark : AppColors.priorityRelaxed,
-                  groups[4] ?? [], resultsMap, expanded: false,
+                  groups[4] ?? [], resultsMap, isPremium,
                 ),
 
                 const SizedBox(height: 24),
-                // ホームに戻るボタン
                 FilledButton.icon(
-                  onPressed: () => context.go('/home'),
+                  onPressed: () {
+                    ref.invalidate(tasksProvider);
+                    context.go('/home');
+                  },
                   icon: const Icon(Icons.home),
                   label: Text(l10n.backToHome),
                 ),
@@ -244,7 +237,6 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
     );
   }
 
-  /// プレミアム: 自動設定完了バナー
   Widget _buildAutoSetupBanner(ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -277,7 +269,6 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
     );
   }
 
-  /// 無料ユーザー: プレミアム訴求バナー
   Widget _buildFreePremiumBanner(BuildContext context, AppLocalizations l10n, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -480,9 +471,9 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
     String title,
     Color color,
     List<Task> tasks,
-    Map<int, AiSortResult> resultsMap, {
-    required bool expanded,
-  }) {
+    Map<int, AiSortResult> resultsMap,
+    bool isPremium,
+  ) {
     if (tasks.isEmpty) return [];
     return [
       Padding(
@@ -494,159 +485,54 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
         final subtasks = locale == 'ja'
             ? (result?.suggestedSubtasksJa ?? [])
             : (result?.suggestedSubtasksEn ?? []);
-        // AIレスポンスのコメントを優先（DB反映前でも表示）
         final aiComment = locale == 'ja'
             ? (result?.commentJa ?? task.aiComment)
             : (result?.commentEn ?? task.aiComment);
         final taskWithComment = aiComment != null && aiComment != task.aiComment
             ? task.copyWith(aiComment: aiComment)
             : task;
+        final notifyReason = locale == 'ja' ? result?.notifyReasonJa : result?.notifyReasonEn;
 
-        if (expanded) {
-          return _buildExpandedCard(context, l10n, locale, taskWithComment, color, subtasks);
-        } else {
-          return _buildCollapsibleCard(context, l10n, locale, taskWithComment, color, subtasks);
-        }
+        return _AiTaskCard(
+          task: taskWithComment,
+          color: color,
+          subtasks: subtasks,
+          isPremium: isPremium,
+          notifyDate: result?.notifyDate,
+          notifyReason: notifyReason,
+        );
       }),
     ];
   }
+}
 
-  Widget _buildExpandedCard(
-    BuildContext context, AppLocalizations l10n, String locale,
-    Task task, Color color, List<String> subtasks,
-  ) {
-    final isPremium = ref.watch(isPremiumProvider);
-    final theme = Theme.of(context);
-    final fmt = DateFormat.MMMd(locale);
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTaskHeader(task, color),
-            _buildAiCommentBlock(context, l10n, task, isPremium, isUrgent: task.priority == 1),
-            _buildRecommendedPeriod(context, l10n, task),
-            // 期限日
-            Padding(
-              padding: const EdgeInsets.only(left: 16, top: 4),
-              child: Row(
-                children: [
-                  Icon(Icons.schedule, size: 14, color: theme.colorScheme.outline),
-                  const SizedBox(width: 4),
-                  Text(l10n.dueDateLabel(fmt.format(task.dueDate)),
-                      style: TextStyle(fontSize: 12, color: theme.colorScheme.outline)),
-                ],
-              ),
-            ),
-            _buildSubtaskSection(context, l10n, task, subtasks),
-          ],
-        ),
-      ),
-    );
-  }
+/// AI整理結果画面のタスクカード（折りたたみ対応）
+class _AiTaskCard extends ConsumerStatefulWidget {
+  const _AiTaskCard({
+    required this.task,
+    required this.color,
+    required this.subtasks,
+    required this.isPremium,
+    this.notifyDate,
+    this.notifyReason,
+  });
 
-  Widget _buildCollapsibleCard(
-    BuildContext context, AppLocalizations l10n, String locale,
-    Task task, Color color, List<String> subtasks,
-  ) {
-    final isPremium = ref.watch(isPremiumProvider);
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 12),
-        childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-        leading: Container(
-          width: 4, height: 24,
-          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
-        ),
-        title: Text(task.title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
-        children: [
-          _buildAiCommentBlock(context, l10n, task, isPremium, isUrgent: task.priority == 1),
-          _buildRecommendedPeriod(context, l10n, task),
-          _buildSubtaskSection(context, l10n, task, subtasks),
-        ],
-      ),
-    );
-  }
+  final Task task;
+  final Color color;
+  final List<String> subtasks;
+  final bool isPremium;
+  final String? notifyDate;
+  final String? notifyReason;
 
-  Widget _buildAiCommentBlock(
-    BuildContext context,
-    AppLocalizations l10n,
-    Task task,
-    bool isPremium, {
-    required bool isUrgent,
-  }) {
-    if (task.aiComment == null || task.aiComment!.isEmpty) return const SizedBox.shrink();
-    final theme = Theme.of(context);
+  @override
+  ConsumerState<_AiTaskCard> createState() => _AiTaskCardState();
+}
 
-    if (isPremium || isUrgent) {
-      return Padding(
-        padding: const EdgeInsets.only(left: 16, top: 6),
-        child: Text(task.aiComment!, style: TextStyle(fontSize: 13, color: theme.colorScheme.onSurfaceVariant)),
-      );
-    }
+class _AiTaskCardState extends ConsumerState<_AiTaskCard> {
+  bool _expanded = false;
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, top: 6),
-      child: Row(
-        children: [
-          Icon(Icons.lock_outline, size: 13, color: theme.colorScheme.outline),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(l10n.aiCommentLockedHint,
-                style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: theme.colorScheme.outline)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTaskHeader(Task task, Color color) {
-    return Row(
-      children: [
-        Container(
-          width: 4, height: 24,
-          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
-        ),
-        const SizedBox(width: 12),
-        Expanded(child: Text(task.title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500))),
-      ],
-    );
-  }
-
-  Widget _buildRecommendedPeriod(BuildContext context, AppLocalizations l10n, Task task) {
-    if (task.recommendedDate == null) return const SizedBox.shrink();
-    final theme = Theme.of(context);
-    final locale = Localizations.localeOf(context).languageCode;
-    final fmt = DateFormat.MMMd(locale);
-    final dateStr = fmt.format(task.recommendedDate!);
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, top: 4),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () => _pickRecommendedDate(context, task),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.push_pin, size: 14, color: theme.colorScheme.primary),
-              const SizedBox(width: 4),
-              Flexible(
-                child: Text(l10n.recommendedDateEditHint(dateStr),
-                    style: TextStyle(fontSize: 12, color: theme.colorScheme.primary)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _pickRecommendedDate(BuildContext context, Task task) async {
+  Future<void> _pickDate() async {
+    final task = widget.task;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final picked = await showDatePicker(
@@ -661,48 +547,7 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
     ref.invalidate(tasksProvider);
   }
 
-  Widget _buildSubtaskSection(BuildContext context, AppLocalizations l10n, Task task, List<String> subtasks) {
-    if (subtasks.isEmpty) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 8),
-        const Divider(height: 1),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            const Text('💡 ', style: TextStyle(fontSize: 14)),
-            Text(l10n.aiSubtaskSuggestion,
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.primary)),
-          ],
-        ),
-        const SizedBox(height: 4),
-        ...subtasks.map((s) => Padding(
-          padding: const EdgeInsets.only(left: 24, top: 2),
-          child: Row(
-            children: [
-              const Text('• ', style: TextStyle(fontSize: 13)),
-              Expanded(child: Text(s, style: const TextStyle(fontSize: 13))),
-            ],
-          ),
-        )),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton.icon(
-            onPressed: () => _addSubtasks(context, l10n, task, subtasks),
-            icon: const Icon(Icons.add, size: 16),
-            label: Text(l10n.aiSubtaskAdd),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _addSubtasks(
-    BuildContext context, AppLocalizations l10n, Task originalTask, List<String> subtasks,
-  ) async {
+  Future<void> _addSubtasks(AppLocalizations l10n, Task originalTask, List<String> subtasks) async {
     final now = DateTime.now();
     final daysUntilDue = originalTask.dueDate.difference(now).inDays;
     final totalDays = daysUntilDue > 0 ? daysUntilDue : subtasks.length;
@@ -713,24 +558,31 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
       final subTask = Task(
         title: subtasks[i],
         dueDate: daysUntilDue > 0 && subDueDate.isAfter(originalTask.dueDate)
-            ? originalTask.dueDate : subDueDate,
+            ? originalTask.dueDate
+            : subDueDate,
         categoryId: originalTask.categoryId,
         importance: originalTask.importance,
-        createdAt: now, updatedAt: now,
+        createdAt: now,
+        updatedAt: now,
       );
       await ref.read(tasksProvider.notifier).addTask(subTask);
     }
 
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.aiSubtaskAdded)));
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.aiSubtaskAdded)));
 
     final shouldComplete = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(l10n.aiCompleteOriginal),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.cancel)),
-          FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.markComplete)),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l10n.cancel)),
+          FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l10n.markComplete)),
         ],
       ),
     );
@@ -738,5 +590,241 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
     if (shouldComplete == true) {
       await ref.read(tasksProvider.notifier).toggleComplete(originalTask);
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
+    final theme = Theme.of(context);
+    final fmt = DateFormat.MMMd(locale);
+    final task = widget.task;
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => setState(() => _expanded = !_expanded),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 折りたたみヘッダー
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 4,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: widget.color,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          task.title,
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (task.recommendedDate != null)
+                          Text(
+                            '📌 ${fmt.format(task.recommendedDate!)}',
+                            style: TextStyle(fontSize: 12, color: theme.colorScheme.primary),
+                          ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    _expanded ? Icons.expand_less : Icons.expand_more,
+                    color: theme.colorScheme.outline,
+                  ),
+                ],
+              ),
+              // 展開コンテンツ（AnimatedCrossFade）
+              AnimatedCrossFade(
+                duration: const Duration(milliseconds: 200),
+                crossFadeState: _expanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                firstChild: const SizedBox(width: double.infinity),
+                secondChild: _buildDetails(context, l10n, fmt, theme),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetails(
+    BuildContext context,
+    AppLocalizations l10n,
+    DateFormat fmt,
+    ThemeData theme,
+  ) {
+    final task = widget.task;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 8),
+        const Divider(height: 1),
+        const SizedBox(height: 8),
+
+        // AIコメント
+        if (task.aiComment != null && task.aiComment!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(left: 16, bottom: 8),
+            child: widget.isPremium || task.priority == 1
+                ? Text(
+                    task.aiComment!,
+                    style: TextStyle(
+                        fontSize: 13,
+                        color: theme.colorScheme.onSurfaceVariant),
+                  )
+                : Row(
+                    children: [
+                      Icon(Icons.lock_outline,
+                          size: 13, color: theme.colorScheme.outline),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          l10n.aiCommentLockedHint,
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                              color: theme.colorScheme.outline),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+
+        // 推奨実行日（タップで変更）
+        if (task.recommendedDate != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 16, bottom: 4),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: _pickDate,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.push_pin, size: 14, color: theme.colorScheme.primary),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        l10n.recommendedDateEditHint(fmt.format(task.recommendedDate!)),
+                        style: TextStyle(
+                            fontSize: 12, color: theme.colorScheme.primary),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(Icons.edit, size: 13, color: theme.colorScheme.primary),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+        // 期限日
+        Padding(
+          padding: const EdgeInsets.only(left: 16, bottom: 4),
+          child: Row(
+            children: [
+              Icon(Icons.schedule, size: 14, color: theme.colorScheme.outline),
+              const SizedBox(width: 4),
+              Text(
+                l10n.dueDateLabel(fmt.format(task.dueDate)),
+                style: TextStyle(fontSize: 12, color: theme.colorScheme.outline),
+              ),
+            ],
+          ),
+        ),
+
+        // 通知予定 + 通知理由
+        if (widget.notifyDate != null && widget.notifyDate!.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Row(
+              children: [
+                Icon(Icons.notifications_outlined,
+                    size: 14, color: theme.colorScheme.outline),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    '🔔 ${widget.notifyDate!}',
+                    style: TextStyle(
+                        fontSize: 12, color: theme.colorScheme.outline),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (widget.notifyReason != null && widget.notifyReason!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 32, top: 2, bottom: 4),
+              child: Text(
+                widget.notifyReason!,
+                style: TextStyle(
+                    fontSize: 11,
+                    color: theme.colorScheme.outline,
+                    fontStyle: FontStyle.italic),
+              ),
+            )
+          else
+            const SizedBox(height: 4),
+        ],
+
+        // サブタスク提案
+        if (widget.subtasks.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          const Divider(height: 1),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Text('💡 ', style: TextStyle(fontSize: 14)),
+              Text(
+                l10n.aiSubtaskSuggestion,
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.primary),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          ...widget.subtasks.map((s) => Padding(
+                padding: const EdgeInsets.only(left: 24, top: 2),
+                child: Row(
+                  children: [
+                    const Text('• ', style: TextStyle(fontSize: 13)),
+                    Expanded(
+                        child: Text(s, style: const TextStyle(fontSize: 13))),
+                  ],
+                ),
+              )),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () =>
+                  _addSubtasks(l10n, task, widget.subtasks),
+              icon: const Icon(Icons.add, size: 16),
+              label: Text(l10n.aiSubtaskAdd),
+            ),
+          ),
+        ],
+      ],
+    );
   }
 }

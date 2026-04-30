@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +7,6 @@ import 'package:intl/intl.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../models/task.dart';
 import '../models/category.dart' as model;
-import '../providers/purchase_provider.dart';
 import '../providers/task_provider.dart';
 import '../theme/colors.dart';
 import '../utils/date_utils.dart' as app_date;
@@ -408,10 +408,9 @@ class _TaskCardState extends ConsumerState<TaskCard>
       ));
     }
 
-    final isPremium = ref.watch(isPremiumProvider);
     final showComment = widget.task.aiComment != null &&
-        widget.task.aiComment!.isNotEmpty &&
-        (isPremium || widget.task.priority == 1);
+        widget.task.aiComment!.isNotEmpty;
+    if (kDebugMode) debugPrint('[AI-DEBUG] 表示: ${widget.task.title} aiComment=${widget.task.aiComment} priority=${widget.task.priority}');
     if (showComment) {
       children.add(const SizedBox(height: 4));
       children.add(Container(
