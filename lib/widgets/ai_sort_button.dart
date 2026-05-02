@@ -194,7 +194,8 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         executionTimingFactor: timingFactor,
       );
 
-      final isRealApiCall = AppConstants.anthropicApiKey.isNotEmpty;
+      final isRealApiCall = AppConstants.anthropicApiKey.isNotEmpty ||
+          AppConstants.aiProxyUrl.isNotEmpty;
 
       // priority/aiComment/recommendedDate更新
       final updates = <int,
@@ -268,6 +269,29 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         } else {
           finalUpdates[taskId] = data;
         }
+      }
+
+      // 最終検証ログ: DB保存直前に全タスクのrec vs dueを出力
+      if (kDebugMode) {
+        debugPrint('[DB-SAVE] ===== DB保存直前の最終状態 =====');
+        for (final entry in finalUpdates.entries) {
+          final taskId = entry.key;
+          final data = entry.value;
+          final taskMatch = incompleteTasks.where((t) => t.id == taskId);
+          if (taskMatch.isEmpty) continue;
+          final t = taskMatch.first;
+          final dueStr = '${t.dueDate.year}-${t.dueDate.month.toString().padLeft(2, '0')}-${t.dueDate.day.toString().padLeft(2, '0')}';
+          final recStr = data.recommendedDate != null
+              ? '${data.recommendedDate!.year}-${data.recommendedDate!.month.toString().padLeft(2, '0')}-${data.recommendedDate!.day.toString().padLeft(2, '0')}'
+              : 'NULL';
+          final same = recStr == dueStr;
+          final commentPreview = data.aiComment != null ? data.aiComment!.substring(0, data.aiComment!.length.clamp(0, 20)) : 'null';
+          debugPrint('[DB-SAVE] ${t.title}: rec=$recStr due=$dueStr same=$same comment=$commentPreview');
+          if (same) {
+            debugPrint('[DB-SAVE] ★★★ ERROR: recommended_date == due_date が検出されました！ ★★★');
+          }
+        }
+        debugPrint('[DB-SAVE] ===================================');
       }
 
       await db.updateTaskPriorities(finalUpdates,

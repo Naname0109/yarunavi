@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
 
@@ -445,6 +446,10 @@ class DatabaseService {
             : null;
         values['is_recommended_date_manual'] = 0;
       }
+      debugPrint('[DB-WRITE] id=${entry.key} priority=${entry.value.priority} '
+          'rec_date=${values['recommended_date']} '
+          'ai_comment=${(entry.value.aiComment ?? '').isNotEmpty ? 'あり' : 'なし'} '
+          'skipDate=$skipDate');
       batch.update(
         'tasks',
         values,
