@@ -17,9 +17,8 @@ class AdHelper {
           ? 'ca-app-pub-3940256099942544/2435281174'
           : 'ca-app-pub-3940256099942544/6300978111';
     }
-    // TODO: AdMob登録完了後に本番IDに差し替え
     return isIOS
-        ? 'ca-app-pub-XXXXX/XXXXX'
+        ? 'ca-app-pub-2099665494657429/4943695327'
         : 'ca-app-pub-XXXXX/XXXXX';
   }
 
@@ -28,14 +27,12 @@ class AdHelper {
     if (!isAdSupported) return '';
     final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
     if (kDebugMode) {
-      // Google公式テストID
       return isIOS
           ? 'ca-app-pub-3940256099942544/6978759866'
           : 'ca-app-pub-3940256099942544/5354046379';
     }
-    // TODO: AdMob登録完了後に本番IDに差し替え
     return isIOS
-        ? 'ca-app-pub-XXXXX/XXXXX'
+        ? 'ca-app-pub-2099665494657429/6243411116'
         : 'ca-app-pub-XXXXX/XXXXX';
   }
 }
