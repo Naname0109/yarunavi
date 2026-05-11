@@ -264,7 +264,7 @@ class _TaskCardState extends ConsumerState<TaskCard>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.push_pin, size: 14,
+              Icon(Icons.event_available, size: 14,
                   color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 4),
               Flexible(
@@ -305,7 +305,7 @@ class _TaskCardState extends ConsumerState<TaskCard>
       children.add(const SizedBox(height: 4));
     }
 
-    // 既存サブ情報 (🔔/📅/AIコメント)
+    // サブ情報: 通知 / カレンダー連携 / AIコメント
     children.addAll(_buildSubInfo(context, l10n, locale));
 
     // メモ (最初の2行)
@@ -412,11 +412,14 @@ class _TaskCardState extends ConsumerState<TaskCard>
         widget.task.aiComment!.isNotEmpty;
     if (kDebugMode) debugPrint('[AI-DEBUG] 表示: ${widget.task.title} aiComment=${widget.task.aiComment} priority=${widget.task.priority}');
     if (showComment) {
-      children.add(const SizedBox(height: 4));
+      children.add(const SizedBox(height: 6));
       children.add(Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.06),
+          color: Theme.of(context)
+              .colorScheme
+              .surfaceContainerHighest
+              .withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -431,7 +434,8 @@ class _TaskCardState extends ConsumerState<TaskCard>
                 widget.task.aiComment!,
                 style: TextStyle(
                   fontSize: 13,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  height: 1.5,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),

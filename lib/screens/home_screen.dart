@@ -102,50 +102,53 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('$todayStr($dow)'),
+        titleSpacing: 16,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              todayStr,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                height: 1.1,
+              ),
+            ),
+            Text(
+              dow,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
         actions: [
           if (isCalendarTab)
             IconButton(
-              icon: const Icon(Icons.today),
+              icon: const Icon(Icons.today_outlined),
               tooltip: l10n.calendarToday,
               onPressed: () => _calendarKey.currentState?.goToToday(),
             ),
           AiSortButton(key: _aiSortKey),
-          InkWell(
+          IconButton(
             key: const Key('ai_history_button'),
-            borderRadius: BorderRadius.circular(8),
-            onTap: () {
+            tooltip: l10n.aiHistoryLabel,
+            icon: Badge(
+              isLabelVisible: showHistoryBadge,
+              smallSize: 8,
+              child: const Icon(Icons.history),
+            ),
+            onPressed: () {
               ref.read(aiHistoryBadgeProvider.notifier).state = false;
               context.push('/ai-history');
             },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Badge(
-                    isLabelVisible: showHistoryBadge,
-                    child: Icon(Icons.history,
-                        size: 20,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    l10n.aiHistoryLabel,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
           IconButton(
             key: const Key('settings_button'),
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.settings_outlined),
             onPressed: () => context.push('/settings'),
             tooltip: l10n.settings,
           ),
@@ -399,17 +402,28 @@ class _TodoTabState extends ConsumerState<_TodoTab> {
                 if (_weekTabIndex == 0) ...[
                   _SectionHeader(
                     title: l10n.todaySection,
-                    icon: Icons.push_pin,
+                    icon: Icons.flag_outlined,
                     color: theme.colorScheme.error,
                   ),
                   if (split.today.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      child: Text(l10n.todaySectionEmpty,
-                          style: TextStyle(
-                              fontSize: 15,
-                              color: theme.colorScheme.onSurfaceVariant)),
+                          horizontal: 16, vertical: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check_circle_outline,
+                              size: 18,
+                              color: theme.colorScheme.onSurfaceVariant),
+                          const SizedBox(width: 6),
+                          Text(
+                            l10n.todaySectionEmpty,
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: theme.colorScheme.onSurfaceVariant),
+                          ),
+                        ],
+                      ),
                     )
                   else
                     ..._buildTaskCards(split.today),
@@ -581,6 +595,7 @@ class _WeekTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final labels = [
       l10n.weekTabThisWeek,
       l10n.weekTabNextWeek,
@@ -592,16 +607,61 @@ class _WeekTabBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: List.generate(3, (i) {
-          final label = counts[i] > 0
-              ? l10n.weekTabCount(labels[i], counts[i])
-              : labels[i];
+          final isSelected = selectedIndex == i;
+          final hasCount = counts[i] > 0;
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: ChoiceChip(
-              label: Text(label),
-              selected: selectedIndex == i,
+              label: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(labels[i]),
+                  if (hasCount) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? theme.colorScheme.onPrimary
+                                .withValues(alpha: 0.25)
+                            : theme.colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        '${counts[i]}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected
+                              ? theme.colorScheme.onPrimary
+                              : theme.colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              selected: isSelected,
               onSelected: (_) => onSelected(i),
+              showCheckmark: false,
               visualDensity: VisualDensity.compact,
+              selectedColor: theme.colorScheme.primary,
+              backgroundColor: theme.colorScheme.surface,
+              labelStyle: TextStyle(
+                color: isSelected
+                    ? theme.colorScheme.onPrimary
+                    : theme.colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+              side: BorderSide(
+                color: isSelected
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.outlineVariant,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
           );
         }),
@@ -1038,7 +1098,7 @@ class _AllCompleteCelebrationState
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    '${widget.l10n.allCompleteTitle} 🎉',
+                    widget.l10n.allCompleteTitle,
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.onSurface,

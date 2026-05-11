@@ -220,13 +220,19 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
                 ),
 
                 const SizedBox(height: 24),
-                FilledButton.icon(
+                FilledButton.tonalIcon(
                   onPressed: () {
                     ref.invalidate(tasksProvider);
                     context.go('/home');
                   },
-                  icon: const Icon(Icons.home),
+                  icon: const Icon(Icons.home_outlined, size: 18),
                   label: Text(l10n.backToHome),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 32),
               ],
@@ -475,10 +481,41 @@ class _AiResultScreenState extends ConsumerState<AiResultScreen> {
     bool isPremium,
   ) {
     if (tasks.isEmpty) return [];
+    final theme = Theme.of(context);
     return [
       Padding(
         padding: const EdgeInsets.only(top: 16, bottom: 8),
-        child: Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
+        child: Row(
+          children: [
+            // 優先度色の丸
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '${tasks.length}',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
       ),
       ...tasks.map((task) {
         final result = task.id != null ? resultsMap[task.id] : null;
@@ -634,9 +671,24 @@ class _AiTaskCardState extends ConsumerState<_AiTaskCard> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         if (task.recommendedDate != null)
-                          Text(
-                            '📌 ${fmt.format(task.recommendedDate!)}',
-                            style: TextStyle(fontSize: 12, color: theme.colorScheme.primary),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.event_available,
+                                    size: 13,
+                                    color: theme.colorScheme.primary),
+                                const SizedBox(width: 4),
+                                Text(
+                                  fmt.format(task.recommendedDate!),
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: theme.colorScheme.primary),
+                                ),
+                              ],
+                            ),
                           ),
                       ],
                     ),
@@ -678,16 +730,37 @@ class _AiTaskCardState extends ConsumerState<_AiTaskCard> {
         const Divider(height: 1),
         const SizedBox(height: 8),
 
-        // AIコメント
+        // AIコメント (背景色つきコンテナで読みやすく)
         if (task.aiComment != null && task.aiComment!.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 8),
+            padding: const EdgeInsets.only(left: 16, bottom: 10),
             child: widget.isPremium || task.priority == 1
-                ? Text(
-                    task.aiComment!,
-                    style: TextStyle(
-                        fontSize: 13,
-                        color: theme.colorScheme.onSurfaceVariant),
+                ? Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.auto_awesome,
+                            size: 14,
+                            color: theme.colorScheme.primary),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            task.aiComment!,
+                            style: TextStyle(
+                              fontSize: 13,
+                              height: 1.5,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   )
                 : Row(
                     children: [
@@ -719,17 +792,21 @@ class _AiTaskCardState extends ConsumerState<_AiTaskCard> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.push_pin, size: 14, color: theme.colorScheme.primary),
+                    Icon(Icons.event_available,
+                        size: 14, color: theme.colorScheme.primary),
                     const SizedBox(width: 4),
                     Flexible(
                       child: Text(
-                        l10n.recommendedDateEditHint(fmt.format(task.recommendedDate!)),
+                        l10n.recommendedDateEditHint(
+                            fmt.format(task.recommendedDate!)),
                         style: TextStyle(
                             fontSize: 12, color: theme.colorScheme.primary),
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Icon(Icons.edit, size: 13, color: theme.colorScheme.primary),
+                    Icon(Icons.edit,
+                        size: 13,
+                        color: theme.colorScheme.onSurfaceVariant),
                   ],
                 ),
               ),
@@ -762,7 +839,7 @@ class _AiTaskCardState extends ConsumerState<_AiTaskCard> {
                 const SizedBox(width: 4),
                 Flexible(
                   child: Text(
-                    '🔔 ${widget.notifyDate!}',
+                    widget.notifyDate!,
                     style: TextStyle(
                         fontSize: 12, color: theme.colorScheme.outline),
                   ),
@@ -792,7 +869,9 @@ class _AiTaskCardState extends ConsumerState<_AiTaskCard> {
           const SizedBox(height: 8),
           Row(
             children: [
-              const Text('💡 ', style: TextStyle(fontSize: 14)),
+              Icon(Icons.lightbulb_outline,
+                  size: 16, color: Colors.amber.shade700),
+              const SizedBox(width: 6),
               Text(
                 l10n.aiSubtaskSuggestion,
                 style: TextStyle(

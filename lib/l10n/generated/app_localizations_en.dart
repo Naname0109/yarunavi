@@ -227,16 +227,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get aiPriorityUrgent => '🔴 Focus on these today';
+  String get aiPriorityUrgent => 'Focus on these today';
 
   @override
-  String get aiPriorityWarning => '🟠 Get it done this week';
+  String get aiPriorityWarning => 'Get it done this week';
 
   @override
-  String get aiPriorityNormal => '🔵 Next week is fine';
+  String get aiPriorityNormal => 'Next week is fine';
 
   @override
-  String get aiPriorityRelaxed => '⚪ Keep in mind';
+  String get aiPriorityRelaxed => 'Keep in mind';
 
   @override
   String get backToHome => 'Back to Home';
@@ -707,7 +707,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'You\'ve hit this month\'s AI sort limit. Resets next month.';
 
   @override
-  String get premiumGateTitle => '🔔 Notifications & 📅 Calendar are Premium';
+  String get premiumGateTitle => 'Notifications & Calendar are Premium';
 
   @override
   String get premiumGateDesc =>
@@ -750,14 +750,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String recommendedDateHint(String date) {
-    return '📌 Best to do on $date';
+    return 'Best to do on $date';
   }
 
   @override
-  String get calendarSectionRecommended => '📋 Do on this day';
+  String get calendarSectionRecommended => 'Do on this day';
 
   @override
-  String get calendarSectionDue => '⏰ Due on this day';
+  String get calendarSectionDue => 'Due on this day';
 
   @override
   String get taskCardEdit => 'Edit';
@@ -1150,7 +1150,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todaySection => 'Today\'s Tasks';
 
   @override
-  String get todaySectionEmpty => 'Nothing to do today 👍';
+  String get todaySectionEmpty => 'Nothing to do today';
 
   @override
   String get otherTasks => 'Other Tasks';
@@ -1277,7 +1277,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String recommendedDateEditHint(String date) {
-    return '📌 Best on $date ✏️';
+    return 'Best on $date';
   }
 
   @override

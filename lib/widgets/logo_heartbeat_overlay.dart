@@ -1,42 +1,36 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
-/// 完了時に画面中央でアプリロゴが鼓動する演出
+/// 完了時にロゴが「サッと広がって消える」スタイリッシュな演出
 ///
-/// タイムライン (合計 3.0秒):
-///   0.00 - 0.10 (0.30s) 出現: opacity 0→0.6 / scale 0.5→1.0 (easeOut)
-///   0.10 - 0.37 (0.80s) 鼓動1: 1.0 → 1.15 → 1.0 (sin)
-///   0.37 - 0.47 (0.30s) 待機
-///   0.47 - 0.74 (0.80s) 鼓動2: 1.0 → 1.30 → 1.0 (sin、より大きく)
-///   0.74 - 0.94 (0.60s) 拡大消失: scale 1.0→2.0 / opacity 0.6→0
-///   0.94 - 1.00 (0.18s) 残像のフェードアウト猶予
-///
-/// 残像:
-///   - パルス1ピーク (t≈0.235) で scale 1.15 / opacity 0.3 の残像を生成
-///   - パルス2ピーク (t≈0.605) で scale 1.30 / opacity 0.3 の残像を生成
-///   - 各残像は出現から ~1.0秒 (controller の t で 0.333) かけてフェードアウト
+/// タイムライン (合計 1.0秒):
+///   0.00 - 0.20 (0.20s) 出現: scale 0.8 → 1.0、opacity 0 → 0.7 (easeOut)
+///   0.20 - 0.70 (0.50s) リング拡大: Primary色の薄いリングが画面全体に放射状に広がる
+///                       (リング opacity 0.30 → 0、ロゴ scale 1.0 → 1.1)
+///   0.70 - 1.00 (0.30s) 消失: ロゴ opacity 0.7 → 0、scale 1.1 → 1.3 (easeIn)
 class LogoHeartbeatOverlay extends StatefulWidget {
   const LogoHeartbeatOverlay({
     super.key,
     required this.onComplete,
-    this.logoSize = 120.0,
+    required this.primaryColor,
+    this.logoSize = 96.0,
   });
 
   final VoidCallback onComplete;
+  final Color primaryColor;
   final double logoSize;
 
   /// 演出が再生中かを示すフラグ (連打防御)
   static bool _isPlaying = false;
 
-  /// ナビゲーター直下の rootOverlay に挿入して鼓動演出を再生し、
+  /// ナビゲーター直下の rootOverlay に挿入して演出を再生し、
   /// 完了したら自動的に entry を除去する。
   /// 既に再生中なら何もしない (重複挿入による Overlay 残骸を防ぐ)。
-  static void show(BuildContext context, {double logoSize = 120.0}) {
+  static void show(BuildContext context, {double logoSize = 96.0}) {
     if (_isPlaying) return;
     _isPlaying = true;
 
     final overlay = Overlay.of(context, rootOverlay: true);
+    final primary = Theme.of(context).colorScheme.primary;
     late OverlayEntry entry;
     bool removed = false;
     void safeRemove() {
@@ -49,6 +43,7 @@ class LogoHeartbeatOverlay extends StatefulWidget {
     entry = OverlayEntry(
       builder: (_) => LogoHeartbeatOverlay(
         logoSize: logoSize,
+        primaryColor: primary,
         onComplete: safeRemove,
       ),
     );
@@ -65,25 +60,16 @@ class _LogoHeartbeatOverlayState extends State<LogoHeartbeatOverlay>
   bool _completed = false;
 
   // タイムラインのキーポイント (0.0 - 1.0)
-  static const _appearEnd = 0.10;
-  static const _pulse1Start = 0.10;
-  static const _pulse1End = 0.37;
-  static const _pulse1Mid = 0.235; // ピーク
-  static const _holdEnd = 0.47;
-  static const _pulse2Start = 0.47;
-  static const _pulse2End = 0.74;
-  static const _pulse2Mid = 0.605; // ピーク
-  static const _exitEnd = 0.94;
-
-  // 残像フェード持続時間 (1秒 ≒ controller.value で 0.333)
-  static const _afterFadeDuration = 0.333;
+  static const _appearEnd = 0.20;
+  static const _ringEnd = 0.70;
+  static const _exitEnd = 1.00;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 1),
     );
     _controller.forward().whenComplete(() {
       if (mounted) _fireComplete();
@@ -104,60 +90,36 @@ class _LogoHeartbeatOverlayState extends State<LogoHeartbeatOverlay>
     super.dispose();
   }
 
-  /// メインロゴのスケール
-  double _scaleAt(double t) {
+  /// ロゴのスケール
+  double _logoScale(double t) {
     if (t < _appearEnd) {
       final local = t / _appearEnd;
-      return 0.5 + Curves.easeOut.transform(local) * 0.5;
-    } else if (t < _pulse1End) {
-      // 三角波 (sin)
-      final local = (t - _pulse1Start) / (_pulse1End - _pulse1Start);
-      return 1.0 + math.sin(local * math.pi) * 0.15;
-    } else if (t < _holdEnd) {
-      return 1.0;
-    } else if (t < _pulse2End) {
-      final local = (t - _pulse2Start) / (_pulse2End - _pulse2Start);
-      return 1.0 + math.sin(local * math.pi) * 0.30;
-    } else if (t < _exitEnd) {
-      final local = (t - _pulse2End) / (_exitEnd - _pulse2End);
-      return 1.0 + Curves.easeOut.transform(local) * 1.0;
+      return 0.8 + Curves.easeOut.transform(local) * 0.2; // 0.8 → 1.0
+    } else if (t < _ringEnd) {
+      final local = (t - _appearEnd) / (_ringEnd - _appearEnd);
+      return 1.0 + Curves.easeOut.transform(local) * 0.1; // 1.0 → 1.1
     } else {
-      return 2.0;
+      final local = (t - _ringEnd) / (_exitEnd - _ringEnd);
+      return 1.1 + Curves.easeIn.transform(local) * 0.2; // 1.1 → 1.3
     }
   }
 
-  /// メインロゴの不透明度
-  double _opacityAt(double t) {
+  /// ロゴの不透明度
+  double _logoOpacity(double t) {
     if (t < _appearEnd) {
-      return Curves.easeOut.transform(t / _appearEnd) * 0.6;
-    } else if (t < _pulse2End) {
-      return 0.6;
-    } else if (t < _exitEnd) {
-      final local = (t - _pulse2End) / (_exitEnd - _pulse2End);
-      return 0.6 * (1.0 - local);
+      return Curves.easeOut.transform(t / _appearEnd) * 0.7;
+    } else if (t < _ringEnd) {
+      return 0.7;
     } else {
-      return 0;
+      final local = (t - _ringEnd) / (_exitEnd - _ringEnd);
+      return 0.7 * (1.0 - Curves.easeIn.transform(local));
     }
   }
 
-  /// 背景の暗さ (パルス1始まり〜拡大消失終わりまで薄く暗転)
-  double _backdropOpacityAt(double t) {
-    if (t < _appearEnd) {
-      return Curves.easeOut.transform(t / _appearEnd) * 0.10;
-    } else if (t < _exitEnd) {
-      return 0.10;
-    } else {
-      final local = (t - _exitEnd) / (1.0 - _exitEnd);
-      return 0.10 * (1.0 - local).clamp(0.0, 1.0);
-    }
-  }
-
-  /// 残像の不透明度 (出現時に 0.3 → 1秒で 0)
-  double _afterImageOpacity(double t, double appearAt) {
-    if (t < appearAt) return 0;
-    final elapsed = t - appearAt;
-    if (elapsed >= _afterFadeDuration) return 0;
-    return 0.3 * (1.0 - elapsed / _afterFadeDuration);
+  /// リングの進捗 (0.0 - 1.0)。リング展開フェーズのみ 0→1
+  double _ringProgress(double t) {
+    if (t < _appearEnd || t >= _ringEnd) return -1.0;
+    return (t - _appearEnd) / (_ringEnd - _appearEnd);
   }
 
   @override
@@ -168,59 +130,95 @@ class _LogoHeartbeatOverlayState extends State<LogoHeartbeatOverlay>
           animation: _controller,
           builder: (context, _) {
             final t = _controller.value;
-            return Stack(
-              alignment: Alignment.center,
-              children: [
-                // 1. 背景の薄い暗転
-                Positioned.fill(
-                  child: ColoredBox(
-                    color:
-                        Colors.black.withValues(alpha: _backdropOpacityAt(t)),
-                  ),
-                ),
-                // 2. パルス1 残像 (1.15x, 0.3 alpha → 1秒フェード)
-                _afterImage(t: t, appearAt: _pulse1Mid, scale: 1.15),
-                // 3. パルス2 残像 (1.30x)
-                _afterImage(t: t, appearAt: _pulse2Mid, scale: 1.30),
-                // 4. メインロゴ
-                Opacity(
-                  opacity: _opacityAt(t),
-                  child: Transform.scale(
-                    scale: _scaleAt(t),
-                    child: _logoImage(),
-                  ),
-                ),
-              ],
+            final ringT = _ringProgress(t);
+
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                // リングは画面の対角線まで広がる
+                final maxRadius = constraints.biggest.longestSide;
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // 1. 拡大していくリング
+                    if (ringT >= 0)
+                      _Ring(
+                        progress: ringT,
+                        maxRadius: maxRadius,
+                        color: widget.primaryColor,
+                      ),
+                    // 2. ロゴ
+                    Opacity(
+                      opacity: _logoOpacity(t),
+                      child: Transform.scale(
+                        scale: _logoScale(t),
+                        child: Image.asset(
+                          'assets/icon/app_icon.png',
+                          width: widget.logoSize,
+                          height: widget.logoSize,
+                          filterQuality: FilterQuality.medium,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             );
           },
         ),
       ),
     );
   }
+}
 
-  Widget _afterImage({
-    required double t,
-    required double appearAt,
-    required double scale,
-  }) {
-    final opacity = _afterImageOpacity(t, appearAt);
-    if (opacity <= 0) return const SizedBox.shrink();
-    return Opacity(
-      opacity: opacity,
-      child: Transform.scale(
-        scale: scale,
-        child: _logoImage(),
+/// 拡大しながらフェードアウトする1本のリング (Stroke の円)
+class _Ring extends StatelessWidget {
+  const _Ring({
+    required this.progress,
+    required this.maxRadius,
+    required this.color,
+  });
+
+  final double progress;
+  final double maxRadius;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final eased = Curves.easeOut.transform(progress);
+    final radius = 48 + (maxRadius - 48) * eased;
+    final alpha = (1.0 - progress) * 0.30; // 0.30 → 0
+    if (alpha <= 0) return const SizedBox.shrink();
+    return IgnorePointer(
+      child: CustomPaint(
+        size: Size.square(radius * 2),
+        painter: _RingPainter(
+          radius: radius,
+          color: color.withValues(alpha: alpha),
+        ),
       ),
     );
   }
+}
 
-  Widget _logoImage() {
-    return Image.asset(
-      'assets/icon/app_icon.png',
-      width: widget.logoSize,
-      height: widget.logoSize,
-      // 透過 PNG なので filterQuality を上げる
-      filterQuality: FilterQuality.medium,
+class _RingPainter extends CustomPainter {
+  _RingPainter({required this.radius, required this.color});
+  final double radius;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+    canvas.drawCircle(
+      Offset(size.width / 2, size.height / 2),
+      radius,
+      paint,
     );
   }
+
+  @override
+  bool shouldRepaint(_RingPainter old) =>
+      old.radius != radius || old.color != color;
 }

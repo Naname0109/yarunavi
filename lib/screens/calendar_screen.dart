@@ -165,6 +165,9 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                     _buildDayCell(day, activeMap, theme, isDark, true, false),
                 selectedBuilder: (context, day, focusedDay) =>
                     _buildDayCell(day, activeMap, theme, isDark, false, true),
+                // デフォルトの黒丸マーカーを無効化 (カラーバーで表現済み)
+                markerBuilder: (context, day, events) =>
+                    const SizedBox.shrink(),
               ),
               calendarStyle: const CalendarStyle(
                 outsideDaysVisible: false,

@@ -226,16 +226,16 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get aiPriorityUrgent => '🔴 今日これだけやろう';
+  String get aiPriorityUrgent => '今日これだけやろう';
 
   @override
-  String get aiPriorityWarning => '🟠 今週のうちに片付けよう';
+  String get aiPriorityWarning => '今週のうちに片付けよう';
 
   @override
-  String get aiPriorityNormal => '🔵 来週以降でOK';
+  String get aiPriorityNormal => '来週以降でOK';
 
   @override
-  String get aiPriorityRelaxed => '⚪ 忘れずにキープ';
+  String get aiPriorityRelaxed => '忘れずにキープ';
 
   @override
   String get backToHome => 'ホームに戻る';
@@ -691,7 +691,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiSortMonthlyLimitReached => '今月のAI整理上限に達しました。来月リセットされます';
 
   @override
-  String get premiumGateTitle => '🔔 通知 / 📅 カレンダー連携はプレミアムで';
+  String get premiumGateTitle => '通知 / カレンダー連携はプレミアムで';
 
   @override
   String get premiumGateDesc =>
@@ -734,14 +734,14 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String recommendedDateHint(String date) {
-    return '📌 $date にやるのがおすすめ';
+    return '$date にやるのがおすすめ';
   }
 
   @override
-  String get calendarSectionRecommended => '📋 この日にやるべきタスク';
+  String get calendarSectionRecommended => 'この日にやるべきタスク';
 
   @override
-  String get calendarSectionDue => '⏰ この日が期限のタスク';
+  String get calendarSectionDue => 'この日が期限のタスク';
 
   @override
   String get taskCardEdit => '編集';
@@ -1127,7 +1127,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get todaySection => '今日やること';
 
   @override
-  String get todaySectionEmpty => '今日やることはありません 👍';
+  String get todaySectionEmpty => '今日やることはありません';
 
   @override
   String get otherTasks => 'その他のタスク';
@@ -1251,7 +1251,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String recommendedDateEditHint(String date) {
-    return '📌 $date に実行がおすすめ ✏️';
+    return '$date に実行がおすすめ';
   }
 
   @override

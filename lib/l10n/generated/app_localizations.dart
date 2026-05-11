@@ -515,25 +515,25 @@ abstract class AppLocalizations {
   /// No description provided for @aiPriorityUrgent.
   ///
   /// In ja, this message translates to:
-  /// **'🔴 今日これだけやろう'**
+  /// **'今日これだけやろう'**
   String get aiPriorityUrgent;
 
   /// No description provided for @aiPriorityWarning.
   ///
   /// In ja, this message translates to:
-  /// **'🟠 今週のうちに片付けよう'**
+  /// **'今週のうちに片付けよう'**
   String get aiPriorityWarning;
 
   /// No description provided for @aiPriorityNormal.
   ///
   /// In ja, this message translates to:
-  /// **'🔵 来週以降でOK'**
+  /// **'来週以降でOK'**
   String get aiPriorityNormal;
 
   /// No description provided for @aiPriorityRelaxed.
   ///
   /// In ja, this message translates to:
-  /// **'⚪ 忘れずにキープ'**
+  /// **'忘れずにキープ'**
   String get aiPriorityRelaxed;
 
   /// No description provided for @backToHome.
@@ -1421,7 +1421,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumGateTitle.
   ///
   /// In ja, this message translates to:
-  /// **'🔔 通知 / 📅 カレンダー連携はプレミアムで'**
+  /// **'通知 / カレンダー連携はプレミアムで'**
   String get premiumGateTitle;
 
   /// No description provided for @premiumGateDesc.
@@ -1499,19 +1499,19 @@ abstract class AppLocalizations {
   /// No description provided for @recommendedDateHint.
   ///
   /// In ja, this message translates to:
-  /// **'📌 {date} にやるのがおすすめ'**
+  /// **'{date} にやるのがおすすめ'**
   String recommendedDateHint(String date);
 
   /// No description provided for @calendarSectionRecommended.
   ///
   /// In ja, this message translates to:
-  /// **'📋 この日にやるべきタスク'**
+  /// **'この日にやるべきタスク'**
   String get calendarSectionRecommended;
 
   /// No description provided for @calendarSectionDue.
   ///
   /// In ja, this message translates to:
-  /// **'⏰ この日が期限のタスク'**
+  /// **'この日が期限のタスク'**
   String get calendarSectionDue;
 
   /// No description provided for @taskCardEdit.
@@ -2261,7 +2261,7 @@ abstract class AppLocalizations {
   /// No description provided for @todaySectionEmpty.
   ///
   /// In ja, this message translates to:
-  /// **'今日やることはありません 👍'**
+  /// **'今日やることはありません'**
   String get todaySectionEmpty;
 
   /// No description provided for @otherTasks.
@@ -2483,7 +2483,7 @@ abstract class AppLocalizations {
   /// No description provided for @recommendedDateEditHint.
   ///
   /// In ja, this message translates to:
-  /// **'📌 {date} に実行がおすすめ ✏️'**
+  /// **'{date} に実行がおすすめ'**
   String recommendedDateEditHint(String date);
 
   /// No description provided for @recommendedDateManual.
