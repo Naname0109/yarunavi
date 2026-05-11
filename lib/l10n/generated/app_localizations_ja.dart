@@ -303,22 +303,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get storePremiumTitle => 'プレミアムプラン';
 
   @override
-  String get storeFeatureAiUnlimited => 'AI整理 月30回（無料は動画視聴で1日1回）';
+  String get storeFeatureAiUnlimited => 'AI整理 月30回';
 
   @override
-  String get storeFeatureTaskUnlimited => 'タスク登録 無制限（無料は10件）';
+  String get storeFeatureTaskUnlimited => 'タスク登録 無制限';
 
   @override
-  String get storeFeatureRecurringUnlimited => '定期タスク 無制限（無料は1件）';
+  String get storeFeatureRecurringUnlimited => '定期タスク 無制限';
 
   @override
-  String get storeFeatureCategoryUnlimited => 'カテゴリ 無制限（無料は2つ）';
+  String get storeFeatureCategoryUnlimited => 'カテゴリ 無制限';
 
   @override
   String get storeFeatureCalendar => 'カレンダー書き出し';
 
   @override
-  String get storeFeatureNotification => '期限日の通知（無料はアプリ内のみ）';
+  String get storeFeatureNotification => '通知の自動設定';
 
   @override
   String get storeFeatureNoAds => '広告非表示';
@@ -327,13 +327,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get storeMonthlyPrice => '¥580/月';
 
   @override
-  String get storeYearlyPrice => '¥4,200/年（¥350/月相当・40%おトク）';
+  String get storeYearlyPrice => '¥4,200/年';
 
   @override
-  String get storeMonthlyTrial => '7日間無料 → その後 月額¥580';
+  String get storeYearlySub => '¥350/月相当・40%おトク';
 
   @override
-  String get storeYearlyTrial => '7日間無料 → その後 年額¥4,200';
+  String get storeMonthlyPlanTitle => '月額プラン';
+
+  @override
+  String get storeYearlyPlanTitle => '年額プラン';
+
+  @override
+  String get storeMonthlyTrial => '7日間無料トライアル';
+
+  @override
+  String get storeYearlyTrial => '7日間無料トライアル';
 
   @override
   String get storeAutoRenewWarning1 => '無料体験終了後、自動的に課金されます';
@@ -414,7 +423,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ob2BeforeTask2 => '家賃振込';
 
   @override
-  String get ob2BeforeDate2 => '明日';
+  String get ob2BeforeDate2 => '5/15';
 
   @override
   String get ob2BeforeTask3 => 'パスポート更新';
@@ -432,7 +441,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ob2BeforeTask5 => '日用品買い出し';
 
   @override
-  String get ob2BeforeDate5 => '4/18';
+  String get ob2BeforeDate5 => '5/20';
 
   @override
   String get ob2AfterUrgent => '今すぐやるべき';
@@ -456,13 +465,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ob2AfterTask2 => '家賃振込';
 
   @override
-  String get ob2AfterComment2 => '明日が期限。ネットバンキングで今日中に';
+  String get ob2AfterComment2 => '5/13までに済ませよう。ネットバンキングが便利';
 
   @override
   String get ob2AfterTask3 => '日用品買い出し';
 
   @override
-  String get ob2AfterComment3 => '週末にまとめ買いが効率的';
+  String get ob2AfterComment3 => '5/17の週末にまとめ買いが効率的';
 
   @override
   String get ob2AfterTask4 => 'パスポート更新';
@@ -1352,4 +1361,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get devModeAnimationsPreviewDesc => 'AI整理・全完了・バースト・紙吹雪を独立に再生';
+
+  @override
+  String get calendarLegendUrgent => '緊急';
+
+  @override
+  String get calendarLegendWeek => '今週';
+
+  @override
+  String get calendarLegendLater => '来週〜';
+
+  @override
+  String get calendarLegendUnsorted => '未整理';
 }

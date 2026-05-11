@@ -22,6 +22,7 @@ import '../providers/dev_mode_provider.dart';
 import '../providers/settings_provider.dart';
 import '../utils/feature_gate.dart';
 import '../utils/notification_utils.dart';
+import 'logo_heartbeat_overlay.dart';
 
 /// AI整理レスポンスを保持するProvider
 final aiSortResponseProvider =
@@ -183,10 +184,10 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       });
     }
 
-    // 送信開始 → 0%→10%へ即ジャンプ
+    // 送信開始 → 0%→5%へ (500ms)
     progressController.setPhase(AiSortPhase.sending);
-    // 少し待ってから awaiting フェーズに進む（10%→80%のロング進行を開始）
-    Future.delayed(const Duration(milliseconds: 250), () {
+    // sending 完了直後に awaiting (5%→30%→60%→75% の多段階) を開始
+    Future.delayed(const Duration(milliseconds: 500), () {
       progressController.setPhase(AiSortPhase.awaiting);
     });
 
@@ -366,9 +367,9 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         taskCount: response.tasks.length,
       );
 
-      // 95% → 100% (DB保存完了)
+      // 90% → 100% (DB保存完了、500ms)
       progressController.setPhase(AiSortPhase.finalizing);
-      await Future.delayed(const Duration(milliseconds: 350));
+      await Future.delayed(const Duration(milliseconds: 550));
 
       // 100%到達 → 完了演出
       // 演出タイムライン (合計 ~1500ms):
@@ -384,6 +385,12 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       // システムサウンドはチェックマーク登場の瞬間に合わせる
       Future.delayed(const Duration(milliseconds: 350), () {
         unawaited(sound.playSystemSound(SoundEvent.aiSortComplete));
+      });
+
+      // ステップ4: ロゴ鼓動演出 (バースト/チェック登場の直後、~600ms 後に発火)
+      // 3秒の演出だが、画面遷移後も Overlay として継続表示される
+      Future.delayed(const Duration(milliseconds: 600), () {
+        if (mounted) LogoHeartbeatOverlay.show(context);
       });
 
       // 結果をProviderに保存
@@ -635,11 +642,17 @@ class AiSortProgressController extends ChangeNotifier {
 
   AiSortPhase get phase => _phase;
 
-  /// タスク数に応じた送信→レスポンスまでの所要時間
-  Duration get awaitingDuration {
-    if (taskCount <= 5) return const Duration(seconds: 5);
-    if (taskCount <= 10) return const Duration(seconds: 8);
-    return const Duration(seconds: 12);
+  /// awaiting フェーズの3段階の所要時間 (ms)。
+  /// stage1: 5% → 30%、stage2: 30% → 60% (stage1の1.5倍)、stage3: 60% → 75% (stage1の2倍)。
+  ({int stage1Ms, int stage2Ms, int stage3Ms}) get awaitingStageMs {
+    final s1 = taskCount <= 5
+        ? 8000
+        : (taskCount <= 10 ? 12000 : 18000);
+    return (
+      stage1Ms: s1,
+      stage2Ms: (s1 * 1.5).round(),
+      stage3Ms: s1 * 2,
+    );
   }
 
   void setPhase(AiSortPhase newPhase) {
@@ -669,6 +682,8 @@ class AiLoadingDialog extends StatefulWidget {
 class _AiLoadingDialogState extends State<AiLoadingDialog>
     with TickerProviderStateMixin {
   int _messageIndex = 0;
+  // stage3 (60%→75%、最後の遅いレーン) に入ったらメッセージを「もう少しで完了します」に固定
+  bool _stage3Reached = false;
   late final AnimationController _pulseController;
   late final AnimationController _progressController;
   late final AnimationController _barColorController; // バー色 Primary → Gold (300ms)
@@ -734,12 +749,11 @@ class _AiLoadingDialogState extends State<AiLoadingDialog>
 
   void _cycleMessages() {
     Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() {
-          _messageIndex = (_messageIndex + 1) % _messages.length;
-        });
-        _cycleMessages();
-      }
+      if (!mounted || _stage3Reached) return;
+      setState(() {
+        _messageIndex = (_messageIndex + 1) % _messages.length;
+      });
+      _cycleMessages();
     });
   }
 
@@ -748,20 +762,20 @@ class _AiLoadingDialogState extends State<AiLoadingDialog>
     final phase = widget.controller.phase;
     switch (phase) {
       case AiSortPhase.sending:
+        // 0% → 5% (0.5秒、即ジャンプ感)
         _animateProgress(
-            to: 0.1, duration: const Duration(milliseconds: 200));
+            to: 0.05, duration: const Duration(milliseconds: 500));
       case AiSortPhase.awaiting:
-        _animateProgress(
-          to: 0.8,
-          duration: widget.controller.awaitingDuration,
-          curve: Curves.easeOut,
-        );
+        // 5% → 30% → 60% → 75% を3段階で順次進める
+        _animateAwaitingSequence();
       case AiSortPhase.receiving:
+        // 現在位置 → 90% (0.8秒)
         _animateProgress(
-            to: 0.95, duration: const Duration(milliseconds: 500));
+            to: 0.90, duration: const Duration(milliseconds: 800));
       case AiSortPhase.finalizing:
+        // 90% → 100% (0.5秒)
         _animateProgress(
-            to: 1.0, duration: const Duration(milliseconds: 300));
+            to: 1.0, duration: const Duration(milliseconds: 500));
       case AiSortPhase.complete:
         // ステップ1 (t=0): プログレスバーを 100% に固定し、Primary → Gold へ
         _animateProgress(
@@ -794,6 +808,45 @@ class _AiLoadingDialogState extends State<AiLoadingDialog>
       CurvedAnimation(parent: _progressController, curve: curve),
     );
     _progressController.forward(from: 0);
+  }
+
+  /// awaiting フェーズの3段階アニメーション
+  /// 5%→30% (stage1) → 30%→60% (stage1×1.5) → 60%→75% (stage1×2)
+  /// レスポンスが受信されてフェーズが変わったら自動で停止
+  Future<void> _animateAwaitingSequence() async {
+    final stages = widget.controller.awaitingStageMs;
+
+    bool stillAwaiting() =>
+        mounted && widget.controller.phase == AiSortPhase.awaiting;
+
+    // stage1: 5% → 30%
+    _animateProgress(
+      to: 0.30,
+      duration: Duration(milliseconds: stages.stage1Ms),
+    );
+    await Future.delayed(Duration(milliseconds: stages.stage1Ms));
+    if (!stillAwaiting()) return;
+
+    // stage2: 30% → 60% (より遅く)
+    _animateProgress(
+      to: 0.60,
+      duration: Duration(milliseconds: stages.stage2Ms),
+    );
+    await Future.delayed(Duration(milliseconds: stages.stage2Ms));
+    if (!stillAwaiting()) return;
+
+    // stage3: 60% → 75% (さらに遅く、停止して待機)
+    // メッセージを「もう少しで完了します...」に固定して停止感を軽減
+    if (mounted) {
+      setState(() {
+        _stage3Reached = true;
+        _messageIndex = _messages.length - 1; // aiLoadingAlmost
+      });
+    }
+    _animateProgress(
+      to: 0.75,
+      duration: Duration(milliseconds: stages.stage3Ms),
+    );
   }
 
   @override
@@ -1248,13 +1301,13 @@ Future<void> showAiSortPreviewDialog(
   try {
     // 送信 → awaiting
     controller.setPhase(AiSortPhase.sending);
-    await Future.delayed(const Duration(milliseconds: 250));
+    await Future.delayed(const Duration(milliseconds: 500));
     if (dialogClosed) return;
     controller.setPhase(AiSortPhase.awaiting);
 
     if (simulateError != null) {
-      // awaiting を中途で打ち切ってエラー演出
-      await Future.delayed(const Duration(milliseconds: 1500));
+      // awaiting stage1 の途中で打ち切ってエラー演出
+      await Future.delayed(const Duration(milliseconds: 3000));
       if (dialogClosed) return;
       controller.setPhase(AiSortPhase.error);
       if (sound != null) {
@@ -1290,14 +1343,16 @@ Future<void> showAiSortPreviewDialog(
       return;
     }
 
-    // 成功シナリオ: awaiting (フル進行) → receiving → finalizing → complete
-    await Future.delayed(controller.awaitingDuration);
+    // 成功シナリオ: awaiting stage1+stage2 程度を見たら receiving へ
+    // (75% 到達まで待つと長過ぎるので、stage1 を待ってから受信させる)
+    final stages = controller.awaitingStageMs;
+    await Future.delayed(Duration(milliseconds: stages.stage1Ms));
     if (dialogClosed) return;
     controller.setPhase(AiSortPhase.receiving);
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 800));
     if (dialogClosed) return;
     controller.setPhase(AiSortPhase.finalizing);
-    await Future.delayed(const Duration(milliseconds: 350));
+    await Future.delayed(const Duration(milliseconds: 550));
     if (dialogClosed) return;
     controller.setPhase(AiSortPhase.complete);
     if (sound != null) {
@@ -1306,6 +1361,10 @@ Future<void> showAiSortPreviewDialog(
         unawaited(sound.playSystemSound(SoundEvent.aiSortComplete));
       });
     }
+    // ロゴ鼓動演出を発火 (本番の _executeAiSort と同じタイミング)
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (context.mounted) LogoHeartbeatOverlay.show(context);
+    });
     await Future.delayed(const Duration(milliseconds: 1500));
   } finally {
     if (!dialogClosed && context.mounted) {

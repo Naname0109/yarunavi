@@ -305,39 +305,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storePremiumTitle => 'Premium Plan';
 
   @override
-  String get storeFeatureAiUnlimited => 'Unlimited AI Sort (Free: 3/month)';
+  String get storeFeatureAiUnlimited => '30 AI sorts / month';
 
   @override
-  String get storeFeatureTaskUnlimited => 'Unlimited Tasks (Free: 10)';
+  String get storeFeatureTaskUnlimited => 'Unlimited tasks';
 
   @override
-  String get storeFeatureRecurringUnlimited =>
-      'Unlimited Recurring Tasks (Free: 1)';
+  String get storeFeatureRecurringUnlimited => 'Unlimited recurring tasks';
 
   @override
-  String get storeFeatureCategoryUnlimited => 'Unlimited Categories (Free: 2)';
+  String get storeFeatureCategoryUnlimited => 'Unlimited categories';
 
   @override
-  String get storeFeatureCalendar => 'Calendar Export';
+  String get storeFeatureCalendar => 'Calendar export';
 
   @override
-  String get storeFeatureNotification =>
-      'Due Date Notifications (Free: in-app only)';
+  String get storeFeatureNotification => 'Auto-scheduled notifications';
 
   @override
-  String get storeFeatureNoAds => 'No Ads';
+  String get storeFeatureNoAds => 'No ads';
 
   @override
   String get storeMonthlyPrice => '¥580/mo';
 
   @override
-  String get storeYearlyPrice => '¥4,200/yr (¥350/mo, save 40%)';
+  String get storeYearlyPrice => '¥4,200/yr';
 
   @override
-  String get storeMonthlyTrial => '7-day free trial → then ¥580/mo';
+  String get storeYearlySub => '¥350/mo · save 40%';
 
   @override
-  String get storeYearlyTrial => '7-day free trial → then ¥4,200/yr';
+  String get storeMonthlyPlanTitle => 'Monthly';
+
+  @override
+  String get storeYearlyPlanTitle => 'Yearly';
+
+  @override
+  String get storeMonthlyTrial => '7-day free trial';
+
+  @override
+  String get storeYearlyTrial => '7-day free trial';
 
   @override
   String get storeAutoRenewWarning1 =>
@@ -421,7 +428,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ob2BeforeTask2 => 'Pay rent';
 
   @override
-  String get ob2BeforeDate2 => 'Tomorrow';
+  String get ob2BeforeDate2 => 'May 15';
 
   @override
   String get ob2BeforeTask3 => 'Renew passport';
@@ -439,7 +446,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ob2BeforeTask5 => 'Buy groceries';
 
   @override
-  String get ob2BeforeDate5 => 'Apr 18';
+  String get ob2BeforeDate5 => 'May 20';
 
   @override
   String get ob2AfterUrgent => 'Do now';
@@ -463,13 +470,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ob2AfterTask2 => 'Pay rent';
 
   @override
-  String get ob2AfterComment2 => 'Due tomorrow. Use online banking today';
+  String get ob2AfterComment2 => 'Wrap it up by May 13. Online banking is easy';
 
   @override
   String get ob2AfterTask3 => 'Buy groceries';
 
   @override
-  String get ob2AfterComment3 => 'Batch your shopping on the weekend';
+  String get ob2AfterComment3 => 'Batch your shopping on the weekend of May 17';
 
   @override
   String get ob2AfterTask4 => 'Renew passport';
@@ -1383,4 +1390,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get devModeAnimationsPreviewDesc =>
       'Replay AI sort, all-complete, burst and confetti independently';
+
+  @override
+  String get calendarLegendUrgent => 'Urgent';
+
+  @override
+  String get calendarLegendWeek => 'This week';
+
+  @override
+  String get calendarLegendLater => 'Later';
+
+  @override
+  String get calendarLegendUnsorted => 'Unsorted';
 }

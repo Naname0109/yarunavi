@@ -5,6 +5,7 @@ import '../l10n/generated/app_localizations.dart';
 import '../providers/sound_provider.dart';
 import '../services/ai_service.dart';
 import '../widgets/ai_sort_button.dart';
+import '../widgets/logo_heartbeat_overlay.dart';
 import '../widgets/responsive_wrapper.dart';
 import 'home_screen.dart'
     show AllCompleteCelebration, ConfettiPainter, PulsingPrimaryButton;
@@ -141,6 +142,18 @@ class _DebugAnimationsScreenState extends ConsumerState<DebugAnimationsScreen> {
                   onPressed: () => _openBurstStandalone(context),
                   icon: const Icon(Icons.play_arrow),
                   label: const Text('バースト単独を再生'),
+                ),
+              ],
+            ),
+            _Section(
+              title: 'ロゴ鼓動演出 (Overlay)',
+              description:
+                  '画面全体オーバーレイで再生 (出現→鼓動1.15x→鼓動1.3x→拡大消失、残像付き、3秒)。',
+              children: [
+                FilledButton.icon(
+                  onPressed: () => LogoHeartbeatOverlay.show(context),
+                  icon: const Icon(Icons.favorite),
+                  label: const Text('ロゴ鼓動を再生'),
                 ),
               ],
             ),

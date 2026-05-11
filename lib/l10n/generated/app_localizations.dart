@@ -653,25 +653,25 @@ abstract class AppLocalizations {
   /// No description provided for @storeFeatureAiUnlimited.
   ///
   /// In ja, this message translates to:
-  /// **'AI整理 月30回（無料は動画視聴で1日1回）'**
+  /// **'AI整理 月30回'**
   String get storeFeatureAiUnlimited;
 
   /// No description provided for @storeFeatureTaskUnlimited.
   ///
   /// In ja, this message translates to:
-  /// **'タスク登録 無制限（無料は10件）'**
+  /// **'タスク登録 無制限'**
   String get storeFeatureTaskUnlimited;
 
   /// No description provided for @storeFeatureRecurringUnlimited.
   ///
   /// In ja, this message translates to:
-  /// **'定期タスク 無制限（無料は1件）'**
+  /// **'定期タスク 無制限'**
   String get storeFeatureRecurringUnlimited;
 
   /// No description provided for @storeFeatureCategoryUnlimited.
   ///
   /// In ja, this message translates to:
-  /// **'カテゴリ 無制限（無料は2つ）'**
+  /// **'カテゴリ 無制限'**
   String get storeFeatureCategoryUnlimited;
 
   /// No description provided for @storeFeatureCalendar.
@@ -683,7 +683,7 @@ abstract class AppLocalizations {
   /// No description provided for @storeFeatureNotification.
   ///
   /// In ja, this message translates to:
-  /// **'期限日の通知（無料はアプリ内のみ）'**
+  /// **'通知の自動設定'**
   String get storeFeatureNotification;
 
   /// No description provided for @storeFeatureNoAds.
@@ -701,19 +701,37 @@ abstract class AppLocalizations {
   /// No description provided for @storeYearlyPrice.
   ///
   /// In ja, this message translates to:
-  /// **'¥4,200/年（¥350/月相当・40%おトク）'**
+  /// **'¥4,200/年'**
   String get storeYearlyPrice;
+
+  /// No description provided for @storeYearlySub.
+  ///
+  /// In ja, this message translates to:
+  /// **'¥350/月相当・40%おトク'**
+  String get storeYearlySub;
+
+  /// No description provided for @storeMonthlyPlanTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'月額プラン'**
+  String get storeMonthlyPlanTitle;
+
+  /// No description provided for @storeYearlyPlanTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'年額プラン'**
+  String get storeYearlyPlanTitle;
 
   /// No description provided for @storeMonthlyTrial.
   ///
   /// In ja, this message translates to:
-  /// **'7日間無料 → その後 月額¥580'**
+  /// **'7日間無料トライアル'**
   String get storeMonthlyTrial;
 
   /// No description provided for @storeYearlyTrial.
   ///
   /// In ja, this message translates to:
-  /// **'7日間無料 → その後 年額¥4,200'**
+  /// **'7日間無料トライアル'**
   String get storeYearlyTrial;
 
   /// No description provided for @storeAutoRenewWarning1.
@@ -875,7 +893,7 @@ abstract class AppLocalizations {
   /// No description provided for @ob2BeforeDate2.
   ///
   /// In ja, this message translates to:
-  /// **'明日'**
+  /// **'5/15'**
   String get ob2BeforeDate2;
 
   /// No description provided for @ob2BeforeTask3.
@@ -911,7 +929,7 @@ abstract class AppLocalizations {
   /// No description provided for @ob2BeforeDate5.
   ///
   /// In ja, this message translates to:
-  /// **'4/18'**
+  /// **'5/20'**
   String get ob2BeforeDate5;
 
   /// No description provided for @ob2AfterUrgent.
@@ -959,7 +977,7 @@ abstract class AppLocalizations {
   /// No description provided for @ob2AfterComment2.
   ///
   /// In ja, this message translates to:
-  /// **'明日が期限。ネットバンキングで今日中に'**
+  /// **'5/13までに済ませよう。ネットバンキングが便利'**
   String get ob2AfterComment2;
 
   /// No description provided for @ob2AfterTask3.
@@ -971,7 +989,7 @@ abstract class AppLocalizations {
   /// No description provided for @ob2AfterComment3.
   ///
   /// In ja, this message translates to:
-  /// **'週末にまとめ買いが効率的'**
+  /// **'5/17の週末にまとめ買いが効率的'**
   String get ob2AfterComment3;
 
   /// No description provided for @ob2AfterTask4.
@@ -2671,6 +2689,30 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'AI整理・全完了・バースト・紙吹雪を独立に再生'**
   String get devModeAnimationsPreviewDesc;
+
+  /// No description provided for @calendarLegendUrgent.
+  ///
+  /// In ja, this message translates to:
+  /// **'緊急'**
+  String get calendarLegendUrgent;
+
+  /// No description provided for @calendarLegendWeek.
+  ///
+  /// In ja, this message translates to:
+  /// **'今週'**
+  String get calendarLegendWeek;
+
+  /// No description provided for @calendarLegendLater.
+  ///
+  /// In ja, this message translates to:
+  /// **'来週〜'**
+  String get calendarLegendLater;
+
+  /// No description provided for @calendarLegendUnsorted.
+  ///
+  /// In ja, this message translates to:
+  /// **'未整理'**
+  String get calendarLegendUnsorted;
 }
 
 class _AppLocalizationsDelegate

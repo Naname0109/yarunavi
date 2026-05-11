@@ -123,7 +123,7 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
               availableCalendarFormats: const {CalendarFormat.month: 'Month'},
               startingDayOfWeek: StartingDayOfWeek.monday,
               locale: locale,
-              rowHeight: 48,
+              rowHeight: 56,
               daysOfWeekHeight: 24,
               selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
               onDaySelected: (selectedDay, focusedDay) {
@@ -147,12 +147,16 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                 ),
                 leftChevronIcon: Icon(
                   Icons.chevron_left,
-                  color: theme.colorScheme.onSurface,
+                  size: 32,
+                  color: theme.colorScheme.primary,
                 ),
                 rightChevronIcon: Icon(
                   Icons.chevron_right,
-                  color: theme.colorScheme.onSurface,
+                  size: 32,
+                  color: theme.colorScheme.primary,
                 ),
+                leftChevronPadding: const EdgeInsets.all(8),
+                rightChevronPadding: const EdgeInsets.all(8),
               ),
               calendarBuilders: CalendarBuilders(
                 defaultBuilder: (context, day, focusedDay) =>
@@ -168,6 +172,8 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                 cellPadding: EdgeInsets.zero,
               ),
             ),
+            // --- 凡例 ---
+            _CalendarLegend(l10n: l10n, isDark: isDark),
             Divider(height: 1, color: theme.dividerColor),
             // --- 選択日のタスクリスト ---
             Expanded(
@@ -180,11 +186,11 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(Icons.event_available,
-                                size: 48, color: theme.colorScheme.outline),
-                            const SizedBox(height: 12),
+                                size: 28, color: theme.colorScheme.outline),
+                            const SizedBox(height: 6),
                             Text(l10n.calendarNoTasks,
                                 style: TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 12,
                                     color: theme.colorScheme.outline)),
                           ],
                         ),
@@ -241,6 +247,10 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   /// カスタム日付セル
+  /// - 今日: Primaryの丸い背景 + 白文字
+  /// - 選択: Primary薄色の背景
+  /// - タスクあり: 背景に priority色 5% を被せる
+  /// - タスク数だけ priority色の 3px 高さバーを横並びで表示
   Widget _buildDayCell(
     DateTime day,
     Map<DateTime, List<Task>> activeMap,
@@ -253,74 +263,85 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
     final displayTasks = List.of(activeMap[key] ?? <Task>[])
       ..sort((a, b) => a.priority.compareTo(b.priority));
 
-    return Container(
-      margin: EdgeInsets.zero,
-      decoration: BoxDecoration(
-        color: isSelected
-            ? theme.colorScheme.primary.withValues(alpha: 0.15)
-            : isToday
-                ? theme.colorScheme.primary.withValues(alpha: 0.06)
-                : null,
-        borderRadius: BorderRadius.circular(6),
-        border: isToday
-            ? Border.all(color: theme.colorScheme.primary, width: 1.5)
-            : null,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 2),
-          // 日付番号
-          Text(
-            '${day.day}',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight:
-                  isToday || isSelected ? FontWeight.bold : FontWeight.normal,
-              color:
-                  isSelected || isToday ? theme.colorScheme.primary : null,
-            ),
-          ),
-          // タスク表示（最大1件 + N）
-          if (displayTasks.isNotEmpty)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-                      decoration: displayTasks.first.priority > 0
-                          ? BoxDecoration(
-                              color: _getTaskColor(displayTasks.first, isDark)
-                                  .withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(3),
-                            )
-                          : null,
-                      child: Text(
-                        displayTasks.first.title,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: _getTaskColor(displayTasks.first, isDark),
-                          height: 1.1,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+    // タスクがある日: priority最高(1=赤)の薄い色を背景に
+    Color? bgColor;
+    if (displayTasks.isNotEmpty && !isToday && !isSelected) {
+      final firstColor = _getTaskColor(displayTasks.first, isDark);
+      bgColor = firstColor.withValues(alpha: 0.05);
+    }
+
+    // ↑ ただし isSelected/isToday は強調を優先
+    if (isSelected) {
+      bgColor = theme.colorScheme.primary.withValues(alpha: 0.12);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(2),
+      child: Container(
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(8),
+          border: isSelected
+              ? Border.all(color: theme.colorScheme.primary, width: 1.5)
+              : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 3),
+            // 日付番号: 今日は Primary 丸背景 + 白文字
+            if (isToday)
+              Container(
+                width: 24,
+                height: 24,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  '${day.day}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              )
+            else
+              SizedBox(
+                height: 24,
+                child: Center(
+                  child: Text(
+                    '${day.day}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected ? theme.colorScheme.primary : null,
                     ),
-                    if (displayTasks.length > 1)
-                      Text(
-                        '+${displayTasks.length - 1}',
-                        style: TextStyle(
-                            fontSize: 10, color: theme.colorScheme.outline),
-                      ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-        ],
+            const SizedBox(height: 2),
+            // priorityカラーバー (最大4本、3px高さ、横並び)
+            if (displayTasks.isNotEmpty)
+              _PriorityBars(
+                tasks: displayTasks.take(4).toList(),
+                isDark: isDark,
+              ),
+            // 5件以上は +N 表示
+            if (displayTasks.length > 4)
+              Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Text(
+                  '+${displayTasks.length - 4}',
+                  style: TextStyle(
+                      fontSize: 9, color: theme.colorScheme.outline),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -331,5 +352,103 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
     }
     return AppColors.getPriorityColor(task.priority, task.dueDate,
         isDark: isDark);
+  }
+}
+
+/// 日付セル下部の priority カラーバー (3px 高さ、横並び)
+class _PriorityBars extends StatelessWidget {
+  const _PriorityBars({required this.tasks, required this.isDark});
+
+  final List<Task> tasks;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: tasks.map((t) {
+          final color = t.priority == 0
+              ? (isDark ? Colors.grey.shade400 : Colors.grey.shade600)
+              : AppColors.getPriorityColor(t.priority, t.dueDate,
+                  isDark: isDark);
+          return Expanded(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 1),
+              height: 3,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(1.5),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+/// カレンダー下部の凡例
+class _CalendarLegend extends StatelessWidget {
+  const _CalendarLegend({required this.l10n, required this.isDark});
+
+  final AppLocalizations l10n;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final items = <(String, Color)>[
+      (
+        l10n.calendarLegendUrgent,
+        isDark ? AppColors.priorityUrgentDark : AppColors.priorityUrgent,
+      ),
+      (
+        l10n.calendarLegendWeek,
+        isDark ? AppColors.priorityWarningDark : AppColors.priorityWarning,
+      ),
+      (
+        l10n.calendarLegendLater,
+        isDark ? AppColors.priorityNormalDark : AppColors.priorityNormal,
+      ),
+      (
+        l10n.calendarLegendUnsorted,
+        isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+      ),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 12,
+        runSpacing: 4,
+        children: items.map((it) {
+          final (label, color) = it;
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          );
+        }).toList(),
+      ),
+    );
   }
 }

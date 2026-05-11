@@ -63,17 +63,32 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
       ),
       body: ResponsiveWrapper(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // ヘッダー (アイコン + タイトル)
+              Column(
+                children: [
+                  Icon(Icons.workspace_premium,
+                      size: 48, color: theme.colorScheme.primary),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.storePremiumTitle,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
               // プレミアム登録済みバッジ
               if (isPremium) ...[
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
+                      horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(12),
@@ -81,10 +96,8 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.check_circle,
-                        color: theme.colorScheme.primary,
-                      ),
+                      Icon(Icons.check_circle,
+                          color: theme.colorScheme.primary),
                       const SizedBox(width: 8),
                       Text(
                         l10n.storeAlreadyPremium,
@@ -96,78 +109,87 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
               ],
 
               // プレミアム機能一覧
               _buildFeatureCard(context, l10n),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // 価格ボタン（非プレミアム時のみ）
+              // プランカード（非プレミアム時のみ）
               if (!isPremium) ...[
                 if (!purchaseService.isStoreAvailable) ...[
-                  // ストア未接続時
-                  Text(
-                    l10n.storeStoreUnavailable,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: theme.colorScheme.error,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Text(
+                      l10n.storeStoreUnavailable,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.error,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
                 ] else ...[
-                  _buildPriceButtons(context, l10n, purchaseService),
+                  _buildMonthlyCard(context, l10n, purchaseService),
+                  const SizedBox(height: 12),
+                  _buildYearlyCard(context, l10n, purchaseService),
                   const SizedBox(height: 16),
 
-                  // 自動更新警告（オレンジ太字14sp、WCAG AA対応）
-                  Text(
-                    l10n.storeAutoRenewWarning1,
-                    style: TextStyle(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? const Color(0xFFFF9E5C)
-                          : const Color(0xFFC75000),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                  // 注意書き: 控えめなグレーで小さく
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Column(
+                      children: [
+                        Text(
+                          l10n.storeAutoRenewWarning1,
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            fontSize: 12,
+                            height: 1.4,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          l10n.storeAutoRenewWarning2,
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            fontSize: 12,
+                            height: 1.4,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.storeAutoRenewWarning2,
-                    style: TextStyle(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? const Color(0xFFFF9E5C)
-                          : const Color(0xFFC75000),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // 購入を復元ボタン
-                  OutlinedButton(
-                    onPressed: () => _restorePurchases(l10n, purchaseService),
-                    child: Text(l10n.storeRestore),
                   ),
                 ],
               ],
 
               const SizedBox(height: 24),
 
-              // 利用規約リンク
-              _buildLegalLink(
-                context,
-                l10n.termsOfUse,
-                AppConstants.termsOfUseUrl,
-              ),
-              const SizedBox(height: 8),
-              // プライバシーポリシーリンク
-              _buildLegalLink(
-                context,
-                l10n.privacyPolicy,
-                AppConstants.privacyPolicyUrl,
+              // フッター: 復元 + 規約リンク
+              if (!isPremium && purchaseService.isStoreAvailable)
+                Center(
+                  child: TextButton(
+                    onPressed: () =>
+                        _restorePurchases(l10n, purchaseService),
+                    child: Text(l10n.storeRestore),
+                  ),
+                ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildLegalLink(
+                      context, l10n.termsOfUse, AppConstants.termsOfUseUrl),
+                  Text(
+                    '  |  ',
+                    style: TextStyle(color: theme.colorScheme.outline),
+                  ),
+                  _buildLegalLink(context, l10n.privacyPolicy,
+                      AppConstants.privacyPolicyUrl),
+                ],
               ),
             ],
           ),
@@ -177,19 +199,24 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
   }
 
   Widget _buildFeatureCard(BuildContext context, AppLocalizations l10n) {
+    final theme = Theme.of(context);
     final features = [
       (Icons.auto_awesome, l10n.storeFeatureAiUnlimited),
       (Icons.task_alt, l10n.storeFeatureTaskUnlimited),
       (Icons.repeat, l10n.storeFeatureRecurringUnlimited),
-      (Icons.category, l10n.storeFeatureCategoryUnlimited),
-      (Icons.calendar_month, l10n.storeFeatureCalendar),
-      (Icons.notifications_active, l10n.storeFeatureNotification),
+      (Icons.category_outlined, l10n.storeFeatureCategoryUnlimited),
+      (Icons.calendar_month_outlined, l10n.storeFeatureCalendar),
+      (Icons.notifications_active_outlined, l10n.storeFeatureNotification),
       (Icons.block, l10n.storeFeatureNoAds),
     ];
 
     return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         child: Column(
           children: features.map((feature) {
             final (icon, text) = feature;
@@ -197,11 +224,16 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Row(
                 children: [
-                  Icon(icon,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.primary),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text(text)),
+                  Icon(icon, size: 22, color: theme.colorScheme.primary),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Text(
+                      text,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             );
@@ -211,90 +243,134 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
     );
   }
 
-  Widget _buildPriceButtons(
+  /// 月額プランカード
+  Widget _buildMonthlyCard(
     BuildContext context,
     AppLocalizations l10n,
     PurchaseService purchaseService,
   ) {
-    // 商品情報があればストアの価格を使用、なければハードコードでフォールバック
+    final theme = Theme.of(context);
+    // StoreKitから取得した価格を優先、なければフォールバック
     final monthlyPrice =
         purchaseService.monthlyProduct?.price ?? l10n.storeMonthlyPrice;
-    final yearlyPrice =
-        purchaseService.yearlyProduct?.price ?? l10n.storeYearlyPrice;
 
-    return Column(
-      children: [
-        // 月額ボタン
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: () => _purchaseMonthly(l10n, purchaseService),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-            child: Text(
-              monthlyPrice,
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          l10n.storeMonthlyTrial,
-          style: Theme.of(context).textTheme.bodySmall,
-          textAlign: TextAlign.center,
-        ),
-
-        const SizedBox(height: 16),
-
-        // 年額ボタン（おすすめバッジ付き）
-        Stack(
-          clipBehavior: Clip.none,
+    return _PlanCard(
+      onTap: () => _purchaseMonthly(l10n, purchaseService),
+      borderColor: theme.colorScheme.outlineVariant,
+      borderWidth: 1.0,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.tonal(
-                onPressed: () => _purchaseYearly(l10n, purchaseService),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: Text(
-                  yearlyPrice,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+            Text(
+              l10n.storeMonthlyPlanTitle,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ),
-            Positioned(
-              top: -8,
-              right: 12,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  l10n.storeRecommended,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+            const SizedBox(height: 8),
+            Text(
+              monthlyPrice,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l10n.storeMonthlyTrial,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          l10n.storeYearlyTrial,
-          style: Theme.of(context).textTheme.bodySmall,
-          textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  /// 年額プランカード（おすすめバッジ付き）
+  Widget _buildYearlyCard(
+    BuildContext context,
+    AppLocalizations l10n,
+    PurchaseService purchaseService,
+  ) {
+    final theme = Theme.of(context);
+    final yearlyPrice =
+        purchaseService.yearlyProduct?.price ?? l10n.storeYearlyPrice;
+
+    return _PlanCard(
+      onTap: () => _purchaseYearly(l10n, purchaseService),
+      borderColor: theme.colorScheme.primary,
+      borderWidth: 2.0,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 「おすすめ」バッジ (カード内上部)
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.star, size: 12, color: Colors.white),
+                  const SizedBox(width: 4),
+                  Text(
+                    l10n.storeRecommended,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              l10n.storeYearlyPlanTitle,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  yearlyPrice,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 2),
+            Text(
+              l10n.storeYearlySub,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l10n.storeYearlyTrial,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -305,14 +381,17 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
         Uri.parse(url),
         mode: LaunchMode.externalApplication,
       ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: linkColor,
-          decoration: TextDecoration.underline,
-          decorationColor: linkColor,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: linkColor,
+            fontSize: 13,
+            decoration: TextDecoration.underline,
+            decorationColor: linkColor,
+          ),
         ),
-        textAlign: TextAlign.center,
       ),
     );
   }
@@ -347,5 +426,40 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
   ) async {
     // 復元結果はpurchaseStreamのイベントで_onPurchaseEventに通知される
     await purchaseService.restorePurchases();
+  }
+}
+
+/// プランカード共通ベース (ボーダー + InkWell)
+class _PlanCard extends StatelessWidget {
+  const _PlanCard({
+    required this.onTap,
+    required this.borderColor,
+    required this.borderWidth,
+    required this.child,
+  });
+
+  final VoidCallback onTap;
+  final Color borderColor;
+  final double borderWidth;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(16),
+      elevation: 1,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: borderColor, width: borderWidth),
+          ),
+          child: child,
+        ),
+      ),
+    );
   }
 }
