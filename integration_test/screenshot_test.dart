@@ -5,19 +5,30 @@ import 'package:go_router/go_router.dart';
 
 import 'package:yarunavi/main.dart' as app;
 
-/// App Store screenshot capture (5 + IAP)
-///
-///   flutter drive \
-///     --no-enable-impeller \
-///     --driver=test_driver/screenshot_driver.dart \
-///     --target=integration_test/screenshot_test.dart \
-///     -d "iPhone 17 Pro Max"
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   Future<void> takeScreenshot(String name) async {
     await Future.delayed(const Duration(milliseconds: 800));
     await binding.takeScreenshot(name);
+  }
+
+  Future<void> dismissOverlays(WidgetTester tester) async {
+    for (var i = 0; i < 5; i++) {
+      final ok = find.text('OK');
+      if (ok.evaluate().isNotEmpty) {
+        await tester.tap(ok.first);
+        await tester.pumpAndSettle();
+      } else {
+        break;
+      }
+    }
+    // Dismiss any bottom sheets by tapping on the scrim
+    final barriers = find.byType(ModalBarrier);
+    if (barriers.evaluate().length > 1) {
+      await tester.tapAt(const Offset(200, 200));
+      await tester.pumpAndSettle();
+    }
   }
 
   testWidgets('App Store screenshots', (tester) async {
@@ -131,20 +142,22 @@ void main() {
 
     // Insert test data
     try {
-      final aiTestData = find.byKey(const Key('debug_ai_test_data'));
+      final testDataBtn = find.byKey(const Key('debug_detailed_data'));
       await tester.scrollUntilVisible(
-        aiTestData, 200,
+        testDataBtn, 200,
         scrollable: find.byType(Scrollable).first,
       );
       await tester.pumpAndSettle();
-      await tester.tap(aiTestData);
+      await tester.tap(testDataBtn);
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
-      final dialogOk = find.widgetWithText(FilledButton, 'OK');
+      final dialogOk = find.widgetWithText(FilledButton, '投入する');
       if (dialogOk.evaluate().isNotEmpty) {
         await tester.tap(dialogOk);
         await tester.pumpAndSettle(const Duration(seconds: 3));
         debugPrint('[SS] Test data inserted');
+      } else {
+        debugPrint('[SS] WARNING: confirm button not found');
       }
     } catch (e) {
       debugPrint('[SS] WARNING: test data: $e');
@@ -158,6 +171,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
     }
     await tester.pumpAndSettle();
+    await dismissOverlays(tester);
     debugPrint('[SS] Home ready');
 
     // --- AI sort ---
@@ -190,27 +204,19 @@ void main() {
     if (aiResultTitle.evaluate().isNotEmpty) {
       await takeScreenshot('raw_02_ai_result');
       debugPrint('[SS] raw_02_ai_result');
-      GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/home');
-      await tester.pumpAndSettle(const Duration(seconds: 2));
     } else {
       GoRouter.of(tester.element(find.byType(Scaffold).first)).push('/ai-result');
       await tester.pumpAndSettle(const Duration(seconds: 2));
       await takeScreenshot('raw_02_ai_result');
-      debugPrint('[SS] raw_02_ai_result');
-      GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/home');
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      debugPrint('[SS] raw_02_ai_result (pushed)');
     }
 
-    // --- Screenshot 1: Home ---
-    for (var i = 0; i < 3; i++) {
-      final okBtn = find.text('OK');
-      if (okBtn.evaluate().isNotEmpty) {
-        await tester.tap(okBtn.first);
-        await tester.pumpAndSettle();
-      } else {
-        break;
-      }
-    }
+    // Go back to home and dismiss any overlays/sheets
+    GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/home');
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await dismissOverlays(tester);
+
+    // --- Screenshot 1: Home (clean, no bottom sheet) ---
     for (var i = 0; i < 10; i++) {
       if (find.byType(Card).evaluate().isNotEmpty) break;
       await tester.pump(const Duration(milliseconds: 500));
@@ -220,56 +226,47 @@ void main() {
     await takeScreenshot('raw_01_home');
     debugPrint('[SS] raw_01_home');
 
-    // --- Screenshot 4: Task detail (AI comment + notification) ---
-    bool taskTapped = false;
-    for (final name in ['週報提出', '家賃振込', '企画書', '日用品', '免許']) {
-      final f = find.textContaining(name);
-      if (f.evaluate().isNotEmpty) {
-        await tester.tap(f.first);
-        await tester.pumpAndSettle(const Duration(seconds: 1));
-        taskTapped = true;
-        debugPrint('[SS] Tapped task: $name');
-        break;
-      }
-    }
-    if (!taskTapped) {
+    // --- Screenshot 4: Task detail (expand card to show AI comment) ---
+    bool taskExpanded = false;
+    // Try tapping the expand chevron on a card
+    final expandIcons = find.byIcon(Icons.expand_more);
+    if (expandIcons.evaluate().isNotEmpty) {
+      await tester.tap(expandIcons.first);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      taskExpanded = true;
+      debugPrint('[SS] Task expanded via chevron');
+    } else {
+      // Fallback: tap any Card
       final cards = find.byType(Card);
       if (cards.evaluate().isNotEmpty) {
         await tester.tap(cards.first);
         await tester.pumpAndSettle(const Duration(seconds: 1));
+        taskExpanded = true;
+        debugPrint('[SS] Task tapped');
       }
     }
     await takeScreenshot('raw_04_ai_comment');
     debugPrint('[SS] raw_04_ai_comment');
 
     // --- Screenshot 3: Calendar ---
-    final calTab = find.byKey(const Key('filter_tab_1'));
-    if (calTab.evaluate().isNotEmpty) {
-      await tester.tap(calTab);
+    // Tap "カレンダー" text in the filter chips
+    final calLabel = find.text('カレンダー');
+    if (calLabel.evaluate().isNotEmpty) {
+      await tester.tap(calLabel.first, warnIfMissed: false);
       await tester.pumpAndSettle(const Duration(seconds: 2));
+      debugPrint('[SS] Calendar tab selected');
+    } else {
+      debugPrint('[SS] WARNING: Calendar tab not found');
     }
-    final dueModeBtn = find.text('期限日');
-    if (dueModeBtn.evaluate().isNotEmpty) {
-      await tester.tap(dueModeBtn);
-      await tester.pumpAndSettle(const Duration(seconds: 1));
-    }
-    for (var i = 0; i < 3; i++) {
-      final ok = find.text('OK');
-      if (ok.evaluate().isNotEmpty) {
-        await tester.tap(ok.first);
-        await tester.pumpAndSettle();
-      } else {
-        break;
-      }
-    }
+    await dismissOverlays(tester);
     await takeScreenshot('raw_03_calendar');
     debugPrint('[SS] raw_03_calendar');
 
     // --- Screenshot 5: Simple input (task add form) ---
     // Switch back to todo tab
-    final todoTab = find.byKey(const Key('filter_tab_0'));
-    if (todoTab.evaluate().isNotEmpty) {
-      await tester.tap(todoTab);
+    final todoLabel = find.text('やること');
+    if (todoLabel.evaluate().isNotEmpty) {
+      await tester.tap(todoLabel.first, warnIfMissed: false);
       await tester.pumpAndSettle(const Duration(seconds: 1));
     }
 

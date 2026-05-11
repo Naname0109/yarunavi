@@ -398,10 +398,11 @@ summary_ja/summary_enに今日のアクションプランを1-2文で具体的�
         if (response.statusCode != 200) {
           debugPrint('[AI] APIエラー: ${response.body}');
           throw AiServiceException(
-              AiErrorType.network, 'API error: ${response.statusCode}');
+              AiErrorType.parse, 'API error: ${response.statusCode}');
         }
 
-        final result = _parseResponse(response.body, tasks, executionTimingFactor);
+        final result = _tryParseResponse(
+            response.body, tasks, executionTimingFactor);
         debugPrint('[AI] パース完了: ${result.tasks.length}件');
         return result;
       } on AiServiceException {
@@ -427,13 +428,31 @@ summary_ja/summary_enに今日のアクションプランを1-2文で具体的�
           await Future.delayed(const Duration(seconds: 3));
           continue;
         }
-        debugPrint('[AI] フォールバック: 予期しないエラーのため');
-        return _fallbackSort(tasks, executionTimingFactor: executionTimingFactor);
+        // ユーザーがAI整理を実行した以上、無音のフォールバックではなく
+        // エラーとして表面化させる（カウントもしない）
+        throw const AiServiceException(
+            AiErrorType.parse, 'Unexpected error');
       }
     }
 
-    debugPrint('[AI] フォールバック: リトライ上限到達');
-    return _fallbackSort(tasks, executionTimingFactor: executionTimingFactor);
+    // ここには到達しないはずだが念のため
+    throw const AiServiceException(
+        AiErrorType.network, 'Retry exhausted');
+  }
+
+  /// _parseResponseのラッパー: 失敗時はAiServiceExceptionを投げる
+  static AiSortResponse _tryParseResponse(
+    String responseBody,
+    List<Task> tasks,
+    double executionTimingFactor,
+  ) {
+    try {
+      return _parseResponse(responseBody, tasks, executionTimingFactor);
+    } catch (e) {
+      debugPrint('[AI] パース失敗: $e');
+      throw const AiServiceException(
+          AiErrorType.parse, 'Failed to parse AI response');
+    }
   }
 
   /// APIレスポンスをパースする
@@ -551,7 +570,7 @@ summary_ja/summary_enに今日のアクションプランを1-2文で具体的�
       );
     } catch (e) {
       debugPrint('AI response parse error: $e');
-      return _fallbackSort(tasks);
+      rethrow;
     }
   }
 

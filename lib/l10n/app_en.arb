@@ -445,5 +445,22 @@
   "calendarHintBubble": "Check execution dates on calendar →",
 
   "aiSortExecute": "Run AI Sort",
-  "aiHistoryLabel": "AI History"
+  "aiHistoryLabel": "AI History",
+
+  "settingsSound": "Sound",
+  "settingsSoundDesc": "Play a sound effect when tasks complete",
+  "aiErrorNetworkTitle": "Couldn't connect",
+  "aiErrorNetworkBody": "Please check your internet connection and try again.",
+  "aiErrorApiTitle": "AI sort could not run",
+  "aiErrorApiBody": "Please wait a moment and try again.",
+  "aiErrorRateLimitTitle": "Request limit reached",
+  "aiErrorRateLimitBody": "Please wait a moment and try again.",
+  "aiErrorClose": "Close",
+  "recurringGuideTitle": "Make this a recurring task?",
+  "recurringGuideMessage": "Does \"{taskName}\" happen every month?",
+  "recurringGuideDescription": "Recurring tasks will be created automatically each month.",
+  "recurringGuideAccept": "Set as recurring",
+  "recurringGuideDecline": "Just this once",
+  "recurringGuideApplied": "Set as recurring task",
+  "allCompleteNextPrompt": "Want to add what's next?"
 }

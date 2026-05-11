@@ -152,6 +152,9 @@ platform :ios do
       skip_screenshots: true,
       metadata_path: "./fastlane/metadata",
       force: true,
+      run_precheck_before_submit: false,
+      precheck_include_in_app_purchases: false,
+      edit_live: false,
     )
     UI.success("メタデータアップロード完了")
   end

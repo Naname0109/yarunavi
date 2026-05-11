@@ -1324,4 +1324,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiHistoryLabel => 'AI History';
+
+  @override
+  String get settingsSound => 'Sound';
+
+  @override
+  String get settingsSoundDesc => 'Play a sound effect when tasks complete';
+
+  @override
+  String get aiErrorNetworkTitle => 'Couldn\'t connect';
+
+  @override
+  String get aiErrorNetworkBody =>
+      'Please check your internet connection and try again.';
+
+  @override
+  String get aiErrorApiTitle => 'AI sort could not run';
+
+  @override
+  String get aiErrorApiBody => 'Please wait a moment and try again.';
+
+  @override
+  String get aiErrorRateLimitTitle => 'Request limit reached';
+
+  @override
+  String get aiErrorRateLimitBody => 'Please wait a moment and try again.';
+
+  @override
+  String get aiErrorClose => 'Close';
+
+  @override
+  String get recurringGuideTitle => 'Make this a recurring task?';
+
+  @override
+  String recurringGuideMessage(String taskName) {
+    return 'Does \"$taskName\" happen every month?';
+  }
+
+  @override
+  String get recurringGuideDescription =>
+      'Recurring tasks will be created automatically each month.';
+
+  @override
+  String get recurringGuideAccept => 'Set as recurring';
+
+  @override
+  String get recurringGuideDecline => 'Just this once';
+
+  @override
+  String get recurringGuideApplied => 'Set as recurring task';
+
+  @override
+  String get allCompleteNextPrompt => 'Want to add what\'s next?';
 }

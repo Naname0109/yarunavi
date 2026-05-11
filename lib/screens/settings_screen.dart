@@ -132,6 +132,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     enabled: isPremium,
                   ),
+                  // サウンドのON/OFF
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final enabled = ref.watch(soundEnabledProvider);
+                      return SwitchListTile(
+                        secondary: const Icon(Icons.volume_up_outlined),
+                        title: Text(l10n.settingsSound),
+                        subtitle: Text(l10n.settingsSoundDesc),
+                        value: enabled,
+                        onChanged: (v) => ref
+                            .read(soundEnabledProvider.notifier)
+                            .setEnabled(v),
+                      );
+                    },
+                  ),
                   const Divider(),
 
                   // --- 言語 ---

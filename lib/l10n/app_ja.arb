@@ -931,5 +931,42 @@
   "aiSortExecute": "整理を実行する",
   "@aiSortExecute": {},
   "aiHistoryLabel": "AI履歴",
-  "@aiHistoryLabel": {}
+  "@aiHistoryLabel": {},
+
+  "settingsSound": "サウンド",
+  "@settingsSound": {},
+  "settingsSoundDesc": "完了時の効果音を再生します",
+  "@settingsSoundDesc": {},
+  "aiErrorNetworkTitle": "接続できませんでした",
+  "@aiErrorNetworkTitle": {},
+  "aiErrorNetworkBody": "インターネット接続を確認してもう一度お試しください。",
+  "@aiErrorNetworkBody": {},
+  "aiErrorApiTitle": "AI整理を実行できませんでした",
+  "@aiErrorApiTitle": {},
+  "aiErrorApiBody": "しばらく時間をおいてからお試しください。",
+  "@aiErrorApiBody": {},
+  "aiErrorRateLimitTitle": "リクエスト回数の上限に達しました",
+  "@aiErrorRateLimitTitle": {},
+  "aiErrorRateLimitBody": "しばらく時間をおいてからお試しください。",
+  "@aiErrorRateLimitBody": {},
+  "aiErrorClose": "閉じる",
+  "@aiErrorClose": {},
+  "recurringGuideTitle": "定期タスクにしませんか？",
+  "@recurringGuideTitle": {},
+  "recurringGuideMessage": "「{taskName}」は毎月発生するタスクではありませんか？",
+  "@recurringGuideMessage": {
+    "placeholders": {
+      "taskName": { "type": "String" }
+    }
+  },
+  "recurringGuideDescription": "定期タスクに設定すると、毎月自動的にタスクが作成されます。",
+  "@recurringGuideDescription": {},
+  "recurringGuideAccept": "定期タスクに設定する",
+  "@recurringGuideAccept": {},
+  "recurringGuideDecline": "今回だけ",
+  "@recurringGuideDecline": {},
+  "recurringGuideApplied": "定期タスクに設定しました",
+  "@recurringGuideApplied": {},
+  "allCompleteNextPrompt": "次のやることを追加しませんか？",
+  "@allCompleteNextPrompt": {}
 }

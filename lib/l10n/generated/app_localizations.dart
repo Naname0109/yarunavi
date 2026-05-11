@@ -2563,6 +2563,102 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'AI履歴'**
   String get aiHistoryLabel;
+
+  /// No description provided for @settingsSound.
+  ///
+  /// In ja, this message translates to:
+  /// **'サウンド'**
+  String get settingsSound;
+
+  /// No description provided for @settingsSoundDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'完了時の効果音を再生します'**
+  String get settingsSoundDesc;
+
+  /// No description provided for @aiErrorNetworkTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'接続できませんでした'**
+  String get aiErrorNetworkTitle;
+
+  /// No description provided for @aiErrorNetworkBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'インターネット接続を確認してもう一度お試しください。'**
+  String get aiErrorNetworkBody;
+
+  /// No description provided for @aiErrorApiTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理を実行できませんでした'**
+  String get aiErrorApiTitle;
+
+  /// No description provided for @aiErrorApiBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'しばらく時間をおいてからお試しください。'**
+  String get aiErrorApiBody;
+
+  /// No description provided for @aiErrorRateLimitTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'リクエスト回数の上限に達しました'**
+  String get aiErrorRateLimitTitle;
+
+  /// No description provided for @aiErrorRateLimitBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'しばらく時間をおいてからお試しください。'**
+  String get aiErrorRateLimitBody;
+
+  /// No description provided for @aiErrorClose.
+  ///
+  /// In ja, this message translates to:
+  /// **'閉じる'**
+  String get aiErrorClose;
+
+  /// No description provided for @recurringGuideTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'定期タスクにしませんか？'**
+  String get recurringGuideTitle;
+
+  /// No description provided for @recurringGuideMessage.
+  ///
+  /// In ja, this message translates to:
+  /// **'「{taskName}」は毎月発生するタスクではありませんか？'**
+  String recurringGuideMessage(String taskName);
+
+  /// No description provided for @recurringGuideDescription.
+  ///
+  /// In ja, this message translates to:
+  /// **'定期タスクに設定すると、毎月自動的にタスクが作成されます。'**
+  String get recurringGuideDescription;
+
+  /// No description provided for @recurringGuideAccept.
+  ///
+  /// In ja, this message translates to:
+  /// **'定期タスクに設定する'**
+  String get recurringGuideAccept;
+
+  /// No description provided for @recurringGuideDecline.
+  ///
+  /// In ja, this message translates to:
+  /// **'今回だけ'**
+  String get recurringGuideDecline;
+
+  /// No description provided for @recurringGuideApplied.
+  ///
+  /// In ja, this message translates to:
+  /// **'定期タスクに設定しました'**
+  String get recurringGuideApplied;
+
+  /// No description provided for @allCompleteNextPrompt.
+  ///
+  /// In ja, this message translates to:
+  /// **'次のやることを追加しませんか？'**
+  String get allCompleteNextPrompt;
 }
 
 class _AppLocalizationsDelegate

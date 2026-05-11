@@ -1296,4 +1296,54 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get aiHistoryLabel => 'AI履歴';
+
+  @override
+  String get settingsSound => 'サウンド';
+
+  @override
+  String get settingsSoundDesc => '完了時の効果音を再生します';
+
+  @override
+  String get aiErrorNetworkTitle => '接続できませんでした';
+
+  @override
+  String get aiErrorNetworkBody => 'インターネット接続を確認してもう一度お試しください。';
+
+  @override
+  String get aiErrorApiTitle => 'AI整理を実行できませんでした';
+
+  @override
+  String get aiErrorApiBody => 'しばらく時間をおいてからお試しください。';
+
+  @override
+  String get aiErrorRateLimitTitle => 'リクエスト回数の上限に達しました';
+
+  @override
+  String get aiErrorRateLimitBody => 'しばらく時間をおいてからお試しください。';
+
+  @override
+  String get aiErrorClose => '閉じる';
+
+  @override
+  String get recurringGuideTitle => '定期タスクにしませんか？';
+
+  @override
+  String recurringGuideMessage(String taskName) {
+    return '「$taskName」は毎月発生するタスクではありませんか？';
+  }
+
+  @override
+  String get recurringGuideDescription => '定期タスクに設定すると、毎月自動的にタスクが作成されます。';
+
+  @override
+  String get recurringGuideAccept => '定期タスクに設定する';
+
+  @override
+  String get recurringGuideDecline => '今回だけ';
+
+  @override
+  String get recurringGuideApplied => '定期タスクに設定しました';
+
+  @override
+  String get allCompleteNextPrompt => '次のやることを追加しませんか？';
 }

@@ -149,6 +149,7 @@ void main() async {
         initialThemeModeProvider.overrideWithValue(settings.themeMode),
         initialExecutionTimingProvider
             .overrideWithValue(settings.executionTiming),
+        initialSoundEnabledProvider.overrideWithValue(settings.soundEnabled),
         initialDevAiUnlimitedProvider.overrideWithValue(devMode.aiUnlimited),
         initialDevPremiumProvider.overrideWithValue(devMode.premium),
       ],

@@ -14,6 +14,7 @@ import '../providers/task_provider.dart';
 import '../services/calendar_service.dart';
 import '../utils/category_helper.dart';
 import '../utils/notification_utils.dart';
+import '../utils/recurring_keyword_guide.dart';
 
 class TaskFormSheet extends ConsumerStatefulWidget {
   const TaskFormSheet({super.key, this.task});
@@ -860,11 +861,14 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
 
       CalendarResult? calResult;
 
+      final taskTitle = _titleController.text.trim();
+      Task? insertedTask;
+
       if (_isEditing) {
         final original = widget.task!;
         final updated = Task(
           id: original.id,
-          title: _titleController.text.trim(),
+          title: taskTitle,
           dueDate: _dueDate,
           memo: memo,
           categoryId: _categoryId,
@@ -887,7 +891,7 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
             .updateTask(updated, addToCalendar: _addToCalendar);
       } else {
         final task = Task(
-          title: _titleController.text.trim(),
+          title: taskTitle,
           dueDate: _dueDate,
           memo: memo,
           categoryId: _categoryId,
@@ -902,6 +906,7 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
         calResult = await ref
             .read(tasksProvider.notifier)
             .addTask(task, addToCalendar: _addToCalendar);
+        insertedTask = task;
       }
 
       if (mounted) {
@@ -915,12 +920,72 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
           ).showSnackBar(SnackBar(content: Text(l10n.calendarAddFailed)));
         }
         Navigator.of(context).pop();
+
+        // 新規追加時のみ、定期タスク化ガイドを判定
+        if (!_isEditing && insertedTask != null) {
+          await _maybeShowRecurringGuide(insertedTask, l10n);
+        }
       }
     } catch (e) {
       debugPrint('Task save error: $e');
       if (mounted) {
         setState(() => _isSaving = false);
       }
+    }
+  }
+
+  /// 月次キーワード入りタスクなら定期タスク化を促すボトムシートを表示
+  /// シートからの戻り値で、true なら DB のタスクを monthly recurring に更新
+  Future<void> _maybeShowRecurringGuide(
+      Task savedTask, AppLocalizations l10n) async {
+    final keyword = await RecurringKeywordGuide.shouldShow(
+      title: savedTask.title,
+      recurrenceType: savedTask.recurrenceType,
+    );
+    if (keyword == null) return;
+    // pop直後はナビゲーション系の最終フレームを待つ
+    await Future.delayed(const Duration(milliseconds: 80));
+
+    // 親(HomeScreen)のNavigatorコンテキストでシートを開きたい
+    final rootContext = ref.context;
+    if (!rootContext.mounted) return;
+
+    final accepted = await RecurringKeywordGuide.show(
+      context: rootContext,
+      keyword: keyword,
+      taskTitle: savedTask.title,
+      l10n: l10n,
+    );
+
+    if (!accepted) return;
+
+    // タスクを monthly 定期に更新（毎月、期限日の日付）
+    final db = ref.read(databaseServiceProvider);
+    // savedTaskにはidが付いていないので、再取得する
+    final allTasks = await db.getAllTasks();
+    final inserted = allTasks
+        .where((t) =>
+            t.title == savedTask.title &&
+            t.dueDate.year == savedTask.dueDate.year &&
+            t.dueDate.month == savedTask.dueDate.month &&
+            t.dueDate.day == savedTask.dueDate.day &&
+            t.recurrenceType == null)
+        .toList();
+    if (inserted.isEmpty) return;
+    inserted.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final target = inserted.first;
+    final updated = target.copyWith(
+      recurrenceType: 'monthly',
+      recurrenceValue: target.dueDate.day,
+      updatedAt: DateTime.now(),
+    );
+    await db.updateTask(updated);
+    ref.invalidate(tasksProvider);
+
+    if (rootContext.mounted) {
+      ScaffoldMessenger.of(rootContext).showSnackBar(
+        SnackBar(content: Text(l10n.recurringGuideApplied)),
+      );
     }
   }
 }

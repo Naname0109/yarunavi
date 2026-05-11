@@ -5,15 +5,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 const _localeKey = 'app_locale';
 const _themeModeKey = 'app_theme_mode';
 const _executionTimingKey = 'execution_timing_factor';
+const _soundEnabledKey = 'sound_enabled';
 
 /// 起動時の初期設定値（main.dartでoverrideされる）
 final initialLocaleProvider = Provider<Locale>((ref) => const Locale('ja'));
 final initialThemeModeProvider = Provider<ThemeMode>((ref) => ThemeMode.system);
 final initialExecutionTimingProvider = Provider<double>((ref) => 0.5);
+final initialSoundEnabledProvider = Provider<bool>((ref) => true);
 
 /// 起動時にSharedPreferencesから初期値を読み込む
-Future<({Locale locale, ThemeMode themeMode, double executionTiming})>
-    loadSettingsFromPrefs() async {
+Future<
+    ({
+      Locale locale,
+      ThemeMode themeMode,
+      double executionTiming,
+      bool soundEnabled,
+    })> loadSettingsFromPrefs() async {
   final prefs = await SharedPreferences.getInstance();
 
   final localeCode = prefs.getString(_localeKey);
@@ -28,11 +35,13 @@ Future<({Locale locale, ThemeMode themeMode, double executionTiming})>
       : ThemeMode.system;
 
   final executionTiming = prefs.getDouble(_executionTimingKey) ?? 0.5;
+  final soundEnabled = prefs.getBool(_soundEnabledKey) ?? true;
 
   return (
     locale: locale,
     themeMode: themeMode,
     executionTiming: executionTiming,
+    soundEnabled: soundEnabled,
   );
 }
 
@@ -90,3 +99,20 @@ final executionTimingProvider =
     NotifierProvider<ExecutionTimingNotifier, double>(
   ExecutionTimingNotifier.new,
 );
+
+/// サウンドON/OFF設定
+class SoundEnabledNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    return ref.read(initialSoundEnabledProvider);
+  }
+
+  Future<void> setEnabled(bool value) async {
+    state = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_soundEnabledKey, value);
+  }
+}
+
+final soundEnabledProvider =
+    NotifierProvider<SoundEnabledNotifier, bool>(SoundEnabledNotifier.new);

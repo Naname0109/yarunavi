@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +10,9 @@ import '../l10n/generated/app_localizations.dart';
 import '../models/category.dart' as model;
 import '../models/task.dart';
 import '../providers/category_provider.dart';
+import '../providers/sound_provider.dart';
 import '../providers/task_provider.dart';
+import '../services/sound_service.dart';
 import '../utils/date_utils.dart' as app_date;
 import '../widgets/banner_ad_widget.dart';
 import '../widgets/coach_overlay.dart';
@@ -884,101 +888,287 @@ class _FadeInItemState extends State<_FadeInItem>
   }
 }
 
-/// 全タスク完了時の祝福画面
-class _AllCompleteCelebration extends StatefulWidget {
+/// 全タスク完了時の祝福画面（紙吹雪＋パルスボタン）
+class _AllCompleteCelebration extends ConsumerStatefulWidget {
   const _AllCompleteCelebration({required this.l10n});
 
   final AppLocalizations l10n;
 
   @override
-  State<_AllCompleteCelebration> createState() =>
+  ConsumerState<_AllCompleteCelebration> createState() =>
       _AllCompleteCelebrationState();
 }
 
-class _AllCompleteCelebrationState extends State<_AllCompleteCelebration>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
+class _AllCompleteCelebrationState
+    extends ConsumerState<_AllCompleteCelebration>
+    with TickerProviderStateMixin {
+  late final AnimationController _checkController;
+  late final AnimationController _confettiController;
+  late final AnimationController _pulseController;
   late final Animation<double> _scale;
   late final Animation<double> _opacity;
+
+  bool _showNextPrompt = false;
+  bool _confettiTriggered = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _checkController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
+    _confettiController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+
     _scale = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+      CurvedAnimation(parent: _checkController, curve: Curves.elasticOut),
     );
     _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-        parent: _controller,
+        parent: _checkController,
         curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
       ),
     );
-    _controller.forward();
+
+    _checkController.forward();
+    _confettiController.forward();
+
+    // サウンド + 紙吹雪トリガー
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _confettiTriggered) return;
+      _confettiTriggered = true;
+      final sound = ref.read(soundServiceProvider);
+      // ignore: discarded_futures
+      sound.play(SoundEvent.allTasksComplete);
+    });
+
+    // 紙吹雪が落ち着いた後（2秒後）に「次のやること」促進UIを表示
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _showNextPrompt = true);
+    });
+
     // トリガーA（祝福画面）: 全タスク完了後2秒でレビュー依頼
     Future.delayed(const Duration(seconds: 2), () {
       if (!mounted) return;
-      final container = ProviderScope.containerOf(context);
-      container.read(reviewServiceProvider).requestReviewIfEligible();
+      ref.read(reviewServiceProvider).requestReviewIfEligible();
     });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _checkController.dispose();
+    _confettiController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Center(
-      child: FadeTransition(
-        opacity: _opacity,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ScaleTransition(
-              scale: _scale,
-              child: Icon(Icons.check_circle, size: 80,
-                  color: theme.colorScheme.primary),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '${widget.l10n.allCompleteTitle} 🎉',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onSurface,
+    return Stack(
+      children: [
+        Center(
+          child: FadeTransition(
+            opacity: _opacity,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 24, vertical: 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ScaleTransition(
+                    scale: _scale,
+                    child: Icon(Icons.check_circle, size: 96,
+                        color: theme.colorScheme.primary),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '${widget.l10n.allCompleteTitle} 🎉',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    widget.l10n.allCompleteSubtitle,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  // 次のタスク入力促進（2秒後にフェードイン）
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 400),
+                    opacity: _showNextPrompt ? 1.0 : 0.0,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          widget.l10n.allCompleteNextPrompt,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: theme.colorScheme.onSurface,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+                        // パルスアニメーション付き「タスクを追加する」ボタン
+                        AnimatedBuilder(
+                          animation: _pulseController,
+                          builder: (context, child) {
+                            final scale = 1.0 + _pulseController.value * 0.05;
+                            return Transform.scale(
+                              scale: scale,
+                              child: child,
+                            );
+                          },
+                          child: FilledButton.icon(
+                            onPressed: () {
+                              HapticFeedback.selectionClick();
+                              TaskFormSheet.show(context);
+                            },
+                            icon: const Icon(Icons.add),
+                            label: Text(widget.l10n.allCompleteAddTask),
+                            style: FilledButton.styleFrom(
+                                minimumSize: const Size(220, 52)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
-            Text(
-              widget.l10n.allCompleteSubtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            FilledButton.icon(
-              onPressed: () {
-                HapticFeedback.selectionClick();
-                TaskFormSheet.show(context);
-              },
-              icon: const Icon(Icons.add),
-              label: Text(widget.l10n.allCompleteAddTask),
-              style: FilledButton.styleFrom(minimumSize: const Size(200, 48)),
-            ),
-          ],
+          ),
         ),
-      ),
+        // 紙吹雪オーバーレイ
+        IgnorePointer(
+          child: RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: _confettiController,
+              builder: (context, _) {
+                return CustomPaint(
+                  size: Size.infinite,
+                  painter: _ConfettiPainter(
+                    progress: _confettiController.value,
+                    primaryColor: theme.colorScheme.primary,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
+
+/// 紙吹雪用のCustomPainter
+/// 50個の小さな四角/丸が上から重力感をもって降ってくる
+class _ConfettiPainter extends CustomPainter {
+  _ConfettiPainter({
+    required this.progress,
+    required this.primaryColor,
+  });
+
+  /// 0.0 → 1.0 で 3 秒進む
+  final double progress;
+  final Color primaryColor;
+
+  static const _particleCount = 50;
+  static final _seeds = List<_ConfettiSeed>.generate(_particleCount, (i) {
+    final rng = math.Random(i * 9973);
+    return _ConfettiSeed(
+      xRatio: rng.nextDouble(),
+      delay: rng.nextDouble() * 0.4, // 0〜40% delay
+      speed: 0.7 + rng.nextDouble() * 0.6,
+      colorIdx: rng.nextInt(5),
+      rotateSpeed: (rng.nextDouble() - 0.5) * 4 * math.pi,
+      sway: rng.nextDouble() * 30 - 15,
+      shape: rng.nextInt(2),
+      size: 6.0 + rng.nextDouble() * 4.0,
+    );
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final colors = [
+      primaryColor,
+      _goldColor,
+      const Color(0xFF4CAF50), // green
+      const Color(0xFFE91E63), // pink
+      const Color(0xFFFF9800), // orange
+    ];
+
+    final overallFade = progress < 0.85 ? 1.0 : (1.0 - progress) / 0.15;
+
+    for (final s in _seeds) {
+      final localProgress =
+          ((progress - s.delay) / (1.0 - s.delay)).clamp(0.0, 1.0);
+      if (localProgress <= 0) continue;
+      // 重力感（progress^1.5）
+      final fallProgress = math.pow(localProgress, 1.5).toDouble();
+      final x = s.xRatio * size.width +
+          math.sin(localProgress * math.pi * 2) * s.sway;
+      final y = -20 + (size.height + 40) * fallProgress * s.speed;
+      final color = colors[s.colorIdx]
+          .withValues(alpha: overallFade.clamp(0.0, 1.0));
+      final rotation = localProgress * s.rotateSpeed;
+
+      canvas.save();
+      canvas.translate(x, y);
+      canvas.rotate(rotation);
+      final paint = Paint()..color = color;
+      if (s.shape == 0) {
+        // 四角
+        final r = s.size / 2;
+        canvas.drawRect(Rect.fromLTWH(-r, -r * 0.6, s.size, s.size * 0.6),
+            paint);
+      } else {
+        // 丸
+        canvas.drawCircle(Offset.zero, s.size / 2, paint);
+      }
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ConfettiPainter oldDelegate) =>
+      oldDelegate.progress != progress;
+}
+
+class _ConfettiSeed {
+  const _ConfettiSeed({
+    required this.xRatio,
+    required this.delay,
+    required this.speed,
+    required this.colorIdx,
+    required this.rotateSpeed,
+    required this.sway,
+    required this.shape,
+    required this.size,
+  });
+  final double xRatio;
+  final double delay;
+  final double speed;
+  final int colorIdx;
+  final double rotateSpeed;
+  final double sway;
+  final int shape;
+  final double size;
+}
+
+const Color _goldColor = Color(0xFFFFC107);
 
 /// 全タスク期限切れ時の警告バナー
 class _AllExpiredBanner extends ConsumerWidget {
