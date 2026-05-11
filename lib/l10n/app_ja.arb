@@ -968,5 +968,9 @@
   "recurringGuideApplied": "定期タスクに設定しました",
   "@recurringGuideApplied": {},
   "allCompleteNextPrompt": "次のやることを追加しませんか？",
-  "@allCompleteNextPrompt": {}
+  "@allCompleteNextPrompt": {},
+  "devModeAnimationsPreview": "演出プレビュー",
+  "@devModeAnimationsPreview": {},
+  "devModeAnimationsPreviewDesc": "AI整理・全完了・バースト・紙吹雪を独立に再生",
+  "@devModeAnimationsPreviewDesc": {}
 }

@@ -171,7 +171,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
 
     // プログレスコントローラー（タスク数に応じた進行速度）
     final progressController =
-        _AiSortProgressController(incompleteTasks.length);
+        AiSortProgressController(incompleteTasks.length);
 
     // ローディングモーダル表示
     bool backgroundMode = false;
@@ -184,10 +184,10 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     }
 
     // 送信開始 → 0%→10%へ即ジャンプ
-    progressController.setPhase(_AiPhase.sending);
+    progressController.setPhase(AiSortPhase.sending);
     // 少し待ってから awaiting フェーズに進む（10%→80%のロング進行を開始）
     Future.delayed(const Duration(milliseconds: 250), () {
-      progressController.setPhase(_AiPhase.awaiting);
+      progressController.setPhase(AiSortPhase.awaiting);
     });
 
     try {
@@ -209,7 +209,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       );
 
       // レスポンス受信 → 80%→95%
-      progressController.setPhase(_AiPhase.receiving);
+      progressController.setPhase(AiSortPhase.receiving);
 
       final isRealApiCall = AppConstants.anthropicApiKey.isNotEmpty ||
           AppConstants.aiProxyUrl.isNotEmpty;
@@ -367,7 +367,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       );
 
       // 95% → 100% (DB保存完了)
-      progressController.setPhase(_AiPhase.finalizing);
+      progressController.setPhase(AiSortPhase.finalizing);
       await Future.delayed(const Duration(milliseconds: 350));
 
       // 100%到達 → 完了演出
@@ -376,7 +376,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       //   t=120ms   バースト発射 (500ms) + mediumImpact
       //   t=350ms   チェックマーク登場 (500ms elasticOut) + lightImpact + サウンド
       //   t=350ms以降 余韻 → 1500ms 後に画面遷移
-      progressController.setPhase(_AiPhase.complete);
+      progressController.setPhase(AiSortPhase.complete);
 
       // 視覚に同期したハプティクス + サウンド
       final sound = ref.read(soundServiceProvider);
@@ -423,7 +423,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       }
     } on AiServiceException catch (e) {
       // エラー時: プログレスバーを赤色フェードアウト + エラーハプティクスパターン
-      progressController.setPhase(_AiPhase.error);
+      progressController.setPhase(AiSortPhase.error);
       final sound = ref.read(soundServiceProvider);
       unawaited(sound.playHaptic(SoundEvent.aiSortError));
       await Future.delayed(const Duration(milliseconds: 600));
@@ -436,7 +436,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     } catch (e, st) {
       debugPrint('[AiSort] unexpected error: $e');
       debugPrint('[AiSort] stackTrace: $st');
-      progressController.setPhase(_AiPhase.error);
+      progressController.setPhase(AiSortPhase.error);
       final sound = ref.read(soundServiceProvider);
       unawaited(sound.playHaptic(SoundEvent.aiSortError));
       await Future.delayed(const Duration(milliseconds: 600));
@@ -480,13 +480,13 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
 
   void _showLoadingModal(
     AppLocalizations l10n,
-    _AiSortProgressController controller,
+    AiSortProgressController controller,
     VoidCallback onBackground,
   ) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => _AiLoadingDialog(
+      builder: (ctx) => AiLoadingDialog(
         l10n: l10n,
         controller: controller,
         onBackground: () {
@@ -610,7 +610,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
 }
 
 /// AI整理の進捗フェーズ
-enum _AiPhase {
+enum AiSortPhase {
   /// AIリクエスト送信中（0% → 10%、即ジャンプ）
   sending,
   /// レスポンス待ち（10% → 80%、タスク数に応じた速度）
@@ -627,13 +627,13 @@ enum _AiPhase {
 
 /// AI整理進捗のコントローラー
 /// 外部からフェーズを更新するためのChangeNotifier
-class _AiSortProgressController extends ChangeNotifier {
-  _AiSortProgressController(this.taskCount);
+class AiSortProgressController extends ChangeNotifier {
+  AiSortProgressController(this.taskCount);
 
   final int taskCount;
-  _AiPhase _phase = _AiPhase.sending;
+  AiSortPhase _phase = AiSortPhase.sending;
 
-  _AiPhase get phase => _phase;
+  AiSortPhase get phase => _phase;
 
   /// タスク数に応じた送信→レスポンスまでの所要時間
   Duration get awaitingDuration {
@@ -642,7 +642,7 @@ class _AiSortProgressController extends ChangeNotifier {
     return const Duration(seconds: 12);
   }
 
-  void setPhase(_AiPhase newPhase) {
+  void setPhase(AiSortPhase newPhase) {
     if (_phase == newPhase) return;
     _phase = newPhase;
     notifyListeners();
@@ -650,22 +650,23 @@ class _AiSortProgressController extends ChangeNotifier {
 }
 
 /// AI整理中ローディングダイアログ
-class _AiLoadingDialog extends StatefulWidget {
-  const _AiLoadingDialog({
+class AiLoadingDialog extends StatefulWidget {
+  const AiLoadingDialog({
+    super.key,
     required this.l10n,
     required this.controller,
     required this.onBackground,
   });
 
   final AppLocalizations l10n;
-  final _AiSortProgressController controller;
+  final AiSortProgressController controller;
   final VoidCallback onBackground;
 
   @override
-  State<_AiLoadingDialog> createState() => _AiLoadingDialogState();
+  State<AiLoadingDialog> createState() => _AiLoadingDialogState();
 }
 
-class _AiLoadingDialogState extends State<_AiLoadingDialog>
+class _AiLoadingDialogState extends State<AiLoadingDialog>
     with TickerProviderStateMixin {
   int _messageIndex = 0;
   late final AnimationController _pulseController;
@@ -746,22 +747,22 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
     if (!mounted) return;
     final phase = widget.controller.phase;
     switch (phase) {
-      case _AiPhase.sending:
+      case AiSortPhase.sending:
         _animateProgress(
             to: 0.1, duration: const Duration(milliseconds: 200));
-      case _AiPhase.awaiting:
+      case AiSortPhase.awaiting:
         _animateProgress(
           to: 0.8,
           duration: widget.controller.awaitingDuration,
           curve: Curves.easeOut,
         );
-      case _AiPhase.receiving:
+      case AiSortPhase.receiving:
         _animateProgress(
             to: 0.95, duration: const Duration(milliseconds: 500));
-      case _AiPhase.finalizing:
+      case AiSortPhase.finalizing:
         _animateProgress(
             to: 1.0, duration: const Duration(milliseconds: 300));
-      case _AiPhase.complete:
+      case AiSortPhase.complete:
         // ステップ1 (t=0): プログレスバーを 100% に固定し、Primary → Gold へ
         _animateProgress(
             to: 1.0, duration: const Duration(milliseconds: 80));
@@ -775,7 +776,7 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
         Future.delayed(const Duration(milliseconds: 350), () {
           if (mounted) _checkController.forward(from: 0);
         });
-      case _AiPhase.error:
+      case AiSortPhase.error:
         _errorFadeController.reverse(from: 1.0);
     }
     setState(() {}); // フェーズに応じたUI切り替え
@@ -812,8 +813,8 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final phase = widget.controller.phase;
-    final isComplete = phase == _AiPhase.complete;
-    final isError = phase == _AiPhase.error;
+    final isComplete = phase == AiSortPhase.complete;
+    final isError = phase == AiSortPhase.error;
     final isDark = theme.brightness == Brightness.dark;
     // ライトモードでは白が消えるため tertiary に差し替え
     final accentParticle = isDark ? Colors.white : theme.colorScheme.tertiary;
@@ -841,10 +842,10 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
                           builder: (context, _) {
                             return CustomPaint(
                               size: const Size(220, 220),
-                              painter: _BurstPainter(
+                              painter: AiSortBurstPainter(
                                 progress: _burstController.value,
                                 primaryColor: theme.colorScheme.primary,
-                                goldColor: _goldColor,
+                                goldColor: kAiGoldColor,
                                 accentColor: accentParticle,
                               ),
                             );
@@ -868,7 +869,7 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: _goldColor.withValues(alpha: alpha),
+                                color: kAiGoldColor.withValues(alpha: alpha),
                                 width: 2.5,
                               ),
                             ),
@@ -902,7 +903,7 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
                               .transform(v.clamp(0.0, 1.0))
                               .clamp(0.0, 1.2);
                           final color = Color.lerp(
-                            _goldColor,
+                            kAiGoldColor,
                             theme.colorScheme.primary,
                             v,
                           )!;
@@ -965,7 +966,7 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
         } else {
           color = Color.lerp(
             theme.colorScheme.primary,
-            _goldColor,
+            kAiGoldColor,
             _barColorController.value,
           )!;
         }
@@ -981,7 +982,7 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
             boxShadow: glowStrength > 0
                 ? [
                     BoxShadow(
-                      color: _goldColor.withValues(alpha: 0.5 * glowStrength),
+                      color: kAiGoldColor.withValues(alpha: 0.5 * glowStrength),
                       blurRadius: 16 * glowStrength,
                       spreadRadius: 1.0 * glowStrength,
                     ),
@@ -1037,14 +1038,14 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
   }
 }
 
-const Color _goldColor = Color(0xFFFFC107);
+const Color kAiGoldColor = Color(0xFFFFC107);
 
 /// パーティクル形状
-enum _BurstShape { circle, sparkle, line }
+enum _AiBurstShape { circle, sparkle, line }
 
 /// パーティクルのシード（事前生成して毎回同じ動きを保証）
-class _BurstSeed {
-  const _BurstSeed({
+class _AiBurstSeed {
+  const _AiBurstSeed({
     required this.angle,
     required this.speed,
     required this.colorIdx,
@@ -1056,7 +1057,7 @@ class _BurstSeed {
   final double angle;
   final double speed;
   final int colorIdx;
-  final _BurstShape shape;
+  final _AiBurstShape shape;
   final double size;
   final double rotation;
   /// 距離カーブの選択（0=easeOutCubic, 1=easeOutQuart）
@@ -1066,8 +1067,8 @@ class _BurstSeed {
 /// 完了バースト用のCustomPainter
 /// 中央の光のフラッシュ + 30個のパーティクル
 /// (円 14個 / 4方向スパークル 10個 / 光の筋 6本)
-class _BurstPainter extends CustomPainter {
-  _BurstPainter({
+class AiSortBurstPainter extends CustomPainter {
+  AiSortBurstPainter({
     required this.progress,
     required this.primaryColor,
     required this.goldColor,
@@ -1080,36 +1081,36 @@ class _BurstPainter extends CustomPainter {
   final Color accentColor;
 
   static const _particleCount = 30;
-  static final List<_BurstSeed> _seeds = _generateSeeds();
+  static final List<_AiBurstSeed> _seeds = _generateSeeds();
 
-  static List<_BurstSeed> _generateSeeds() {
+  static List<_AiBurstSeed> _generateSeeds() {
     final rng = math.Random(20260511);
-    return List<_BurstSeed>.generate(_particleCount, (i) {
+    return List<_AiBurstSeed>.generate(_particleCount, (i) {
       // 角度は均等に散らしつつ若干のランダム性
       final baseAngle = (i / _particleCount) * 2 * math.pi;
       final jitter = (rng.nextDouble() - 0.5) * 0.5;
       // 形状の振り分け: 14円 / 10星 / 6線
-      final _BurstShape shape;
+      final _AiBurstShape shape;
       if (i < 14) {
-        shape = _BurstShape.circle;
+        shape = _AiBurstShape.circle;
       } else if (i < 24) {
-        shape = _BurstShape.sparkle;
+        shape = _AiBurstShape.sparkle;
       } else {
-        shape = _BurstShape.line;
+        shape = _AiBurstShape.line;
       }
       // 色: 円は Primary/Gold/Accent をローテーション、星は Gold 多め
-      final colorIdx = shape == _BurstShape.sparkle
+      final colorIdx = shape == _AiBurstShape.sparkle
           ? (i.isEven ? 1 : 2)
           : i % 3;
-      return _BurstSeed(
+      return _AiBurstSeed(
         angle: baseAngle + jitter,
         // 速度の幅を広く: 0.55〜1.15 で「速い遠飛び」と「近くでフワッ」が混在
         speed: 0.55 + rng.nextDouble() * 0.6,
         colorIdx: colorIdx,
         shape: shape,
-        size: shape == _BurstShape.circle
+        size: shape == _AiBurstShape.circle
             ? 3.0 + rng.nextDouble() * 2.0
-            : shape == _BurstShape.sparkle
+            : shape == _AiBurstShape.sparkle
                 ? 5.0 + rng.nextDouble() * 2.5
                 : 12.0 + rng.nextDouble() * 8.0,
         rotation: rng.nextDouble() * 2 * math.pi,
@@ -1161,14 +1162,14 @@ class _BurstPainter extends CustomPainter {
       final paint = Paint()..color = color;
 
       switch (s.shape) {
-        case _BurstShape.circle:
+        case _AiBurstShape.circle:
           // 進むほど少しだけ縮む
           final r = s.size * (1.0 - progress * 0.2);
           canvas.drawCircle(Offset(dx, dy), r, paint);
-        case _BurstShape.sparkle:
+        case _AiBurstShape.sparkle:
           _drawSparkle(canvas, Offset(dx, dy), s.size, paint,
               s.rotation + progress * math.pi);
-        case _BurstShape.line:
+        case _AiBurstShape.line:
           // 光の筋: 中心から離れる方向に細い直線
           final strokePaint = Paint()
             ..color = color
@@ -1207,11 +1208,111 @@ class _BurstPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_BurstPainter oldDelegate) =>
+  bool shouldRepaint(AiSortBurstPainter oldDelegate) =>
       oldDelegate.progress != progress ||
       oldDelegate.primaryColor != primaryColor ||
       oldDelegate.goldColor != goldColor ||
       oldDelegate.accentColor != accentColor;
+}
+
+/// AI整理の進捗ダイアログを、実APIを呼ばずに「成功」または「指定エラー」で
+/// 再生するデバッグ用プレビュー関数。
+///
+/// - [taskCount] でタスク数を渡すと awaiting フェーズの所要時間が
+///   5/8/12秒のどれかに切り替わる
+/// - [simulateError] を指定するとエラー演出 (赤フェード+ダイアログ) を再生
+Future<void> showAiSortPreviewDialog(
+  BuildContext context, {
+  required AppLocalizations l10n,
+  required int taskCount,
+  AiErrorType? simulateError,
+  SoundService? sound,
+}) async {
+  final controller = AiSortProgressController(taskCount);
+  bool dialogClosed = false;
+
+  // ダイアログを「閉じる」ためのハンドラ。awaitしないで先に show する
+  unawaited(showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) => AiLoadingDialog(
+      l10n: l10n,
+      controller: controller,
+      onBackground: () {
+        dialogClosed = true;
+        Navigator.of(ctx).pop();
+      },
+    ),
+  ).then((_) => dialogClosed = true));
+
+  try {
+    // 送信 → awaiting
+    controller.setPhase(AiSortPhase.sending);
+    await Future.delayed(const Duration(milliseconds: 250));
+    if (dialogClosed) return;
+    controller.setPhase(AiSortPhase.awaiting);
+
+    if (simulateError != null) {
+      // awaiting を中途で打ち切ってエラー演出
+      await Future.delayed(const Duration(milliseconds: 1500));
+      if (dialogClosed) return;
+      controller.setPhase(AiSortPhase.error);
+      if (sound != null) {
+        unawaited(sound.playHaptic(SoundEvent.aiSortError));
+      }
+      await Future.delayed(const Duration(milliseconds: 650));
+      if (!dialogClosed && context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        dialogClosed = true;
+      }
+      if (context.mounted) {
+        final (title, body) = switch (simulateError) {
+          AiErrorType.network =>
+            (l10n.aiErrorNetworkTitle, l10n.aiErrorNetworkBody),
+          AiErrorType.rateLimit =>
+            (l10n.aiErrorRateLimitTitle, l10n.aiErrorRateLimitBody),
+          AiErrorType.parse => (l10n.aiErrorApiTitle, l10n.aiErrorApiBody),
+        };
+        await showDialog<void>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(title),
+            content: Text(body),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: Text(l10n.aiErrorClose),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
+
+    // 成功シナリオ: awaiting (フル進行) → receiving → finalizing → complete
+    await Future.delayed(controller.awaitingDuration);
+    if (dialogClosed) return;
+    controller.setPhase(AiSortPhase.receiving);
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (dialogClosed) return;
+    controller.setPhase(AiSortPhase.finalizing);
+    await Future.delayed(const Duration(milliseconds: 350));
+    if (dialogClosed) return;
+    controller.setPhase(AiSortPhase.complete);
+    if (sound != null) {
+      unawaited(sound.playHaptic(SoundEvent.aiSortComplete));
+      Future.delayed(const Duration(milliseconds: 350), () {
+        unawaited(sound.playSystemSound(SoundEvent.aiSortComplete));
+      });
+    }
+    await Future.delayed(const Duration(milliseconds: 1500));
+  } finally {
+    if (!dialogClosed && context.mounted) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
+    controller.dispose();
+  }
 }
 
 /// AI整理実行前のボトムシート（実行日傾向スライダー付き）

@@ -2659,6 +2659,18 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'次のやることを追加しませんか？'**
   String get allCompleteNextPrompt;
+
+  /// No description provided for @devModeAnimationsPreview.
+  ///
+  /// In ja, this message translates to:
+  /// **'演出プレビュー'**
+  String get devModeAnimationsPreview;
+
+  /// No description provided for @devModeAnimationsPreviewDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理・全完了・バースト・紙吹雪を独立に再生'**
+  String get devModeAnimationsPreviewDesc;
 }
 
 class _AppLocalizationsDelegate

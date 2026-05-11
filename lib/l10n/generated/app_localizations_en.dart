@@ -1376,4 +1376,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get allCompleteNextPrompt => 'Want to add what\'s next?';
+
+  @override
+  String get devModeAnimationsPreview => 'Animation Preview';
+
+  @override
+  String get devModeAnimationsPreviewDesc =>
+      'Replay AI sort, all-complete, burst and confetti independently';
 }

@@ -359,7 +359,7 @@ class _TodoTabState extends ConsumerState<_TodoTab> {
       data: (tasks) {
         if (tasks.isEmpty) {
           if (widget.completedCount > 0) {
-            return _AllCompleteCelebration(l10n: l10n);
+            return AllCompleteCelebration(l10n: l10n);
           }
           return Center(
             child: Column(
@@ -889,18 +889,18 @@ class _FadeInItemState extends State<_FadeInItem>
 }
 
 /// 全タスク完了時の祝福画面（紙吹雪＋パルスボタン）
-class _AllCompleteCelebration extends ConsumerStatefulWidget {
-  const _AllCompleteCelebration({required this.l10n});
+class AllCompleteCelebration extends ConsumerStatefulWidget {
+  const AllCompleteCelebration({super.key, required this.l10n});
 
   final AppLocalizations l10n;
 
   @override
-  ConsumerState<_AllCompleteCelebration> createState() =>
+  ConsumerState<AllCompleteCelebration> createState() =>
       _AllCompleteCelebrationState();
 }
 
 class _AllCompleteCelebrationState
-    extends ConsumerState<_AllCompleteCelebration>
+    extends ConsumerState<AllCompleteCelebration>
     with TickerProviderStateMixin {
   late final AnimationController _checkController;
   late final AnimationController _confettiController;
@@ -1078,7 +1078,7 @@ class _AllCompleteCelebrationState
                           ),
                           const SizedBox(height: 16),
                           // パルスグロウ付き「タスクを追加する」ボタン
-                          _PulsingPrimaryButton(
+                          PulsingPrimaryButton(
                             pulseController: _pulseController,
                             primaryColor: theme.colorScheme.primary,
                             onTap: () {
@@ -1129,7 +1129,7 @@ class _AllCompleteCelebrationState
               builder: (context, _) {
                 return CustomPaint(
                   size: Size.infinite,
-                  painter: _ConfettiPainter(
+                  painter: ConfettiPainter(
                     progress: _confettiController.value,
                     primaryColor: theme.colorScheme.primary,
                     secondaryColor: theme.colorScheme.secondary,
@@ -1146,8 +1146,9 @@ class _AllCompleteCelebrationState
 }
 
 /// グロウリング + 軽いscale でパルスする Primary ボタン
-class _PulsingPrimaryButton extends StatelessWidget {
-  const _PulsingPrimaryButton({
+class PulsingPrimaryButton extends StatelessWidget {
+  const PulsingPrimaryButton({
+    super.key,
     required this.pulseController,
     required this.primaryColor,
     required this.onTap,
@@ -1202,8 +1203,8 @@ class _PulsingPrimaryButton extends StatelessWidget {
 /// 紙吹雪用のCustomPainter
 /// 60個の紙片が上から重力 + 初速 + 横揺れ + 自由回転で落下
 /// 形状: 四角 / 丸 / 三角を混在、サイズ・速度・色を多様化
-class _ConfettiPainter extends CustomPainter {
-  _ConfettiPainter({
+class ConfettiPainter extends CustomPainter {
+  ConfettiPainter({
     required this.progress,
     required this.primaryColor,
     required this.secondaryColor,
@@ -1241,7 +1242,7 @@ class _ConfettiPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final colors = [
       primaryColor,
-      _goldColor,
+      kAiGoldColor,
       tertiaryColor,
       secondaryColor,
       const Color(0xFFE91E63), // pink (アクセント)
@@ -1303,7 +1304,7 @@ class _ConfettiPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_ConfettiPainter oldDelegate) =>
+  bool shouldRepaint(ConfettiPainter oldDelegate) =>
       oldDelegate.progress != progress;
 }
 
@@ -1334,7 +1335,7 @@ class _ConfettiSeed {
   final double size;
 }
 
-const Color _goldColor = Color(0xFFFFC107);
+const Color kAiGoldColor = Color(0xFFFFC107);
 
 /// 全タスク期限切れ時の警告バナー
 class _AllExpiredBanner extends ConsumerWidget {

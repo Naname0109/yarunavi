@@ -462,5 +462,7 @@
   "recurringGuideAccept": "Set as recurring",
   "recurringGuideDecline": "Just this once",
   "recurringGuideApplied": "Set as recurring task",
-  "allCompleteNextPrompt": "Want to add what's next?"
+  "allCompleteNextPrompt": "Want to add what's next?",
+  "devModeAnimationsPreview": "Animation Preview",
+  "devModeAnimationsPreviewDesc": "Replay AI sort, all-complete, burst and confetti independently"
 }

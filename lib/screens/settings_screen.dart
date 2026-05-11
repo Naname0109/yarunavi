@@ -293,6 +293,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     const Divider(),
                     _buildSectionHeader(context, l10n.devModeSection),
                     const _DevModeToggles(),
+                    ListTile(
+                      key: const Key('debug_animations_entry'),
+                      leading: const Icon(Icons.animation_outlined),
+                      title: Text(l10n.devModeAnimationsPreview),
+                      subtitle: Text(l10n.devModeAnimationsPreviewDesc),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => context.push('/debug-animations'),
+                    ),
                     const Divider(),
                     _buildSectionHeader(context, l10n.debugSection),
                     ListTile(

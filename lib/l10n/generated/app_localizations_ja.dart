@@ -1346,4 +1346,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get allCompleteNextPrompt => '次のやることを追加しませんか？';
+
+  @override
+  String get devModeAnimationsPreview => '演出プレビュー';
+
+  @override
+  String get devModeAnimationsPreviewDesc => 'AI整理・全完了・バースト・紙吹雪を独立に再生';
 }

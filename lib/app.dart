@@ -9,6 +9,7 @@ import 'theme/app_theme.dart';
 import 'screens/ai_history_screen.dart';
 import 'screens/ai_result_screen.dart';
 import 'screens/category_manage_screen.dart';
+import 'screens/debug_animations_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/settings_screen.dart';
@@ -95,6 +96,14 @@ final _router = GoRouter(
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
         child: const CategoryManageScreen(),
+        transitionsBuilder: _slideFromRight,
+      ),
+    ),
+    GoRoute(
+      path: '/debug-animations',
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const DebugAnimationsScreen(),
         transitionsBuilder: _slideFromRight,
       ),
     ),
