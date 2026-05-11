@@ -983,12 +983,60 @@ class _AllCompleteCelebrationState
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ScaleTransition(
-                    scale: _scale,
-                    child: Icon(Icons.check_circle, size: 96,
-                        color: theme.colorScheme.primary),
+                  // チェックマーク (大バウンス + 背景の光リング)
+                  SizedBox(
+                    height: 120,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      clipBehavior: Clip.none,
+                      children: [
+                        // 背景の光彩リング (登場と同時に拡散してフェードアウト)
+                        AnimatedBuilder(
+                          animation: _checkController,
+                          builder: (context, _) {
+                            final t = _checkController.value;
+                            final ringT =
+                                Curves.easeOutCubic.transform(t);
+                            final size = 70 + ringT * 90;
+                            final alpha = (1.0 - ringT) * 0.6;
+                            if (alpha <= 0) return const SizedBox.shrink();
+                            return Container(
+                              width: size,
+                              height: size,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: theme.colorScheme.primary
+                                      .withValues(alpha: alpha),
+                                  width: 3,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        ScaleTransition(
+                          scale: _scale,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: theme.colorScheme.primary
+                                      .withValues(alpha: 0.35),
+                                  blurRadius: 28,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: Icon(Icons.check_circle,
+                                size: 104,
+                                color: theme.colorScheme.primary),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   Text(
                     '${widget.l10n.allCompleteTitle} 🎉',
                     style: theme.textTheme.headlineSmall?.copyWith(
@@ -1008,42 +1056,64 @@ class _AllCompleteCelebrationState
                   const SizedBox(height: 32),
                   // 次のタスク入力促進（2秒後にフェードイン）
                   AnimatedOpacity(
-                    duration: const Duration(milliseconds: 400),
+                    duration: const Duration(milliseconds: 600),
                     opacity: _showNextPrompt ? 1.0 : 0.0,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          widget.l10n.allCompleteNextPrompt,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            color: theme.colorScheme.onSurface,
-                            fontWeight: FontWeight.w600,
+                    curve: Curves.easeOut,
+                    child: AnimatedSlide(
+                      duration: const Duration(milliseconds: 600),
+                      offset: _showNextPrompt
+                          ? Offset.zero
+                          : const Offset(0, 0.1),
+                      curve: Curves.easeOutCubic,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            widget.l10n.allCompleteNextPrompt,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: theme.colorScheme.onSurface,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 12),
-                        // パルスアニメーション付き「タスクを追加する」ボタン
-                        AnimatedBuilder(
-                          animation: _pulseController,
-                          builder: (context, child) {
-                            final scale = 1.0 + _pulseController.value * 0.05;
-                            return Transform.scale(
-                              scale: scale,
-                              child: child,
-                            );
-                          },
-                          child: FilledButton.icon(
-                            onPressed: () {
+                          const SizedBox(height: 16),
+                          // パルスグロウ付き「タスクを追加する」ボタン
+                          _PulsingPrimaryButton(
+                            pulseController: _pulseController,
+                            primaryColor: theme.colorScheme.primary,
+                            onTap: () {
                               HapticFeedback.selectionClick();
                               TaskFormSheet.show(context);
                             },
-                            icon: const Icon(Icons.add),
-                            label: Text(widget.l10n.allCompleteAddTask),
-                            style: FilledButton.styleFrom(
-                                minimumSize: const Size(220, 52)),
+                            label: widget.l10n.allCompleteAddTask,
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 12),
+                          // 「AIで整理」アウトラインボタン (タスク無しの状態案内)
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              HapticFeedback.selectionClick();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      widget.l10n.allCompleteNoTaskForAi),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.auto_awesome, size: 18),
+                            label: Text(widget.l10n.allCompleteAiSort),
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(220, 48),
+                              foregroundColor: theme.colorScheme.primary,
+                              side: BorderSide(
+                                color: theme.colorScheme.primary
+                                    .withValues(alpha: 0.5),
+                                width: 1.2,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -1062,6 +1132,8 @@ class _AllCompleteCelebrationState
                   painter: _ConfettiPainter(
                     progress: _confettiController.value,
                     primaryColor: theme.colorScheme.primary,
+                    secondaryColor: theme.colorScheme.secondary,
+                    tertiaryColor: theme.colorScheme.tertiary,
                   ),
                 );
               },
@@ -1073,30 +1145,95 @@ class _AllCompleteCelebrationState
   }
 }
 
+/// グロウリング + 軽いscale でパルスする Primary ボタン
+class _PulsingPrimaryButton extends StatelessWidget {
+  const _PulsingPrimaryButton({
+    required this.pulseController,
+    required this.primaryColor,
+    required this.onTap,
+    required this.label,
+  });
+
+  final AnimationController pulseController;
+  final Color primaryColor;
+  final VoidCallback onTap;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: pulseController,
+      builder: (context, _) {
+        final t = pulseController.value;
+        // 1.0 → 1.04 の控えめなscale + 外側に光が広がる
+        final scale = 1.0 + t * 0.04;
+        return Transform.scale(
+          scale: scale,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: primaryColor.withValues(alpha: 0.35 * (1 - t * 0.5)),
+                  blurRadius: 12 + t * 24,
+                  spreadRadius: t * 4,
+                ),
+              ],
+            ),
+            child: FilledButton.icon(
+              onPressed: onTap,
+              icon: const Icon(Icons.add),
+              label: Text(label),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(220, 52),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                elevation: 0,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 /// 紙吹雪用のCustomPainter
-/// 50個の小さな四角/丸が上から重力感をもって降ってくる
+/// 60個の紙片が上から重力 + 初速 + 横揺れ + 自由回転で落下
+/// 形状: 四角 / 丸 / 三角を混在、サイズ・速度・色を多様化
 class _ConfettiPainter extends CustomPainter {
   _ConfettiPainter({
     required this.progress,
     required this.primaryColor,
+    required this.secondaryColor,
+    required this.tertiaryColor,
   });
 
   /// 0.0 → 1.0 で 3 秒進む
   final double progress;
   final Color primaryColor;
+  final Color secondaryColor;
+  final Color tertiaryColor;
 
-  static const _particleCount = 50;
+  static const _particleCount = 60;
   static final _seeds = List<_ConfettiSeed>.generate(_particleCount, (i) {
-    final rng = math.Random(i * 9973);
+    final rng = math.Random(i * 9973 + 7);
     return _ConfettiSeed(
       xRatio: rng.nextDouble(),
-      delay: rng.nextDouble() * 0.4, // 0〜40% delay
-      speed: 0.7 + rng.nextDouble() * 0.6,
+      delay: rng.nextDouble() * 0.35,
+      // 落下速度の幅を広く: 0.5 (ゆっくり) 〜 1.4 (速い)
+      speed: 0.5 + rng.nextDouble() * 0.9,
       colorIdx: rng.nextInt(5),
-      rotateSpeed: (rng.nextDouble() - 0.5) * 4 * math.pi,
-      sway: rng.nextDouble() * 30 - 15,
-      shape: rng.nextInt(2),
-      size: 6.0 + rng.nextDouble() * 4.0,
+      rotateSpeed: (rng.nextDouble() - 0.5) * 6 * math.pi,
+      // 横ドリフト: 左右に -0.15 〜 0.15 の方向初速
+      driftX: (rng.nextDouble() - 0.5) * 0.3,
+      // 横揺れ: ±20 の振幅、頻度 0.6〜1.4 周期
+      swayAmp: rng.nextDouble() * 24 + 4,
+      swayFreq: 0.6 + rng.nextDouble() * 0.8,
+      startRotation: rng.nextDouble() * 2 * math.pi,
+      shape: rng.nextInt(3),
+      size: 5.0 + rng.nextDouble() * 7.0,
     );
   });
 
@@ -1105,38 +1242,61 @@ class _ConfettiPainter extends CustomPainter {
     final colors = [
       primaryColor,
       _goldColor,
-      const Color(0xFF4CAF50), // green
-      const Color(0xFFE91E63), // pink
-      const Color(0xFFFF9800), // orange
+      tertiaryColor,
+      secondaryColor,
+      const Color(0xFFE91E63), // pink (アクセント)
     ];
 
-    final overallFade = progress < 0.85 ? 1.0 : (1.0 - progress) / 0.15;
+    // 全体フェード: 0.85〜1.0 で消える
+    final overallFade =
+        progress < 0.85 ? 1.0 : (1.0 - (progress - 0.85) / 0.15);
 
     for (final s in _seeds) {
       final localProgress =
           ((progress - s.delay) / (1.0 - s.delay)).clamp(0.0, 1.0);
       if (localProgress <= 0) continue;
-      // 重力感（progress^1.5）
-      final fallProgress = math.pow(localProgress, 1.5).toDouble();
-      final x = s.xRatio * size.width +
-          math.sin(localProgress * math.pi * 2) * s.sway;
-      final y = -20 + (size.height + 40) * fallProgress * s.speed;
-      final color = colors[s.colorIdx]
-          .withValues(alpha: overallFade.clamp(0.0, 1.0));
-      final rotation = localProgress * s.rotateSpeed;
+      final t = localProgress;
+
+      // --- 軌跡計算: 重力ベース ---
+      // 初速 + 重力加速で y = v0*t + 0.5*g*t^2
+      const initialVy = 0.12; // 初期下向き速度 (画面比)
+      const gravity = 0.9; // 重力加速度 (画面比)
+      final yProgress = initialVy * t + 0.5 * gravity * t * t;
+      final y = -30 + (size.height + 60) * yProgress * s.speed;
+
+      // 横方向: 直線ドリフト + sin揺れ
+      final xDrift = s.driftX * t * size.width;
+      final xSway = math.sin(t * math.pi * 2 * s.swayFreq) * s.swayAmp;
+      final x = s.xRatio * size.width + xDrift + xSway;
+
+      // 画面外に出たらスキップ
+      if (y > size.height + 20) continue;
+
+      final color = colors[s.colorIdx].withValues(alpha: overallFade);
+      final rotation = s.startRotation + t * s.rotateSpeed;
 
       canvas.save();
       canvas.translate(x, y);
       canvas.rotate(rotation);
       final paint = Paint()..color = color;
-      if (s.shape == 0) {
-        // 四角
-        final r = s.size / 2;
-        canvas.drawRect(Rect.fromLTWH(-r, -r * 0.6, s.size, s.size * 0.6),
-            paint);
-      } else {
-        // 丸
-        canvas.drawCircle(Offset.zero, s.size / 2, paint);
+      switch (s.shape) {
+        case 0:
+          // 紙片 (薄い四角)
+          final w = s.size;
+          final h = s.size * 0.55;
+          canvas.drawRect(Rect.fromLTWH(-w / 2, -h / 2, w, h), paint);
+        case 1:
+          // 丸
+          canvas.drawCircle(Offset.zero, s.size / 2, paint);
+        case 2:
+          // 三角形
+          final r = s.size / 2;
+          final path = Path()
+            ..moveTo(0, -r)
+            ..lineTo(r * 0.866, r * 0.5)
+            ..lineTo(-r * 0.866, r * 0.5)
+            ..close();
+          canvas.drawPath(path, paint);
       }
       canvas.restore();
     }
@@ -1154,7 +1314,10 @@ class _ConfettiSeed {
     required this.speed,
     required this.colorIdx,
     required this.rotateSpeed,
-    required this.sway,
+    required this.driftX,
+    required this.swayAmp,
+    required this.swayFreq,
+    required this.startRotation,
     required this.shape,
     required this.size,
   });
@@ -1163,7 +1326,10 @@ class _ConfettiSeed {
   final double speed;
   final int colorIdx;
   final double rotateSpeed;
-  final double sway;
+  final double driftX;
+  final double swayAmp;
+  final double swayFreq;
+  final double startRotation;
   final int shape;
   final double size;
 }

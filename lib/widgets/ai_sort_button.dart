@@ -4,7 +4,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -372,11 +371,20 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       await Future.delayed(const Duration(milliseconds: 350));
 
       // 100%到達 → 完了演出
+      // 演出タイムライン (合計 ~1500ms):
+      //   t=0       バーが Gold に変化 (300ms transition) + heavyImpact
+      //   t=120ms   バースト発射 (500ms) + mediumImpact
+      //   t=350ms   チェックマーク登場 (500ms elasticOut) + lightImpact + サウンド
+      //   t=350ms以降 余韻 → 1500ms 後に画面遷移
       progressController.setPhase(_AiPhase.complete);
 
-      // サウンド + ハプティクスパターン (heavy → medium → light)
+      // 視覚に同期したハプティクス + サウンド
       final sound = ref.read(soundServiceProvider);
-      unawaited(sound.play(SoundEvent.aiSortComplete));
+      unawaited(sound.playHaptic(SoundEvent.aiSortComplete));
+      // システムサウンドはチェックマーク登場の瞬間に合わせる
+      Future.delayed(const Duration(milliseconds: 350), () {
+        unawaited(sound.playSystemSound(SoundEvent.aiSortComplete));
+      });
 
       // 結果をProviderに保存
       ref.read(aiSortResponseProvider.notifier).state = response;
@@ -392,9 +400,9 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       ref.read(calendarHighlightProvider.notifier).state = true;
       ref.read(aiHistoryBadgeProvider.notifier).state = true;
 
-      // 完了演出の余韻（バースト 0.5s + チェックバウンス 0.3s + 余韻 0.2s ≒ 1.0s）
-      // 仕様のステップ5「演出が一通り終わったら0.5秒後に遷移」を含めて約1.0秒
-      await Future.delayed(const Duration(milliseconds: 1000));
+      // 演出の余韻を保ってから遷移
+      // (バー Gold 0.3s + バースト 0.5s + チェック 0.5s + ホールド 0.2s = 1.5s)
+      await Future.delayed(const Duration(milliseconds: 1500));
 
       // モーダルを閉じる（まだ閉じていない場合のみ）
       if (mounted && !dialogDismissed) {
@@ -414,10 +422,11 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         context.push('/ai-result');
       }
     } on AiServiceException catch (e) {
-      // エラー時: プログレスバーを赤色フェードアウト
+      // エラー時: プログレスバーを赤色フェードアウト + エラーハプティクスパターン
       progressController.setPhase(_AiPhase.error);
-      HapticFeedback.heavyImpact();
-      await Future.delayed(const Duration(milliseconds: 500));
+      final sound = ref.read(soundServiceProvider);
+      unawaited(sound.playHaptic(SoundEvent.aiSortError));
+      await Future.delayed(const Duration(milliseconds: 600));
 
       if (mounted && !dialogDismissed) {
         Navigator.of(context, rootNavigator: true).pop();
@@ -428,8 +437,9 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       debugPrint('[AiSort] unexpected error: $e');
       debugPrint('[AiSort] stackTrace: $st');
       progressController.setPhase(_AiPhase.error);
-      HapticFeedback.heavyImpact();
-      await Future.delayed(const Duration(milliseconds: 500));
+      final sound = ref.read(soundServiceProvider);
+      unawaited(sound.playHaptic(SoundEvent.aiSortError));
+      await Future.delayed(const Duration(milliseconds: 600));
       if (mounted && !dialogDismissed) {
         Navigator.of(context, rootNavigator: true).pop();
       }
@@ -660,6 +670,8 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
   int _messageIndex = 0;
   late final AnimationController _pulseController;
   late final AnimationController _progressController;
+  late final AnimationController _barColorController; // バー色 Primary → Gold (300ms)
+  late final AnimationController _barFlashController; // バー上の白フラッシュ (400ms)
   late final AnimationController _burstController;
   late final AnimationController _checkController;
   late final AnimationController _errorFadeController;
@@ -689,13 +701,21 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
     _progressAnimation =
         Tween<double>(begin: 0, end: 0).animate(_progressController);
 
+    _barColorController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _barFlashController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
     _burstController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 600),
     );
     _checkController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 500),
     );
     _errorFadeController = AnimationController(
       vsync: this,
@@ -742,13 +762,18 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
         _animateProgress(
             to: 1.0, duration: const Duration(milliseconds: 300));
       case _AiPhase.complete:
+        // ステップ1 (t=0): プログレスバーを 100% に固定し、Primary → Gold へ
         _animateProgress(
-            to: 1.0, duration: const Duration(milliseconds: 100));
+            to: 1.0, duration: const Duration(milliseconds: 80));
+        _barColorController.forward(from: 0);
+        _barFlashController.forward(from: 0);
+        // ステップ2 (t≈120ms): バースト発射
         Future.delayed(const Duration(milliseconds: 120), () {
-          if (mounted) {
-            _burstController.forward(from: 0);
-            _checkController.forward(from: 0);
-          }
+          if (mounted) _burstController.forward(from: 0);
+        });
+        // ステップ3 (t≈350ms): チェックマーク登場 + リング拡散
+        Future.delayed(const Duration(milliseconds: 350), () {
+          if (mounted) _checkController.forward(from: 0);
         });
       case _AiPhase.error:
         _errorFadeController.reverse(from: 1.0);
@@ -775,6 +800,8 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
     widget.controller.removeListener(_onPhaseChange);
     _pulseController.dispose();
     _progressController.dispose();
+    _barColorController.dispose();
+    _barFlashController.dispose();
     _burstController.dispose();
     _checkController.dispose();
     _errorFadeController.dispose();
@@ -787,6 +814,9 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
     final phase = widget.controller.phase;
     final isComplete = phase == _AiPhase.complete;
     final isError = phase == _AiPhase.error;
+    final isDark = theme.brightness == Brightness.dark;
+    // ライトモードでは白が消えるため tertiary に差し替え
+    final accentParticle = isDark ? Colors.white : theme.colorScheme.tertiary;
 
     return Dialog(
       child: FadeTransition(
@@ -796,13 +826,56 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // アイコン: 通常時はパルス、完了時はチェック
+              // アイコン: 通常時はパルス、完了時はチェック + リング + バースト
               SizedBox(
-                height: 80,
+                height: 96,
                 child: Stack(
                   alignment: Alignment.center,
                   clipBehavior: Clip.none,
                   children: [
+                    // 1. バースト (チェックの背後で先に展開)
+                    if (isComplete)
+                      RepaintBoundary(
+                        child: AnimatedBuilder(
+                          animation: _burstController,
+                          builder: (context, _) {
+                            return CustomPaint(
+                              size: const Size(220, 220),
+                              painter: _BurstPainter(
+                                progress: _burstController.value,
+                                primaryColor: theme.colorScheme.primary,
+                                goldColor: _goldColor,
+                                accentColor: accentParticle,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    // 2. 光のリング (チェックの直前に拡散してフェード)
+                    if (isComplete)
+                      AnimatedBuilder(
+                        animation: _checkController,
+                        builder: (context, _) {
+                          final t = _checkController.value;
+                          // 立ち上がりは易しく、終盤フェードアウト
+                          final ringT = Curves.easeOutCubic.transform(t);
+                          final size = 40.0 + ringT * 64.0;
+                          final alpha = (1.0 - ringT) * 0.75;
+                          if (alpha <= 0) return const SizedBox.shrink();
+                          return Container(
+                            width: size,
+                            height: size,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: _goldColor.withValues(alpha: alpha),
+                                width: 2.5,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    // 3. パルスアイコン (通常時)
                     if (!isComplete)
                       AnimatedBuilder(
                         animation: _pulseController,
@@ -818,49 +891,33 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
                           );
                         },
                       ),
+                    // 4. チェックマーク (完了時、elasticOutでバウンス)
                     if (isComplete)
                       AnimatedBuilder(
                         animation: _checkController,
                         builder: (context, _) {
-                          final t = Curves.elasticOut.transform(
-                              _checkController.value.clamp(0.0, 1.0));
-                          // チェックの色: ゴールド → Primary
+                          final v = _checkController.value;
+                          // elasticOutで 0→1.2→1.0 を実現 (clampでオーバーシュート維持)
+                          final scale = Curves.elasticOut
+                              .transform(v.clamp(0.0, 1.0))
+                              .clamp(0.0, 1.2);
                           final color = Color.lerp(
                             _goldColor,
                             theme.colorScheme.primary,
-                            _checkController.value,
+                            v,
                           )!;
-                          return Transform.scale(
-                            scale: t.clamp(0.0, 1.2),
-                            child: Icon(
-                              Icons.check_circle,
-                              size: 56,
-                              color: color,
+                          return Opacity(
+                            opacity: v.clamp(0.0, 1.0),
+                            child: Transform.scale(
+                              scale: scale,
+                              child: Icon(
+                                Icons.check_circle,
+                                size: 64,
+                                color: color,
+                              ),
                             ),
                           );
                         },
-                      ),
-                    // バースト演出
-                    if (isComplete)
-                      RepaintBoundary(
-                        child: AnimatedBuilder(
-                          animation: _burstController,
-                          builder: (context, _) {
-                            // 3色目はライト/ダークで切替（ライトでは白が見えないため）
-                            final accent = theme.brightness == Brightness.dark
-                                ? Colors.white
-                                : theme.colorScheme.tertiary;
-                            return CustomPaint(
-                              size: const Size(180, 180),
-                              painter: _BurstPainter(
-                                progress: _burstController.value,
-                                primaryColor: theme.colorScheme.primary,
-                                goldColor: _goldColor,
-                                accentColor: accent,
-                              ),
-                            );
-                          },
-                        ),
                       ),
                   ],
                 ),
@@ -876,24 +933,8 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
                 ),
               ),
               const SizedBox(height: 20),
-              // プログレスバー
-              AnimatedBuilder(
-                animation: _progressAnimation,
-                builder: (context, _) {
-                  final value = _progressAnimation.value.clamp(0.0, 1.0);
-                  final color = isError
-                      ? theme.colorScheme.error
-                      : (isComplete
-                          ? _goldColor
-                          : theme.colorScheme.primary);
-                  return LinearProgressIndicator(
-                    value: value,
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
-                    backgroundColor:
-                        theme.colorScheme.surfaceContainerHighest,
-                  );
-                },
-              ),
+              // プログレスバー (グロウ + フラッシュオーバーレイ付き)
+              _buildProgressBar(theme, isComplete, isError),
               const SizedBox(height: 20),
               if (!isComplete && !isError)
                 OutlinedButton(
@@ -906,12 +947,125 @@ class _AiLoadingDialogState extends State<_AiLoadingDialog>
       ),
     );
   }
+
+  /// グロウ + フラッシュ付きのプログレスバー
+  Widget _buildProgressBar(ThemeData theme, bool isComplete, bool isError) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([
+        _progressAnimation,
+        _barColorController,
+        _barFlashController,
+      ]),
+      builder: (context, _) {
+        final value = _progressAnimation.value.clamp(0.0, 1.0);
+        // 色は AnimationController で Primary → Gold に滑らかに遷移
+        final Color color;
+        if (isError) {
+          color = theme.colorScheme.error;
+        } else {
+          color = Color.lerp(
+            theme.colorScheme.primary,
+            _goldColor,
+            _barColorController.value,
+          )!;
+        }
+        // 完了時のグロウ (BoxShadow)
+        final glowStrength = isComplete ? _barColorController.value : 0.0;
+        // 上を一瞬走る白いフラッシュ
+        final flashOpacity =
+            isComplete ? _barFlashIntensity(_barFlashController.value) : 0.0;
+
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(6),
+            boxShadow: glowStrength > 0
+                ? [
+                    BoxShadow(
+                      color: _goldColor.withValues(alpha: 0.5 * glowStrength),
+                      blurRadius: 16 * glowStrength,
+                      spreadRadius: 1.0 * glowStrength,
+                    ),
+                  ]
+                : const [],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: SizedBox(
+              height: 8,
+              child: Stack(
+                children: [
+                  LinearProgressIndicator(
+                    value: value,
+                    minHeight: 8,
+                    valueColor: AlwaysStoppedAnimation<Color>(color),
+                    backgroundColor:
+                        theme.colorScheme.surfaceContainerHighest,
+                  ),
+                  if (flashOpacity > 0)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: [
+                                Colors.white.withValues(alpha: 0),
+                                Colors.white.withValues(alpha: flashOpacity),
+                                Colors.white.withValues(alpha: 0),
+                              ],
+                              stops: const [0.0, 0.5, 1.0],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// フラッシュ強度: 0→0.5でピーク、0.5→1で減衰
+  double _barFlashIntensity(double t) {
+    if (t <= 0) return 0;
+    if (t < 0.5) return (t * 2) * 0.6; // 0 → 0.6
+    return (1.0 - (t - 0.5) * 2) * 0.6; // 0.6 → 0
+  }
 }
 
 const Color _goldColor = Color(0xFFFFC107);
 
+/// パーティクル形状
+enum _BurstShape { circle, sparkle, line }
+
+/// パーティクルのシード（事前生成して毎回同じ動きを保証）
+class _BurstSeed {
+  const _BurstSeed({
+    required this.angle,
+    required this.speed,
+    required this.colorIdx,
+    required this.shape,
+    required this.size,
+    required this.rotation,
+    required this.curve,
+  });
+  final double angle;
+  final double speed;
+  final int colorIdx;
+  final _BurstShape shape;
+  final double size;
+  final double rotation;
+  /// 距離カーブの選択（0=easeOutCubic, 1=easeOutQuart）
+  final int curve;
+}
+
 /// 完了バースト用のCustomPainter
-/// 中央から放射状に20〜30個の小さな円が飛び散ってフェードアウト
+/// 中央の光のフラッシュ + 30個のパーティクル
+/// (円 14個 / 4方向スパークル 10個 / 光の筋 6本)
 class _BurstPainter extends CustomPainter {
   _BurstPainter({
     required this.progress,
@@ -925,40 +1079,139 @@ class _BurstPainter extends CustomPainter {
   final Color goldColor;
   final Color accentColor;
 
-  static const _particleCount = 24;
-  // 固定シードで毎回同じ動きにする
-  static final _seeds = List<({double angle, double speed, int colorIdx})>.generate(
-    _particleCount,
-    (i) {
-      final angle = (i / _particleCount) * 2 * math.pi +
-          ((i * 7919) % 100) / 200.0; // 少しランダム
-      final speed = 0.6 + ((i * 104729) % 100) / 250.0; // 0.6〜1.0
-      return (angle: angle, speed: speed, colorIdx: i % 3);
-    },
-  );
+  static const _particleCount = 30;
+  static final List<_BurstSeed> _seeds = _generateSeeds();
+
+  static List<_BurstSeed> _generateSeeds() {
+    final rng = math.Random(20260511);
+    return List<_BurstSeed>.generate(_particleCount, (i) {
+      // 角度は均等に散らしつつ若干のランダム性
+      final baseAngle = (i / _particleCount) * 2 * math.pi;
+      final jitter = (rng.nextDouble() - 0.5) * 0.5;
+      // 形状の振り分け: 14円 / 10星 / 6線
+      final _BurstShape shape;
+      if (i < 14) {
+        shape = _BurstShape.circle;
+      } else if (i < 24) {
+        shape = _BurstShape.sparkle;
+      } else {
+        shape = _BurstShape.line;
+      }
+      // 色: 円は Primary/Gold/Accent をローテーション、星は Gold 多め
+      final colorIdx = shape == _BurstShape.sparkle
+          ? (i.isEven ? 1 : 2)
+          : i % 3;
+      return _BurstSeed(
+        angle: baseAngle + jitter,
+        // 速度の幅を広く: 0.55〜1.15 で「速い遠飛び」と「近くでフワッ」が混在
+        speed: 0.55 + rng.nextDouble() * 0.6,
+        colorIdx: colorIdx,
+        shape: shape,
+        size: shape == _BurstShape.circle
+            ? 3.0 + rng.nextDouble() * 2.0
+            : shape == _BurstShape.sparkle
+                ? 5.0 + rng.nextDouble() * 2.5
+                : 12.0 + rng.nextDouble() * 8.0,
+        rotation: rng.nextDouble() * 2 * math.pi,
+        curve: rng.nextInt(2),
+      );
+    });
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
     if (progress <= 0) return;
     final center = Offset(size.width / 2, size.height / 2);
-    final maxRadius = size.width / 2;
-    final fade = 1.0 - progress; // 進むほど薄く
+    final maxRadius = size.width / 2.2;
     final colors = [primaryColor, goldColor, accentColor];
 
+    // --- 中央の光のフラッシュ (前半 0〜35% でピーク後フェード) ---
+    if (progress < 0.5) {
+      final flashT = (progress / 0.5).clamp(0.0, 1.0);
+      // ピーク 0.2 で最大、その後減衰
+      final flashAlpha = flashT < 0.2
+          ? flashT / 0.2
+          : (1.0 - (flashT - 0.2) / 0.8);
+      final flashRadius = 12 + flashT * 28;
+      final flashPaint = Paint()
+        ..shader = RadialGradient(
+          colors: [
+            goldColor.withValues(alpha: 0.55 * flashAlpha),
+            goldColor.withValues(alpha: 0),
+          ],
+        ).createShader(Rect.fromCircle(center: center, radius: flashRadius));
+      canvas.drawCircle(center, flashRadius, flashPaint);
+    }
+
     for (final s in _seeds) {
-      final dist = maxRadius * progress * s.speed;
+      // 距離カーブ: 立ち上がりが急で後半ゆっくり (爆発感)
+      final distT = s.curve == 0
+          ? Curves.easeOutCubic.transform(progress)
+          : Curves.easeOutQuart.transform(progress);
+      final dist = maxRadius * distT * s.speed;
       final dx = center.dx + math.cos(s.angle) * dist;
       final dy = center.dy + math.sin(s.angle) * dist;
-      final paint = Paint()
-        ..color = colors[s.colorIdx].withValues(alpha: fade.clamp(0.0, 1.0));
-      final r = 3.5 + (1.0 - progress) * 2.0;
-      canvas.drawCircle(Offset(dx, dy), r, paint);
+
+      // フェード: 開始時不透明 → 終盤で消える
+      // 前半は満タン、60% を超えたあたりから減衰
+      final fade = progress < 0.6
+          ? 1.0
+          : (1.0 - (progress - 0.6) / 0.4).clamp(0.0, 1.0);
+      final color = colors[s.colorIdx].withValues(alpha: fade);
+      final paint = Paint()..color = color;
+
+      switch (s.shape) {
+        case _BurstShape.circle:
+          // 進むほど少しだけ縮む
+          final r = s.size * (1.0 - progress * 0.2);
+          canvas.drawCircle(Offset(dx, dy), r, paint);
+        case _BurstShape.sparkle:
+          _drawSparkle(canvas, Offset(dx, dy), s.size, paint,
+              s.rotation + progress * math.pi);
+        case _BurstShape.line:
+          // 光の筋: 中心から離れる方向に細い直線
+          final strokePaint = Paint()
+            ..color = color
+            ..strokeWidth = 1.5
+            ..strokeCap = StrokeCap.round
+            ..style = PaintingStyle.stroke;
+          final back = s.size * (1.0 - progress * 0.5);
+          final startX = dx - math.cos(s.angle) * back;
+          final startY = dy - math.sin(s.angle) * back;
+          canvas.drawLine(Offset(startX, startY), Offset(dx, dy), strokePaint);
+      }
     }
+  }
+
+  /// 4方向のスパークル(きらめき)を描画
+  void _drawSparkle(
+      Canvas canvas, Offset center, double size, Paint paint, double rotation) {
+    final path = Path();
+    final s = size;
+    // 4芒星: 長軸4 / 短軸 s*0.3
+    path.moveTo(0, -s);
+    path.lineTo(s * 0.3, -s * 0.3);
+    path.lineTo(s, 0);
+    path.lineTo(s * 0.3, s * 0.3);
+    path.lineTo(0, s);
+    path.lineTo(-s * 0.3, s * 0.3);
+    path.lineTo(-s, 0);
+    path.lineTo(-s * 0.3, -s * 0.3);
+    path.close();
+
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(rotation);
+    canvas.drawPath(path, paint);
+    canvas.restore();
   }
 
   @override
   bool shouldRepaint(_BurstPainter oldDelegate) =>
-      oldDelegate.progress != progress;
+      oldDelegate.progress != progress ||
+      oldDelegate.primaryColor != primaryColor ||
+      oldDelegate.goldColor != goldColor ||
+      oldDelegate.accentColor != accentColor;
 }
 
 /// AI整理実行前のボトムシート（実行日傾向スライダー付き）
