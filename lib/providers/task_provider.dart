@@ -174,7 +174,7 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
     }
 
     if (justCompleting) {
-      final remaining = await _db.getTasksByFilter('today');
+      final remaining = await _db.getActiveTodayTasksBroad();
       final allDone = remaining.isEmpty;
       await ref
           .read(userStatsProvider.notifier)
@@ -208,7 +208,7 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
       await _notify.scheduleTaskNotifications(newTask, isPremium: _isPremium);
 
       // ゲーミフィケーション統合: 完了XP+ストリーク+バッジ
-      final remaining = await _db.getTasksByFilter('today');
+      final remaining = await _db.getActiveTodayTasksBroad();
       final allDone = remaining.isEmpty;
       await ref
           .read(userStatsProvider.notifier)

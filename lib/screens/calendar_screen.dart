@@ -383,6 +383,15 @@ class _PriorityBars extends StatelessWidget {
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: BorderRadius.circular(1.5),
+                // ダークモードはネオングロー追加
+                boxShadow: isDark
+                    ? [
+                        BoxShadow(
+                          color: color.withValues(alpha: 0.6),
+                          blurRadius: 4,
+                        ),
+                      ]
+                    : null,
               ),
             ),
           );

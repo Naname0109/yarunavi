@@ -5,7 +5,7 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../models/user_badge.dart';
 import '../../models/user_stats.dart';
 import '../../providers/gamification_provider.dart';
-import '../../providers/task_provider.dart';
+import '../../providers/task_provider.dart' show completedTaskCountProvider;
 import '../../services/gamification_service.dart';
 import '../../theme/yaru_colors.dart';
 import '../../theme/yaru_theme.dart';
@@ -28,7 +28,7 @@ class V2StatsScreen extends ConsumerWidget {
     final statsAsync = ref.watch(userStatsProvider);
     final badgesAsync = ref.watch(badgesProvider);
     final heatmapAsync = ref.watch(activityHeatmapProvider);
-    final tasksAsync = ref.watch(tasksProvider);
+    final completedAsync = ref.watch(completedTaskCountProvider);
 
     return Scaffold(
       backgroundColor: yaru.scaffoldBg,
@@ -39,9 +39,27 @@ class V2StatsScreen extends ConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, _) => Center(child: Text('$e')),
             data: (stats) {
-              final realCompleted = tasksAsync.maybeWhen(
-                data: (list) => list.where((t) => t.isCompleted).length,
+              // 完了済みタスク総数 (tasks テーブルから直接取得した値を優先、
+              // 失敗時のフォールバックとして gamification の累計値を使用)
+              final realCompleted = completedAsync.maybeWhen(
+                data: (c) => c,
                 orElse: () => stats.totalTasksCompleted,
+              );
+              // 今週の活動数 (xp_history のヒートマップから過去7日合計)
+              final thisWeek = heatmapAsync.maybeWhen(
+                data: (m) {
+                  final now = DateTime.now();
+                  int sum = 0;
+                  for (int i = 0; i < 7; i++) {
+                    final d = DateTime(now.year, now.month, now.day - i);
+                    final key = '${d.year.toString().padLeft(4, '0')}-'
+                        '${d.month.toString().padLeft(2, '0')}-'
+                        '${d.day.toString().padLeft(2, '0')}';
+                    sum += m[key] ?? 0;
+                  }
+                  return sum;
+                },
+                orElse: () => 0,
               );
               return ListView(
                 padding: const EdgeInsets.only(top: 8, bottom: 120),
@@ -55,7 +73,7 @@ class V2StatsScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: _statRow(l10n, realCompleted, stats),
+                    child: _statRow(l10n, realCompleted, thisWeek, stats),
                   ),
                   const SizedBox(height: 18),
                   Padding(
@@ -195,7 +213,12 @@ class V2StatsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _statRow(AppLocalizations l10n, int completed, UserStats stats) {
+  Widget _statRow(
+    AppLocalizations l10n,
+    int completed,
+    int thisWeek,
+    UserStats stats,
+  ) {
     return Row(
       children: [
         Expanded(
@@ -209,7 +232,7 @@ class V2StatsScreen extends ConsumerWidget {
         Expanded(
           child: _statTile(
             label: l10n.statsWeek,
-            value: '${stats.totalAiSorts}',
+            value: '$thisWeek',
             color: YaruColors.lime,
           ),
         ),

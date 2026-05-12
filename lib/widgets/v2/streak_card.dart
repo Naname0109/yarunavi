@@ -1,31 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../../models/user_stats.dart';
+import '../../providers/gamification_provider.dart';
 import '../../theme/yaru_colors.dart';
 import '../../theme/yaru_theme.dart';
 
-/// 実績画面の炎カード（連続日数）。
-///
-/// - ライト: オレンジグラデ (v1) + 大きな炎装飾
-/// - ダーク: グラデ枠線で囲った黒内側 + 炎装飾 (v2 dark)
-class StreakCard extends StatelessWidget {
+/// 実績画面の炎カード（連続日数）。カウントアップ演出 + 7日ミニバー付き。
+class StreakCard extends ConsumerWidget {
   const StreakCard({super.key, required this.stats});
   final UserStats stats;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final yaru = context.yaru;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
+    final heatmap = ref.watch(activityHeatmapProvider).maybeWhen(
+          data: (m) => m,
+          orElse: () => const <String, int>{},
+        );
 
     if (isDark) {
-      return _darkVariant(yaru: yaru, l10n: l10n);
+      return _darkVariant(yaru: yaru, l10n: l10n, heatmap: heatmap);
     }
-    return _lightVariant(yaru: yaru, l10n: l10n);
+    return _lightVariant(yaru: yaru, l10n: l10n, heatmap: heatmap);
   }
 
-  Widget _lightVariant({required YaruTheme yaru, required AppLocalizations l10n}) {
+  Widget _lightVariant({
+    required YaruTheme yaru,
+    required AppLocalizations l10n,
+    required Map<String, int> heatmap,
+  }) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -45,13 +52,23 @@ class StreakCard extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.25),
             ),
           ),
-          _content(textColor: Colors.white, l10n: l10n, accent: Colors.white),
+          _content(
+            textColor: Colors.white,
+            l10n: l10n,
+            accent: Colors.white,
+            heatmap: heatmap,
+            isDark: false,
+          ),
         ],
       ),
     );
   }
 
-  Widget _darkVariant({required YaruTheme yaru, required AppLocalizations l10n}) {
+  Widget _darkVariant({
+    required YaruTheme yaru,
+    required AppLocalizations l10n,
+    required Map<String, int> heatmap,
+  }) {
     return Container(
       padding: const EdgeInsets.all(1),
       decoration: BoxDecoration(
@@ -81,6 +98,8 @@ class StreakCard extends StatelessWidget {
               textColor: yaru.inkPrimary,
               l10n: l10n,
               accent: YaruColors.amber,
+              heatmap: heatmap,
+              isDark: true,
             ),
           ],
         ),
@@ -92,7 +111,10 @@ class StreakCard extends StatelessWidget {
     required Color textColor,
     required Color accent,
     required AppLocalizations l10n,
+    required Map<String, int> heatmap,
+    required bool isDark,
   }) {
+    final days = _last7Counts(heatmap);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -112,28 +134,36 @@ class StreakCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        RichText(
-          text: TextSpan(
-            style: TextStyle(
-              fontSize: 64,
-              fontWeight: FontWeight.w800,
-              height: 1.0,
-              color: textColor,
-              fontFeatures: const [FontFeature.tabularFigures()],
-              letterSpacing: -2.5,
-            ),
-            children: [
-              TextSpan(text: '${stats.streakDays}'),
-              TextSpan(
-                text: stats.streakDays == 0 ? ' days' : '日',
-                style: TextStyle(
-                  fontSize: 22,
-                  color: accent,
+        Builder(builder: (context) {
+          final locale = Localizations.localeOf(context).languageCode;
+          final suffix = locale == 'ja' ? '日' : ' days';
+          return TweenAnimationBuilder<int>(
+            tween: IntTween(begin: 0, end: stats.streakDays),
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOutCubic,
+            builder: (_, value, _) {
+              return RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    fontSize: 64,
+                    fontWeight: FontWeight.w800,
+                    height: 1.0,
+                    color: textColor,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                    letterSpacing: -2.5,
+                  ),
+                  children: [
+                    TextSpan(text: '$value'),
+                    TextSpan(
+                      text: suffix,
+                      style: TextStyle(fontSize: 22, color: accent),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        ),
+              );
+            },
+          );
+        }),
         const SizedBox(height: 6),
         Text(
           '${l10n.statsLongest}: ${stats.longestStreak}',
@@ -142,7 +172,63 @@ class StreakCard extends StatelessWidget {
             color: textColor.withValues(alpha: 0.85),
           ),
         ),
+        const SizedBox(height: 14),
+        _miniBars(days: days, isDark: isDark),
       ],
     );
+  }
+
+  Widget _miniBars({required List<int> days, required bool isDark}) {
+    final maxV = days.fold<int>(0, (a, b) => a > b ? a : b);
+    return SizedBox(
+      height: 28,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          for (final v in days) ...[
+            Expanded(
+              child: _bar(v: v, max: maxV, isDark: isDark),
+            ),
+            const SizedBox(width: 4),
+          ],
+        ]..removeLast(),
+      ),
+    );
+  }
+
+  Widget _bar({required int v, required int max, required bool isDark}) {
+    final h = max == 0 ? 0.1 : (v / max).clamp(0.1, 1.0);
+    return FractionallySizedBox(
+      heightFactor: h,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [YaruColors.amber, YaruColors.urgentNeon],
+          ),
+          borderRadius: BorderRadius.circular(4),
+          boxShadow: isDark && v > 0
+              ? [
+                  BoxShadow(
+                    color: YaruColors.amber.withValues(alpha: 0.45),
+                    blurRadius: 6,
+                  ),
+                ]
+              : null,
+        ),
+      ),
+    );
+  }
+
+  List<int> _last7Counts(Map<String, int> heatmap) {
+    final now = DateTime.now();
+    return List<int>.generate(7, (i) {
+      final d = DateTime(now.year, now.month, now.day - 6 + i);
+      final key = '${d.year.toString().padLeft(4, '0')}-'
+          '${d.month.toString().padLeft(2, '0')}-'
+          '${d.day.toString().padLeft(2, '0')}';
+      return heatmap[key] ?? 0;
+    });
   }
 }

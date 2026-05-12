@@ -8,14 +8,18 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../models/category.dart' as model;
 import '../../models/task.dart';
 import '../../providers/category_provider.dart';
+import '../../providers/gamification_provider.dart';
 import '../../providers/task_provider.dart';
 import '../../theme/yaru_theme.dart';
 import '../../utils/date_utils.dart' as app_date;
 import '../../widgets/responsive_wrapper.dart';
 import '../../widgets/task_form_sheet.dart';
+import '../../widgets/v2/badge_unlock_popup.dart';
 import '../../widgets/v2/glass_bottom_nav.dart';
 import '../../widgets/v2/hero_ai_card.dart';
+import '../../widgets/v2/level_up_overlay.dart';
 import '../../widgets/v2/task_card.dart';
+import '../../widgets/v2/xp_floating.dart';
 import '../settings_screen.dart';
 import 'calendar_screen.dart';
 import 'stats_screen.dart';
@@ -31,6 +35,7 @@ class V2HomeShell extends ConsumerStatefulWidget {
 
 class _V2HomeShellState extends ConsumerState<V2HomeShell> {
   late int _index = widget.initialTab.clamp(0, 3);
+  final _floatingHostKey = GlobalKey<XpFloatingHostState>();
 
   void _onAdd() {
     HapticFeedback.mediumImpact();
@@ -41,16 +46,48 @@ class _V2HomeShellState extends ConsumerState<V2HomeShell> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
+    // XP/レベルアップ/バッジ獲得イベントをリスニング
+    ref.listen<XpFloatingState?>(xpFloatingProvider, (prev, next) {
+      if (next != null && next != prev) {
+        _floatingHostKey.currentState?.show(next.amount);
+      }
+    });
+    ref.listen<LevelUpEvent?>(levelUpProvider, (prev, next) {
+      if (next != null && next != prev && context.mounted) {
+        LevelUpOverlay.show(context, next.newLevel);
+        // 一度表示したらクリア（再表示防止）
+        Future.microtask(
+            () => ref.read(levelUpProvider.notifier).state = null);
+      }
+    });
+    ref.listen(newBadgesProvider, (prev, next) {
+      if (next.isNotEmpty && context.mounted) {
+        // キューを順次表示 (前のpopupが消えてから次)
+        BadgeUnlockPopup.show(context, next.first);
+        // 表示済みを除去
+        Future.delayed(const Duration(milliseconds: 2400), () {
+          if (!context.mounted) return;
+          final current = ref.read(newBadgesProvider);
+          if (current.isNotEmpty) {
+            ref.read(newBadgesProvider.notifier).state = current.sublist(1);
+          }
+        });
+      }
+    });
+
     return Scaffold(
       extendBody: true,
-      body: IndexedStack(
-        index: _index,
-        children: const [
-          _V2HomeTab(),
-          V2CalendarScreen(),
-          V2StatsScreen(),
-          SettingsScreen(),
-        ],
+      body: XpFloatingHost(
+        key: _floatingHostKey,
+        child: IndexedStack(
+          index: _index,
+          children: const [
+            _V2HomeTab(),
+            V2CalendarScreen(),
+            V2StatsScreen(),
+            SettingsScreen(),
+          ],
+        ),
       ),
       bottomNavigationBar: GlassBottomNav(
         items: [
@@ -279,7 +316,7 @@ class _V2HomeTab extends ConsumerWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: yaru.inkQuaternary,
+              color: yaru.inkTertiary,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),

@@ -496,6 +496,22 @@ class DatabaseService {
     }
   }
 
+  /// ホーム画面 "今日やること" 定義の未完了タスクを返す。
+  ///
+  /// 条件: (期限切れ) OR (期限が今日) OR (priority=1) OR (recommended_date=今日)
+  /// 完了済み (is_completed=1) は除外。
+  Future<List<Task>> getActiveTodayTasksBroad() async {
+    final now = DateTime.now();
+    final todayKey = app_date.formatDateForDb(now);
+    final maps = await db.rawQuery(
+      'SELECT * FROM tasks WHERE is_completed = 0 AND '
+      '(due_date < ? OR due_date = ? OR priority = 1 '
+      'OR recommended_date = ?)',
+      [todayKey, todayKey, todayKey],
+    );
+    return maps.map(Task.fromMap).toList();
+  }
+
   /// 完了済みタスクの件数を返す
   Future<int> getCompletedTaskCount() async {
     final result = await db.rawQuery(
