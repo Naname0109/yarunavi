@@ -3,17 +3,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const _aiUnlimitedKey = 'dev_mode_ai_unlimited';
 const _premiumKey = 'dev_mode_premium';
+const _useNewUiKey = 'dev_mode_use_new_ui';
 
 /// 起動時の初期値（main.dartでoverrideされる）
 final initialDevAiUnlimitedProvider = Provider<bool>((ref) => false);
 final initialDevPremiumProvider = Provider<bool>((ref) => false);
+final initialUseNewUiProvider = Provider<bool>((ref) => false);
 
 /// 起動時にSharedPreferencesから読み込む
-Future<({bool aiUnlimited, bool premium})> loadDevModePrefs() async {
+Future<({bool aiUnlimited, bool premium, bool useNewUi})>
+    loadDevModePrefs() async {
   final prefs = await SharedPreferences.getInstance();
   return (
     aiUnlimited: prefs.getBool(_aiUnlimitedKey) ?? false,
     premium: prefs.getBool(_premiumKey) ?? false,
+    useNewUi: prefs.getBool(_useNewUiKey) ?? false,
   );
 }
 
@@ -48,5 +52,23 @@ class DevModePremiumNotifier extends Notifier<bool> {
     state = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_premiumKey, value);
+  }
+}
+
+/// 新UI(リデザイン版)を有効化するトグル。
+/// Bundle 2 で新ホーム等を実装する際、この値で旧/新を切り替える。
+/// リリース完了後に削除予定の一時フラグ。
+final useNewUiProvider = NotifierProvider<UseNewUiNotifier, bool>(
+  UseNewUiNotifier.new,
+);
+
+class UseNewUiNotifier extends Notifier<bool> {
+  @override
+  bool build() => ref.read(initialUseNewUiProvider);
+
+  Future<void> toggle(bool value) async {
+    state = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_useNewUiKey, value);
   }
 }

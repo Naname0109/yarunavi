@@ -152,6 +152,7 @@ void main() async {
         initialSoundEnabledProvider.overrideWithValue(settings.soundEnabled),
         initialDevAiUnlimitedProvider.overrideWithValue(devMode.aiUnlimited),
         initialDevPremiumProvider.overrideWithValue(devMode.premium),
+        initialUseNewUiProvider.overrideWithValue(devMode.useNewUi),
       ],
       child: const YaruNaviApp(),
     ),

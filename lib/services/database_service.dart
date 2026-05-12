@@ -23,10 +23,118 @@ class DatabaseService {
 
     _db = await openDatabase(
       path,
-      version: 10,
+      version: 11,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
+  }
+
+  /// バッジ定義の正規ID一覧（user_stats計算とUIで共有）
+  static const List<String> kBadgeIds = [
+    'first_step',
+    'streak_3',
+    'streak_7',
+    'streak_14',
+    'streak_30',
+    'ai_first',
+    'task_10',
+    'task_50',
+    'task_100',
+    'level_5',
+    'level_10',
+  ];
+
+  /// マイグレーション時に既存データから遡及して獲得済みにすべきバッジか
+  static bool _shouldAutoEarnOnMigration(
+    String id,
+    int completed,
+    int aiSorts,
+  ) {
+    return switch (id) {
+      'first_step' => completed >= 1,
+      'task_10' => completed >= 10,
+      'task_50' => completed >= 50,
+      'task_100' => completed >= 100,
+      'ai_first' => aiSorts >= 1,
+      _ => false,
+    };
+  }
+
+  /// v11: ゲーミフィケーションテーブル群を作成 + 初期データ投入。
+  ///
+  /// `_onCreate` でも `_onUpgrade` でも呼ばれる。既存 `tasks` / `ai_history` から
+  /// 累計完了数・AI整理回数を引き継ぐが、XP/レベル/ストリークは 0 から開始。
+  Future<void> _migrateToV11(Database db) async {
+    await db.execute('''
+      CREATE TABLE user_stats (
+        id INTEGER PRIMARY KEY,
+        total_xp INTEGER NOT NULL DEFAULT 0,
+        current_level INTEGER NOT NULL DEFAULT 1,
+        streak_days INTEGER NOT NULL DEFAULT 0,
+        streak_last_date TEXT,
+        longest_streak INTEGER NOT NULL DEFAULT 0,
+        total_tasks_completed INTEGER NOT NULL DEFAULT 0,
+        total_ai_sorts INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE badges (
+        id TEXT PRIMARY KEY,
+        is_earned INTEGER NOT NULL DEFAULT 0,
+        earned_at TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE xp_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        amount INTEGER NOT NULL,
+        reason TEXT NOT NULL,
+        earned_at TEXT NOT NULL
+      )
+    ''');
+
+    await db.execute(
+      'CREATE INDEX idx_xp_history_date ON xp_history(earned_at)',
+    );
+
+    // 既存データを集計（新規インストール時は 0 になる）
+    final completedRow = await db.rawQuery(
+      'SELECT COUNT(*) as cnt FROM tasks WHERE is_completed = 1',
+    );
+    final totalCompleted = Sqflite.firstIntValue(completedRow) ?? 0;
+
+    final aiSortRow = await db.rawQuery(
+      'SELECT COUNT(*) as cnt FROM ai_history',
+    );
+    final totalAiSorts = Sqflite.firstIntValue(aiSortRow) ?? 0;
+
+    final now = DateTime.now().toIso8601String();
+
+    await db.insert('user_stats', {
+      'id': 1,
+      'total_xp': 0,
+      'current_level': 1,
+      'streak_days': 0,
+      'streak_last_date': null,
+      'longest_streak': 0,
+      'total_tasks_completed': totalCompleted,
+      'total_ai_sorts': totalAiSorts,
+      'created_at': now,
+    });
+
+    final batch = db.batch();
+    for (final id in kBadgeIds) {
+      final retro = _shouldAutoEarnOnMigration(id, totalCompleted, totalAiSorts);
+      batch.insert('badges', {
+        'id': id,
+        'is_earned': retro ? 1 : 0,
+        'earned_at': retro ? now : null,
+      });
+    }
+    await batch.commit(noResult: true);
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -111,6 +219,9 @@ class DatabaseService {
       });
     }
     await batch.commit(noResult: true);
+
+    // v11: ゲーミフィケーション基盤
+    await _migrateToV11(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -178,6 +289,74 @@ class DatabaseService {
         'ALTER TABLE tasks ADD COLUMN is_recommended_date_manual INTEGER NOT NULL DEFAULT 0',
       );
     }
+    if (oldVersion < 11) {
+      await _migrateToV11(db);
+    }
+  }
+
+  // ====== Gamification: user_stats / badges / xp_history ======
+
+  /// 単一のユーザーステータス行（id=1）を取得。
+  Future<Map<String, dynamic>?> getUserStats() async {
+    final rows = await db.query('user_stats', where: 'id = ?', whereArgs: [1]);
+    return rows.isEmpty ? null : rows.first;
+  }
+
+  /// user_stats を部分更新（id=1）。
+  Future<void> updateUserStats(Map<String, Object?> values) async {
+    await db.update('user_stats', values, where: 'id = ?', whereArgs: [1]);
+  }
+
+  /// 全バッジ取得（is_earned/earned_at 含む）。
+  Future<List<Map<String, dynamic>>> getAllBadges() async {
+    return db.query('badges');
+  }
+
+  /// バッジを獲得済みにマーク（冪等）。
+  Future<bool> markBadgeEarned(String id) async {
+    final now = DateTime.now().toIso8601String();
+    final updated = await db.update(
+      'badges',
+      {'is_earned': 1, 'earned_at': now},
+      where: 'id = ? AND is_earned = 0',
+      whereArgs: [id],
+    );
+    return updated > 0;
+  }
+
+  /// XP獲得を記録（履歴のみ。user_stats.total_xp の更新は呼び出し側）。
+  Future<void> recordXp(int amount, String reason) async {
+    await db.insert('xp_history', {
+      'amount': amount,
+      'reason': reason,
+      'earned_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  /// 過去N日間の日別アクティビティ件数（ヒートマップ用）。
+  ///
+  /// 戻り値は 'YYYY-MM-DD' → 件数のマップ。
+  Future<Map<String, int>> getActivityCountByDay({required int days}) async {
+    final since = DateTime.now().subtract(Duration(days: days - 1));
+    final sinceDay = DateTime(since.year, since.month, since.day)
+        .toIso8601String();
+    final rows = await db.rawQuery(
+      "SELECT substr(earned_at, 1, 10) as day, COUNT(*) as cnt "
+      "FROM xp_history WHERE earned_at >= ? GROUP BY day",
+      [sinceDay],
+    );
+    return {
+      for (final r in rows) r['day'] as String: r['cnt'] as int,
+    };
+  }
+
+  /// 最近のXP獲得履歴（実績画面の最近の活動表示用）。
+  Future<List<Map<String, dynamic>>> getXpHistory({int limit = 50}) async {
+    return db.query(
+      'xp_history',
+      orderBy: 'earned_at DESC',
+      limit: limit,
+    );
   }
 
   // --- Tasks CRUD ---

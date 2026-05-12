@@ -64,3 +64,8 @@ ios/fastlane/.env.local
 *.cer
 *.certSigningRequest
 *.mobileprovision
+
+# Design handoff assets (参考用、リポジトリには含めない)
+やるナビ*.zip
+やるナビ*_extracted/
+design_handoff_*/

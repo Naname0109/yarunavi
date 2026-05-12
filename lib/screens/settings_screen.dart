@@ -644,6 +644,7 @@ class _DevModeToggles extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final aiUnlimited = ref.watch(devModeAiUnlimitedProvider);
     final premium = ref.watch(devModePremiumProvider);
+    final useNewUi = ref.watch(useNewUiProvider);
 
     return Column(
       children: [
@@ -664,6 +665,16 @@ class _DevModeToggles extends ConsumerWidget {
           value: premium,
           onChanged: (value) {
             ref.read(devModePremiumProvider.notifier).toggle(value);
+          },
+        ),
+        SwitchListTile(
+          key: const Key('use_new_ui_toggle'),
+          secondary: const Icon(Icons.auto_awesome),
+          title: Text(l10n.devModeUseNewUi),
+          subtitle: Text(l10n.devModeUseNewUiDesc),
+          value: useNewUi,
+          onChanged: (value) {
+            ref.read(useNewUiProvider.notifier).toggle(value);
           },
         ),
       ],

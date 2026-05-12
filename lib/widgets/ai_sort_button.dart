@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../l10n/generated/app_localizations.dart';
+import '../providers/gamification_provider.dart';
 import '../providers/purchase_provider.dart';
 import '../providers/secure_storage_provider.dart';
 import '../providers/sound_provider.dart';
@@ -44,7 +45,15 @@ final calendarHighlightProvider = StateProvider<bool>((ref) => false);
 final aiHistoryBadgeProvider = StateProvider<bool>((ref) => false);
 
 class AiSortButton extends ConsumerStatefulWidget {
-  const AiSortButton({super.key});
+  const AiSortButton({super.key, this.builder});
+
+  /// 任意のカスタム描画。null の場合は既存の AppBar 用 TextButton.icon を使う。
+  /// HeroAiCard 等から再利用するためのフック。
+  final Widget Function(
+    BuildContext context,
+    bool isLoading,
+    VoidCallback? onTap,
+  )? builder;
 
   @override
   ConsumerState<AiSortButton> createState() => _AiSortButtonState();
@@ -70,10 +79,14 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final onTap = _isLoading ? null : () => _onTap(l10n);
 
+    if (widget.builder != null) {
+      return widget.builder!(context, _isLoading, onTap);
+    }
     return TextButton.icon(
       key: const Key('ai_sort_button'),
-      onPressed: _isLoading ? null : () => _onTap(l10n),
+      onPressed: onTap,
       icon: _isLoading
           ? const SizedBox(
               width: 16,
@@ -396,6 +409,11 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       // 結果をProviderに保存
       ref.read(aiSortResponseProvider.notifier).state = response;
       ref.invalidate(tasksProvider);
+
+      // ゲーミフィケーション: AI整理XP + バッジ + ストリーク
+      await ref
+          .read(userStatsProvider.notifier)
+          .recordAiSort(taskCount: incompleteTasks.length);
 
       // トリガーB: AI整理完了後にレビュー依頼
       final reviewService = ref.read(reviewServiceProvider);

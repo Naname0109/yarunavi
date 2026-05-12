@@ -471,5 +471,110 @@
   "calendarLegendUrgent": "Urgent",
   "calendarLegendWeek": "This week",
   "calendarLegendLater": "Later",
-  "calendarLegendUnsorted": "Unsorted"
+  "calendarLegendUnsorted": "Unsorted",
+  "devModeUseNewUi": "Enable redesigned UI",
+  "devModeUseNewUiDesc": "Use the new design preview (home screen and more)",
+  "heroTodayMission": "Today's mission",
+  "aiSortHeroCta": "Ask AI to plan your day",
+  "statsTitle": "Stats",
+  "statsStreakActive": "Streak",
+  "statsStreakDays": "{n} days",
+  "@statsStreakDays": {
+    "placeholders": {
+      "n": { "type": "int" }
+    }
+  },
+  "statsLongest": "Best",
+  "statsDone": "Done",
+  "statsWeek": "Week",
+  "statsPast14Days": "Past 14 days",
+  "statsLevelXp": "{cur} / {next} XP",
+  "@statsLevelXp": {
+    "placeholders": {
+      "cur": { "type": "int" },
+      "next": { "type": "int" }
+    }
+  },
+  "statsBadges": "Badges",
+  "statsNextLevelHint": "{xp} XP to Lv.{level}",
+  "@statsNextLevelHint": {
+    "placeholders": {
+      "xp": { "type": "int" },
+      "level": { "type": "int" }
+    }
+  },
+  "levelName1": "First Steps",
+  "levelName2": "Apprentice Planner",
+  "levelName3": "Smart Planner",
+  "levelName4": "Task Master",
+  "levelName5": "AI Companion",
+  "levelName6": "Organizer Pro",
+  "levelName7": "Time Lord",
+  "levelName8": "Legendary Planner",
+  "levelNameHigh": "Master Lv.{level}",
+  "@levelNameHigh": {
+    "placeholders": {
+      "level": { "type": "int" }
+    }
+  },
+  "badgeName_first_step": "First Step",
+  "badgeDesc_first_step": "Complete your first task",
+  "badgeName_streak_3": "3-Day Streak",
+  "badgeDesc_streak_3": "Active 3 days in a row",
+  "badgeName_streak_7": "7-Day Streak",
+  "badgeDesc_streak_7": "A week of momentum",
+  "badgeName_streak_14": "14-Day Streak",
+  "badgeDesc_streak_14": "Two weeks strong",
+  "badgeName_streak_30": "30-Day Streak",
+  "badgeDesc_streak_30": "A full month",
+  "badgeName_ai_first": "AI Debut",
+  "badgeDesc_ai_first": "Run your first AI sort",
+  "badgeName_task_10": "10 Tasks",
+  "badgeDesc_task_10": "Completed 10 tasks",
+  "badgeName_task_50": "50 Tasks",
+  "badgeDesc_task_50": "Completed 50 tasks",
+  "badgeName_task_100": "100 Tasks",
+  "badgeDesc_task_100": "Completed 100 tasks",
+  "badgeName_level_5": "Reached Lv.5",
+  "badgeDesc_level_5": "Became AI Companion",
+  "badgeName_level_10": "Reached Lv.10",
+  "badgeDesc_level_10": "Master tier",
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+  "navHome": "Home",
+  "navCalendar": "Calendar",
+  "navStats": "Stats",
+  "navSettings": "Settings",
+  "xpEarned": "+{xp} XP",
+  "@xpEarned": {
+    "placeholders": {
+      "xp": { "type": "int" }
+    }
+  },
+  "levelUpTitle": "Level Up!",
+  "levelUpMessage": "Lv.{level} {name}",
+  "@levelUpMessage": {
+    "placeholders": {
+      "level": { "type": "int" },
+      "name": { "type": "String" }
+    }
+  },
+  "badgeUnlocked": "Badge unlocked!",
+  "sectionNow": "Today",
+  "sectionUpcoming": "This/Next week",
+  "sectionLater": "Later",
+  "taskDetailCountdown": "Time left",
+  "taskCompleteAction": "Mark complete",
+  "aiResultStartCta": "Start with this order",
+  "aiResultRetryCta": "Re-run",
+  "aiResultNowLabel": "Now",
+  "aiResultWeekLabel": "This week",
+  "aiResultLaterLabel": "Later",
+  "aiResultOptimized": "Sorted",
+  "premiumYearlyCta": "Start yearly plan",
+  "premiumMonthlyCta": "Start monthly plan",
+  "premiumTrialCopy": "7-day free trial · cancel anytime",
+  "calendarExecutionDate": "Plan date",
+  "calendarDueDate": "Due date"
 }

@@ -5,6 +5,7 @@ import '../services/calendar_service.dart';
 import '../services/database_service.dart';
 import '../services/notification_service.dart';
 import '../services/review_service.dart';
+import 'gamification_provider.dart';
 import 'purchase_provider.dart';
 
 /// DatabaseServiceのProvider（main.dartでoverrideされる）
@@ -79,8 +80,9 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
     }
 
     await _notify.scheduleTaskNotifications(savedTask, isPremium: _isPremium);
-    // 全期限切れ通知フラグをリセット
     await _notify.resetAllExpiredFlag();
+    // ストリーク維持 (XPは付与しない)
+    await ref.read(userStatsProvider.notifier).touchActivity();
     ref.invalidateSelf();
     return calResult;
   }
@@ -154,6 +156,7 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
   }
 
   Future<void> toggleComplete(Task task) async {
+    final justCompleting = !task.isCompleted;
     final now = DateTime.now();
     final updated = task.copyWith(
       isCompleted: !task.isCompleted,
@@ -168,6 +171,14 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
       } else {
         await _notify.scheduleTaskNotifications(updated, isPremium: _isPremium);
       }
+    }
+
+    if (justCompleting) {
+      final remaining = await _db.getTasksByFilter('today');
+      final allDone = remaining.isEmpty;
+      await ref
+          .read(userStatsProvider.notifier)
+          .recordTaskCompletion(isAllTodayDone: allDone);
     }
 
     ref.invalidateSelf();
@@ -195,6 +206,13 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
       }
 
       await _notify.scheduleTaskNotifications(newTask, isPremium: _isPremium);
+
+      // ゲーミフィケーション統合: 完了XP+ストリーク+バッジ
+      final remaining = await _db.getTasksByFilter('today');
+      final allDone = remaining.isEmpty;
+      await ref
+          .read(userStatsProvider.notifier)
+          .recordTaskCompletion(isAllTodayDone: allDone);
 
       ref.invalidateSelf();
       return newTask;

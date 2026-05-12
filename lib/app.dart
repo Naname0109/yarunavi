@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
+import 'providers/dev_mode_provider.dart';
 import 'providers/settings_provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/ai_history_screen.dart';
@@ -15,6 +16,12 @@ import 'screens/onboarding_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/store_screen.dart';
+import 'screens/v2/ai_result_screen.dart';
+import 'screens/v2/home_shell.dart';
+import 'screens/v2/onboarding_screen.dart';
+import 'screens/v2/premium_screen.dart';
+import 'screens/v2/stats_screen.dart';
+import 'screens/v2/task_detail_screen.dart';
 
 Widget _slideFromRight(
   BuildContext context,
@@ -31,6 +38,17 @@ Widget _slideFromRight(
   );
 }
 
+/// useNewUi の値で v1/v2 のスクリーンを切り替えるユーティリティ。
+class _V2Switch extends ConsumerWidget {
+  const _V2Switch({required this.v1, required this.v2});
+  final Widget Function() v1;
+  final Widget Function() v2;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref.watch(useNewUiProvider) ? v2() : v1();
+  }
+}
+
 final _router = GoRouter(
   initialLocation: '/splash',
   routes: [
@@ -40,7 +58,10 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: '/onboarding',
-      builder: (context, state) => const OnboardingScreen(),
+      builder: (context, state) => _V2Switch(
+        v1: () => const OnboardingScreen(),
+        v2: () => const V2OnboardingScreen(),
+      ),
     ),
     GoRoute(
       path: '/home',
@@ -48,14 +69,20 @@ final _router = GoRouter(
         final tab = int.tryParse(
                 state.uri.queryParameters['tab'] ?? '') ??
             0;
-        return HomeScreen(initialTab: tab);
+        return _V2Switch(
+          v1: () => HomeScreen(initialTab: tab),
+          v2: () => V2HomeShell(initialTab: tab),
+        );
       },
     ),
     GoRoute(
       path: '/ai-result',
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
-        child: const AiResultScreen(),
+        child: _V2Switch(
+          v1: () => const AiResultScreen(),
+          v2: () => const V2AiResultScreen(),
+        ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return SlideTransition(
             position: Tween<Offset>(
@@ -71,9 +98,31 @@ final _router = GoRouter(
       path: '/store',
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
-        child: const StoreScreen(),
+        child: _V2Switch(
+          v1: () => const StoreScreen(),
+          v2: () => const V2PremiumScreen(),
+        ),
         transitionsBuilder: _slideFromRight,
       ),
+    ),
+    GoRoute(
+      path: '/stats',
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const V2StatsScreen(),
+        transitionsBuilder: _slideFromRight,
+      ),
+    ),
+    GoRoute(
+      path: '/task/:id',
+      pageBuilder: (context, state) {
+        final id = int.tryParse(state.pathParameters['id'] ?? '') ?? -1;
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: V2TaskDetailScreen(taskId: id),
+          transitionsBuilder: _slideFromRight,
+        );
+      },
     ),
     GoRoute(
       path: '/settings',

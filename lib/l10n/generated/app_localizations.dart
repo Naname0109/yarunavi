@@ -2713,6 +2713,438 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'未整理'**
   String get calendarLegendUnsorted;
+
+  /// No description provided for @devModeUseNewUi.
+  ///
+  /// In ja, this message translates to:
+  /// **'新UI(リデザイン版)を有効化'**
+  String get devModeUseNewUi;
+
+  /// No description provided for @devModeUseNewUiDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'ホーム画面など新デザインのプレビューを使用'**
+  String get devModeUseNewUiDesc;
+
+  /// No description provided for @heroTodayMission.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日のミッション'**
+  String get heroTodayMission;
+
+  /// No description provided for @aiSortHeroCta.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIにきょうの順番を組んでもらう'**
+  String get aiSortHeroCta;
+
+  /// No description provided for @statsTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'実績'**
+  String get statsTitle;
+
+  /// No description provided for @statsStreakActive.
+  ///
+  /// In ja, this message translates to:
+  /// **'連続達成'**
+  String get statsStreakActive;
+
+  /// No description provided for @statsStreakDays.
+  ///
+  /// In ja, this message translates to:
+  /// **'{n}日'**
+  String statsStreakDays(int n);
+
+  /// No description provided for @statsLongest.
+  ///
+  /// In ja, this message translates to:
+  /// **'最長'**
+  String get statsLongest;
+
+  /// No description provided for @statsDone.
+  ///
+  /// In ja, this message translates to:
+  /// **'完了'**
+  String get statsDone;
+
+  /// No description provided for @statsWeek.
+  ///
+  /// In ja, this message translates to:
+  /// **'今週'**
+  String get statsWeek;
+
+  /// No description provided for @statsPast14Days.
+  ///
+  /// In ja, this message translates to:
+  /// **'過去14日の達成度'**
+  String get statsPast14Days;
+
+  /// No description provided for @statsLevelXp.
+  ///
+  /// In ja, this message translates to:
+  /// **'{cur} / {next} XP'**
+  String statsLevelXp(int cur, int next);
+
+  /// No description provided for @statsBadges.
+  ///
+  /// In ja, this message translates to:
+  /// **'獲得バッジ'**
+  String get statsBadges;
+
+  /// No description provided for @statsNextLevelHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'あと{xp} XPでLv.{level}'**
+  String statsNextLevelHint(int xp, int level);
+
+  /// No description provided for @levelName1.
+  ///
+  /// In ja, this message translates to:
+  /// **'はじめてのナビ'**
+  String get levelName1;
+
+  /// No description provided for @levelName2.
+  ///
+  /// In ja, this message translates to:
+  /// **'見習いプランナー'**
+  String get levelName2;
+
+  /// No description provided for @levelName3.
+  ///
+  /// In ja, this message translates to:
+  /// **'段取り上手'**
+  String get levelName3;
+
+  /// No description provided for @levelName4.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクマスター'**
+  String get levelName4;
+
+  /// No description provided for @levelName5.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIの右腕'**
+  String get levelName5;
+
+  /// No description provided for @levelName6.
+  ///
+  /// In ja, this message translates to:
+  /// **'整理の達人'**
+  String get levelName6;
+
+  /// No description provided for @levelName7.
+  ///
+  /// In ja, this message translates to:
+  /// **'時間の支配者'**
+  String get levelName7;
+
+  /// No description provided for @levelName8.
+  ///
+  /// In ja, this message translates to:
+  /// **'伝説のプランナー'**
+  String get levelName8;
+
+  /// No description provided for @levelNameHigh.
+  ///
+  /// In ja, this message translates to:
+  /// **'達人 Lv.{level}'**
+  String levelNameHigh(int level);
+
+  /// No description provided for @badgeName_first_step.
+  ///
+  /// In ja, this message translates to:
+  /// **'はじめの一歩'**
+  String get badgeName_first_step;
+
+  /// No description provided for @badgeDesc_first_step.
+  ///
+  /// In ja, this message translates to:
+  /// **'最初のタスクを完了'**
+  String get badgeDesc_first_step;
+
+  /// No description provided for @badgeName_streak_3.
+  ///
+  /// In ja, this message translates to:
+  /// **'3日連続'**
+  String get badgeName_streak_3;
+
+  /// No description provided for @badgeDesc_streak_3.
+  ///
+  /// In ja, this message translates to:
+  /// **'3日連続で操作'**
+  String get badgeDesc_streak_3;
+
+  /// No description provided for @badgeName_streak_7.
+  ///
+  /// In ja, this message translates to:
+  /// **'7日連続'**
+  String get badgeName_streak_7;
+
+  /// No description provided for @badgeDesc_streak_7.
+  ///
+  /// In ja, this message translates to:
+  /// **'1週間続けた'**
+  String get badgeDesc_streak_7;
+
+  /// No description provided for @badgeName_streak_14.
+  ///
+  /// In ja, this message translates to:
+  /// **'14日連続'**
+  String get badgeName_streak_14;
+
+  /// No description provided for @badgeDesc_streak_14.
+  ///
+  /// In ja, this message translates to:
+  /// **'2週間続けた'**
+  String get badgeDesc_streak_14;
+
+  /// No description provided for @badgeName_streak_30.
+  ///
+  /// In ja, this message translates to:
+  /// **'30日連続'**
+  String get badgeName_streak_30;
+
+  /// No description provided for @badgeDesc_streak_30.
+  ///
+  /// In ja, this message translates to:
+  /// **'1ヶ月続けた'**
+  String get badgeDesc_streak_30;
+
+  /// No description provided for @badgeName_ai_first.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI初体験'**
+  String get badgeName_ai_first;
+
+  /// No description provided for @badgeDesc_ai_first.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理を初実行'**
+  String get badgeDesc_ai_first;
+
+  /// No description provided for @badgeName_task_10.
+  ///
+  /// In ja, this message translates to:
+  /// **'10件達成'**
+  String get badgeName_task_10;
+
+  /// No description provided for @badgeDesc_task_10.
+  ///
+  /// In ja, this message translates to:
+  /// **'累計10件完了'**
+  String get badgeDesc_task_10;
+
+  /// No description provided for @badgeName_task_50.
+  ///
+  /// In ja, this message translates to:
+  /// **'50件達成'**
+  String get badgeName_task_50;
+
+  /// No description provided for @badgeDesc_task_50.
+  ///
+  /// In ja, this message translates to:
+  /// **'累計50件完了'**
+  String get badgeDesc_task_50;
+
+  /// No description provided for @badgeName_task_100.
+  ///
+  /// In ja, this message translates to:
+  /// **'100件達成'**
+  String get badgeName_task_100;
+
+  /// No description provided for @badgeDesc_task_100.
+  ///
+  /// In ja, this message translates to:
+  /// **'累計100件完了'**
+  String get badgeDesc_task_100;
+
+  /// No description provided for @badgeName_level_5.
+  ///
+  /// In ja, this message translates to:
+  /// **'Lv.5到達'**
+  String get badgeName_level_5;
+
+  /// No description provided for @badgeDesc_level_5.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIの右腕に進化'**
+  String get badgeDesc_level_5;
+
+  /// No description provided for @badgeName_level_10.
+  ///
+  /// In ja, this message translates to:
+  /// **'Lv.10到達'**
+  String get badgeName_level_10;
+
+  /// No description provided for @badgeDesc_level_10.
+  ///
+  /// In ja, this message translates to:
+  /// **'達人の領域'**
+  String get badgeDesc_level_10;
+
+  /// No description provided for @greetingMorning.
+  ///
+  /// In ja, this message translates to:
+  /// **'おはよう'**
+  String get greetingMorning;
+
+  /// No description provided for @greetingAfternoon.
+  ///
+  /// In ja, this message translates to:
+  /// **'こんにちは'**
+  String get greetingAfternoon;
+
+  /// No description provided for @greetingEvening.
+  ///
+  /// In ja, this message translates to:
+  /// **'こんばんは'**
+  String get greetingEvening;
+
+  /// No description provided for @navHome.
+  ///
+  /// In ja, this message translates to:
+  /// **'ホーム'**
+  String get navHome;
+
+  /// No description provided for @navCalendar.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダー'**
+  String get navCalendar;
+
+  /// No description provided for @navStats.
+  ///
+  /// In ja, this message translates to:
+  /// **'実績'**
+  String get navStats;
+
+  /// No description provided for @navSettings.
+  ///
+  /// In ja, this message translates to:
+  /// **'設定'**
+  String get navSettings;
+
+  /// No description provided for @xpEarned.
+  ///
+  /// In ja, this message translates to:
+  /// **'+{xp} XP'**
+  String xpEarned(int xp);
+
+  /// No description provided for @levelUpTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'レベルアップ!'**
+  String get levelUpTitle;
+
+  /// No description provided for @levelUpMessage.
+  ///
+  /// In ja, this message translates to:
+  /// **'Lv.{level} {name}'**
+  String levelUpMessage(int level, String name);
+
+  /// No description provided for @badgeUnlocked.
+  ///
+  /// In ja, this message translates to:
+  /// **'新しいバッジ!'**
+  String get badgeUnlocked;
+
+  /// No description provided for @sectionNow.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日やること'**
+  String get sectionNow;
+
+  /// No description provided for @sectionUpcoming.
+  ///
+  /// In ja, this message translates to:
+  /// **'今週・来週'**
+  String get sectionUpcoming;
+
+  /// No description provided for @sectionLater.
+  ///
+  /// In ja, this message translates to:
+  /// **'それ以降'**
+  String get sectionLater;
+
+  /// No description provided for @taskDetailCountdown.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限まで'**
+  String get taskDetailCountdown;
+
+  /// No description provided for @taskCompleteAction.
+  ///
+  /// In ja, this message translates to:
+  /// **'完了にする'**
+  String get taskCompleteAction;
+
+  /// No description provided for @aiResultStartCta.
+  ///
+  /// In ja, this message translates to:
+  /// **'この順番で進める'**
+  String get aiResultStartCta;
+
+  /// No description provided for @aiResultRetryCta.
+  ///
+  /// In ja, this message translates to:
+  /// **'もう一度'**
+  String get aiResultRetryCta;
+
+  /// No description provided for @aiResultNowLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'今すぐ'**
+  String get aiResultNowLabel;
+
+  /// No description provided for @aiResultWeekLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'今週中'**
+  String get aiResultWeekLabel;
+
+  /// No description provided for @aiResultLaterLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'急がない'**
+  String get aiResultLaterLabel;
+
+  /// No description provided for @aiResultOptimized.
+  ///
+  /// In ja, this message translates to:
+  /// **'整理しました'**
+  String get aiResultOptimized;
+
+  /// No description provided for @premiumYearlyCta.
+  ///
+  /// In ja, this message translates to:
+  /// **'年額プランで始める'**
+  String get premiumYearlyCta;
+
+  /// No description provided for @premiumMonthlyCta.
+  ///
+  /// In ja, this message translates to:
+  /// **'月額プランで始める'**
+  String get premiumMonthlyCta;
+
+  /// No description provided for @premiumTrialCopy.
+  ///
+  /// In ja, this message translates to:
+  /// **'7日間無料トライアル · いつでも解約可'**
+  String get premiumTrialCopy;
+
+  /// No description provided for @calendarExecutionDate.
+  ///
+  /// In ja, this message translates to:
+  /// **'実行日'**
+  String get calendarExecutionDate;
+
+  /// No description provided for @calendarDueDate.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限日'**
+  String get calendarDueDate;
 }
 
 class _AppLocalizationsDelegate

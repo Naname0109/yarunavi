@@ -1373,4 +1373,232 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get calendarLegendUnsorted => '未整理';
+
+  @override
+  String get devModeUseNewUi => '新UI(リデザイン版)を有効化';
+
+  @override
+  String get devModeUseNewUiDesc => 'ホーム画面など新デザインのプレビューを使用';
+
+  @override
+  String get heroTodayMission => '今日のミッション';
+
+  @override
+  String get aiSortHeroCta => 'AIにきょうの順番を組んでもらう';
+
+  @override
+  String get statsTitle => '実績';
+
+  @override
+  String get statsStreakActive => '連続達成';
+
+  @override
+  String statsStreakDays(int n) {
+    return '$n日';
+  }
+
+  @override
+  String get statsLongest => '最長';
+
+  @override
+  String get statsDone => '完了';
+
+  @override
+  String get statsWeek => '今週';
+
+  @override
+  String get statsPast14Days => '過去14日の達成度';
+
+  @override
+  String statsLevelXp(int cur, int next) {
+    return '$cur / $next XP';
+  }
+
+  @override
+  String get statsBadges => '獲得バッジ';
+
+  @override
+  String statsNextLevelHint(int xp, int level) {
+    return 'あと$xp XPでLv.$level';
+  }
+
+  @override
+  String get levelName1 => 'はじめてのナビ';
+
+  @override
+  String get levelName2 => '見習いプランナー';
+
+  @override
+  String get levelName3 => '段取り上手';
+
+  @override
+  String get levelName4 => 'タスクマスター';
+
+  @override
+  String get levelName5 => 'AIの右腕';
+
+  @override
+  String get levelName6 => '整理の達人';
+
+  @override
+  String get levelName7 => '時間の支配者';
+
+  @override
+  String get levelName8 => '伝説のプランナー';
+
+  @override
+  String levelNameHigh(int level) {
+    return '達人 Lv.$level';
+  }
+
+  @override
+  String get badgeName_first_step => 'はじめの一歩';
+
+  @override
+  String get badgeDesc_first_step => '最初のタスクを完了';
+
+  @override
+  String get badgeName_streak_3 => '3日連続';
+
+  @override
+  String get badgeDesc_streak_3 => '3日連続で操作';
+
+  @override
+  String get badgeName_streak_7 => '7日連続';
+
+  @override
+  String get badgeDesc_streak_7 => '1週間続けた';
+
+  @override
+  String get badgeName_streak_14 => '14日連続';
+
+  @override
+  String get badgeDesc_streak_14 => '2週間続けた';
+
+  @override
+  String get badgeName_streak_30 => '30日連続';
+
+  @override
+  String get badgeDesc_streak_30 => '1ヶ月続けた';
+
+  @override
+  String get badgeName_ai_first => 'AI初体験';
+
+  @override
+  String get badgeDesc_ai_first => 'AI整理を初実行';
+
+  @override
+  String get badgeName_task_10 => '10件達成';
+
+  @override
+  String get badgeDesc_task_10 => '累計10件完了';
+
+  @override
+  String get badgeName_task_50 => '50件達成';
+
+  @override
+  String get badgeDesc_task_50 => '累計50件完了';
+
+  @override
+  String get badgeName_task_100 => '100件達成';
+
+  @override
+  String get badgeDesc_task_100 => '累計100件完了';
+
+  @override
+  String get badgeName_level_5 => 'Lv.5到達';
+
+  @override
+  String get badgeDesc_level_5 => 'AIの右腕に進化';
+
+  @override
+  String get badgeName_level_10 => 'Lv.10到達';
+
+  @override
+  String get badgeDesc_level_10 => '達人の領域';
+
+  @override
+  String get greetingMorning => 'おはよう';
+
+  @override
+  String get greetingAfternoon => 'こんにちは';
+
+  @override
+  String get greetingEvening => 'こんばんは';
+
+  @override
+  String get navHome => 'ホーム';
+
+  @override
+  String get navCalendar => 'カレンダー';
+
+  @override
+  String get navStats => '実績';
+
+  @override
+  String get navSettings => '設定';
+
+  @override
+  String xpEarned(int xp) {
+    return '+$xp XP';
+  }
+
+  @override
+  String get levelUpTitle => 'レベルアップ!';
+
+  @override
+  String levelUpMessage(int level, String name) {
+    return 'Lv.$level $name';
+  }
+
+  @override
+  String get badgeUnlocked => '新しいバッジ!';
+
+  @override
+  String get sectionNow => '今日やること';
+
+  @override
+  String get sectionUpcoming => '今週・来週';
+
+  @override
+  String get sectionLater => 'それ以降';
+
+  @override
+  String get taskDetailCountdown => '期限まで';
+
+  @override
+  String get taskCompleteAction => '完了にする';
+
+  @override
+  String get aiResultStartCta => 'この順番で進める';
+
+  @override
+  String get aiResultRetryCta => 'もう一度';
+
+  @override
+  String get aiResultNowLabel => '今すぐ';
+
+  @override
+  String get aiResultWeekLabel => '今週中';
+
+  @override
+  String get aiResultLaterLabel => '急がない';
+
+  @override
+  String get aiResultOptimized => '整理しました';
+
+  @override
+  String get premiumYearlyCta => '年額プランで始める';
+
+  @override
+  String get premiumMonthlyCta => '月額プランで始める';
+
+  @override
+  String get premiumTrialCopy => '7日間無料トライアル · いつでも解約可';
+
+  @override
+  String get calendarExecutionDate => '実行日';
+
+  @override
+  String get calendarDueDate => '期限日';
 }

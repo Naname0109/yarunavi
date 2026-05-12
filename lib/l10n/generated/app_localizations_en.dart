@@ -1402,4 +1402,233 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarLegendUnsorted => 'Unsorted';
+
+  @override
+  String get devModeUseNewUi => 'Enable redesigned UI';
+
+  @override
+  String get devModeUseNewUiDesc =>
+      'Use the new design preview (home screen and more)';
+
+  @override
+  String get heroTodayMission => 'Today\'s mission';
+
+  @override
+  String get aiSortHeroCta => 'Ask AI to plan your day';
+
+  @override
+  String get statsTitle => 'Stats';
+
+  @override
+  String get statsStreakActive => 'Streak';
+
+  @override
+  String statsStreakDays(int n) {
+    return '$n days';
+  }
+
+  @override
+  String get statsLongest => 'Best';
+
+  @override
+  String get statsDone => 'Done';
+
+  @override
+  String get statsWeek => 'Week';
+
+  @override
+  String get statsPast14Days => 'Past 14 days';
+
+  @override
+  String statsLevelXp(int cur, int next) {
+    return '$cur / $next XP';
+  }
+
+  @override
+  String get statsBadges => 'Badges';
+
+  @override
+  String statsNextLevelHint(int xp, int level) {
+    return '$xp XP to Lv.$level';
+  }
+
+  @override
+  String get levelName1 => 'First Steps';
+
+  @override
+  String get levelName2 => 'Apprentice Planner';
+
+  @override
+  String get levelName3 => 'Smart Planner';
+
+  @override
+  String get levelName4 => 'Task Master';
+
+  @override
+  String get levelName5 => 'AI Companion';
+
+  @override
+  String get levelName6 => 'Organizer Pro';
+
+  @override
+  String get levelName7 => 'Time Lord';
+
+  @override
+  String get levelName8 => 'Legendary Planner';
+
+  @override
+  String levelNameHigh(int level) {
+    return 'Master Lv.$level';
+  }
+
+  @override
+  String get badgeName_first_step => 'First Step';
+
+  @override
+  String get badgeDesc_first_step => 'Complete your first task';
+
+  @override
+  String get badgeName_streak_3 => '3-Day Streak';
+
+  @override
+  String get badgeDesc_streak_3 => 'Active 3 days in a row';
+
+  @override
+  String get badgeName_streak_7 => '7-Day Streak';
+
+  @override
+  String get badgeDesc_streak_7 => 'A week of momentum';
+
+  @override
+  String get badgeName_streak_14 => '14-Day Streak';
+
+  @override
+  String get badgeDesc_streak_14 => 'Two weeks strong';
+
+  @override
+  String get badgeName_streak_30 => '30-Day Streak';
+
+  @override
+  String get badgeDesc_streak_30 => 'A full month';
+
+  @override
+  String get badgeName_ai_first => 'AI Debut';
+
+  @override
+  String get badgeDesc_ai_first => 'Run your first AI sort';
+
+  @override
+  String get badgeName_task_10 => '10 Tasks';
+
+  @override
+  String get badgeDesc_task_10 => 'Completed 10 tasks';
+
+  @override
+  String get badgeName_task_50 => '50 Tasks';
+
+  @override
+  String get badgeDesc_task_50 => 'Completed 50 tasks';
+
+  @override
+  String get badgeName_task_100 => '100 Tasks';
+
+  @override
+  String get badgeDesc_task_100 => 'Completed 100 tasks';
+
+  @override
+  String get badgeName_level_5 => 'Reached Lv.5';
+
+  @override
+  String get badgeDesc_level_5 => 'Became AI Companion';
+
+  @override
+  String get badgeName_level_10 => 'Reached Lv.10';
+
+  @override
+  String get badgeDesc_level_10 => 'Master tier';
+
+  @override
+  String get greetingMorning => 'Good morning';
+
+  @override
+  String get greetingAfternoon => 'Good afternoon';
+
+  @override
+  String get greetingEvening => 'Good evening';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navCalendar => 'Calendar';
+
+  @override
+  String get navStats => 'Stats';
+
+  @override
+  String get navSettings => 'Settings';
+
+  @override
+  String xpEarned(int xp) {
+    return '+$xp XP';
+  }
+
+  @override
+  String get levelUpTitle => 'Level Up!';
+
+  @override
+  String levelUpMessage(int level, String name) {
+    return 'Lv.$level $name';
+  }
+
+  @override
+  String get badgeUnlocked => 'Badge unlocked!';
+
+  @override
+  String get sectionNow => 'Today';
+
+  @override
+  String get sectionUpcoming => 'This/Next week';
+
+  @override
+  String get sectionLater => 'Later';
+
+  @override
+  String get taskDetailCountdown => 'Time left';
+
+  @override
+  String get taskCompleteAction => 'Mark complete';
+
+  @override
+  String get aiResultStartCta => 'Start with this order';
+
+  @override
+  String get aiResultRetryCta => 'Re-run';
+
+  @override
+  String get aiResultNowLabel => 'Now';
+
+  @override
+  String get aiResultWeekLabel => 'This week';
+
+  @override
+  String get aiResultLaterLabel => 'Later';
+
+  @override
+  String get aiResultOptimized => 'Sorted';
+
+  @override
+  String get premiumYearlyCta => 'Start yearly plan';
+
+  @override
+  String get premiumMonthlyCta => 'Start monthly plan';
+
+  @override
+  String get premiumTrialCopy => '7-day free trial · cancel anytime';
+
+  @override
+  String get calendarExecutionDate => 'Plan date';
+
+  @override
+  String get calendarDueDate => 'Due date';
 }
