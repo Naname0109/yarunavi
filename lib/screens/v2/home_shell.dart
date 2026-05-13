@@ -26,8 +26,15 @@ import 'stats_screen.dart';
 
 /// v2のメインシェル: ボトムナビ + 4タブ (Home/Calendar/Stats/Settings) + 中央FAB
 class V2HomeShell extends ConsumerStatefulWidget {
-  const V2HomeShell({super.key, this.initialTab = 0});
+  const V2HomeShell({
+    super.key,
+    this.initialTab = 0,
+    this.openTaskFormOnStart = false,
+  });
   final int initialTab;
+
+  /// オンボーディング完了直後など、表示後すぐにタスク追加シートを開きたい場合 true
+  final bool openTaskFormOnStart;
 
   @override
   ConsumerState<V2HomeShell> createState() => _V2HomeShellState();
@@ -36,6 +43,19 @@ class V2HomeShell extends ConsumerStatefulWidget {
 class _V2HomeShellState extends ConsumerState<V2HomeShell> {
   late int _index = widget.initialTab.clamp(0, 3);
   final _floatingHostKey = GlobalKey<XpFloatingHostState>();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.openTaskFormOnStart) {
+      // ホーム遷移直後のアニメーションを少し待ってからシート表示
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) TaskFormSheet.show(context);
+        });
+      });
+    }
+  }
 
   void _onAdd() {
     HapticFeedback.mediumImpact();
@@ -104,15 +124,45 @@ class _V2HomeShellState extends ConsumerState<V2HomeShell> {
   }
 }
 
-class _V2HomeTab extends ConsumerWidget {
+class _V2HomeTab extends ConsumerStatefulWidget {
   const _V2HomeTab();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_V2HomeTab> createState() => _V2HomeTabState();
+}
+
+class _V2HomeTabState extends ConsumerState<_V2HomeTab> {
+  final _scrollController = ScrollController();
+  final _keyToday = GlobalKey();
+  final _keyThisWeek = GlobalKey();
+  final _keyLater = GlobalKey();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _scrollTo(GlobalKey key) async {
+    final ctx = key.currentContext;
+    if (ctx == null) return;
+    HapticFeedback.selectionClick();
+    await Scrollable.ensureVisible(
+      ctx,
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+      alignment: 0.05,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final yaru = context.yaru;
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
-    final tasksAsync = ref.watch(tasksProvider);
+    // 完了済みも含む全タスクをデータソースとして使い、4セクション + 完了済み
+    // 折りたたみを一つの ListView で組み立てる
+    final tasksAsync = ref.watch(allTasksProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
 
     final categoryMap = <int, model.Category>{};
@@ -133,14 +183,30 @@ class _V2HomeTab extends ConsumerWidget {
             data: (tasks) {
               final split = _splitTasks(tasks);
               final (done, total) = _todayDoneTotal(tasks);
+              final completedTasks =
+                  tasks.where((t) => t.isCompleted).toList()
+                    ..sort((a, b) => (b.completedAt ?? b.updatedAt)
+                        .compareTo(a.completedAt ?? a.updatedAt));
+              final laterTasks = [...split.nextWeek, ...split.later];
+              // サマリーチップでは "今日(本日締切)" と "期限超過" を別カウントで表示するため
+              // split.today から overdue 分を差し引く (split.today は期限切れも含むため二重計上を防ぐ)
+              final todayDueOnlyCount =
+                  split.today.length - split.overdue.length;
+              final totalOpen = todayDueOnlyCount +
+                  split.thisWeek.length +
+                  laterTasks.length +
+                  split.overdue.length;
               return RefreshIndicator(
                 onRefresh: () async {
                   ref.invalidate(tasksProvider);
-                  await ref.read(tasksProvider.future);
+                  ref.invalidate(allTasksProvider);
+                  await ref.read(allTasksProvider.future);
                   if (context.mounted) HapticFeedback.mediumImpact();
                 },
                 child: ListView(
-                  padding: const EdgeInsets.only(top: 8, bottom: 120),
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(top: 8, bottom: 140),
                   children: [
                     _greetingHeader(context, locale, yaru),
                     const SizedBox(height: 12),
@@ -149,62 +215,62 @@ class _V2HomeTab extends ConsumerWidget {
                       child: HeroAiCard(
                         todayDone: done,
                         todayTotal: total,
+                        onAddTask: () {
+                          HapticFeedback.mediumImpact();
+                          TaskFormSheet.show(context);
+                        },
                       ),
                     ),
-                    const SizedBox(height: 22),
-                    if (split.today.isNotEmpty) ...[
-                      _sectionHeader(
-                        context: context,
-                        label: l10n.sectionNow,
-                        count: split.today.length,
-                        color: yaru.urgent,
-                      ),
-                      const SizedBox(height: 8),
-                      _taskList(split.today, categoryMap, ref),
-                      const SizedBox(height: 22),
-                    ],
-                    if (split.thisWeek.isNotEmpty ||
-                        split.nextWeek.isNotEmpty) ...[
-                      _sectionHeader(
-                        context: context,
-                        label: l10n.sectionUpcoming,
-                        count: split.thisWeek.length + split.nextWeek.length,
-                        color: yaru.later,
-                      ),
-                      const SizedBox(height: 8),
-                      _taskList(
-                        [...split.thisWeek, ...split.nextWeek],
-                        categoryMap,
-                        ref,
-                      ),
-                      const SizedBox(height: 22),
-                    ],
-                    if (split.later.isNotEmpty) ...[
-                      _sectionHeader(
-                        context: context,
-                        label: l10n.sectionLater,
-                        count: split.later.length,
-                        color: yaru.inkTertiary,
-                      ),
-                      const SizedBox(height: 8),
-                      _taskList(split.later, categoryMap, ref),
-                    ],
-                    if (tasks.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 40),
-                        child: Center(
-                          child: Column(
-                            children: [
-                              Icon(Icons.checklist_rtl_rounded,
-                                  size: 56, color: yaru.inkQuaternary),
-                              const SizedBox(height: 12),
-                              Text(l10n.emptyTaskMessage,
-                                  style: TextStyle(color: yaru.inkTertiary)),
-                            ],
-                          ),
-                        ),
-                      ),
+                    const SizedBox(height: 14),
+                    _summaryStrip(
+                      context: context,
+                      yaru: yaru,
+                      l10n: l10n,
+                      todayCount: todayDueOnlyCount,
+                      weekCount: split.thisWeek.length,
+                      laterCount: laterTasks.length,
+                      overdueCount: split.overdue.length,
+                      totalOpen: totalOpen,
+                    ),
+                    const SizedBox(height: 16),
+                    // 4セクションを常時表示 (空でも空状態を出す)
+                    _section(
+                      context: context,
+                      yaru: yaru,
+                      label: l10n.sectionNow,
+                      tasks: split.today,
+                      color: yaru.urgent,
+                      categoryMap: categoryMap,
+                      ref: ref,
+                      emptyHint: l10n.sectionEmptyNow,
+                      anchorKey: _keyToday,
+                    ),
+                    _section(
+                      context: context,
+                      yaru: yaru,
+                      label: l10n.sectionThisWeek,
+                      tasks: split.thisWeek,
+                      color: yaru.soon,
+                      categoryMap: categoryMap,
+                      ref: ref,
+                      emptyHint: l10n.sectionEmptyThisWeek,
+                      anchorKey: _keyThisWeek,
+                    ),
+                    _section(
+                      context: context,
+                      yaru: yaru,
+                      label: l10n.sectionLater,
+                      tasks: laterTasks,
+                      color: yaru.later,
+                      categoryMap: categoryMap,
+                      ref: ref,
+                      emptyHint: l10n.sectionEmptyLater,
+                      anchorKey: _keyLater,
+                    ),
+                    _CompletedSection(
+                      tasks: completedTasks,
+                      categoryMap: categoryMap,
+                    ),
                   ],
                 ),
               );
@@ -212,6 +278,205 @@ class _V2HomeTab extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  /// ヒーローAIカード直下の "件数サマリー" 帯。
+  /// 今日/今週/来週以降/期限超過 を一目で把握でき、タップで該当セクションへスクロール。
+  Widget _summaryStrip({
+    required BuildContext context,
+    required YaruTheme yaru,
+    required AppLocalizations l10n,
+    required int todayCount,
+    required int weekCount,
+    required int laterCount,
+    required int overdueCount,
+    required int totalOpen,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          children: [
+            if (overdueCount > 0) ...[
+              _summaryChip(
+                yaru: yaru,
+                icon: Icons.priority_high_rounded,
+                label: l10n.homeOverdueChip(overdueCount),
+                color: yaru.urgent,
+                onTap: () => _scrollTo(_keyToday),
+                emphasized: true,
+              ),
+              const SizedBox(width: 8),
+            ],
+            _summaryChip(
+              yaru: yaru,
+              label: l10n.sectionNow,
+              count: todayCount,
+              color: yaru.urgent,
+              onTap: () => _scrollTo(_keyToday),
+            ),
+            const SizedBox(width: 8),
+            _summaryChip(
+              yaru: yaru,
+              label: l10n.sectionThisWeek,
+              count: weekCount,
+              color: yaru.soon,
+              onTap: () => _scrollTo(_keyThisWeek),
+            ),
+            const SizedBox(width: 8),
+            _summaryChip(
+              yaru: yaru,
+              label: l10n.sectionLater,
+              count: laterCount,
+              color: yaru.later,
+              onTap: () => _scrollTo(_keyLater),
+            ),
+            const SizedBox(width: 8),
+            _summaryChip(
+              yaru: yaru,
+              label: l10n.homeQuickTotalLabel,
+              count: totalOpen,
+              color: yaru.inkSecondary,
+              onTap: () => _scrollTo(_keyToday),
+              outlined: true,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _summaryChip({
+    required YaruTheme yaru,
+    IconData? icon,
+    required String label,
+    int? count,
+    required Color color,
+    required VoidCallback onTap,
+    bool outlined = false,
+    bool emphasized = false,
+  }) {
+    final bg = emphasized
+        ? color.withValues(alpha: 0.18)
+        : outlined
+            ? Colors.transparent
+            : color.withValues(alpha: 0.10);
+    final borderColor = outlined ? yaru.line : color.withValues(alpha: 0.32);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: borderColor),
+            boxShadow: emphasized && yaru.useGlassBlur
+                ? [BoxShadow(color: color.withValues(alpha: 0.35), blurRadius: 10)]
+                : null,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 12, color: color),
+                const SizedBox(width: 4),
+              ] else ...[
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: outlined ? yaru.inkSecondary : color,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              if (count != null) ...[
+                const SizedBox(width: 6),
+                Text(
+                  '$count',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: outlined ? yaru.inkPrimary : color,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _section({
+    required BuildContext context,
+    required YaruTheme yaru,
+    required String label,
+    required List<Task> tasks,
+    required Color color,
+    required Map<int, model.Category> categoryMap,
+    required WidgetRef ref,
+    required String emptyHint,
+    Key? anchorKey,
+  }) {
+    return Column(
+      key: anchorKey,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _sectionHeader(
+          context: context,
+          label: label,
+          count: tasks.length,
+          color: color,
+        ),
+        const SizedBox(height: 8),
+        if (tasks.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: yaru.paper,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: yaru.line),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.check_circle_outline_rounded,
+                      size: 16, color: yaru.inkTertiary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      emptyHint,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: yaru.inkTertiary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          _taskList(tasks, categoryMap, ref),
+        const SizedBox(height: 18),
+      ],
     );
   }
 
@@ -357,6 +622,113 @@ class _V2HomeTab extends ConsumerWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// 完了済みタスクの折りたたみセクション。
+class _CompletedSection extends ConsumerStatefulWidget {
+  const _CompletedSection({
+    required this.tasks,
+    required this.categoryMap,
+  });
+  final List<Task> tasks;
+  final Map<int, model.Category> categoryMap;
+
+  @override
+  ConsumerState<_CompletedSection> createState() => _CompletedSectionState();
+}
+
+class _CompletedSectionState extends ConsumerState<_CompletedSection> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final yaru = context.yaru;
+    final l10n = AppLocalizations.of(context)!;
+    if (widget.tasks.isEmpty) return const SizedBox.shrink();
+    final preview = widget.tasks.take(_expanded ? widget.tasks.length : 3).toList();
+
+    return Column(
+      children: [
+        InkWell(
+          onTap: () => setState(() => _expanded = !_expanded),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+            child: Row(
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: yaru.calm,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.completed,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: yaru.inkSecondary,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${widget.tasks.length}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: yaru.inkTertiary,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 12),
+                    height: 1,
+                    color: yaru.line,
+                  ),
+                ),
+                Icon(
+                  _expanded
+                      ? Icons.expand_less_rounded
+                      : Icons.expand_more_rounded,
+                  size: 18,
+                  color: yaru.inkTertiary,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              for (final t in preview)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: V2TaskCard(
+                    task: t,
+                    category: t.categoryId != null
+                        ? widget.categoryMap[t.categoryId]
+                        : null,
+                    onTap: () {
+                      if (t.id != null) context.push('/task/${t.id}');
+                    },
+                    onToggleComplete: () {
+                      ref.read(tasksProvider.notifier).completeTask(t);
+                    },
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 18),
+      ],
     );
   }
 }

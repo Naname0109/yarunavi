@@ -95,6 +95,8 @@ class GlassBottomNav extends StatelessWidget {
             ],
           );
 
+    // アクティブ時は icon + label、非アクティブは icon のみで省スペース化
+    // (アクティブもラベル省略可だが、現在地視認性のため表示)
     return Expanded(
       child: Material(
         color: Colors.transparent,
@@ -115,28 +117,34 @@ class GlassBottomNav extends StatelessWidget {
                     )
                   : null,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  item.icon,
-                  size: 18,
-                  color: active ? yaru.accent : yaru.inkTertiary,
-                ),
-                const SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    item.label,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w800,
-                      color: active ? yaru.inkPrimary : yaru.inkTertiary,
+            child: active
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(item.icon, size: 19, color: yaru.accent),
+                      const SizedBox(width: 5),
+                      Flexible(
+                        child: Text(
+                          item.label,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w800,
+                            color: yaru.inkPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Semantics(
+                    button: true,
+                    label: item.label,
+                    child: Tooltip(
+                      message: item.label,
+                      child: Icon(item.icon, size: 20, color: yaru.inkTertiary),
                     ),
                   ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

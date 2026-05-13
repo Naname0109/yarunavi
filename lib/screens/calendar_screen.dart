@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../l10n/generated/app_localizations.dart';
@@ -8,8 +11,10 @@ import '../models/category.dart' as model;
 import '../providers/category_provider.dart';
 import '../providers/task_provider.dart';
 import '../theme/colors.dart';
+import '../providers/dev_mode_provider.dart';
 import '../widgets/task_card.dart';
 import '../widgets/task_form_sheet.dart';
+import '../widgets/v2/task_card.dart' as v2;
 import '../utils/date_utils.dart' as app_date;
 
 enum _CalendarViewMode { recommended, due }
@@ -43,7 +48,11 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
-    final tasksAsync = ref.watch(tasksProvider);
+    final useNewUi = ref.watch(useNewUiProvider);
+    // v2: 完了済みも含めて全タスクを表示 (取り消し線付き)
+    final tasksAsync = useNewUi
+        ? ref.watch(allTasksProvider)
+        : ref.watch(tasksProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -59,13 +68,16 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('$e')),
       data: (tasks) {
-        final incompleteTasks = tasks.where((t) => !t.isCompleted).toList();
+        // v2: 完了済みもグリッド/リストに含める
+        // v1: 既存どおり未完了のみ
+        final displayTasks =
+            useNewUi ? tasks : tasks.where((t) => !t.isCompleted).toList();
 
         // 期限日でグループ化
         final byDue = <DateTime, List<Task>>{};
         // 推奨日でグループ化（推奨日がないタスクはdue_dateで代替）
         final byRecommended = <DateTime, List<Task>>{};
-        for (final t in incompleteTasks) {
+        for (final t in displayTasks) {
           final dueKey =
               DateTime(t.dueDate.year, t.dueDate.month, t.dueDate.day);
           byDue.putIfAbsent(dueKey, () => []).add(t);
@@ -86,6 +98,33 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
         final selectedTasks = selectedDayNorm != null
             ? (activeMap[selectedDayNorm] ?? <Task>[])
             : <Task>[];
+
+        // 「次の予定日」サジェスト用: 選択日より後で最も近いタスクのある日
+        DateTime? nextTaskDay;
+        int nextTaskCount = 0;
+        if (selectedTasks.isEmpty && selectedDayNorm != null) {
+          final futureKeys = activeMap.keys
+              .where((k) => k.isAfter(selectedDayNorm))
+              .toList()
+            ..sort();
+          if (futureKeys.isNotEmpty) {
+            nextTaskDay = futureKeys.first;
+            nextTaskCount = activeMap[nextTaskDay]!.length;
+          } else {
+            // 未来になければ過去で最寄りを探す (期限切れ含む)
+            final pastKeys = activeMap.keys
+                .where((k) => k.isBefore(selectedDayNorm))
+                .toList()
+              ..sort((a, b) => b.compareTo(a));
+            if (pastKeys.isNotEmpty) {
+              nextTaskDay = pastKeys.first;
+              nextTaskCount = activeMap[nextTaskDay]!.length;
+            }
+          }
+        }
+
+        // 月全体でタスクが0件かどうか (初回利用者向けの全面メッセージ)
+        final monthHasNoTask = displayTasks.isEmpty;
 
         return Column(
           children: [
@@ -183,20 +222,14 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: selectedTasks.isEmpty
-                    ? Center(
+                    ? _emptyState(
                         key: const ValueKey('empty'),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.event_available,
-                                size: 28, color: theme.colorScheme.outline),
-                            const SizedBox(height: 6),
-                            Text(l10n.calendarNoTasks,
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: theme.colorScheme.outline)),
-                          ],
-                        ),
+                        theme: theme,
+                        l10n: l10n,
+                        locale: locale,
+                        nextTaskDay: nextTaskDay,
+                        nextTaskCount: nextTaskCount,
+                        monthHasNoTask: monthHasNoTask,
                       )
                     : ListView.builder(
                         key: ValueKey('$_viewMode-$selectedDayNorm'),
@@ -215,6 +248,96 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
     );
   }
 
+  /// 選択日にタスクがない場合の表示。
+  /// - 月全体にタスクが無ければ "今月の予定はありません" を出す
+  /// - 月内に他の日付があれば「次の予定: 5月15日 (2件)」とサジェスト + ジャンプ
+  Widget _emptyState({
+    Key? key,
+    required ThemeData theme,
+    required AppLocalizations l10n,
+    required String locale,
+    required DateTime? nextTaskDay,
+    required int nextTaskCount,
+    required bool monthHasNoTask,
+  }) {
+    final color = theme.colorScheme.outline;
+    if (monthHasNoTask) {
+      return Center(
+        key: key,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.event_note_outlined, size: 36, color: color),
+              const SizedBox(height: 10),
+              Text(
+                l10n.calendarMonthEmpty,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                l10n.emptyTaskMessage,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 11.5, color: color),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // 選択日にはタスクないが、他の日にはある
+    return Center(
+      key: key,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.event_available, size: 28, color: color),
+            const SizedBox(height: 8),
+            // この分岐は monthHasNoTask=false かつ selectedTasks 空 ⇒ 必ず近接日が存在
+            Text(
+              l10n.calendarNoTasksNextHint(
+                DateFormat.MMMd(locale).add_E().format(nextTaskDay!),
+                nextTaskCount,
+              ),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                setState(() {
+                  _selectedDay = nextTaskDay;
+                  _focusedDay = nextTaskDay;
+                });
+              },
+              icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+              label: Text(l10n.calendarJumpToNext,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: OutlinedButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildTaskTile(
     Task task,
     Map<int, model.Category> categoryMap,
@@ -223,26 +346,46 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
   ) {
     final category =
         task.categoryId != null ? categoryMap[task.categoryId] : null;
+    final useNewUi = ref.watch(useNewUiProvider);
+
+    Future<void> onComplete() async {
+      final newTask =
+          await ref.read(tasksProvider.notifier).completeTask(task);
+      if (!mounted) return;
+      if (newTask != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.recurringTaskCreated(
+                app_date.formatRelativeDate(newTask.dueDate, l10n, locale),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+
+    // 新UI: v2 デザインのカード (高コントラスト + ネオン)
+    if (useNewUi) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        child: v2.V2TaskCard(
+          task: task,
+          category: category,
+          onTap: () {
+            if (task.id != null) context.push('/task/${task.id}');
+          },
+          onToggleComplete: onComplete,
+        ),
+      );
+    }
+
+    // 旧UI: 既存 TaskCard
     return TaskCard(
       task: task,
       category: category,
       onTap: () => TaskFormSheet.show(context, task: task),
-      onToggleComplete: () async {
-        final newTask =
-            await ref.read(tasksProvider.notifier).completeTask(task);
-        if (!mounted) return;
-        if (newTask != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                l10n.recurringTaskCreated(
-                  app_date.formatRelativeDate(newTask.dueDate, l10n, locale),
-                ),
-              ),
-            ),
-          );
-        }
-      },
+      onToggleComplete: onComplete,
       onDelete: () {
         ref.read(tasksProvider.notifier).deleteTask(task.id!);
       },
@@ -304,10 +447,10 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                 ),
                 child: Text(
                   '${day.day}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: theme.colorScheme.onPrimary,
                   ),
                 ),
               )

@@ -310,6 +310,8 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 「おすすめ」バッジ (カード内上部)
+            // primary は ライト=#2453FF(濃青) / ダーク=#4DF5FF(明シアン)。
+            // ダーク時に white テキストでは contrast 不足のため、onPrimary を使用。
             Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -320,12 +322,12 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.star, size: 12, color: Colors.white),
+                  Icon(Icons.star, size: 12, color: theme.colorScheme.onPrimary),
                   const SizedBox(width: 4),
                   Text(
                     l10n.storeRecommended,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: theme.colorScheme.onPrimary,
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),

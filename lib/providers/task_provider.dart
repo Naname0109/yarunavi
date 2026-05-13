@@ -31,9 +31,19 @@ final reviewServiceProvider = Provider<ReviewService>((ref) {
 /// 現在のフィルター状態
 final filterProvider = StateProvider<String>((ref) => 'all');
 
-/// タスク一覧Provider
+/// タスク一覧Provider (現在のフィルター適用済み)
 final tasksProvider =
     AsyncNotifierProvider<TasksNotifier, List<Task>>(TasksNotifier.new);
+
+/// v2 用: 完了済みも含む全タスクProvider。
+/// v2 ホーム/カレンダー/実績で、未完了セクション+完了済みセクションの両方を
+/// 一つのデータソースから組み立てるために使う。
+/// tasksProvider への変更 (invalidate) で連動再取得する。
+final allTasksProvider = FutureProvider<List<Task>>((ref) async {
+  ref.watch(tasksProvider); // 変更検知
+  final db = ref.read(databaseServiceProvider);
+  return db.getAllTasks();
+});
 
 /// 完了済みタスクの件数（祝福画面の表示判定用）
 final completedTaskCountProvider = FutureProvider<int>((ref) async {

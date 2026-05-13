@@ -226,16 +226,16 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get aiPriorityUrgent => '今日これだけやろう';
+  String get aiPriorityUrgent => '今日やる';
 
   @override
-  String get aiPriorityWarning => '今週のうちに片付けよう';
+  String get aiPriorityWarning => '今週中';
 
   @override
-  String get aiPriorityNormal => '来週以降でOK';
+  String get aiPriorityNormal => '来週以降';
 
   @override
-  String get aiPriorityRelaxed => '忘れずにキープ';
+  String get aiPriorityRelaxed => 'あとで';
 
   @override
   String get backToHome => 'ホームに戻る';
@@ -246,7 +246,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get aiSortLimitReached => '今月の無料回数を使い切りました';
+  String get aiSortLimitReached => '今月の無料分を使い切りました';
 
   @override
   String get aiSortDailyLimitReached => '本日の利用回数の上限に達しました';
@@ -270,7 +270,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiErrorRateLimit => 'しばらく時間をおいてお試しください';
 
   @override
-  String get aiSorting => 'AIが整理中...';
+  String get aiSorting => '整理中…';
 
   @override
   String get notificationTitle => 'YaruNavi';
@@ -564,7 +564,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ob5FreeAds => 'あり';
 
   @override
-  String get ob5PremiumAi => '月50回';
+  String get ob5PremiumAi => '月30回';
 
   @override
   String get ob5PremiumTasks => '無制限';
@@ -637,7 +637,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiPremiumBannerTitle => 'プレミアムならAIコメント・通知・カレンダーが使えます';
 
   @override
-  String get aiPremiumBannerDesc => 'AI整理 月50回、通知自動設定、カレンダー連携、広告なし';
+  String get aiPremiumBannerDesc => 'AI整理 月30回、通知の自動設定、カレンダー連携、広告なし';
 
   @override
   String get aiPremiumBannerButton => '7日間無料で試す →';
@@ -646,7 +646,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiLimitUpgradeHint => 'AIの整理をもっと使いたい方へ';
 
   @override
-  String get aiLimitUpgradeDesc => 'プレミアムなら月50回のAI整理、通知自動設定、カレンダー連携が使えます';
+  String get aiLimitUpgradeDesc => 'プレミアムならAI整理を月30回、通知の自動設定、カレンダー連携が使えます';
 
   @override
   String get settingsReplayOnboarding => '操作ガイドを再表示';
@@ -695,7 +695,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get premiumGateDesc =>
-      'プレミアムに登録すると、AIが最適な通知日を自動設定、タスクをカレンダーに追加、広告非表示、AI整理 月50回まで利用できます。';
+      'プレミアムに登録すると、AIが最適な通知日を自動設定、タスクをカレンダーに追加、広告非表示、AI整理を月30回まで利用できます。';
 
   @override
   String get premiumGateUpgrade => 'プレミアムに登録して今すぐ設定する';
@@ -730,7 +730,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiNotOrganizedHint => 'AIで整理するとアドバイスが表示されます';
 
   @override
-  String get aiCommentLockedHint => 'プレミアムでAIコメントを見る';
+  String get aiCommentLockedHint => 'AIコメントはプレミアム限定';
 
   @override
   String recommendedDateHint(String date) {
@@ -747,7 +747,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get taskCardEdit => '編集';
 
   @override
-  String get aiAutoNotifyHintFull => 'プレミアムなら整理時に通知も自動セットされます';
+  String get aiAutoNotifyHintFull => 'プレミアムなら通知日もAIが自動設定';
 
   @override
   String get settingsAccount => 'アカウント';
@@ -871,7 +871,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get notifyManual => '自分で設定';
 
   @override
-  String get aiSubtaskSuggestion => '分割して進めませんか？';
+  String get aiSubtaskSuggestion => 'タスクを分割しますか?';
 
   @override
   String get aiSubtaskAdd => 'この分割で追加';
@@ -1100,7 +1100,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get allCompleteTitle => 'すべて完了！お疲れさまでした';
 
   @override
-  String get allCompleteSubtitle => '新しいタスクを追加して、次のやることを整理しましょう';
+  String get allCompleteSubtitle => '次のタスクを追加しましょう';
 
   @override
   String get allCompleteAddTask => 'タスクを追加する';
@@ -1193,7 +1193,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiAutoCalendarPermission => 'カレンダー連携は設定からオンにできます';
 
   @override
-  String get aiPremiumAutoPrompt => 'プレミアムなら通知・カレンダーも自動設定されます';
+  String get aiPremiumAutoPrompt => 'プレミアム: 通知とカレンダーも自動';
 
   @override
   String get aiPremiumAutoTrial => '7日間無料で試す';
@@ -1301,7 +1301,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get calendarHintBubble => 'カレンダーで実行日を確認 →';
 
   @override
-  String get aiSortExecute => '整理を実行する';
+  String get aiSortExecute => 'AIで整理する';
 
   @override
   String get aiHistoryLabel => 'AI履歴';
@@ -1338,7 +1338,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String recurringGuideMessage(String taskName) {
-    return '「$taskName」は毎月発生するタスクではありませんか？';
+    return '「$taskName」は毎月のタスク?';
   }
 
   @override
@@ -1381,10 +1381,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get devModeUseNewUiDesc => 'ホーム画面など新デザインのプレビューを使用';
 
   @override
-  String get heroTodayMission => '今日のミッション';
+  String get heroTodayMission => '今日の進捗';
 
   @override
-  String get aiSortHeroCta => 'AIにきょうの順番を組んでもらう';
+  String get aiSortHeroCta => '今日のタスクをAIで整理';
 
   @override
   String get statsTitle => '実績';
@@ -1416,6 +1416,43 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get statsBadges => '獲得バッジ';
+
+  @override
+  String get statsHelpTooltip => '仕組みの説明';
+
+  @override
+  String get gamificationHelpTitle => 'やるナビの仕組み';
+
+  @override
+  String get gamificationHelpSubtitle => '使うほど報われる、シンプルなレベルシステム';
+
+  @override
+  String get gamificationHelpXpTitle => 'XPでレベルアップ';
+
+  @override
+  String get gamificationHelpXpBody =>
+      '完了で +10 XP、AI整理で +5 XP、今日の全完了でさらに +25 XP。';
+
+  @override
+  String get gamificationHelpStreakTitle => 'ストリーク (連続日数)';
+
+  @override
+  String get gamificationHelpStreakBody =>
+      '1日1回でも操作すると連続日数が伸びます。3・7・14・30日でボーナスXPとバッジを獲得。';
+
+  @override
+  String get gamificationHelpLevelTitle => '8段階のレベル';
+
+  @override
+  String get gamificationHelpLevelBody =>
+      'Lv.1 はじめてのナビ → Lv.5 AIの右腕 → Lv.8 伝説のプランナーまで。Lv.9以降も継続可能。';
+
+  @override
+  String get gamificationHelpBadgeTitle => '11個のバッジ';
+
+  @override
+  String get gamificationHelpBadgeBody =>
+      '初タスク完了、累計10/50/100件、AI初体験、ストリーク達成、レベル到達などで獲得。';
 
   @override
   String statsNextLevelHint(int xp, int level) {
@@ -1555,13 +1592,25 @@ class AppLocalizationsJa extends AppLocalizations {
   String get badgeUnlocked => '新しいバッジ!';
 
   @override
-  String get sectionNow => '今日やること';
+  String get sectionNow => '今日';
 
   @override
   String get sectionUpcoming => '今週・来週';
 
   @override
-  String get sectionLater => 'それ以降';
+  String get sectionThisWeek => '今週';
+
+  @override
+  String get sectionLater => '来週以降';
+
+  @override
+  String get sectionEmptyNow => '今日の予定はありません';
+
+  @override
+  String get sectionEmptyThisWeek => '今週の予定はありません';
+
+  @override
+  String get sectionEmptyLater => '来週以降の予定はありません';
 
   @override
   String get taskDetailCountdown => '期限まで';
@@ -1576,16 +1625,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiResultRetryCta => 'もう一度';
 
   @override
-  String get aiResultNowLabel => '今すぐ';
+  String get aiResultNowLabel => '今日';
 
   @override
-  String get aiResultWeekLabel => '今週中';
+  String get aiResultWeekLabel => '今週';
 
   @override
-  String get aiResultLaterLabel => '急がない';
+  String get aiResultLaterLabel => '来週以降';
 
   @override
-  String get aiResultOptimized => '整理しました';
+  String get aiResultOptimized => '整理完了';
 
   @override
   String get premiumYearlyCta => '年額プランで始める';
@@ -1601,4 +1650,176 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get calendarDueDate => '期限日';
+
+  @override
+  String get onbV2WelcomeBadge => 'AIナビゲーション';
+
+  @override
+  String get onbV2WelcomeTitlePart1 => '今日、何から ';
+
+  @override
+  String get onbV2WelcomeTitleAccent => 'やる？';
+
+  @override
+  String get onbV2WelcomeTitlePart2 => '';
+
+  @override
+  String get onbV2WelcomeBody =>
+      '「やること」を入れるだけ。\nあとはAIナビが優先順位を整え、\nあなたの“次の一手”を教えます。';
+
+  @override
+  String get onbV2BeforeAfterTitle => '頭の中の“やること”を、整理';
+
+  @override
+  String get onbV2BeforeAfterSub => 'ただ並べ替えるだけじゃない。\n“今すぐやるべきこと”を選び抜きます';
+
+  @override
+  String get onbV2BeforeLabel => '整理する前';
+
+  @override
+  String get onbV2BeforeCaption => 'どれから手を付ければ…';
+
+  @override
+  String get onbV2BeforeTask1 => '週報を提出';
+
+  @override
+  String get onbV2BeforeTask2 => '家賃を振り込む';
+
+  @override
+  String get onbV2BeforeTask3 => '日用品の買い出し';
+
+  @override
+  String get onbV2BeforeDate1 => '今日まで';
+
+  @override
+  String get onbV2BeforeDate2 => '5/15まで';
+
+  @override
+  String get onbV2BeforeDate3 => '5/20まで';
+
+  @override
+  String get onbV2NaviArrow => 'AIで仕分け';
+
+  @override
+  String get onbV2AfterLabel => '整理したあと';
+
+  @override
+  String get onbV2AfterCaption => '“今やるべき1件”が明確';
+
+  @override
+  String get onbV2AfterBadgeUrgent => '今すぐ';
+
+  @override
+  String get onbV2AfterBadgeWeek => '今週中';
+
+  @override
+  String get onbV2AfterBadgeLater => 'あとで';
+
+  @override
+  String get onbV2AfterTask1 => '週報を提出';
+
+  @override
+  String get onbV2AfterTask2 => '家賃を振り込む';
+
+  @override
+  String get onbV2AfterTask3 => '日用品の買い出し';
+
+  @override
+  String get onbV2AfterComment1 => '午前中に集中して片付けよう';
+
+  @override
+  String get onbV2AfterComment2 => '金曜までにネットバンキングで';
+
+  @override
+  String get onbV2AfterComment3 => '週末にまとめ買いが効率的';
+
+  @override
+  String get onbV2GameTitle => '続けるほど、好きになる';
+
+  @override
+  String get onbV2GameSub => '達成感がそのまま“やる気”に変わる仕組み';
+
+  @override
+  String get onbV2GameXpTitle => '完了するたび、経験値+10';
+
+  @override
+  String get onbV2GameXpSub => '今日のタスク全制覇でボーナス+25';
+
+  @override
+  String get onbV2GameStreakTitle => '連続日数で、炎が育つ';
+
+  @override
+  String get onbV2GameStreakSub => '3日・7日・30日で限定バッジ獲得';
+
+  @override
+  String get onbV2GameLevelTitle => 'Lv.1→Lv.8で“肩書き”が変わる';
+
+  @override
+  String get onbV2GameLevelSub => 'ナビ見習いから、伝説のプランナーへ';
+
+  @override
+  String get onbV2GameFooter => '完璧じゃなくていい。\n小さな一歩を、毎日刻んでいこう。';
+
+  @override
+  String get onbV2CtaTitle => 'さあ、最初の一歩を。';
+
+  @override
+  String get onbV2CtaBody => '気になっている“やること”を、\nひとつだけ入れてみてください。\nあとはナビにまかせて大丈夫。';
+
+  @override
+  String get onbV2CtaButton => 'やることを追加する';
+
+  @override
+  String get homeQuickTotalLabel => '全タスク';
+
+  @override
+  String get homeQuickTotalUnit => '件';
+
+  @override
+  String homeNextHint(String date, int count) {
+    return '次は $date に $count件';
+  }
+
+  @override
+  String get homeNoUpcoming => '未完了タスクはありません';
+
+  @override
+  String get homeJumpAll => 'すべて見る';
+
+  @override
+  String homeOverdueChip(int count) {
+    return '期限切れ $count';
+  }
+
+  @override
+  String get calendarMonthListMode => 'リスト';
+
+  @override
+  String get calendarGridMode => '月';
+
+  @override
+  String get calendarMonthAllTasks => '今月のタスク';
+
+  @override
+  String calendarNoTasksNextHint(String date, int count) {
+    return '予定なし。次は $date に $count件';
+  }
+
+  @override
+  String get calendarJumpToNext => '次の予定日を表示';
+
+  @override
+  String get calendarMonthEmpty => '今月の予定はまだありません';
+
+  @override
+  String get aiResultOptimizedBadge => 'AIで整理済み';
+
+  @override
+  String get aiNaviNoteLabel => 'ナビからひとこと';
+
+  @override
+  String get aiNaviAdviceLabel => 'ナビからのアドバイス';
+
+  @override
+  String get aiNaviAdviceBadge => 'AIアドバイス';
 }

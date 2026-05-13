@@ -227,16 +227,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get aiPriorityUrgent => 'Focus on these today';
+  String get aiPriorityUrgent => 'Do today';
 
   @override
-  String get aiPriorityWarning => 'Get it done this week';
+  String get aiPriorityWarning => 'This week';
 
   @override
-  String get aiPriorityNormal => 'Next week is fine';
+  String get aiPriorityNormal => 'Next week+';
 
   @override
-  String get aiPriorityRelaxed => 'Keep in mind';
+  String get aiPriorityRelaxed => 'Later';
 
   @override
   String get backToHome => 'Back to Home';
@@ -272,7 +272,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiErrorRateLimit => 'Please try again later';
 
   @override
-  String get aiSorting => 'AI is organizing...';
+  String get aiSorting => 'Sorting…';
 
   @override
   String get notificationTitle => 'YaruNavi';
@@ -571,7 +571,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ob5FreeAds => 'Yes';
 
   @override
-  String get ob5PremiumAi => '50/month';
+  String get ob5PremiumAi => '30/month';
 
   @override
   String get ob5PremiumTasks => 'Unlimited';
@@ -651,7 +651,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiPremiumBannerDesc =>
-      '50 AI sorts/month, auto-notifications, calendar sync, no ads';
+      '30 AI sorts/month, auto-notifications, calendar sync, no ads';
 
   @override
   String get aiPremiumBannerButton => 'Start 7-day free trial →';
@@ -661,7 +661,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiLimitUpgradeDesc =>
-      'Premium gives you 50 AI sorts/month, auto-notifications, and calendar sync';
+      'Premium gives you 30 AI sorts/month, auto-notifications, and calendar sync';
 
   @override
   String get settingsReplayOnboarding => 'Show guide again';
@@ -711,7 +711,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumGateDesc =>
-      'Upgrade to Premium for AI-suggested notifications, calendar sync, ad-free experience, and 50 AI sorts per month.';
+      'Upgrade to Premium for AI-suggested notifications, calendar sync, ad-free experience, and 30 AI sorts per month.';
 
   @override
   String get premiumGateUpgrade => 'Upgrade and set it up now';
@@ -746,7 +746,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiNotOrganizedHint => 'Run AI sort to get personalized advice';
 
   @override
-  String get aiCommentLockedHint => 'See AI comment with Premium';
+  String get aiCommentLockedHint => 'AI comments are Premium';
 
   @override
   String recommendedDateHint(String date) {
@@ -763,8 +763,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get taskCardEdit => 'Edit';
 
   @override
-  String get aiAutoNotifyHintFull =>
-      'Premium auto-schedules reminders during AI sort';
+  String get aiAutoNotifyHintFull => 'Premium auto-sets reminder days';
 
   @override
   String get settingsAccount => 'Account';
@@ -1122,7 +1121,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allCompleteTitle => 'All done! Great job';
 
   @override
-  String get allCompleteSubtitle => 'Add new tasks and organize what\'s next';
+  String get allCompleteSubtitle => 'Add what\'s next';
 
   @override
   String get allCompleteAddTask => 'Add a Task';
@@ -1218,7 +1217,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiPremiumAutoPrompt =>
-      'Premium auto-configures notifications & calendar';
+      'Premium: notifications & calendar are auto too';
 
   @override
   String get aiPremiumAutoTrial => 'Start 7-day free trial';
@@ -1365,7 +1364,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String recurringGuideMessage(String taskName) {
-    return 'Does \"$taskName\" happen every month?';
+    return 'Is \"$taskName\" monthly?';
   }
 
   @override
@@ -1411,10 +1410,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Use the new design preview (home screen and more)';
 
   @override
-  String get heroTodayMission => 'Today\'s mission';
+  String get heroTodayMission => 'Today\'s progress';
 
   @override
-  String get aiSortHeroCta => 'Ask AI to plan your day';
+  String get aiSortHeroCta => 'Sort today with AI';
 
   @override
   String get statsTitle => 'Stats';
@@ -1446,6 +1445,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statsBadges => 'Badges';
+
+  @override
+  String get statsHelpTooltip => 'How it works';
+
+  @override
+  String get gamificationHelpTitle => 'How YaruNavi rewards you';
+
+  @override
+  String get gamificationHelpSubtitle =>
+      'A simple level system that rewards consistent use';
+
+  @override
+  String get gamificationHelpXpTitle => 'Earn XP and level up';
+
+  @override
+  String get gamificationHelpXpBody =>
+      '+10 XP per done task, +5 XP for AI sort, +25 XP bonus for clearing today.';
+
+  @override
+  String get gamificationHelpStreakTitle => 'Streak (consecutive days)';
+
+  @override
+  String get gamificationHelpStreakBody =>
+      'Any activity once a day keeps your streak. Day 3/7/14/30 unlock bonus XP and badges.';
+
+  @override
+  String get gamificationHelpLevelTitle => '8 named levels';
+
+  @override
+  String get gamificationHelpLevelBody =>
+      'Lv.1 First Steps → Lv.5 AI Companion → Lv.8 Legendary Planner. Continues beyond Lv.9.';
+
+  @override
+  String get gamificationHelpBadgeTitle => '11 badges to unlock';
+
+  @override
+  String get gamificationHelpBadgeBody =>
+      'Earn them by completing your first task, hitting 10/50/100 completions, AI first run, streak milestones, level reaches.';
 
   @override
   String statsNextLevelHint(int xp, int level) {
@@ -1591,7 +1628,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sectionUpcoming => 'This/Next week';
 
   @override
-  String get sectionLater => 'Later';
+  String get sectionThisWeek => 'This week';
+
+  @override
+  String get sectionLater => 'Next week & later';
+
+  @override
+  String get sectionEmptyNow => 'Nothing to do today';
+
+  @override
+  String get sectionEmptyThisWeek => 'No plans this week';
+
+  @override
+  String get sectionEmptyLater => 'No upcoming plans';
 
   @override
   String get taskDetailCountdown => 'Time left';
@@ -1606,16 +1655,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiResultRetryCta => 'Re-run';
 
   @override
-  String get aiResultNowLabel => 'Now';
+  String get aiResultNowLabel => 'Today';
 
   @override
   String get aiResultWeekLabel => 'This week';
 
   @override
-  String get aiResultLaterLabel => 'Later';
+  String get aiResultLaterLabel => 'Next week+';
 
   @override
-  String get aiResultOptimized => 'Sorted';
+  String get aiResultOptimized => 'All sorted';
 
   @override
   String get premiumYearlyCta => 'Start yearly plan';
@@ -1631,4 +1680,179 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarDueDate => 'Due date';
+
+  @override
+  String get onbV2WelcomeBadge => 'AI Navigator';
+
+  @override
+  String get onbV2WelcomeTitlePart1 => 'What\'s the ';
+
+  @override
+  String get onbV2WelcomeTitleAccent => 'next move?';
+
+  @override
+  String get onbV2WelcomeTitlePart2 => '';
+
+  @override
+  String get onbV2WelcomeBody =>
+      'Just drop in what\'s on your mind.\nNavi sorts it out and tells you\nthe one task to tackle next.';
+
+  @override
+  String get onbV2BeforeAfterTitle => 'Clear the mental clutter';
+
+  @override
+  String get onbV2BeforeAfterSub =>
+      'Navi doesn\'t just list — it picks\nthe one thing you should do now.';
+
+  @override
+  String get onbV2BeforeLabel => 'Before';
+
+  @override
+  String get onbV2BeforeCaption => 'Where do I even start?';
+
+  @override
+  String get onbV2BeforeTask1 => 'Submit weekly report';
+
+  @override
+  String get onbV2BeforeTask2 => 'Pay rent';
+
+  @override
+  String get onbV2BeforeTask3 => 'Grocery run';
+
+  @override
+  String get onbV2BeforeDate1 => 'Today';
+
+  @override
+  String get onbV2BeforeDate2 => 'May 15';
+
+  @override
+  String get onbV2BeforeDate3 => 'May 20';
+
+  @override
+  String get onbV2NaviArrow => 'Sort with AI';
+
+  @override
+  String get onbV2AfterLabel => 'After';
+
+  @override
+  String get onbV2AfterCaption => 'Now the next step is obvious';
+
+  @override
+  String get onbV2AfterBadgeUrgent => 'Now';
+
+  @override
+  String get onbV2AfterBadgeWeek => 'This week';
+
+  @override
+  String get onbV2AfterBadgeLater => 'Later';
+
+  @override
+  String get onbV2AfterTask1 => 'Submit weekly report';
+
+  @override
+  String get onbV2AfterTask2 => 'Pay rent';
+
+  @override
+  String get onbV2AfterTask3 => 'Grocery run';
+
+  @override
+  String get onbV2AfterComment1 => 'Knock it out in the morning';
+
+  @override
+  String get onbV2AfterComment2 => 'Use online banking by Friday';
+
+  @override
+  String get onbV2AfterComment3 => 'Stock up on the weekend';
+
+  @override
+  String get onbV2GameTitle => 'The more you go, the more it gives back';
+
+  @override
+  String get onbV2GameSub => 'Tiny wins become real motivation';
+
+  @override
+  String get onbV2GameXpTitle => '+10 XP for every task done';
+
+  @override
+  String get onbV2GameXpSub => 'Clear today\'s list for a +25 bonus';
+
+  @override
+  String get onbV2GameStreakTitle => 'Your streak flame grows';
+
+  @override
+  String get onbV2GameStreakSub => 'Day 3 · 7 · 30 unlock special badges';
+
+  @override
+  String get onbV2GameLevelTitle => 'Level up your title';
+
+  @override
+  String get onbV2GameLevelSub => 'From Navi Rookie to Legendary Planner';
+
+  @override
+  String get onbV2GameFooter =>
+      'You don\'t have to be perfect —\njust stack one small win each day.';
+
+  @override
+  String get onbV2CtaTitle => 'Ready when you are.';
+
+  @override
+  String get onbV2CtaBody =>
+      'Add the one thing nagging at you.\nFrom there, Navi takes the wheel.';
+
+  @override
+  String get onbV2CtaButton => 'Add my first task';
+
+  @override
+  String get homeQuickTotalLabel => 'All tasks';
+
+  @override
+  String get homeQuickTotalUnit => '';
+
+  @override
+  String homeNextHint(String date, int count) {
+    return 'Next: $count on $date';
+  }
+
+  @override
+  String get homeNoUpcoming => 'No open tasks';
+
+  @override
+  String get homeJumpAll => 'See all';
+
+  @override
+  String homeOverdueChip(int count) {
+    return '$count overdue';
+  }
+
+  @override
+  String get calendarMonthListMode => 'List';
+
+  @override
+  String get calendarGridMode => 'Month';
+
+  @override
+  String get calendarMonthAllTasks => 'This month';
+
+  @override
+  String calendarNoTasksNextHint(String date, int count) {
+    return 'Free day. Next is $count on $date';
+  }
+
+  @override
+  String get calendarJumpToNext => 'Jump to next';
+
+  @override
+  String get calendarMonthEmpty => 'No tasks scheduled this month';
+
+  @override
+  String get aiResultOptimizedBadge => 'Sorted by AI';
+
+  @override
+  String get aiNaviNoteLabel => 'A note from Navi';
+
+  @override
+  String get aiNaviAdviceLabel => 'Navi\'s advice';
+
+  @override
+  String get aiNaviAdviceBadge => 'AI advice';
 }

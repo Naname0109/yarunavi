@@ -515,25 +515,25 @@ abstract class AppLocalizations {
   /// No description provided for @aiPriorityUrgent.
   ///
   /// In ja, this message translates to:
-  /// **'今日これだけやろう'**
+  /// **'今日やる'**
   String get aiPriorityUrgent;
 
   /// No description provided for @aiPriorityWarning.
   ///
   /// In ja, this message translates to:
-  /// **'今週のうちに片付けよう'**
+  /// **'今週中'**
   String get aiPriorityWarning;
 
   /// No description provided for @aiPriorityNormal.
   ///
   /// In ja, this message translates to:
-  /// **'来週以降でOK'**
+  /// **'来週以降'**
   String get aiPriorityNormal;
 
   /// No description provided for @aiPriorityRelaxed.
   ///
   /// In ja, this message translates to:
-  /// **'忘れずにキープ'**
+  /// **'あとで'**
   String get aiPriorityRelaxed;
 
   /// No description provided for @backToHome.
@@ -551,7 +551,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiSortLimitReached.
   ///
   /// In ja, this message translates to:
-  /// **'今月の無料回数を使い切りました'**
+  /// **'今月の無料分を使い切りました'**
   String get aiSortLimitReached;
 
   /// No description provided for @aiSortDailyLimitReached.
@@ -599,7 +599,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiSorting.
   ///
   /// In ja, this message translates to:
-  /// **'AIが整理中...'**
+  /// **'整理中…'**
   String get aiSorting;
 
   /// No description provided for @notificationTitle.
@@ -1175,7 +1175,7 @@ abstract class AppLocalizations {
   /// No description provided for @ob5PremiumAi.
   ///
   /// In ja, this message translates to:
-  /// **'月50回'**
+  /// **'月30回'**
   String get ob5PremiumAi;
 
   /// No description provided for @ob5PremiumTasks.
@@ -1313,7 +1313,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiPremiumBannerDesc.
   ///
   /// In ja, this message translates to:
-  /// **'AI整理 月50回、通知自動設定、カレンダー連携、広告なし'**
+  /// **'AI整理 月30回、通知の自動設定、カレンダー連携、広告なし'**
   String get aiPremiumBannerDesc;
 
   /// No description provided for @aiPremiumBannerButton.
@@ -1331,7 +1331,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiLimitUpgradeDesc.
   ///
   /// In ja, this message translates to:
-  /// **'プレミアムなら月50回のAI整理、通知自動設定、カレンダー連携が使えます'**
+  /// **'プレミアムならAI整理を月30回、通知の自動設定、カレンダー連携が使えます'**
   String get aiLimitUpgradeDesc;
 
   /// No description provided for @settingsReplayOnboarding.
@@ -1427,7 +1427,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumGateDesc.
   ///
   /// In ja, this message translates to:
-  /// **'プレミアムに登録すると、AIが最適な通知日を自動設定、タスクをカレンダーに追加、広告非表示、AI整理 月50回まで利用できます。'**
+  /// **'プレミアムに登録すると、AIが最適な通知日を自動設定、タスクをカレンダーに追加、広告非表示、AI整理を月30回まで利用できます。'**
   String get premiumGateDesc;
 
   /// No description provided for @premiumGateUpgrade.
@@ -1493,7 +1493,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiCommentLockedHint.
   ///
   /// In ja, this message translates to:
-  /// **'プレミアムでAIコメントを見る'**
+  /// **'AIコメントはプレミアム限定'**
   String get aiCommentLockedHint;
 
   /// No description provided for @recommendedDateHint.
@@ -1523,7 +1523,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiAutoNotifyHintFull.
   ///
   /// In ja, this message translates to:
-  /// **'プレミアムなら整理時に通知も自動セットされます'**
+  /// **'プレミアムなら通知日もAIが自動設定'**
   String get aiAutoNotifyHintFull;
 
   /// No description provided for @settingsAccount.
@@ -1769,7 +1769,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiSubtaskSuggestion.
   ///
   /// In ja, this message translates to:
-  /// **'分割して進めませんか？'**
+  /// **'タスクを分割しますか?'**
   String get aiSubtaskSuggestion;
 
   /// No description provided for @aiSubtaskAdd.
@@ -2207,7 +2207,7 @@ abstract class AppLocalizations {
   /// No description provided for @allCompleteSubtitle.
   ///
   /// In ja, this message translates to:
-  /// **'新しいタスクを追加して、次のやることを整理しましょう'**
+  /// **'次のタスクを追加しましょう'**
   String get allCompleteSubtitle;
 
   /// No description provided for @allCompleteAddTask.
@@ -2369,7 +2369,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiPremiumAutoPrompt.
   ///
   /// In ja, this message translates to:
-  /// **'プレミアムなら通知・カレンダーも自動設定されます'**
+  /// **'プレミアム: 通知とカレンダーも自動'**
   String get aiPremiumAutoPrompt;
 
   /// No description provided for @aiPremiumAutoTrial.
@@ -2573,7 +2573,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiSortExecute.
   ///
   /// In ja, this message translates to:
-  /// **'整理を実行する'**
+  /// **'AIで整理する'**
   String get aiSortExecute;
 
   /// No description provided for @aiHistoryLabel.
@@ -2645,7 +2645,7 @@ abstract class AppLocalizations {
   /// No description provided for @recurringGuideMessage.
   ///
   /// In ja, this message translates to:
-  /// **'「{taskName}」は毎月発生するタスクではありませんか？'**
+  /// **'「{taskName}」は毎月のタスク?'**
   String recurringGuideMessage(String taskName);
 
   /// No description provided for @recurringGuideDescription.
@@ -2729,13 +2729,13 @@ abstract class AppLocalizations {
   /// No description provided for @heroTodayMission.
   ///
   /// In ja, this message translates to:
-  /// **'今日のミッション'**
+  /// **'今日の進捗'**
   String get heroTodayMission;
 
   /// No description provided for @aiSortHeroCta.
   ///
   /// In ja, this message translates to:
-  /// **'AIにきょうの順番を組んでもらう'**
+  /// **'今日のタスクをAIで整理'**
   String get aiSortHeroCta;
 
   /// No description provided for @statsTitle.
@@ -2791,6 +2791,72 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'獲得バッジ'**
   String get statsBadges;
+
+  /// No description provided for @statsHelpTooltip.
+  ///
+  /// In ja, this message translates to:
+  /// **'仕組みの説明'**
+  String get statsHelpTooltip;
+
+  /// No description provided for @gamificationHelpTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'やるナビの仕組み'**
+  String get gamificationHelpTitle;
+
+  /// No description provided for @gamificationHelpSubtitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'使うほど報われる、シンプルなレベルシステム'**
+  String get gamificationHelpSubtitle;
+
+  /// No description provided for @gamificationHelpXpTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'XPでレベルアップ'**
+  String get gamificationHelpXpTitle;
+
+  /// No description provided for @gamificationHelpXpBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'完了で +10 XP、AI整理で +5 XP、今日の全完了でさらに +25 XP。'**
+  String get gamificationHelpXpBody;
+
+  /// No description provided for @gamificationHelpStreakTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'ストリーク (連続日数)'**
+  String get gamificationHelpStreakTitle;
+
+  /// No description provided for @gamificationHelpStreakBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'1日1回でも操作すると連続日数が伸びます。3・7・14・30日でボーナスXPとバッジを獲得。'**
+  String get gamificationHelpStreakBody;
+
+  /// No description provided for @gamificationHelpLevelTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'8段階のレベル'**
+  String get gamificationHelpLevelTitle;
+
+  /// No description provided for @gamificationHelpLevelBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'Lv.1 はじめてのナビ → Lv.5 AIの右腕 → Lv.8 伝説のプランナーまで。Lv.9以降も継続可能。'**
+  String get gamificationHelpLevelBody;
+
+  /// No description provided for @gamificationHelpBadgeTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'11個のバッジ'**
+  String get gamificationHelpBadgeTitle;
+
+  /// No description provided for @gamificationHelpBadgeBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'初タスク完了、累計10/50/100件、AI初体験、ストリーク達成、レベル到達などで獲得。'**
+  String get gamificationHelpBadgeBody;
 
   /// No description provided for @statsNextLevelHint.
   ///
@@ -3053,7 +3119,7 @@ abstract class AppLocalizations {
   /// No description provided for @sectionNow.
   ///
   /// In ja, this message translates to:
-  /// **'今日やること'**
+  /// **'今日'**
   String get sectionNow;
 
   /// No description provided for @sectionUpcoming.
@@ -3062,11 +3128,35 @@ abstract class AppLocalizations {
   /// **'今週・来週'**
   String get sectionUpcoming;
 
+  /// No description provided for @sectionThisWeek.
+  ///
+  /// In ja, this message translates to:
+  /// **'今週'**
+  String get sectionThisWeek;
+
   /// No description provided for @sectionLater.
   ///
   /// In ja, this message translates to:
-  /// **'それ以降'**
+  /// **'来週以降'**
   String get sectionLater;
+
+  /// No description provided for @sectionEmptyNow.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日の予定はありません'**
+  String get sectionEmptyNow;
+
+  /// No description provided for @sectionEmptyThisWeek.
+  ///
+  /// In ja, this message translates to:
+  /// **'今週の予定はありません'**
+  String get sectionEmptyThisWeek;
+
+  /// No description provided for @sectionEmptyLater.
+  ///
+  /// In ja, this message translates to:
+  /// **'来週以降の予定はありません'**
+  String get sectionEmptyLater;
 
   /// No description provided for @taskDetailCountdown.
   ///
@@ -3095,25 +3185,25 @@ abstract class AppLocalizations {
   /// No description provided for @aiResultNowLabel.
   ///
   /// In ja, this message translates to:
-  /// **'今すぐ'**
+  /// **'今日'**
   String get aiResultNowLabel;
 
   /// No description provided for @aiResultWeekLabel.
   ///
   /// In ja, this message translates to:
-  /// **'今週中'**
+  /// **'今週'**
   String get aiResultWeekLabel;
 
   /// No description provided for @aiResultLaterLabel.
   ///
   /// In ja, this message translates to:
-  /// **'急がない'**
+  /// **'来週以降'**
   String get aiResultLaterLabel;
 
   /// No description provided for @aiResultOptimized.
   ///
   /// In ja, this message translates to:
-  /// **'整理しました'**
+  /// **'整理完了'**
   String get aiResultOptimized;
 
   /// No description provided for @premiumYearlyCta.
@@ -3145,6 +3235,336 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'期限日'**
   String get calendarDueDate;
+
+  /// No description provided for @onbV2WelcomeBadge.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIナビゲーション'**
+  String get onbV2WelcomeBadge;
+
+  /// No description provided for @onbV2WelcomeTitlePart1.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日、何から '**
+  String get onbV2WelcomeTitlePart1;
+
+  /// No description provided for @onbV2WelcomeTitleAccent.
+  ///
+  /// In ja, this message translates to:
+  /// **'やる？'**
+  String get onbV2WelcomeTitleAccent;
+
+  /// No description provided for @onbV2WelcomeTitlePart2.
+  ///
+  /// In ja, this message translates to:
+  /// **''**
+  String get onbV2WelcomeTitlePart2;
+
+  /// No description provided for @onbV2WelcomeBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'「やること」を入れるだけ。\nあとはAIナビが優先順位を整え、\nあなたの“次の一手”を教えます。'**
+  String get onbV2WelcomeBody;
+
+  /// No description provided for @onbV2BeforeAfterTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'頭の中の“やること”を、整理'**
+  String get onbV2BeforeAfterTitle;
+
+  /// No description provided for @onbV2BeforeAfterSub.
+  ///
+  /// In ja, this message translates to:
+  /// **'ただ並べ替えるだけじゃない。\n“今すぐやるべきこと”を選び抜きます'**
+  String get onbV2BeforeAfterSub;
+
+  /// No description provided for @onbV2BeforeLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'整理する前'**
+  String get onbV2BeforeLabel;
+
+  /// No description provided for @onbV2BeforeCaption.
+  ///
+  /// In ja, this message translates to:
+  /// **'どれから手を付ければ…'**
+  String get onbV2BeforeCaption;
+
+  /// No description provided for @onbV2BeforeTask1.
+  ///
+  /// In ja, this message translates to:
+  /// **'週報を提出'**
+  String get onbV2BeforeTask1;
+
+  /// No description provided for @onbV2BeforeTask2.
+  ///
+  /// In ja, this message translates to:
+  /// **'家賃を振り込む'**
+  String get onbV2BeforeTask2;
+
+  /// No description provided for @onbV2BeforeTask3.
+  ///
+  /// In ja, this message translates to:
+  /// **'日用品の買い出し'**
+  String get onbV2BeforeTask3;
+
+  /// No description provided for @onbV2BeforeDate1.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日まで'**
+  String get onbV2BeforeDate1;
+
+  /// No description provided for @onbV2BeforeDate2.
+  ///
+  /// In ja, this message translates to:
+  /// **'5/15まで'**
+  String get onbV2BeforeDate2;
+
+  /// No description provided for @onbV2BeforeDate3.
+  ///
+  /// In ja, this message translates to:
+  /// **'5/20まで'**
+  String get onbV2BeforeDate3;
+
+  /// No description provided for @onbV2NaviArrow.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIで仕分け'**
+  String get onbV2NaviArrow;
+
+  /// No description provided for @onbV2AfterLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'整理したあと'**
+  String get onbV2AfterLabel;
+
+  /// No description provided for @onbV2AfterCaption.
+  ///
+  /// In ja, this message translates to:
+  /// **'“今やるべき1件”が明確'**
+  String get onbV2AfterCaption;
+
+  /// No description provided for @onbV2AfterBadgeUrgent.
+  ///
+  /// In ja, this message translates to:
+  /// **'今すぐ'**
+  String get onbV2AfterBadgeUrgent;
+
+  /// No description provided for @onbV2AfterBadgeWeek.
+  ///
+  /// In ja, this message translates to:
+  /// **'今週中'**
+  String get onbV2AfterBadgeWeek;
+
+  /// No description provided for @onbV2AfterBadgeLater.
+  ///
+  /// In ja, this message translates to:
+  /// **'あとで'**
+  String get onbV2AfterBadgeLater;
+
+  /// No description provided for @onbV2AfterTask1.
+  ///
+  /// In ja, this message translates to:
+  /// **'週報を提出'**
+  String get onbV2AfterTask1;
+
+  /// No description provided for @onbV2AfterTask2.
+  ///
+  /// In ja, this message translates to:
+  /// **'家賃を振り込む'**
+  String get onbV2AfterTask2;
+
+  /// No description provided for @onbV2AfterTask3.
+  ///
+  /// In ja, this message translates to:
+  /// **'日用品の買い出し'**
+  String get onbV2AfterTask3;
+
+  /// No description provided for @onbV2AfterComment1.
+  ///
+  /// In ja, this message translates to:
+  /// **'午前中に集中して片付けよう'**
+  String get onbV2AfterComment1;
+
+  /// No description provided for @onbV2AfterComment2.
+  ///
+  /// In ja, this message translates to:
+  /// **'金曜までにネットバンキングで'**
+  String get onbV2AfterComment2;
+
+  /// No description provided for @onbV2AfterComment3.
+  ///
+  /// In ja, this message translates to:
+  /// **'週末にまとめ買いが効率的'**
+  String get onbV2AfterComment3;
+
+  /// No description provided for @onbV2GameTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'続けるほど、好きになる'**
+  String get onbV2GameTitle;
+
+  /// No description provided for @onbV2GameSub.
+  ///
+  /// In ja, this message translates to:
+  /// **'達成感がそのまま“やる気”に変わる仕組み'**
+  String get onbV2GameSub;
+
+  /// No description provided for @onbV2GameXpTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'完了するたび、経験値+10'**
+  String get onbV2GameXpTitle;
+
+  /// No description provided for @onbV2GameXpSub.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日のタスク全制覇でボーナス+25'**
+  String get onbV2GameXpSub;
+
+  /// No description provided for @onbV2GameStreakTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'連続日数で、炎が育つ'**
+  String get onbV2GameStreakTitle;
+
+  /// No description provided for @onbV2GameStreakSub.
+  ///
+  /// In ja, this message translates to:
+  /// **'3日・7日・30日で限定バッジ獲得'**
+  String get onbV2GameStreakSub;
+
+  /// No description provided for @onbV2GameLevelTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'Lv.1→Lv.8で“肩書き”が変わる'**
+  String get onbV2GameLevelTitle;
+
+  /// No description provided for @onbV2GameLevelSub.
+  ///
+  /// In ja, this message translates to:
+  /// **'ナビ見習いから、伝説のプランナーへ'**
+  String get onbV2GameLevelSub;
+
+  /// No description provided for @onbV2GameFooter.
+  ///
+  /// In ja, this message translates to:
+  /// **'完璧じゃなくていい。\n小さな一歩を、毎日刻んでいこう。'**
+  String get onbV2GameFooter;
+
+  /// No description provided for @onbV2CtaTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'さあ、最初の一歩を。'**
+  String get onbV2CtaTitle;
+
+  /// No description provided for @onbV2CtaBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'気になっている“やること”を、\nひとつだけ入れてみてください。\nあとはナビにまかせて大丈夫。'**
+  String get onbV2CtaBody;
+
+  /// No description provided for @onbV2CtaButton.
+  ///
+  /// In ja, this message translates to:
+  /// **'やることを追加する'**
+  String get onbV2CtaButton;
+
+  /// No description provided for @homeQuickTotalLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'全タスク'**
+  String get homeQuickTotalLabel;
+
+  /// No description provided for @homeQuickTotalUnit.
+  ///
+  /// In ja, this message translates to:
+  /// **'件'**
+  String get homeQuickTotalUnit;
+
+  /// No description provided for @homeNextHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'次は {date} に {count}件'**
+  String homeNextHint(String date, int count);
+
+  /// No description provided for @homeNoUpcoming.
+  ///
+  /// In ja, this message translates to:
+  /// **'未完了タスクはありません'**
+  String get homeNoUpcoming;
+
+  /// No description provided for @homeJumpAll.
+  ///
+  /// In ja, this message translates to:
+  /// **'すべて見る'**
+  String get homeJumpAll;
+
+  /// No description provided for @homeOverdueChip.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限切れ {count}'**
+  String homeOverdueChip(int count);
+
+  /// No description provided for @calendarMonthListMode.
+  ///
+  /// In ja, this message translates to:
+  /// **'リスト'**
+  String get calendarMonthListMode;
+
+  /// No description provided for @calendarGridMode.
+  ///
+  /// In ja, this message translates to:
+  /// **'月'**
+  String get calendarGridMode;
+
+  /// No description provided for @calendarMonthAllTasks.
+  ///
+  /// In ja, this message translates to:
+  /// **'今月のタスク'**
+  String get calendarMonthAllTasks;
+
+  /// No description provided for @calendarNoTasksNextHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'予定なし。次は {date} に {count}件'**
+  String calendarNoTasksNextHint(String date, int count);
+
+  /// No description provided for @calendarJumpToNext.
+  ///
+  /// In ja, this message translates to:
+  /// **'次の予定日を表示'**
+  String get calendarJumpToNext;
+
+  /// No description provided for @calendarMonthEmpty.
+  ///
+  /// In ja, this message translates to:
+  /// **'今月の予定はまだありません'**
+  String get calendarMonthEmpty;
+
+  /// No description provided for @aiResultOptimizedBadge.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIで整理済み'**
+  String get aiResultOptimizedBadge;
+
+  /// No description provided for @aiNaviNoteLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'ナビからひとこと'**
+  String get aiNaviNoteLabel;
+
+  /// No description provided for @aiNaviAdviceLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'ナビからのアドバイス'**
+  String get aiNaviAdviceLabel;
+
+  /// No description provided for @aiNaviAdviceBadge.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIアドバイス'**
+  String get aiNaviAdviceBadge;
 }
 
 class _AppLocalizationsDelegate

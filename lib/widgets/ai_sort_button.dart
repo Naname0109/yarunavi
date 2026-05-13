@@ -400,20 +400,23 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         unawaited(sound.playSystemSound(SoundEvent.aiSortComplete));
       });
 
-      // ステップ4: ロゴ鼓動演出 (バースト/チェック登場の直後、~600ms 後に発火)
-      // 3秒の演出だが、画面遷移後も Overlay として継続表示される
-      Future.delayed(const Duration(milliseconds: 600), () {
-        if (mounted) LogoHeartbeatOverlay.show(context);
-      });
+      // ロゴ鼓動演出は v2 UI ではレベルアップ/バッジ獲得演出に置き換えたため削除
+      // (debug_animations_screen と AI sort preview ダイアログでは引き続き利用可)
 
       // 結果をProviderに保存
       ref.read(aiSortResponseProvider.notifier).state = response;
       ref.invalidate(tasksProvider);
 
       // ゲーミフィケーション: AI整理XP + バッジ + ストリーク
-      await ref
-          .read(userStatsProvider.notifier)
-          .recordAiSort(taskCount: incompleteTasks.length);
+      // (await せず fire-and-forget。失敗しても AI整理本体のUI遷移を阻害しない)
+      unawaited(
+        ref
+            .read(userStatsProvider.notifier)
+            .recordAiSort(taskCount: incompleteTasks.length)
+            .catchError((Object e, StackTrace st) {
+          debugPrint('[AiSort] gamification 記録失敗: $e');
+        }),
+      );
 
       // トリガーB: AI整理完了後にレビュー依頼
       final reviewService = ref.read(reviewServiceProvider);

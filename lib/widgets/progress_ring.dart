@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 /// 円形進捗リング（CustomPainter）。
 ///
-/// XP進捗 / 今日のミッション進捗 / その他汎用に利用。
+/// XP進捗 / 今日の進捗 / その他汎用に利用。
 /// グラデ着色対応 (色の場合は単色、Gradientの場合はSweepGradient塗り)。
 class ProgressRing extends StatelessWidget {
   const ProgressRing({

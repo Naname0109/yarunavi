@@ -93,7 +93,7 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-                        child: _aiAdvice(yaru, task),
+                        child: _aiAdvice(yaru, l10n, task),
                       ),
                     ),
                   SliverToBoxAdapter(
@@ -372,7 +372,7 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
     );
   }
 
-  Widget _aiAdvice(YaruTheme yaru, Task task) {
+  Widget _aiAdvice(YaruTheme yaru, AppLocalizations l10n, Task task) {
     return Container(
       padding: const EdgeInsets.all(1),
       decoration: BoxDecoration(
@@ -406,7 +406,7 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'NAVI · ADVICE',
+                      l10n.aiNaviAdviceBadge,
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w800,
@@ -416,7 +416,7 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'ナビからのアドバイス',
+                      l10n.aiNaviAdviceLabel,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,

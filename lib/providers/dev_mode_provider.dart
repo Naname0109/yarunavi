@@ -8,7 +8,7 @@ const _useNewUiKey = 'dev_mode_use_new_ui';
 /// 起動時の初期値（main.dartでoverrideされる）
 final initialDevAiUnlimitedProvider = Provider<bool>((ref) => false);
 final initialDevPremiumProvider = Provider<bool>((ref) => false);
-final initialUseNewUiProvider = Provider<bool>((ref) => false);
+final initialUseNewUiProvider = Provider<bool>((ref) => true);
 
 /// 起動時にSharedPreferencesから読み込む
 Future<({bool aiUnlimited, bool premium, bool useNewUi})>
@@ -17,7 +17,8 @@ Future<({bool aiUnlimited, bool premium, bool useNewUi})>
   return (
     aiUnlimited: prefs.getBool(_aiUnlimitedKey) ?? false,
     premium: prefs.getBool(_premiumKey) ?? false,
-    useNewUi: prefs.getBool(_useNewUiKey) ?? false,
+    // v2 UI を新規/未設定ユーザーのデフォルトに
+    useNewUi: prefs.getBool(_useNewUiKey) ?? true,
   );
 }
 

@@ -128,7 +128,7 @@ class V2AiResultScreen extends ConsumerWidget {
           _OrbBadge(),
           const SizedBox(height: 16),
           Text(
-            'NAVI · OPTIMIZED',
+            l10n.aiResultOptimizedBadge,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -271,7 +271,7 @@ class V2AiResultScreen extends ConsumerWidget {
               SparkleBadge(size: 22, glow: false),
               const SizedBox(width: 8),
               Text(
-                'NAVI のひとこと',
+                l10n.aiNaviNoteLabel,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
@@ -460,13 +460,35 @@ class V2AiResultScreen extends ConsumerWidget {
             label: l10n.aiResultStartCta,
             icon: Icons.bolt_rounded,
             height: 50,
-            onPressed: () {
-              context.go('/home');
-            },
+            onPressed: () => _startWithTopTask(context, ref),
           ),
         ),
       ],
     );
+  }
+
+  /// 「この順番で進める」: AI整理結果の最優先タスク詳細へ遷移。
+  /// 該当タスクが無ければホームへフォールバック。
+  /// 「次の一手」へ即着手できる導線にすることで整理→実行の摩擦を減らす。
+  void _startWithTopTask(BuildContext context, WidgetRef ref) {
+    final response = ref.read(aiSortResponseProvider);
+    final tasks = response?.tasks ?? const [];
+    if (tasks.isEmpty) {
+      context.go('/home');
+      return;
+    }
+    // priority 昇順(1=最優先) + taskId 昇順で並べて先頭を最優先と扱う
+    final sorted = [...tasks]
+      ..sort((a, b) {
+        final p = a.priority.compareTo(b.priority);
+        return p != 0 ? p : a.taskId.compareTo(b.taskId);
+      });
+    final top = sorted.first;
+    // ホームを下層に置いてから詳細へ push (戻るボタンでホームに戻る)
+    context.go('/home');
+    Future.delayed(const Duration(milliseconds: 250), () {
+      if (context.mounted) context.push('/task/${top.taskId}');
+    });
   }
 
   String _now() {

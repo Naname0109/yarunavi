@@ -401,8 +401,13 @@ summary_ja/summary_enに今日のアクションプランを1-2文で具体的�
               AiErrorType.parse, 'API error: ${response.statusCode}');
         }
 
+        // http パッケージの response.body は Content-Type に charset 指定がないと
+        // Latin-1 でデコードされて日本語が文字化けする。明示的に UTF-8 でデコード。
+        // allowMalformed: 万一壊れたバイトが来ても catch all へ落とさず継続解析。
+        final decodedBody =
+            utf8.decode(response.bodyBytes, allowMalformed: true);
         final result = _tryParseResponse(
-            response.body, tasks, executionTimingFactor);
+            decodedBody, tasks, executionTimingFactor);
         debugPrint('[AI] パース完了: ${result.tasks.length}件');
         return result;
       } on AiServiceException {

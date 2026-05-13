@@ -69,9 +69,14 @@ final _router = GoRouter(
         final tab = int.tryParse(
                 state.uri.queryParameters['tab'] ?? '') ??
             0;
+        // オンボーディング完了直後など、初回タスク追加シートを自動で開く時に true
+        final extras = state.extra;
+        final openTaskForm =
+            extras is Map && extras['openTaskForm'] == true;
         return _V2Switch(
           v1: () => HomeScreen(initialTab: tab),
-          v2: () => V2HomeShell(initialTab: tab),
+          v2: () =>
+              V2HomeShell(initialTab: tab, openTaskFormOnStart: openTaskForm),
         );
       },
     ),

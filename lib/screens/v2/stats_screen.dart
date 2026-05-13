@@ -194,22 +194,143 @@ class V2StatsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: yaru.paper,
-              shape: BoxShape.circle,
-              border: Border.all(color: yaru.line),
-            ),
-            child: Icon(
-              Icons.emoji_events_rounded,
-              size: 20,
-              color: YaruColors.amber,
+          IconButton(
+            onPressed: () => _showGamificationHelp(context, yaru, l10n),
+            tooltip: l10n.statsHelpTooltip,
+            icon: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: yaru.paper,
+                shape: BoxShape.circle,
+                border: Border.all(color: yaru.line),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.help_outline_rounded,
+                size: 18,
+                color: yaru.inkSecondary,
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  /// ゲーミフィケーション仕様の説明シート (XP/Lv/ストリーク/バッジ)。
+  void _showGamificationHelp(
+    BuildContext context,
+    YaruTheme yaru,
+    AppLocalizations l10n,
+  ) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: yaru.paper,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: yaru.lineStrong,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    l10n.gamificationHelpTitle,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: yaru.inkPrimary,
+                      letterSpacing: -0.4,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.gamificationHelpSubtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: yaru.inkTertiary,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _helpRow(yaru, '⚡', l10n.gamificationHelpXpTitle,
+                      l10n.gamificationHelpXpBody),
+                  const SizedBox(height: 14),
+                  _helpRow(yaru, '🔥', l10n.gamificationHelpStreakTitle,
+                      l10n.gamificationHelpStreakBody),
+                  const SizedBox(height: 14),
+                  _helpRow(yaru, '🏆', l10n.gamificationHelpLevelTitle,
+                      l10n.gamificationHelpLevelBody),
+                  const SizedBox(height: 14),
+                  _helpRow(yaru, '🎖️', l10n.gamificationHelpBadgeTitle,
+                      l10n.gamificationHelpBadgeBody),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _helpRow(YaruTheme yaru, String emoji, String title, String body) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: yaru.accent.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: yaru.accent.withValues(alpha: 0.25)),
+          ),
+          child: Text(emoji, style: const TextStyle(fontSize: 20)),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: yaru.inkPrimary,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                body,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: yaru.inkSecondary,
+                  height: 1.55,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

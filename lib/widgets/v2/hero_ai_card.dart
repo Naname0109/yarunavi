@@ -12,16 +12,25 @@ import '../progress_ring.dart';
 ///
 /// - ライト: electric blue グラデ + 白CTA
 /// - ダーク: 暗いガラス + ネオンメッシュ + ネオンリング + ネオンCTA
-/// 表示要素: TODAY / ストリーク / レベル / 今日のミッション (N/M) / リング / AI整理CTA
+/// 表示要素: TODAY / ストリーク / レベル / 今日の進捗 (N/M) / リング / AI整理CTA
+///
+/// タスク0件のときは「タスクを追加」促し文に切り替え、`onAddTask` を CTA から呼ぶ。
 class HeroAiCard extends ConsumerWidget {
   const HeroAiCard({
     super.key,
     required this.todayDone,
     required this.todayTotal,
+    this.onAddTask,
   });
 
   final int todayDone;
   final int todayTotal;
+
+  /// タスク0件時のCTA「タスクを追加」を押したときに呼ばれる。
+  /// 通常は TaskFormSheet.show を渡す。
+  final VoidCallback? onAddTask;
+
+  bool get _isEmpty => todayTotal == 0;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,7 +39,7 @@ class HeroAiCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final statsAsync = ref.watch(userStatsProvider);
 
-    final mission = todayTotal == 0 ? 0.0 : todayDone / todayTotal;
+    final mission = _isEmpty ? 0.0 : todayDone / todayTotal;
     final streak = statsAsync.maybeWhen(data: (s) => s.streakDays, orElse: () => 0);
     final level = statsAsync.maybeWhen(data: (s) => s.currentLevel, orElse: () => 1);
 
@@ -53,27 +62,126 @@ class HeroAiCard extends ConsumerWidget {
               children: [
                 _topRow(l10n: l10n, streak: streak, level: level, isDark: isDark),
                 const SizedBox(height: 18),
-                _missionRow(
-                  l10n: l10n,
-                  yaru: yaru,
-                  isDark: isDark,
-                  mission: mission,
-                ),
+                if (_isEmpty)
+                  _emptyRow(l10n: l10n, isDark: isDark)
+                else
+                  _missionRow(
+                    l10n: l10n,
+                    yaru: yaru,
+                    isDark: isDark,
+                    mission: mission,
+                  ),
                 const SizedBox(height: 14),
-                _missionBar(yaru: yaru, value: mission, isDark: isDark),
-                const SizedBox(height: 16),
-                AiSortButton(
-                  builder: (ctx, isLoading, onTap) => _aiCta(
-                    label: isLoading ? l10n.aiSorting : l10n.aiSortHeroCta,
-                    loading: isLoading,
-                    onTap: onTap,
+                if (!_isEmpty) ...[
+                  _missionBar(yaru: yaru, value: mission, isDark: isDark),
+                  const SizedBox(height: 16),
+                ],
+                if (_isEmpty)
+                  _addTaskCta(
+                    label: l10n.addTask,
+                    onTap: onAddTask,
                     isDark: isDark,
                     yaru: yaru,
+                  )
+                else
+                  AiSortButton(
+                    builder: (ctx, isLoading, onTap) => _aiCta(
+                      label: isLoading ? l10n.aiSorting : l10n.aiSortHeroCta,
+                      loading: isLoading,
+                      onTap: onTap,
+                      isDark: isDark,
+                      yaru: yaru,
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 空状態: 数字の代わりに「タスクを追加して始めよう」促し文を表示。
+  Widget _emptyRow({required AppLocalizations l10n, required bool isDark}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.add_task_rounded,
+            color: Colors.white,
+            size: 28,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.emptyTodayMessage,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    letterSpacing: -0.2,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.emptyTaskMessage,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: Colors.white.withValues(alpha: 0.78),
+                    height: 1.45,
                   ),
                 ),
               ],
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 空状態用CTA: AI整理ではなくタスク追加へ。
+  Widget _addTaskCta({
+    required String label,
+    required VoidCallback? onTap,
+    required bool isDark,
+    required YaruTheme yaru,
+  }) {
+    final fg = isDark ? YaruColors.bgDark0 : YaruColors.primaryDeep;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          height: 46,
+          decoration: BoxDecoration(
+            color: isDark ? null : Colors.white.withValues(alpha: 0.96),
+            gradient: isDark ? yaru.primaryGradient : null,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: isDark ? yaru.ctaShadow : null,
+          ),
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add_rounded, size: 18, color: fg),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: fg,
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
