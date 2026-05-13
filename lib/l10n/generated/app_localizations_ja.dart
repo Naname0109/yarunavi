@@ -303,7 +303,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get storePremiumTitle => 'プレミアムプラン';
 
   @override
-  String get storeFeatureAiUnlimited => 'AI整理 月30回';
+  String get storeFeatureAiUnlimited => 'AI整理 月30回（無料は2回）';
 
   @override
   String get storeFeatureTaskUnlimited => 'タスク登録 無制限';
@@ -1170,10 +1170,16 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get calendarViewRecommended => '実行日';
+  String get calendarViewRecommended => 'AIのおすすめ日';
 
   @override
-  String get calendarViewDue => '期限日';
+  String get calendarViewDue => '期限の日';
+
+  @override
+  String get calendarViewRecommendedTooltip => 'AIが提案した着手日でカレンダーに配置';
+
+  @override
+  String get calendarViewDueTooltip => 'タスクの期限日でカレンダーに配置';
 
   @override
   String taskCount(int count) {
@@ -1822,4 +1828,36 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get aiNaviAdviceBadge => 'AIアドバイス';
+
+  @override
+  String aiSortQuotaFree(int remaining, int total) {
+    return '無料 残り $remaining/$total回';
+  }
+
+  @override
+  String aiSortQuotaPremium(int remaining, int total) {
+    return '今月 残り $remaining/$total回';
+  }
+
+  @override
+  String archiveOpenButton(int count) {
+    return '過去のタスクを見る($count)';
+  }
+
+  @override
+  String get archiveTitle => '過去の完了タスク';
+
+  @override
+  String get archiveEmpty => '過去の完了タスクはありません';
+
+  @override
+  String get archiveRecentLabel => '過去7日';
+
+  @override
+  String streakMilestoneTitle(int days) {
+    return '$days日連続達成!';
+  }
+
+  @override
+  String get streakMilestoneBody => 'すごい!明日も小さな一歩を積み重ねよう。';
 }

@@ -80,6 +80,36 @@ class NotificationService {
     return true;
   }
 
+  /// ストリーク達成時の祝福通知 (即時表示)。
+  /// 3/7/14/30 日達成タイミングでアプリ側から呼び出す。
+  /// 通知 ID は streakDays ベースで一意化し、同じマイルストーンの重複を防ぐ。
+  Future<void> showStreakMilestoneNotification({
+    required int streakDays,
+    required String title,
+    required String body,
+  }) async {
+    if (!isSupported || !_initialized) return;
+    if (_isE2ETest) return;
+    const androidDetails = AndroidNotificationDetails(
+      AppConstants.notificationChannelId,
+      AppConstants.notificationChannelName,
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+    await _plugin.show(
+      900000 + streakDays,
+      title,
+      body,
+      const NotificationDetails(android: androidDetails, iOS: iosDetails),
+      payload: 'streak:$streakDays',
+    );
+  }
+
   /// タスクの通知をスケジュール
   /// [locale] は通知テキストの言語選択に使用（'ja' or 'en'）
   Future<void> scheduleTaskNotifications(

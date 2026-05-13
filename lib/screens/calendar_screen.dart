@@ -128,29 +128,58 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
 
         return Column(
           children: [
-            // --- SegmentedButton ---
+            // --- 表示モード切替 (AIのおすすめ日 / 期限の日) ---
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: SegmentedButton<_CalendarViewMode>(
-                segments: [
-                  ButtonSegment(
-                    value: _CalendarViewMode.recommended,
-                    label: Text(l10n.calendarViewRecommended),
-                    icon: const Icon(Icons.push_pin, size: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SegmentedButton<_CalendarViewMode>(
+                      segments: [
+                        ButtonSegment(
+                          value: _CalendarViewMode.recommended,
+                          label: Text(l10n.calendarViewRecommended),
+                          icon: const Icon(Icons.push_pin, size: 16),
+                          tooltip: l10n.calendarViewRecommendedTooltip,
+                        ),
+                        ButtonSegment(
+                          value: _CalendarViewMode.due,
+                          label: Text(l10n.calendarViewDue),
+                          icon: const Icon(Icons.schedule, size: 16),
+                          tooltip: l10n.calendarViewDueTooltip,
+                        ),
+                      ],
+                      selected: {_viewMode},
+                      onSelectionChanged: (set) {
+                        setState(() => _viewMode = set.first);
+                      },
+                      style: SegmentedButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
                   ),
-                  ButtonSegment(
-                    value: _CalendarViewMode.due,
-                    label: Text(l10n.calendarViewDue),
-                    icon: const Icon(Icons.schedule, size: 16),
+                  // モード説明アイコン: タップで現在モードの解説を表示
+                  IconButton(
+                    icon: const Icon(Icons.help_outline, size: 18),
+                    tooltip: _viewMode == _CalendarViewMode.recommended
+                        ? l10n.calendarViewRecommendedTooltip
+                        : l10n.calendarViewDueTooltip,
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            _viewMode == _CalendarViewMode.recommended
+                                ? l10n.calendarViewRecommendedTooltip
+                                : l10n.calendarViewDueTooltip,
+                          ),
+                          duration: const Duration(seconds: 3),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
                   ),
                 ],
-                selected: {_viewMode},
-                onSelectionChanged: (set) {
-                  setState(() => _viewMode = set.first);
-                },
-                style: SegmentedButton.styleFrom(
-                  visualDensity: VisualDensity.compact,
-                ),
               ),
             ),
             // --- 月カレンダー ---
@@ -285,6 +314,21 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                 l10n.emptyTaskMessage,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 11.5, color: color),
+              ),
+              const SizedBox(height: 14),
+              // 初回ユーザー向け: 月内0件のときに「タスクを追加」CTAを設置。
+              // ここからの追加でカレンダー機能の発見率を上げる。
+              FilledButton.icon(
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  TaskFormSheet.show(context);
+                },
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: Text(l10n.addTask),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 18, vertical: 10),
+                ),
               ),
             ],
           ),

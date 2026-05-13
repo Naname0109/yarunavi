@@ -84,6 +84,27 @@ class _V2HomeShellState extends ConsumerState<V2HomeShell> {
       if (next.isNotEmpty && context.mounted) {
         // キューを順次表示 (前のpopupが消えてから次)
         BadgeUnlockPopup.show(context, next.first);
+
+        // ストリーク達成バッジならローカル通知でも祝福 (バックグラウンド復帰時にも気付ける)
+        const streakBadgeDays = {
+          'streak_3': 3,
+          'streak_7': 7,
+          'streak_14': 14,
+          'streak_30': 30,
+        };
+        final l10n = AppLocalizations.of(context)!;
+        final notify = ref.read(notificationServiceProvider);
+        for (final b in next) {
+          final days = streakBadgeDays[b.id];
+          if (days != null) {
+            notify.showStreakMilestoneNotification(
+              streakDays: days,
+              title: l10n.streakMilestoneTitle(days),
+              body: l10n.streakMilestoneBody,
+            );
+          }
+        }
+
         // 表示済みを除去
         Future.delayed(const Duration(milliseconds: 2400), () {
           if (!context.mounted) return;
@@ -647,7 +668,20 @@ class _CompletedSectionState extends ConsumerState<_CompletedSection> {
     final yaru = context.yaru;
     final l10n = AppLocalizations.of(context)!;
     if (widget.tasks.isEmpty) return const SizedBox.shrink();
-    final preview = widget.tasks.take(_expanded ? widget.tasks.length : 3).toList();
+
+    // 過去7日以内に完了したタスクのみホームに表示し、それ以前はアーカイブ画面へ。
+    // 長期利用でホームの完了履歴が肥大化するのを防ぐ。
+    final cutoff = DateTime.now().subtract(const Duration(days: 7));
+    final recent = widget.tasks.where((t) {
+      final ts = t.completedAt ?? t.updatedAt;
+      return !ts.isBefore(cutoff);
+    }).toList();
+    final olderCount = widget.tasks.length - recent.length;
+    if (recent.isEmpty && olderCount == 0) {
+      return const SizedBox.shrink();
+    }
+    final preview =
+        recent.take(_expanded ? recent.length : 3).toList();
 
     return Column(
       children: [
@@ -677,12 +711,21 @@ class _CompletedSectionState extends ConsumerState<_CompletedSection> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '${widget.tasks.length}',
+                  '${recent.length}',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: yaru.inkTertiary,
                     fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '· ${l10n.archiveRecentLabel}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: yaru.inkQuaternary,
                   ),
                 ),
                 Expanded(
@@ -724,6 +767,24 @@ class _CompletedSectionState extends ConsumerState<_CompletedSection> {
                     },
                   ),
                 ),
+              if (olderCount > 0) ...[
+                const SizedBox(height: 4),
+                Center(
+                  child: TextButton.icon(
+                    onPressed: () => context.push('/archive'),
+                    icon: Icon(Icons.archive_outlined,
+                        size: 16, color: yaru.inkSecondary),
+                    label: Text(
+                      l10n.archiveOpenButton(olderCount),
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: yaru.inkSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

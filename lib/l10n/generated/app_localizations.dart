@@ -653,7 +653,7 @@ abstract class AppLocalizations {
   /// No description provided for @storeFeatureAiUnlimited.
   ///
   /// In ja, this message translates to:
-  /// **'AI整理 月30回'**
+  /// **'AI整理 月30回（無料は2回）'**
   String get storeFeatureAiUnlimited;
 
   /// No description provided for @storeFeatureTaskUnlimited.
@@ -2327,14 +2327,26 @@ abstract class AppLocalizations {
   /// No description provided for @calendarViewRecommended.
   ///
   /// In ja, this message translates to:
-  /// **'実行日'**
+  /// **'AIのおすすめ日'**
   String get calendarViewRecommended;
 
   /// No description provided for @calendarViewDue.
   ///
   /// In ja, this message translates to:
-  /// **'期限日'**
+  /// **'期限の日'**
   String get calendarViewDue;
+
+  /// No description provided for @calendarViewRecommendedTooltip.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIが提案した着手日でカレンダーに配置'**
+  String get calendarViewRecommendedTooltip;
+
+  /// No description provided for @calendarViewDueTooltip.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクの期限日でカレンダーに配置'**
+  String get calendarViewDueTooltip;
 
   /// No description provided for @taskCount.
   ///
@@ -3565,6 +3577,54 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'AIアドバイス'**
   String get aiNaviAdviceBadge;
+
+  /// No description provided for @aiSortQuotaFree.
+  ///
+  /// In ja, this message translates to:
+  /// **'無料 残り {remaining}/{total}回'**
+  String aiSortQuotaFree(int remaining, int total);
+
+  /// No description provided for @aiSortQuotaPremium.
+  ///
+  /// In ja, this message translates to:
+  /// **'今月 残り {remaining}/{total}回'**
+  String aiSortQuotaPremium(int remaining, int total);
+
+  /// No description provided for @archiveOpenButton.
+  ///
+  /// In ja, this message translates to:
+  /// **'過去のタスクを見る({count})'**
+  String archiveOpenButton(int count);
+
+  /// No description provided for @archiveTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'過去の完了タスク'**
+  String get archiveTitle;
+
+  /// No description provided for @archiveEmpty.
+  ///
+  /// In ja, this message translates to:
+  /// **'過去の完了タスクはありません'**
+  String get archiveEmpty;
+
+  /// No description provided for @archiveRecentLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'過去7日'**
+  String get archiveRecentLabel;
+
+  /// No description provided for @streakMilestoneTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'{days}日連続達成!'**
+  String streakMilestoneTitle(int days);
+
+  /// No description provided for @streakMilestoneBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'すごい!明日も小さな一歩を積み重ねよう。'**
+  String get streakMilestoneBody;
 }
 
 class _AppLocalizationsDelegate

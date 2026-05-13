@@ -93,7 +93,7 @@
   "calendarAddFailed": "Failed to add to calendar",
 
   "storePremiumTitle": "Premium Plan",
-  "storeFeatureAiUnlimited": "30 AI sorts / month",
+  "storeFeatureAiUnlimited": "30 AI sorts / month (free: 2)",
   "storeFeatureTaskUnlimited": "Unlimited tasks",
   "storeFeatureRecurringUnlimited": "Unlimited recurring tasks",
   "storeFeatureCategoryUnlimited": "Unlimited categories",
@@ -399,8 +399,10 @@
   "executionDateLabel": "Do on: {date}",
   "dueDateLabel": "Due: {date}",
   "dueDateSub": "(Due: {date})",
-  "calendarViewRecommended": "Planned",
-  "calendarViewDue": "Due Date",
+  "calendarViewRecommended": "AI plan day",
+  "calendarViewDue": "Due day",
+  "calendarViewRecommendedTooltip": "Show tasks on the day AI suggests starting them",
+  "calendarViewDueTooltip": "Show tasks on their due dates",
   "taskCount": "{count} total",
   "tabTodo": "To Do",
 
@@ -670,5 +672,38 @@
   "aiResultOptimizedBadge": "Sorted by AI",
   "aiNaviNoteLabel": "A note from Navi",
   "aiNaviAdviceLabel": "Navi's advice",
-  "aiNaviAdviceBadge": "AI advice"
+  "aiNaviAdviceBadge": "AI advice",
+
+  "aiSortQuotaFree": "Free: {remaining}/{total} sorts left",
+  "@aiSortQuotaFree": {
+    "placeholders": {
+      "remaining": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "aiSortQuotaPremium": "This month: {remaining}/{total} left",
+  "@aiSortQuotaPremium": {
+    "placeholders": {
+      "remaining": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "archiveOpenButton": "See older ({count})",
+  "@archiveOpenButton": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "archiveTitle": "Completed archive",
+  "archiveEmpty": "No archived completions yet",
+  "archiveRecentLabel": "Past 7 days",
+
+  "streakMilestoneTitle": "{days}-day streak!",
+  "@streakMilestoneTitle": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "streakMilestoneBody": "Awesome — keep stacking small wins."
 }

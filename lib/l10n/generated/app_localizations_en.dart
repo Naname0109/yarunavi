@@ -305,7 +305,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storePremiumTitle => 'Premium Plan';
 
   @override
-  String get storeFeatureAiUnlimited => '30 AI sorts / month';
+  String get storeFeatureAiUnlimited => '30 AI sorts / month (free: 2)';
 
   @override
   String get storeFeatureTaskUnlimited => 'Unlimited tasks';
@@ -1192,10 +1192,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get calendarViewRecommended => 'Planned';
+  String get calendarViewRecommended => 'AI plan day';
 
   @override
-  String get calendarViewDue => 'Due Date';
+  String get calendarViewDue => 'Due day';
+
+  @override
+  String get calendarViewRecommendedTooltip =>
+      'Show tasks on the day AI suggests starting them';
+
+  @override
+  String get calendarViewDueTooltip => 'Show tasks on their due dates';
 
   @override
   String taskCount(int count) {
@@ -1855,4 +1862,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiNaviAdviceBadge => 'AI advice';
+
+  @override
+  String aiSortQuotaFree(int remaining, int total) {
+    return 'Free: $remaining/$total sorts left';
+  }
+
+  @override
+  String aiSortQuotaPremium(int remaining, int total) {
+    return 'This month: $remaining/$total left';
+  }
+
+  @override
+  String archiveOpenButton(int count) {
+    return 'See older ($count)';
+  }
+
+  @override
+  String get archiveTitle => 'Completed archive';
+
+  @override
+  String get archiveEmpty => 'No archived completions yet';
+
+  @override
+  String get archiveRecentLabel => 'Past 7 days';
+
+  @override
+  String streakMilestoneTitle(int days) {
+    return '$days-day streak!';
+  }
+
+  @override
+  String get streakMilestoneBody => 'Awesome — keep stacking small wins.';
 }

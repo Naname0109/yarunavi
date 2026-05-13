@@ -71,10 +71,10 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
     _recurrenceValue = task?.recurrenceValue;
     _addToCalendar = task?.calendarEventId != null;
 
-    // 編集時: 詳細フィールドのいずれかが設定済みなら自動展開
+    // 編集時: 詳細フィールド (メモを除く、メモは初期表示) のいずれかが
+    // 設定済みなら自動展開
     if (_isEditing) {
-      _showAdvanced = (task?.memo != null && task!.memo!.isNotEmpty) ||
-          task?.categoryId != null ||
+      _showAdvanced = task?.categoryId != null ||
           task?.estimatedTime != null ||
           task?.importance != 1 ||
           task?.recurrenceType != null ||
@@ -135,14 +135,17 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
                     controller: scrollController,
                     padding: const EdgeInsets.all(16),
                     children: [
-                      // メイン入力: タスク名 + 期限日のみ
+                      // メイン入力: タスク名 + 期限日 + メモ
+                      // メモはAI整理時のアドバイス品質に直結するため初期から表示
                       _buildTitleField(l10n),
                       const SizedBox(height: 16),
                       _buildDueDateField(l10n, locale),
                       const SizedBox(height: 16),
+                      _buildMemoField(l10n),
+                      const SizedBox(height: 16),
                       // 詳細設定の展開トグル
                       _buildAdvancedToggle(l10n),
-                      // 詳細設定（折りたたみ）
+                      // 詳細設定（折りたたみ）: カテゴリ/所要時間/優先度/繰り返し/通知/カレンダー
                       AnimatedCrossFade(
                         duration: const Duration(milliseconds: 200),
                         crossFadeState: _showAdvanced
@@ -151,8 +154,6 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
                         firstChild: const SizedBox(width: double.infinity),
                         secondChild: Column(
                           children: [
-                            const SizedBox(height: 16),
-                            _buildMemoField(l10n),
                             const SizedBox(height: 16),
                             _buildCategoryField(l10n, categoriesAsync),
                             const SizedBox(height: 16),

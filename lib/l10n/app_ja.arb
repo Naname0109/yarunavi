@@ -220,7 +220,7 @@
 
   "storePremiumTitle": "プレミアムプラン",
   "@storePremiumTitle": {},
-  "storeFeatureAiUnlimited": "AI整理 月30回",
+  "storeFeatureAiUnlimited": "AI整理 月30回（無料は2回）",
   "@storeFeatureAiUnlimited": {},
   "storeFeatureTaskUnlimited": "タスク登録 無制限",
   "@storeFeatureTaskUnlimited": {},
@@ -836,10 +836,14 @@
   "@dueDateSub": {
     "placeholders": { "date": { "type": "String" } }
   },
-  "calendarViewRecommended": "実行日",
+  "calendarViewRecommended": "AIのおすすめ日",
   "@calendarViewRecommended": {},
-  "calendarViewDue": "期限日",
+  "calendarViewDue": "期限の日",
   "@calendarViewDue": {},
+  "calendarViewRecommendedTooltip": "AIが提案した着手日でカレンダーに配置",
+  "@calendarViewRecommendedTooltip": {},
+  "calendarViewDueTooltip": "タスクの期限日でカレンダーに配置",
+  "@calendarViewDueTooltip": {},
   "taskCount": "全{count}件",
   "@taskCount": {
     "placeholders": { "count": { "type": "int" } }
@@ -1318,5 +1322,42 @@
   "aiNaviAdviceLabel": "ナビからのアドバイス",
   "@aiNaviAdviceLabel": {},
   "aiNaviAdviceBadge": "AIアドバイス",
-  "@aiNaviAdviceBadge": {}
+  "@aiNaviAdviceBadge": {},
+
+  "aiSortQuotaFree": "無料 残り {remaining}/{total}回",
+  "@aiSortQuotaFree": {
+    "placeholders": {
+      "remaining": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "aiSortQuotaPremium": "今月 残り {remaining}/{total}回",
+  "@aiSortQuotaPremium": {
+    "placeholders": {
+      "remaining": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "archiveOpenButton": "過去のタスクを見る({count})",
+  "@archiveOpenButton": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "archiveTitle": "過去の完了タスク",
+  "@archiveTitle": {},
+  "archiveEmpty": "過去の完了タスクはありません",
+  "@archiveEmpty": {},
+  "archiveRecentLabel": "過去7日",
+  "@archiveRecentLabel": {},
+
+  "streakMilestoneTitle": "{days}日連続達成!",
+  "@streakMilestoneTitle": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "streakMilestoneBody": "すごい!明日も小さな一歩を積み重ねよう。",
+  "@streakMilestoneBody": {}
 }

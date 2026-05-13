@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../../providers/gamification_provider.dart';
+import '../../providers/secure_storage_provider.dart';
 import '../../theme/yaru_colors.dart';
 import '../../theme/yaru_theme.dart';
 import '../ai_sort_button.dart';
@@ -38,10 +39,12 @@ class HeroAiCard extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
     final statsAsync = ref.watch(userStatsProvider);
+    final quotaAsync = ref.watch(aiSortQuotaProvider);
 
     final mission = _isEmpty ? 0.0 : todayDone / todayTotal;
     final streak = statsAsync.maybeWhen(data: (s) => s.streakDays, orElse: () => 0);
     final level = statsAsync.maybeWhen(data: (s) => s.currentLevel, orElse: () => 1);
+    final quota = quotaAsync.maybeWhen(data: (q) => q, orElse: () => null);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
@@ -57,45 +60,169 @@ class HeroAiCard extends ConsumerWidget {
         child: Stack(
           children: [
             if (isDark) ..._darkMesh(),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _topRow(l10n: l10n, streak: streak, level: level, isDark: isDark),
-                const SizedBox(height: 18),
-                if (_isEmpty)
-                  _emptyRow(l10n: l10n, isDark: isDark)
-                else
-                  _missionRow(
-                    l10n: l10n,
-                    yaru: yaru,
-                    isDark: isDark,
-                    mission: mission,
-                  ),
-                const SizedBox(height: 14),
-                if (!_isEmpty) ...[
-                  _missionBar(yaru: yaru, value: mission, isDark: isDark),
-                  const SizedBox(height: 16),
-                ],
-                if (_isEmpty)
-                  _addTaskCta(
-                    label: l10n.addTask,
-                    onTap: onAddTask,
-                    isDark: isDark,
-                    yaru: yaru,
-                  )
-                else
-                  AiSortButton(
-                    builder: (ctx, isLoading, onTap) => _aiCta(
-                      label: isLoading ? l10n.aiSorting : l10n.aiSortHeroCta,
-                      loading: isLoading,
-                      onTap: onTap,
-                      isDark: isDark,
-                      yaru: yaru,
-                    ),
-                  ),
-              ],
-            ),
+            // iPadなど横長表示では情報密度を上げるため2カラム化
+            LayoutBuilder(builder: (ctx, constraints) {
+              final isWide = constraints.maxWidth > 600;
+              if (isWide) {
+                return _buildWideLayout(
+                  l10n: l10n,
+                  yaru: yaru,
+                  isDark: isDark,
+                  streak: streak,
+                  level: level,
+                  mission: mission,
+                  quota: quota,
+                );
+              }
+              return _buildCompactLayout(
+                l10n: l10n,
+                yaru: yaru,
+                isDark: isDark,
+                streak: streak,
+                level: level,
+                mission: mission,
+                quota: quota,
+              );
+            }),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// iPhone等の縦長表示: 上から topRow / mission(or empty) / bar / CTA を縦並び
+  Widget _buildCompactLayout({
+    required AppLocalizations l10n,
+    required YaruTheme yaru,
+    required bool isDark,
+    required int streak,
+    required int level,
+    required double mission,
+    required ({int remaining, int total, bool isPremium})? quota,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _topRow(l10n: l10n, streak: streak, level: level, isDark: isDark),
+        const SizedBox(height: 18),
+        if (_isEmpty)
+          _emptyRow(l10n: l10n, isDark: isDark)
+        else
+          _missionRow(
+            l10n: l10n,
+            yaru: yaru,
+            isDark: isDark,
+            mission: mission,
+          ),
+        const SizedBox(height: 14),
+        if (!_isEmpty) ...[
+          _missionBar(yaru: yaru, value: mission, isDark: isDark),
+          const SizedBox(height: 16),
+        ],
+        _buildCta(l10n: l10n, yaru: yaru, isDark: isDark, quota: quota),
+      ],
+    );
+  }
+
+  /// iPad等の横長表示: 左に進捗/リング、右にCTA+ピル群を配置
+  Widget _buildWideLayout({
+    required AppLocalizations l10n,
+    required YaruTheme yaru,
+    required bool isDark,
+    required int streak,
+    required int level,
+    required double mission,
+    required ({int remaining, int total, bool isPremium})? quota,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          flex: 3,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _topRow(l10n: l10n, streak: streak, level: level, isDark: isDark),
+              const SizedBox(height: 16),
+              if (_isEmpty)
+                _emptyRow(l10n: l10n, isDark: isDark)
+              else
+                _missionRow(
+                  l10n: l10n,
+                  yaru: yaru,
+                  isDark: isDark,
+                  mission: mission,
+                ),
+              if (!_isEmpty) ...[
+                const SizedBox(height: 12),
+                _missionBar(yaru: yaru, value: mission, isDark: isDark),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(width: 24),
+        Expanded(
+          flex: 2,
+          child: _buildCta(l10n: l10n, yaru: yaru, isDark: isDark, quota: quota),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCta({
+    required AppLocalizations l10n,
+    required YaruTheme yaru,
+    required bool isDark,
+    required ({int remaining, int total, bool isPremium})? quota,
+  }) {
+    if (_isEmpty) {
+      return _addTaskCta(
+        label: l10n.addTask,
+        onTap: onAddTask,
+        isDark: isDark,
+        yaru: yaru,
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AiSortButton(
+          builder: (ctx, isLoading, onTap) => _aiCta(
+            label: isLoading ? l10n.aiSorting : l10n.aiSortHeroCta,
+            loading: isLoading,
+            onTap: onTap,
+            isDark: isDark,
+            yaru: yaru,
+          ),
+        ),
+        if (quota != null) ...[
+          const SizedBox(height: 6),
+          _quotaRow(l10n: l10n, quota: quota, isDark: isDark),
+        ],
+      ],
+    );
+  }
+
+  /// CTA直下の残回数表示。無料/プレミアムで文言切り替え。
+  Widget _quotaRow({
+    required AppLocalizations l10n,
+    required ({int remaining, int total, bool isPremium}) quota,
+    required bool isDark,
+  }) {
+    final label = quota.isPremium
+        ? l10n.aiSortQuotaPremium(quota.remaining, quota.total)
+        : l10n.aiSortQuotaFree(quota.remaining, quota.total);
+    return Center(
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: Colors.white.withValues(alpha: 0.7),
+          fontFeatures: const [FontFeature.tabularFigures()],
+          letterSpacing: 0.2,
         ),
       ),
     );

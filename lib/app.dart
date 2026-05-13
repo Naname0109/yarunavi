@@ -17,6 +17,7 @@ import 'screens/settings_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/store_screen.dart';
 import 'screens/v2/ai_result_screen.dart';
+import 'screens/v2/archive_screen.dart';
 import 'screens/v2/home_shell.dart';
 import 'screens/v2/onboarding_screen.dart';
 import 'screens/v2/premium_screen.dart';
@@ -134,6 +135,14 @@ final _router = GoRouter(
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
         child: const SettingsScreen(),
+        transitionsBuilder: _slideFromRight,
+      ),
+    ),
+    GoRoute(
+      path: '/archive',
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const V2ArchiveScreen(),
         transitionsBuilder: _slideFromRight,
       ),
     ),

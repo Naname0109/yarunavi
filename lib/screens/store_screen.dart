@@ -200,14 +200,20 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
 
   Widget _buildFeatureCard(BuildContext context, AppLocalizations l10n) {
     final theme = Theme.of(context);
+    // 訴求順序: ユーザーが価値を実感しやすい順
+    // 1. 広告非表示 (誰もが嬉しい)
+    // 2. AI整理 月30回 (無料 2 回比 15 倍を明示)
+    // 3. 通知の自動設定 (毎日使う機能)
+    // 4. カレンダー連携
+    // 5-7. 上限解放系
     final features = [
+      (Icons.block, l10n.storeFeatureNoAds),
       (Icons.auto_awesome, l10n.storeFeatureAiUnlimited),
+      (Icons.notifications_active_outlined, l10n.storeFeatureNotification),
+      (Icons.calendar_month_outlined, l10n.storeFeatureCalendar),
       (Icons.task_alt, l10n.storeFeatureTaskUnlimited),
       (Icons.repeat, l10n.storeFeatureRecurringUnlimited),
       (Icons.category_outlined, l10n.storeFeatureCategoryUnlimited),
-      (Icons.calendar_month_outlined, l10n.storeFeatureCalendar),
-      (Icons.notifications_active_outlined, l10n.storeFeatureNotification),
-      (Icons.block, l10n.storeFeatureNoAds),
     ];
 
     return Card(
