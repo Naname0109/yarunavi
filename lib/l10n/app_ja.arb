@@ -1359,5 +1359,21 @@
     }
   },
   "streakMilestoneBody": "すごい!明日も小さな一歩を積み重ねよう。",
-  "@streakMilestoneBody": {}
+  "@streakMilestoneBody": {},
+
+  "taskCompletedOn": "{date}に完了",
+  "@taskCompletedOn": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "calendarLegendDone": "完了",
+  "@calendarLegendDone": {},
+
+  "executionTimingHint": "AIが着手日を提案するときの基準です。「ギリギリ」寄りなら期限近くに、「早めに」寄りなら余裕を持って提案します。",
+  "@executionTimingHint": {},
+  "archiveEmptyHint": "7日より前に完了したタスクがここにたまります",
+  "@archiveEmptyHint": {},
+  "archiveEmptyCta": "ホームに戻る",
+  "@archiveEmptyCta": {}
 }

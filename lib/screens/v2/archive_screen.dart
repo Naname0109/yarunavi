@@ -82,6 +82,27 @@ class V2ArchiveScreen extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 13,
                             color: yaru.inkSecondary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          l10n.archiveEmptyHint,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: yaru.inkTertiary,
+                            height: 1.45,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        FilledButton.icon(
+                          onPressed: () => context.pop(),
+                          icon: const Icon(Icons.home_rounded, size: 18),
+                          label: Text(l10n.archiveEmptyCta),
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 18, vertical: 10),
                           ),
                         ),
                       ],
@@ -102,6 +123,7 @@ class V2ArchiveScreen extends ConsumerWidget {
                       category: t.categoryId != null
                           ? categoryMap[t.categoryId]
                           : null,
+                      mode: V2TaskCardMode.archived,
                       onTap: () {
                         if (t.id != null) context.push('/task/${t.id}');
                       },

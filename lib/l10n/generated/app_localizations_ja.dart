@@ -1860,4 +1860,22 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get streakMilestoneBody => 'すごい!明日も小さな一歩を積み重ねよう。';
+
+  @override
+  String taskCompletedOn(String date) {
+    return '$dateに完了';
+  }
+
+  @override
+  String get calendarLegendDone => '完了';
+
+  @override
+  String get executionTimingHint =>
+      'AIが着手日を提案するときの基準です。「ギリギリ」寄りなら期限近くに、「早めに」寄りなら余裕を持って提案します。';
+
+  @override
+  String get archiveEmptyHint => '7日より前に完了したタスクがここにたまります';
+
+  @override
+  String get archiveEmptyCta => 'ホームに戻る';
 }

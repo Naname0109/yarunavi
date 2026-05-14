@@ -8,6 +8,11 @@ import '../../models/task.dart';
 import '../../theme/yaru_colors.dart';
 import '../../theme/yaru_theme.dart';
 
+/// V2TaskCard の表示モード。
+/// - active: 通常のタスク (priority色バー + 期日テキスト + ⚡)
+/// - archived: 完了済みアーカイブ用 (グレーバー + 完了日 + ✓)
+enum V2TaskCardMode { active, archived }
+
 /// 新デザインのタスクカード（テーマ自動切替）。
 ///
 /// ライト: 白カード + 5px 左バー (優先度色) + 控えめな影 + 1px枠線
@@ -21,6 +26,7 @@ class V2TaskCard extends StatelessWidget {
     this.category,
     this.expanded = false,
     this.note,
+    this.mode = V2TaskCardMode.active,
   });
 
   final Task task;
@@ -34,6 +40,11 @@ class V2TaskCard extends StatelessWidget {
   /// 展開時に表示するAIアドバイス
   final String? note;
 
+  /// active = 通常、 archived = 完了済みアーカイブ専用 (灰色化 + 完了日表示)
+  final V2TaskCardMode mode;
+
+  bool get _isArchivedView => mode == V2TaskCardMode.archived;
+
   @override
   Widget build(BuildContext context) {
     final yaru = context.yaru;
@@ -42,14 +53,21 @@ class V2TaskCard extends StatelessWidget {
     final locale = Localizations.localeOf(context).languageCode;
     final done = task.isCompleted;
 
-    final priorityColor = YaruColors.getPriorityColor(
+    // 完了済みのアーカイブ表示では priority色 ではなく落ち着いたグレーに切替。
+    // 「達成記録」として未完了タスクと視覚的に区別する。
+    final basePriorityColor = YaruColors.getPriorityColor(
       task.priority,
       task.dueDate,
       isDark: isDark,
     );
+    final priorityColor = _isArchivedView
+        ? yaru.calm.withValues(alpha: 0.55)
+        : basePriorityColor;
 
     final barWidth = isDark ? 3.0 : 5.0;
-    final glow = isDark
+    // 完了済み (archived OR done) はネオングローも消す (ライト時の影も別途抑制)
+    final suppressShadow = _isArchivedView || done;
+    final glow = (isDark && !suppressShadow)
         ? [
             BoxShadow(
               color: priorityColor.withValues(alpha: 0.5),
@@ -72,7 +90,8 @@ class V2TaskCard extends StatelessWidget {
             color: yaru.paper,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: yaru.line, width: 1),
-            boxShadow: yaru.cardShadow,
+            // 完了済み/アーカイブカードは「もう動かない記録」感を出すため影を消す
+            boxShadow: suppressShadow ? const [] : yaru.cardShadow,
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(18),
@@ -132,13 +151,15 @@ class V2TaskCard extends StatelessWidget {
                         Row(
                           children: [
                             Icon(
-                              Icons.bolt_rounded,
+                              _isArchivedView
+                                  ? Icons.check_circle_rounded
+                                  : Icons.bolt_rounded,
                               size: 11,
                               color: priorityColor,
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              _formatDue(context, l10n, locale),
+                              _formatDateLabel(context, l10n, locale),
                               style: TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w700,
@@ -184,7 +205,14 @@ class V2TaskCard extends StatelessWidget {
     );
   }
 
-  String _formatDue(BuildContext context, AppLocalizations l10n, String locale) {
+  /// archived モードでは「5月7日 完了」、 active モードでは期日。
+  /// 完了済みでも active モードのときは取り消し線でアクティブセクションに表示。
+  String _formatDateLabel(
+      BuildContext context, AppLocalizations l10n, String locale) {
+    if (_isArchivedView) {
+      final completedAt = task.completedAt ?? task.updatedAt;
+      return l10n.taskCompletedOn(DateFormat.MMMd(locale).format(completedAt));
+    }
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final due = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);

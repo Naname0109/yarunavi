@@ -705,5 +705,17 @@
       "days": { "type": "int" }
     }
   },
-  "streakMilestoneBody": "Awesome — keep stacking small wins."
+  "streakMilestoneBody": "Awesome — keep stacking small wins.",
+
+  "taskCompletedOn": "Done {date}",
+  "@taskCompletedOn": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "calendarLegendDone": "Done",
+
+  "executionTimingHint": "How AI picks the day to start each task. 'Deadline' keeps it close to the due date; 'Early' gives more buffer.",
+  "archiveEmptyHint": "Tasks completed more than 7 days ago show up here",
+  "archiveEmptyCta": "Back to home"
 }

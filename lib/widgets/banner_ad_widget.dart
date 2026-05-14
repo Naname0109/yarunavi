@@ -57,8 +57,11 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
 
     final isPremium = ref.watch(isPremiumProvider);
 
-    // プレミアムユーザーは広告非表示（kDebugModeでも広告テス��可能にする）
-    if (isPremium && !kDebugMode) return const SizedBox.shrink();
+    // プレミアムユーザーは広告非表示 (debug/release問わず)。
+    // ストア画面で「広告非表示」と訴求しているため、 シミュレータ確認時にも
+    // 整合性を保つ。 debug中に広告テストしたい場合は dev mode で premium を
+    // 一時 OFFにする。
+    if (isPremium) return const SizedBox.shrink();
 
     if (!_isLoaded || _bannerAd == null) return const SizedBox.shrink();
 

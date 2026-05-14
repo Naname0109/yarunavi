@@ -600,6 +600,18 @@ class _ExecutionTimingSlider extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 4),
+          // スライダーの目的を1行で説明 (B-4 改善)
+          Padding(
+            padding: const EdgeInsets.only(left: 32, right: 4, top: 2, bottom: 6),
+            child: Text(
+              l10n.executionTimingHint,
+              style: TextStyle(
+                fontSize: 11.5,
+                color: theme.colorScheme.onSurfaceVariant,
+                height: 1.45,
+              ),
+            ),
+          ),
           Center(
             child: Text(
               _getDescription(factor, l10n),

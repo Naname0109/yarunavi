@@ -3625,6 +3625,36 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'すごい!明日も小さな一歩を積み重ねよう。'**
   String get streakMilestoneBody;
+
+  /// No description provided for @taskCompletedOn.
+  ///
+  /// In ja, this message translates to:
+  /// **'{date}に完了'**
+  String taskCompletedOn(String date);
+
+  /// No description provided for @calendarLegendDone.
+  ///
+  /// In ja, this message translates to:
+  /// **'完了'**
+  String get calendarLegendDone;
+
+  /// No description provided for @executionTimingHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIが着手日を提案するときの基準です。「ギリギリ」寄りなら期限近くに、「早めに」寄りなら余裕を持って提案します。'**
+  String get executionTimingHint;
+
+  /// No description provided for @archiveEmptyHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'7日より前に完了したタスクがここにたまります'**
+  String get archiveEmptyHint;
+
+  /// No description provided for @archiveEmptyCta.
+  ///
+  /// In ja, this message translates to:
+  /// **'ホームに戻る'**
+  String get archiveEmptyCta;
 }
 
 class _AppLocalizationsDelegate

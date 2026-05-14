@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../providers/gamification_provider.dart';
 import '../../providers/secure_storage_provider.dart';
+import '../../services/gamification_service.dart';
 import '../../theme/yaru_colors.dart';
 import '../../theme/yaru_theme.dart';
 import '../ai_sort_button.dart';
@@ -44,6 +45,9 @@ class HeroAiCard extends ConsumerWidget {
     final mission = _isEmpty ? 0.0 : todayDone / todayTotal;
     final streak = statsAsync.maybeWhen(data: (s) => s.streakDays, orElse: () => 0);
     final level = statsAsync.maybeWhen(data: (s) => s.currentLevel, orElse: () => 1);
+    final totalXp = statsAsync.maybeWhen(data: (s) => s.totalXp, orElse: () => 0);
+    final xpToNext = GamificationService.xpToNextLevel(totalXp);
+    final levelProgress = GamificationService.levelProgress(totalXp);
     final quota = quotaAsync.maybeWhen(data: (q) => q, orElse: () => null);
 
     return ClipRRect(
@@ -70,6 +74,8 @@ class HeroAiCard extends ConsumerWidget {
                   isDark: isDark,
                   streak: streak,
                   level: level,
+                  xpToNext: xpToNext,
+                  levelProgress: levelProgress,
                   mission: mission,
                   quota: quota,
                 );
@@ -80,6 +86,8 @@ class HeroAiCard extends ConsumerWidget {
                 isDark: isDark,
                 streak: streak,
                 level: level,
+                xpToNext: xpToNext,
+                levelProgress: levelProgress,
                 mission: mission,
                 quota: quota,
               );
@@ -97,13 +105,22 @@ class HeroAiCard extends ConsumerWidget {
     required bool isDark,
     required int streak,
     required int level,
+    required int xpToNext,
+    required double levelProgress,
     required double mission,
     required ({int remaining, int total, bool isPremium})? quota,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _topRow(l10n: l10n, streak: streak, level: level, isDark: isDark),
+        _topRow(
+          l10n: l10n,
+          streak: streak,
+          level: level,
+          xpToNext: xpToNext,
+          levelProgress: levelProgress,
+          isDark: isDark,
+        ),
         const SizedBox(height: 18),
         if (_isEmpty)
           _emptyRow(l10n: l10n, isDark: isDark)
@@ -131,6 +148,8 @@ class HeroAiCard extends ConsumerWidget {
     required bool isDark,
     required int streak,
     required int level,
+    required int xpToNext,
+    required double levelProgress,
     required double mission,
     required ({int remaining, int total, bool isPremium})? quota,
   }) {
@@ -143,7 +162,14 @@ class HeroAiCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _topRow(l10n: l10n, streak: streak, level: level, isDark: isDark),
+              _topRow(
+                l10n: l10n,
+                streak: streak,
+                level: level,
+                xpToNext: xpToNext,
+                levelProgress: levelProgress,
+                isDark: isDark,
+              ),
               const SizedBox(height: 16),
               if (_isEmpty)
                 _emptyRow(l10n: l10n, isDark: isDark)
@@ -318,6 +344,8 @@ class HeroAiCard extends ConsumerWidget {
     required AppLocalizations l10n,
     required int streak,
     required int level,
+    required int xpToNext,
+    required double levelProgress,
     required bool isDark,
   }) {
     return Row(
@@ -341,14 +369,80 @@ class HeroAiCard extends ConsumerWidget {
                 : Colors.white.withValues(alpha: 0.16),
           ),
         const Spacer(),
-        _pill(
-          label: 'Lv.$level',
-          color: isDark ? YaruColors.cyan : Colors.white,
-          bg: isDark
-              ? YaruColors.cyan.withValues(alpha: 0.12)
-              : Colors.white.withValues(alpha: 0.18),
+        // Lv表示 + 次レベルまでのXP (B-8): モチベ持続のため進捗を可視化
+        _levelChip(
+          level: level,
+          xpToNext: xpToNext,
+          progress: levelProgress,
+          isDark: isDark,
         ),
       ],
+    );
+  }
+
+  Widget _levelChip({
+    required int level,
+    required int xpToNext,
+    required double progress,
+    required bool isDark,
+  }) {
+    final accent = isDark ? YaruColors.cyan : Colors.white;
+    final bg = isDark
+        ? YaruColors.cyan.withValues(alpha: 0.12)
+        : Colors.white.withValues(alpha: 0.18);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 4, 10, 5),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(999),
+        border: isDark ? Border.all(color: accent.withValues(alpha: 0.35)) : null,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Lv.$level',
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
+                  color: accent,
+                  letterSpacing: 0.4,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '+$xpToNext',
+                style: TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
+                  color: accent.withValues(alpha: 0.85),
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          // レベル内進捗のミニバー (40px幅)
+          SizedBox(
+            width: 50,
+            height: 3,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(2),
+              child: LinearProgressIndicator(
+                value: progress.clamp(0.0, 1.0),
+                backgroundColor: accent.withValues(alpha: 0.18),
+                valueColor: AlwaysStoppedAnimation(accent),
+                minHeight: 3,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../l10n/generated/app_localizations.dart';
@@ -35,6 +36,25 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
   void initState() {
     super.initState();
     _selectedDay = DateTime.now();
+    // 初回表示時のみ「AIのおすすめ日 / 期限の日」のコーチマークSnackBarを出す。
+    // ?アイコンを廃止する代わりに、 ユーザーが2モードの意味を 1度だけ
+    // 自然に学べるようにする (B-11)。
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final prefs = await SharedPreferences.getInstance();
+      const key = 'calendar_mode_coachmark_shown';
+      if (prefs.getBool(key) == true) return;
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.calendarViewRecommendedTooltip),
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      await prefs.setBool(key, true);
+    });
   }
 
   void goToToday() {
@@ -129,57 +149,31 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
         return Column(
           children: [
             // --- 表示モード切替 (AIのおすすめ日 / 期限の日) ---
+            // ?アイコンを廃止し、 初回コーチマーク + tooltip 長押しで学習させる (B-11)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SegmentedButton<_CalendarViewMode>(
-                      segments: [
-                        ButtonSegment(
-                          value: _CalendarViewMode.recommended,
-                          label: Text(l10n.calendarViewRecommended),
-                          icon: const Icon(Icons.push_pin, size: 16),
-                          tooltip: l10n.calendarViewRecommendedTooltip,
-                        ),
-                        ButtonSegment(
-                          value: _CalendarViewMode.due,
-                          label: Text(l10n.calendarViewDue),
-                          icon: const Icon(Icons.schedule, size: 16),
-                          tooltip: l10n.calendarViewDueTooltip,
-                        ),
-                      ],
-                      selected: {_viewMode},
-                      onSelectionChanged: (set) {
-                        setState(() => _viewMode = set.first);
-                      },
-                      style: SegmentedButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    ),
+              child: SegmentedButton<_CalendarViewMode>(
+                segments: [
+                  ButtonSegment(
+                    value: _CalendarViewMode.recommended,
+                    label: Text(l10n.calendarViewRecommended),
+                    icon: const Icon(Icons.push_pin, size: 16),
+                    tooltip: l10n.calendarViewRecommendedTooltip,
                   ),
-                  // モード説明アイコン: タップで現在モードの解説を表示
-                  IconButton(
-                    icon: const Icon(Icons.help_outline, size: 18),
-                    tooltip: _viewMode == _CalendarViewMode.recommended
-                        ? l10n.calendarViewRecommendedTooltip
-                        : l10n.calendarViewDueTooltip,
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).removeCurrentSnackBar();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            _viewMode == _CalendarViewMode.recommended
-                                ? l10n.calendarViewRecommendedTooltip
-                                : l10n.calendarViewDueTooltip,
-                          ),
-                          duration: const Duration(seconds: 3),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    },
+                  ButtonSegment(
+                    value: _CalendarViewMode.due,
+                    label: Text(l10n.calendarViewDue),
+                    icon: const Icon(Icons.schedule, size: 16),
+                    tooltip: l10n.calendarViewDueTooltip,
                   ),
                 ],
+                selected: {_viewMode},
+                onSelectionChanged: (set) {
+                  setState(() => _viewMode = set.first);
+                },
+                style: SegmentedButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                ),
               ),
             ),
             // --- 月カレンダー ---
@@ -545,7 +539,10 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 }
 
-/// 日付セル下部の priority カラーバー (3px 高さ、横並び)
+/// 日付セル下部の priority カラーバー (3px 高さ、横並び)。
+///
+/// 完了済みタスクは半透明 + 斜線パターンで描画し、 priority=0 (未整理)の
+/// グレーバーと視覚的に区別する。
 class _PriorityBars extends StatelessWidget {
   const _PriorityBars({required this.tasks, required this.isDark});
 
@@ -559,26 +556,27 @@ class _PriorityBars extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: tasks.map((t) {
-          final color = t.priority == 0
+          final isDone = t.isCompleted;
+          final baseColor = t.priority == 0
               ? (isDark ? Colors.grey.shade400 : Colors.grey.shade600)
               : AppColors.getPriorityColor(t.priority, t.dueDate,
                   isDark: isDark);
+          // 完了済み: 落ち着いた calm色に切替 (priorityに関係なく)
+          final color = isDone
+              ? (isDark
+                  ? const Color(0xFF8AA0BC).withValues(alpha: 0.45)
+                  : const Color(0xFFB5C2D5))
+              : baseColor;
           return Expanded(
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 1),
               height: 3,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(1.5),
-                // ダークモードはネオングロー追加
-                boxShadow: isDark
-                    ? [
-                        BoxShadow(
-                          color: color.withValues(alpha: 0.6),
-                          blurRadius: 4,
-                        ),
-                      ]
-                    : null,
+              child: CustomPaint(
+                painter: _BarPainter(
+                  color: color,
+                  glow: isDark && !isDone,
+                  striped: isDone,
+                ),
               ),
             ),
           );
@@ -586,6 +584,54 @@ class _PriorityBars extends StatelessWidget {
       ),
     );
   }
+}
+
+/// priority bar 用 painter。 完了タスクは diagonal stripes で描画。
+class _BarPainter extends CustomPainter {
+  _BarPainter({required this.color, required this.glow, required this.striped});
+
+  final Color color;
+  final bool glow;
+  final bool striped;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final r = const Radius.circular(1.5);
+    final rect = Offset.zero & size;
+    final rrect = RRect.fromRectAndCorners(rect,
+        topLeft: r, topRight: r, bottomLeft: r, bottomRight: r);
+
+    if (glow) {
+      final glowPaint = Paint()
+        ..color = color.withValues(alpha: 0.6)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+      canvas.drawRRect(rrect, glowPaint);
+    }
+
+    if (!striped) {
+      canvas.drawRRect(rrect, Paint()..color = color);
+      return;
+    }
+
+    // 完了タスク: 薄い背景 + diagonal stripes
+    canvas.drawRRect(rrect, Paint()..color = color.withValues(alpha: 0.35));
+    final stripePaint = Paint()
+      ..color = color
+      ..strokeWidth = 0.8;
+    canvas.save();
+    canvas.clipRRect(rrect);
+    final step = 3.0;
+    final h = size.height;
+    final w = size.width;
+    for (double x = -h; x < w + h; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x + h, h), stripePaint);
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_BarPainter old) =>
+      old.color != color || old.glow != glow || old.striped != striped;
 }
 
 /// カレンダー下部の凡例
@@ -614,6 +660,12 @@ class _CalendarLegend extends StatelessWidget {
       (
         l10n.calendarLegendUnsorted,
         isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+      ),
+      (
+        l10n.calendarLegendDone,
+        isDark
+            ? const Color(0xFF8AA0BC).withValues(alpha: 0.6)
+            : const Color(0xFFB5C2D5),
       ),
     ];
 

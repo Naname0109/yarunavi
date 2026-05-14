@@ -1894,4 +1894,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get streakMilestoneBody => 'Awesome — keep stacking small wins.';
+
+  @override
+  String taskCompletedOn(String date) {
+    return 'Done $date';
+  }
+
+  @override
+  String get calendarLegendDone => 'Done';
+
+  @override
+  String get executionTimingHint =>
+      'How AI picks the day to start each task. \'Deadline\' keeps it close to the due date; \'Early\' gives more buffer.';
+
+  @override
+  String get archiveEmptyHint =>
+      'Tasks completed more than 7 days ago show up here';
+
+  @override
+  String get archiveEmptyCta => 'Back to home';
 }

@@ -84,6 +84,9 @@ class GlassBottomNav extends StatelessWidget {
     final active = currentIndex == index;
     final item = items[index];
 
+    // active時は icon上 + label下の縦構成にし、 ラベルを 9pt まで縮めて
+    // 「カレンダー」5文字も省略されないようにする。
+    // 同時に active タブの背景ピル (グラデ) も縦長から丸長方形に。
     final activeBg = isDark
         ? const LinearGradient(
             colors: [Color(0x404DF5FF), Color(0x405B7BFF)],
@@ -95,8 +98,6 @@ class GlassBottomNav extends StatelessWidget {
             ],
           );
 
-    // アクティブ時は icon + label、非アクティブは icon のみで省スペース化
-    // (アクティブもラベル省略可だが、現在地視認性のため表示)
     return Expanded(
       child: Material(
         color: Colors.transparent,
@@ -105,75 +106,86 @@ class GlassBottomNav extends StatelessWidget {
             HapticFeedback.selectionClick();
             onTap(index);
           },
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(16),
           child: Container(
-            height: 42,
+            height: 46,
+            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
             decoration: BoxDecoration(
               gradient: active ? activeBg : null,
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: BorderRadius.circular(16),
               border: active
                   ? Border.all(
                       color: yaru.accent.withValues(alpha: isDark ? 0.4 : 0.25),
                     )
                   : null,
             ),
-            child: active
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(item.icon, size: 19, color: yaru.accent),
-                      const SizedBox(width: 5),
-                      Flexible(
-                        child: Text(
-                          item.label,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w800,
-                            color: yaru.inkPrimary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                : Semantics(
-                    button: true,
-                    label: item.label,
-                    child: Tooltip(
-                      message: item.label,
-                      child: Icon(item.icon, size: 20, color: yaru.inkTertiary),
+            child: Semantics(
+              button: true,
+              label: item.label,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(item.icon,
+                      size: 18,
+                      color: active ? yaru.accent : yaru.inkTertiary),
+                  const SizedBox(height: 2),
+                  Text(
+                    item.label,
+                    overflow: TextOverflow.visible,
+                    maxLines: 1,
+                    softWrap: false,
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
+                      color: active ? yaru.inkPrimary : yaru.inkTertiary,
                     ),
                   ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 
+  /// FAB は ボトムナビbar から 8pt 上方に浮上させて、 主導線として
+  /// 視覚的に分離する (タブと同列に見えないように)。
   Widget _fab(BuildContext context, bool isDark, YaruTheme yaru) {
     final fg = isDark ? YaruColors.bgDark0 : Colors.white;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: SizedBox(
-        width: 50,
-        height: 50,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: isDark ? yaru.neonGradient : yaru.primaryGradient,
-            boxShadow: yaru.fabShadow,
-          ),
-          child: Material(
-            color: Colors.transparent,
-            shape: const CircleBorder(),
-            child: InkWell(
-              customBorder: const CircleBorder(),
-              onTap: () {
-                HapticFeedback.mediumImpact();
-                onAddPressed();
-              },
-              child: Icon(Icons.add_rounded, size: 26, color: fg),
+    return Transform.translate(
+      offset: const Offset(0, -8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        child: SizedBox(
+          width: 54,
+          height: 54,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: isDark ? yaru.neonGradient : yaru.primaryGradient,
+              // 縁取りでバーから "突き出る" 感を強調 (ライト時は白縁、 ダーク時は背景色縁)
+              border: Border.all(
+                color: isDark
+                    ? const Color(0xCC131734)
+                    : Colors.white,
+                width: 3,
+              ),
+              boxShadow: yaru.fabShadow,
+            ),
+            child: Material(
+              color: Colors.transparent,
+              shape: const CircleBorder(),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  onAddPressed();
+                },
+                child: Icon(Icons.add_rounded, size: 26, color: fg),
+              ),
             ),
           ),
         ),

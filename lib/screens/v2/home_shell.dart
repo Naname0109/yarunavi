@@ -426,12 +426,16 @@ class _V2HomeTabState extends ConsumerState<_V2HomeTab> {
               ),
               if (count != null) ...[
                 const SizedBox(width: 6),
+                // 件数 (情報の核) はラベルより重く表示。
+                // ライト時は色を 1.15倍 程度濃くして WCAG AA を確保 (B-7)。
                 Text(
                   '$count',
                   style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: outlined ? yaru.inkPrimary : color,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w900,
+                    color: outlined
+                        ? yaru.inkPrimary
+                        : Color.lerp(color, yaru.inkPrimary, 0.25)!,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
@@ -542,7 +546,9 @@ class _V2HomeTabState extends ConsumerState<_V2HomeTab> {
                   text: ' $dow',
                   style: TextStyle(
                     fontSize: 16,
-                    color: yaru.inkQuaternary,
+                    // 曜日が読めるように 1段濃く (B-13)
+                    color: yaru.inkTertiary,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
