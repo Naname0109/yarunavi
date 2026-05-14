@@ -76,7 +76,8 @@ class V2TaskCard extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(18),
-            child: Row(
+            child: IntrinsicHeight(
+              child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Priority bar (with neon glow in dark)
@@ -175,6 +176,7 @@ class V2TaskCard extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
             ),
           ),
         ),

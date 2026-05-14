@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'app.dart';
+import 'models/task.dart';
 import 'providers/dev_mode_provider.dart';
 import 'providers/purchase_provider.dart';
 import 'providers/secure_storage_provider.dart';
@@ -133,6 +135,53 @@ void main() async {
   // レビューサービス
   final reviewService = ReviewService(secureStorage);
   debugPrint('[INIT] reviewService OK');
+
+  // 開発者用: --dart-define=SEED_TASKS=true でアプリ起動時にテストタスクを 3件投入。
+  // 真っ白バグの再現/原因切り分け用。本番では絶対に有効化しない。
+  const seedTasks = bool.fromEnvironment('SEED_TASKS');
+  if (seedTasks && kDebugMode) {
+    final existing = await dbService.getAllTasks();
+    if (existing.isEmpty) {
+      // SharedPreferencesでオンボもスキップ
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('is_onboarding_completed', true);
+
+      final today = DateTime.now();
+      final dayOnly = DateTime(today.year, today.month, today.day);
+      final tomorrow = dayOnly.add(const Duration(days: 1));
+      final next = dayOnly.add(const Duration(days: 7));
+      final now = DateTime.now();
+
+      await dbService.insertTask(Task(
+        title: 'Sample today',
+        dueDate: dayOnly,
+        priority: 0,
+        importance: 1,
+        sortOrder: 0,
+        createdAt: now,
+        updatedAt: now,
+      ));
+      await dbService.insertTask(Task(
+        title: 'Sample tomorrow',
+        dueDate: tomorrow,
+        priority: 0,
+        importance: 1,
+        sortOrder: 1,
+        createdAt: now,
+        updatedAt: now,
+      ));
+      await dbService.insertTask(Task(
+        title: 'Sample next week',
+        dueDate: next,
+        priority: 0,
+        importance: 1,
+        sortOrder: 2,
+        createdAt: now,
+        updatedAt: now,
+      ));
+      debugPrint('[INIT] seeded 3 sample tasks');
+    }
+  }
 
   debugPrint('[INIT] all done, launching app');
 
