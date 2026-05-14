@@ -435,10 +435,17 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       // モーダルを閉じる（まだ閉じていない場合のみ）
       if (mounted && !dialogDismissed) {
         Navigator.of(context, rootNavigator: true).pop();
+        dialogDismissed = true;
       }
 
+      // ダイアログ pop のアニメーションが完了するまで少し待つ。
+      // これを入れないと pop と直後の push('/ai-result') が同一フレームで
+      // 競合し、 結果画面が出ない/フリーズする場合がある。
+      await Future.delayed(const Duration(milliseconds: 280));
+      if (!mounted) return;
+
       // フォールバック時はSnackbarで通知（API未設定時のみ走るパス）
-      if (response.isFallback && mounted) {
+      if (response.isFallback) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.aiFallbackNotice)),
         );
@@ -446,7 +453,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
 
       if (backgroundMode) {
         ref.read(aiCompleteBannerProvider.notifier).state = true;
-      } else if (mounted) {
+      } else {
         context.push('/ai-result');
       }
     } on AiServiceException catch (e) {
