@@ -62,6 +62,7 @@ class _V2OnboardingScreenState extends State<V2OnboardingScreen> {
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
+                    key: const Key('onboarding_skip'),
                     onPressed: _complete,
                     child: Text(
                       l10n.onboardingSkip,
@@ -130,6 +131,7 @@ class _V2OnboardingScreenState extends State<V2OnboardingScreen> {
           const SizedBox(height: 14),
           if (!isLast)
             NeonButton(
+              key: const Key('onboarding_next'),
               label: l10n.onboardingNext,
               trailingIcon: Icons.chevron_right_rounded,
               height: 52,

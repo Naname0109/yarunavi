@@ -91,12 +91,26 @@ void main() {
     await tester.pumpAndSettle();
 
     // --- Settings: dev mode + premium + test data ---
+    // v1: AppBar の歯車アイコン (`settings_button`)
+    // v2: ボトムナビ「設定」ラベル (useNewUi デフォルト true なので v2 が初期表示)
     for (var i = 0; i < 30; i++) {
       if (find.byKey(const Key('settings_button')).evaluate().isNotEmpty) break;
+      if (find.text('設定').evaluate().isNotEmpty) break;
       await tester.pump(const Duration(milliseconds: 500));
     }
 
-    await tester.tap(find.byKey(const Key('settings_button')));
+    final settingsBtnV1 = find.byKey(const Key('settings_button'));
+    if (settingsBtnV1.evaluate().isNotEmpty) {
+      await tester.tap(settingsBtnV1);
+    } else {
+      // v2: ボトムナビの「設定」(最後の「設定」 = ボトムナビ)
+      final settingsLabels = find.text('設定');
+      if (settingsLabels.evaluate().isNotEmpty) {
+        await tester.tap(settingsLabels.last, warnIfMissed: false);
+      } else {
+        debugPrint('[SS] WARNING: settings entry not found, skip setup');
+      }
+    }
     await tester.pumpAndSettle(const Duration(seconds: 2));
     debugPrint('[SS] Settings opened');
 
@@ -140,6 +154,27 @@ void main() {
       debugPrint('[SS] WARNING: premium: $e');
     }
 
+    // 新UIトグル ON (App Store スクリーンショットは新UIで撮影)
+    try {
+      final newUiToggle = find.byKey(const Key('use_new_ui_toggle'));
+      await tester.scrollUntilVisible(
+        newUiToggle, 200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      final sw = find.descendant(
+        of: newUiToggle,
+        matching: find.byType(Switch),
+      );
+      if (sw.evaluate().isNotEmpty && !tester.widget<Switch>(sw).value) {
+        await tester.tap(newUiToggle);
+        await tester.pumpAndSettle(const Duration(seconds: 1));
+        debugPrint('[SS] New UI ON');
+      }
+    } catch (e) {
+      debugPrint('[SS] WARNING: new UI: $e');
+    }
+
     // Insert test data
     try {
       final testDataBtn = find.byKey(const Key('debug_detailed_data'));
@@ -164,8 +199,18 @@ void main() {
     }
 
     // Back to home
+    // v1: GoRouter.go('/home') で十分。
+    // v2: V2HomeShell の IndexedStack は state を保持するため、
+    //     go('/home') だけでは _index が 3 (設定) のまま残る。
+    //     ボトムナビの「ホーム」を再タップして _index=0 にリセット。
     GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/home');
-    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    final homeTabLabel = find.text('ホーム');
+    if (homeTabLabel.evaluate().isNotEmpty) {
+      await tester.tap(homeTabLabel.last, warnIfMissed: false);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+    }
+    await tester.pumpAndSettle(const Duration(seconds: 1));
     for (var i = 0; i < 20; i++) {
       if (find.byType(Card).evaluate().isNotEmpty) break;
       await tester.pump(const Duration(milliseconds: 500));
@@ -200,8 +245,11 @@ void main() {
     }
 
     // --- Screenshot 2: AI result ---
-    final aiResultTitle = find.textContaining('整理しました');
-    if (aiResultTitle.evaluate().isNotEmpty) {
+    // v1: 「AIが整理しました」 / v2: 「整理完了」 のいずれかが見つかれば結果画面と判定
+    final hasResultScreen =
+        find.textContaining('整理しました').evaluate().isNotEmpty ||
+            find.textContaining('整理完了').evaluate().isNotEmpty;
+    if (hasResultScreen) {
       await takeScreenshot('raw_02_ai_result');
       debugPrint('[SS] raw_02_ai_result');
     } else {
@@ -212,8 +260,14 @@ void main() {
     }
 
     // Go back to home and dismiss any overlays/sheets
+    // v2 では IndexedStack の _index リセットのためボトムナビ「ホーム」も明示タップ
     GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/home');
-    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    final homeTabLabelB = find.text('ホーム');
+    if (homeTabLabelB.evaluate().isNotEmpty) {
+      await tester.tap(homeTabLabelB.last, warnIfMissed: false);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+    }
     await dismissOverlays(tester);
 
     // --- Screenshot 1: Home (clean, no bottom sheet) ---
@@ -249,7 +303,7 @@ void main() {
     debugPrint('[SS] raw_04_ai_comment');
 
     // --- Screenshot 3: Calendar ---
-    // Tap "カレンダー" text in the filter chips
+    // v1: フィルターchip「カレンダー」 / v2: ボトムナビ「カレンダー」
     final calLabel = find.text('カレンダー');
     if (calLabel.evaluate().isNotEmpty) {
       await tester.tap(calLabel.first, warnIfMissed: false);
@@ -263,16 +317,31 @@ void main() {
     debugPrint('[SS] raw_03_calendar');
 
     // --- Screenshot 5: Simple input (task add form) ---
-    // Switch back to todo tab
-    final todoLabel = find.text('やること');
-    if (todoLabel.evaluate().isNotEmpty) {
-      await tester.tap(todoLabel.first, warnIfMissed: false);
+    // ホームタブに戻る (v1=「やること」 / v2=「ホーム」)
+    var homeLabel = find.text('やること');
+    if (homeLabel.evaluate().isEmpty) homeLabel = find.text('ホーム');
+    if (homeLabel.evaluate().isNotEmpty) {
+      await tester.tap(homeLabel.first, warnIfMissed: false);
       await tester.pumpAndSettle(const Duration(seconds: 1));
     }
 
+    // タスク追加ボタン: v1 = FloatingActionButton / v2 = GlassBottomNav 中央+
+    var taskAddTapped = false;
     final fab = find.byType(FloatingActionButton);
     if (fab.evaluate().isNotEmpty) {
       await tester.tap(fab);
+      taskAddTapped = true;
+    } else {
+      // v2: + アイコンを探す (HeroAiCard 内「+タスクを追加」も candid)
+      final addIcons = find.byIcon(Icons.add_rounded);
+      if (addIcons.evaluate().isNotEmpty) {
+        // 最後のアイコン = ボトムナビ中央+FAB (画面下端)
+        await tester.tap(addIcons.last, warnIfMissed: false);
+        taskAddTapped = true;
+      }
+    }
+
+    if (taskAddTapped) {
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       // Enter sample text
