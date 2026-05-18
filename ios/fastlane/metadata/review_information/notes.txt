@@ -1,0 +1,14 @@
+This app uses AI to organize task priorities and suggest optimal execution dates.
+
+No sign-in required. All data is stored locally on the device.
+AI feature requires internet connection (proxied through Cloudflare Worker to Anthropic API).
+
+Free users: 2 lifetime AI sorts + rewarded ad for 1 additional sort per day.
+Premium: 30 AI sorts/month, auto notifications, calendar sync, ad-free.
+
+To test AI sorting:
+1. Add several tasks with different due dates
+2. Tap "AIで整理" (AI Sort) button on home screen
+3. View results with recommended execution dates
+
+Gamification (XP/Level/Streak) is cosmetic only and does not affect app functionality.

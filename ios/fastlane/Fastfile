@@ -91,16 +91,14 @@ platform :ios do
     api = api_key
     ipa_path = flutter_build(api: api, options: options)
 
-    deliver(
+    # Phase 1: ビルド (バイナリ) のみアップロード
+    # メタデータとスクショは Phase 2 で別途送る (No data 回避)
+    upload_to_app_store(
       api_key: api,
       ipa: ipa_path,
-      submit_for_review: false,
-      automatic_release: false,
+      skip_metadata: true,
+      skip_screenshots: true,
       force: true,
-      skip_metadata: false,
-      skip_screenshots: false,
-      metadata_path: "./fastlane/metadata",
-      screenshots_path: "./fastlane/screenshots",
       precheck_include_in_app_purchases: false,
       submission_information: {
         add_id_info_uses_idfa: true,
@@ -109,6 +107,20 @@ platform :ios do
         add_id_info_tracks_install: false,
         export_compliance_uses_encryption: false,
       },
+    )
+
+    # Phase 2: メタデータ + スクショ + 審査情報をアップロード (バイナリなし)
+    deliver(
+      api_key: api,
+      skip_binary_upload: true,
+      skip_metadata: false,
+      skip_screenshots: false,
+      submit_for_review: false,
+      automatic_release: false,
+      metadata_path: "./fastlane/metadata",
+      screenshots_path: "./fastlane/screenshots",
+      force: true,
+      precheck_include_in_app_purchases: false,
     )
 
     UI.success("App Store Connectへのアップロード完了")
