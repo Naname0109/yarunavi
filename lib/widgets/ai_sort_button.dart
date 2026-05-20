@@ -400,30 +400,9 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         unawaited(sound.playSystemSound(SoundEvent.aiSortComplete));
       });
 
-      // ロゴ鼓動演出は v2 UI ではレベルアップ/バッジ獲得演出に置き換えたため削除
-      // (debug_animations_screen と AI sort preview ダイアログでは引き続き利用可)
-
       // 結果をProviderに保存
       ref.read(aiSortResponseProvider.notifier).state = response;
       ref.invalidate(tasksProvider);
-
-      // ゲーミフィケーション: AI整理XP + バッジ + ストリーク
-      // (await せず fire-and-forget。失敗しても AI整理本体のUI遷移を阻害しない)
-      unawaited(
-        ref
-            .read(userStatsProvider.notifier)
-            .recordAiSort(taskCount: incompleteTasks.length)
-            .catchError((Object e, StackTrace st) {
-          debugPrint('[AiSort] gamification 記録失敗: $e');
-        }),
-      );
-
-      // トリガーB: AI整理完了後にレビュー依頼
-      final reviewService = ref.read(reviewServiceProvider);
-      await reviewService.incrementAiSortCount();
-      Future.delayed(const Duration(seconds: 5), () {
-        reviewService.requestReviewIfEligible();
-      });
 
       ref.read(calendarHighlightProvider.notifier).state = true;
       ref.read(aiHistoryBadgeProvider.notifier).state = true;
@@ -432,9 +411,11 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       // (バー Gold 0.3s + バースト 0.5s + チェック 0.5s + ホールド 0.2s = 1.5s)
       await Future.delayed(const Duration(milliseconds: 1500));
 
-      // モーダルを閉じる（まだ閉じていない場合のみ）
+      // モーダルを閉じる。 dialog 系がスタックに残ると後の遷移で詰まるため、
+      // popUntil で PageRoute (ホーム画面) まで一気に戻す。
       if (mounted && !dialogDismissed) {
-        Navigator.of(context, rootNavigator: true).pop();
+        Navigator.of(context, rootNavigator: true)
+            .popUntil((route) => route is PageRoute);
         dialogDismissed = true;
       }
 
@@ -456,6 +437,24 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       } else {
         context.push('/ai-result');
       }
+
+      // ゲーミフィケーション (XP/バッジ/レベルアップ) と レビュー依頼は、
+      // **遷移完了後** に発火する。 LoadingDialog 表示中に LevelUpOverlay や
+      // BadgeUnlockPopup が showDialog でスタックに乗ると、 後続の pop / push
+      // と競合して画面が固まることがあったため。
+      unawaited(
+        ref
+            .read(userStatsProvider.notifier)
+            .recordAiSort(taskCount: incompleteTasks.length)
+            .catchError((Object e, StackTrace st) {
+          debugPrint('[AiSort] gamification 記録失敗: $e');
+        }),
+      );
+      final reviewService = ref.read(reviewServiceProvider);
+      unawaited(reviewService.incrementAiSortCount());
+      Future.delayed(const Duration(seconds: 5), () {
+        reviewService.requestReviewIfEligible();
+      });
     } on AiServiceException catch (e) {
       // エラー時: プログレスバーを赤色フェードアウト + エラーハプティクスパターン
       progressController.setPhase(AiSortPhase.error);
