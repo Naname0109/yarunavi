@@ -120,6 +120,7 @@ platform :ios do
       metadata_path: "./fastlane/metadata",
       screenshots_path: "./fastlane/screenshots",
       force: true,
+      run_precheck_before_submit: false,
       precheck_include_in_app_purchases: false,
     )
 
@@ -150,8 +151,27 @@ platform :ios do
       skip_screenshots: false,
       screenshots_path: "./fastlane/screenshots",
       force: true,
+      overwrite_screenshots: true,
+      run_precheck_before_submit: false,
+      precheck_include_in_app_purchases: false,
     )
     UI.success("スクリーンショットアップロード完了")
+  end
+
+  desc "Upload App Privacy Details (Data Usage)"
+  desc "事前準備: `fastlane spaceauth -u $APPLE_ID` を実行し、"
+  desc "出力された FASTLANE_SESSION を .env.local に追記する。"
+  lane :privacy do
+    unless ENV["APPLE_ID"]
+      UI.user_error!("APPLE_ID 環境変数が必要 (.env.local に設定)")
+    end
+    upload_app_privacy_details_to_app_store(
+      username: ENV["APPLE_ID"],
+      team_id: ENV["TEAM_ID"],
+      app_identifier: ENV["APP_IDENTIFIER"],
+      json_path: "./fastlane/app_privacy_details.json",
+    )
+    UI.success("プライバシー詳細アップロード完了")
   end
 
   desc "Upload metadata only"
