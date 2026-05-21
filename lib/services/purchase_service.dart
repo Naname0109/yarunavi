@@ -26,8 +26,13 @@ class PurchaseService {
 
   ProductDetails? _monthlyProduct;
   ProductDetails? _yearlyProduct;
+  ProductDetails? _aiTicketProduct;
   ProductDetails? get monthlyProduct => _monthlyProduct;
   ProductDetails? get yearlyProduct => _yearlyProduct;
+  ProductDetails? get aiTicketProduct => _aiTicketProduct;
+
+  /// #8: AI 整理チケット購入完了時のコールバック (SecureStorage 更新等)
+  Future<void> Function()? onAiTicketPurchased;
 
   /// 状態変更を通知するコールバック
   VoidCallback? onPremiumChanged;
@@ -58,6 +63,7 @@ class PurchaseService {
     final response = await _iap.queryProductDetails({
       AppConstants.monthlyProductId,
       AppConstants.yearlyProductId,
+      AppConstants.aiTicketProductId,
     });
 
     if (response.notFoundIDs.isNotEmpty) {
@@ -69,6 +75,8 @@ class PurchaseService {
         _monthlyProduct = product;
       } else if (product.id == AppConstants.yearlyProductId) {
         _yearlyProduct = product;
+      } else if (product.id == AppConstants.aiTicketProductId) {
+        _aiTicketProduct = product;
       }
     }
   }
@@ -83,6 +91,18 @@ class PurchaseService {
   Future<bool> purchaseYearly() async {
     if (_yearlyProduct == null) return false;
     return _purchase(_yearlyProduct!);
+  }
+
+  /// #8: AI 整理チケット (消費型) を購入
+  Future<bool> purchaseAiTicket() async {
+    if (_aiTicketProduct == null) return false;
+    final purchaseParam = PurchaseParam(productDetails: _aiTicketProduct!);
+    try {
+      return await _iap.buyConsumable(purchaseParam: purchaseParam);
+    } catch (e) {
+      debugPrint('AI ticket purchase error: $e');
+      return false;
+    }
   }
 
   Future<bool> _purchase(ProductDetails product) async {
@@ -107,11 +127,20 @@ class PurchaseService {
   }
 
   Future<void> _handlePurchase(PurchaseDetails purchase) async {
+    final isTicket = purchase.productID == AppConstants.aiTicketProductId;
+
     if (purchase.status == PurchaseStatus.purchased) {
-      await _setPremium(true);
+      if (isTicket) {
+        await onAiTicketPurchased?.call();
+      } else {
+        await _setPremium(true);
+      }
       onPurchaseEvent?.call(PurchaseEvent.purchased);
     } else if (purchase.status == PurchaseStatus.restored) {
-      await _setPremium(true);
+      if (!isTicket) {
+        // 消費型は restore 対象外
+        await _setPremium(true);
+      }
       onPurchaseEvent?.call(PurchaseEvent.restored);
     } else if (purchase.status == PurchaseStatus.error) {
       debugPrint('Purchase error: ${purchase.error}');

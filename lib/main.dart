@@ -142,6 +142,11 @@ void main() async {
 
   // セキュアストレージ (AI使用回数の永続化用)
   final secureStorage = SecureStorageService();
+  // #8: AI 整理チケット購入時に Keychain を更新
+  purchaseService.onAiTicketPurchased = () async {
+    await secureStorage.recordAiTicketPurchase();
+    debugPrint('[INIT] AI ticket purchased -> SecureStorage updated');
+  };
   try {
     await secureStorage.getInstallDate();
     debugPrint('[INIT] secureStorage OK');

@@ -131,4 +131,48 @@ class SecureStorageService {
       );
     }
   }
+
+  // ====== #8: AI 整理チケット (消費型 IAP) ======
+  // - 累計購入数 (lifetime) で 3 回までの上限を管理
+  // - 残チケット数 (available) を消費していく
+
+  static const String _kAiTicketLifetimeKey = 'ai_ticket_lifetime_purchases';
+  static const String _kAiTicketAvailableKey = 'ai_ticket_available';
+
+  /// これまで購入した累計 (1 ユーザーあたり 3 まで)。
+  Future<int> getAiTicketLifetimePurchases() async {
+    final v = await _storage.read(key: _kAiTicketLifetimeKey);
+    return v == null ? 0 : int.tryParse(v) ?? 0;
+  }
+
+  /// 残っている消費可能なチケット枚数。
+  Future<int> getAiTicketsAvailable() async {
+    final v = await _storage.read(key: _kAiTicketAvailableKey);
+    return v == null ? 0 : int.tryParse(v) ?? 0;
+  }
+
+  /// 購入完了時: lifetime++ / available++
+  Future<void> recordAiTicketPurchase() async {
+    final lifetime = await getAiTicketLifetimePurchases();
+    final available = await getAiTicketsAvailable();
+    await _storage.write(
+      key: _kAiTicketLifetimeKey,
+      value: (lifetime + 1).toString(),
+    );
+    await _storage.write(
+      key: _kAiTicketAvailableKey,
+      value: (available + 1).toString(),
+    );
+  }
+
+  /// AI 整理使用時: available > 0 ならデクリメントして true、 0 なら false。
+  Future<bool> consumeAiTicket() async {
+    final available = await getAiTicketsAvailable();
+    if (available <= 0) return false;
+    await _storage.write(
+      key: _kAiTicketAvailableKey,
+      value: (available - 1).toString(),
+    );
+    return true;
+  }
 }
