@@ -27,12 +27,16 @@ class V2TaskCard extends StatelessWidget {
     this.expanded = false,
     this.note,
     this.mode = V2TaskCardMode.active,
+    this.onUncomplete,
   });
 
   final Task task;
   final model.Category? category;
   final VoidCallback onTap;
   final VoidCallback onToggleComplete;
+
+  /// archived モード時の「未完了に戻す」 callback。 null なら従来の checkbox。
+  final VoidCallback? onUncomplete;
 
   /// 展開状態（AIアドバイスやメタチップを下に出す）
   final bool expanded;
@@ -115,15 +119,25 @@ class V2TaskCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  child: _CheckCircle(
-                    done: done,
-                    color: priorityColor,
-                    isDark: isDark,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      onToggleComplete();
-                    },
-                  ),
+                  child: (_isArchivedView && onUncomplete != null)
+                      ? _UndoChip(
+                          color: priorityColor,
+                          isDark: isDark,
+                          label: l10n.uncompleteTask,
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            onUncomplete!();
+                          },
+                        )
+                      : _CheckCircle(
+                          done: done,
+                          color: priorityColor,
+                          isDark: isDark,
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            onToggleComplete();
+                          },
+                        ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -273,6 +287,62 @@ class _CheckCircle extends StatelessWidget {
                 color: isDark ? YaruColors.bgDark0 : Colors.white,
               )
             : null,
+      ),
+    );
+  }
+}
+
+/// 完了済みカード専用: 「未完了に戻す」 chip (Icons.undo + テキスト)。
+/// チェックボックスの位置に置き換える。
+class _UndoChip extends StatelessWidget {
+  const _UndoChip({
+    required this.color,
+    required this.isDark,
+    required this.label,
+    required this.onTap,
+  });
+
+  final Color color;
+  final bool isDark;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final yaru = context.yaru;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: yaru.paperEmph,
+            border: Border.all(
+              color: color.withValues(alpha: 0.45),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.undo_rounded,
+                  size: 14, color: yaru.inkSecondary),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: yaru.inkSecondary,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

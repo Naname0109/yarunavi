@@ -4,17 +4,28 @@
 Input:  screenshots/raw/raw_*.png, screenshots/ipad/ipad_*.png
 Output: ios/fastlane/screenshots/ja/iPhone 6.7-inch/*.png
         ios/fastlane/screenshots/ja/iPad Pro 12.9-inch/*.png
+
+--dark フラグ: ダーク撮影 (raw_dark/ ipad_dark/) を読み込み、
+出力ファイル名を 06-10_*_dark.png として保存する。
 """
 
+import argparse
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 PROJECT = Path(__file__).parent.parent
-RAW_DIR = PROJECT / "screenshots" / "raw"
-IPAD_DIR = PROJECT / "screenshots" / "ipad"
+ICON_PATH = PROJECT / "ios" / "Runner" / "Assets.xcassets" / "AppIcon.appiconset" / "Icon-App-1024x1024@1x.png"
 IPHONE_OUT = PROJECT / "ios" / "fastlane" / "screenshots" / "ja" / "iPhone 6.7-inch"
 IPAD_OUT = PROJECT / "ios" / "fastlane" / "screenshots" / "ja" / "iPad Pro 12.9-inch"
-ICON_PATH = PROJECT / "ios" / "Runner" / "Assets.xcassets" / "AppIcon.appiconset" / "Icon-App-1024x1024@1x.png"
+
+# light / dark で読み込み元と出力ファイル名 prefix を切り替え
+DARK_OUT_MAP = {
+    "01_home.png": "06_home_dark.png",
+    "02_ai_result.png": "07_ai_result_dark.png",
+    "03_calendar.png": "08_calendar_dark.png",
+    "04_notification.png": "09_notification_dark.png",
+    "05_simple_input.png": "10_simple_input_dark.png",
+}
 
 IPHONE_OUT.mkdir(parents=True, exist_ok=True)
 IPAD_OUT.mkdir(parents=True, exist_ok=True)
@@ -277,10 +288,12 @@ def draw_badge(img, w, scale):
     draw.text((text_x, text_y), badge_text, fill=(10, 30, 80), font=ft)
 
 
-def process(cfg, raw_dir, out_dir, w, h, text_h, pad, corner, title_sz):
-    raw_key = "ipad" if raw_dir == IPAD_DIR else "raw"
+def process(cfg, raw_dir, out_dir, w, h, text_h, pad, corner, title_sz,
+            is_ipad=False, dark=False):
+    raw_key = "ipad" if is_ipad else "raw"
     raw_name = cfg.get(raw_key, cfg["raw"])
     raw_path = raw_dir / raw_name
+    out_name = DARK_OUT_MAP[cfg["out"]] if dark else cfg["out"]
     if not raw_path.exists():
         print(f"  SKIP: {raw_name} not found")
         return
@@ -339,40 +352,56 @@ def process(cfg, raw_dir, out_dir, w, h, text_h, pad, corner, title_sz):
 
     final.paste(rotated, (px, py), rotated)
 
-    out_path = out_dir / cfg["out"]
+    out_path = out_dir / out_name
     final.convert("RGB").save(out_path, "PNG")
     kb = out_path.stat().st_size / 1024
-    print(f"  {cfg['out']} ({w}x{h}, {kb:.0f}KB)")
+    print(f"  {out_name} ({w}x{h}, {kb:.0f}KB)")
 
 
 def main():
-    print("=== iPhone 6.7-inch (1290x2796) ===")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dark", action="store_true",
+                    help="ダーク撮影 (raw_dark/, ipad_dark/) を 06-10_*_dark.png として出力")
+    args = ap.parse_args()
+
+    suffix = "_dark" if args.dark else "_light"
+    raw_dir = PROJECT / "screenshots" / f"raw{suffix}"
+    ipad_dir = PROJECT / "screenshots" / f"ipad{suffix}"
+    # 後方互換: raw_light/ が無ければ raw/ にフォールバック
+    if not args.dark and not (raw_dir / "raw_01_home.png").exists():
+        raw_dir = PROJECT / "screenshots" / "raw"
+    if not args.dark and not (ipad_dir / "ipad_01_home.png").exists():
+        ipad_dir = PROJECT / "screenshots" / "ipad"
+
+    label = "Dark" if args.dark else "Light"
+    print(f"=== iPhone 6.7-inch (1290x2796) [{label}] ===")
     for c in CONFIGS:
-        process(c, RAW_DIR, IPHONE_OUT, IP_W, IP_H, IP_TEXT_H, IP_PAD,
-                IP_CORNER, IP_TITLE_SZ)
+        process(c, raw_dir, IPHONE_OUT, IP_W, IP_H, IP_TEXT_H, IP_PAD,
+                IP_CORNER, IP_TITLE_SZ, is_ipad=False, dark=args.dark)
 
-    # IAP review (no overlay)
-    iap_src = RAW_DIR / "raw_iap.png"
-    iap_dst = IPHONE_OUT / "iap_review.png"
-    if iap_src.exists():
-        img = Image.open(iap_src).resize((IP_W, IP_H), Image.LANCZOS)
-        img.save(iap_dst, "PNG")
-        kb = iap_dst.stat().st_size / 1024
-        print(f"  iap_review.png ({IP_W}x{IP_H}, {kb:.0f}KB)")
+    # IAP review (no overlay) は light 撮影のみ生成
+    if not args.dark:
+        iap_src = raw_dir / "raw_iap.png"
+        iap_dst = IPHONE_OUT / "iap_review.png"
+        if iap_src.exists():
+            img = Image.open(iap_src).resize((IP_W, IP_H), Image.LANCZOS)
+            img.save(iap_dst, "PNG")
+            kb = iap_dst.stat().st_size / 1024
+            print(f"  iap_review.png ({IP_W}x{IP_H}, {kb:.0f}KB)")
 
-    print("\n=== iPad Pro 12.9-inch (2048x2732) ===")
+    print(f"\n=== iPad Pro 12.9-inch (2048x2732) [{label}] ===")
     for c in CONFIGS:
-        process(c, IPAD_DIR, IPAD_OUT, PD_W, PD_H, PD_TEXT_H, PD_PAD,
-                PD_CORNER, PD_TITLE_SZ)
+        process(c, ipad_dir, IPAD_OUT, PD_W, PD_H, PD_TEXT_H, PD_PAD,
+                PD_CORNER, PD_TITLE_SZ, is_ipad=True, dark=args.dark)
 
-    # iPad IAP
-    iap_src = IPAD_DIR / "ipad_iap.png"
-    iap_dst = IPAD_OUT / "iap_review.png"
-    if iap_src.exists():
-        img = Image.open(iap_src).resize((PD_W, PD_H), Image.LANCZOS)
-        img.save(iap_dst, "PNG")
-        kb = iap_dst.stat().st_size / 1024
-        print(f"  iap_review.png ({PD_W}x{PD_H}, {kb:.0f}KB)")
+    if not args.dark:
+        iap_src = ipad_dir / "ipad_iap.png"
+        iap_dst = IPAD_OUT / "iap_review.png"
+        if iap_src.exists():
+            img = Image.open(iap_src).resize((PD_W, PD_H), Image.LANCZOS)
+            img.save(iap_dst, "PNG")
+            kb = iap_dst.stat().st_size / 1024
+            print(f"  iap_review.png ({PD_W}x{PD_H}, {kb:.0f}KB)")
 
     print("\nDone.")
     print(f"iPhone: {IPHONE_OUT}")

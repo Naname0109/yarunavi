@@ -1878,4 +1878,37 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get archiveEmptyCta => 'ホームに戻る';
+
+  @override
+  String get uncompleteTask => '未完了に戻す';
+
+  @override
+  String get taskUncompletedSnack => 'タスクを未完了に戻しました';
+
+  @override
+  String get undo => '取り消し';
+
+  @override
+  String get deleteHistory => '履歴を削除';
+
+  @override
+  String get deleteHistoryConfirmTitle => 'この履歴を削除しますか?';
+
+  @override
+  String get deleteHistoryConfirmBody => '選択した完了済みタスクを削除します。 この操作は取り消せません。';
+
+  @override
+  String get deleteAllHistoryConfirmTitle => '完了済みタスクをすべて削除しますか?';
+
+  @override
+  String get deleteAllHistoryConfirmBody =>
+      '完了済みタスクの履歴をすべて削除します。 この操作は取り消せません。';
+
+  @override
+  String get deleteAllAction => 'すべて削除';
+
+  @override
+  String historyDeletedSnack(int count) {
+    return '$count件の履歴を削除しました';
+  }
 }

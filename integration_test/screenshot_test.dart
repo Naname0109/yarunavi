@@ -3,7 +3,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:yarunavi/main.dart' as app;
+import 'package:yarunavi/providers/settings_provider.dart';
+import 'package:yarunavi/providers/task_provider.dart';
+import 'package:yarunavi/services/ai_service.dart';
+import 'package:yarunavi/widgets/ai_sort_button.dart';
+import 'package:yarunavi/widgets/v2/task_card.dart';
+
+// 撮影時にダーク版を撮るかを dart-define で受け取る (--dart-define=THEME_MODE=dark)
+const _envThemeMode = String.fromEnvironment('THEME_MODE');
+const _isDarkShot = _envThemeMode == 'dark';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -113,6 +124,24 @@ void main() {
     }
     await tester.pumpAndSettle(const Duration(seconds: 2));
     debugPrint('[SS] Settings opened');
+
+    // Dark テーマ切り替え (--dart-define=THEME_MODE=dark のとき)
+    // ProviderContainer 直接操作: UI tap よりも確実。
+    debugPrint('[SS] THEME_MODE=$_envThemeMode (dark=$_isDarkShot)');
+    if (_isDarkShot) {
+      try {
+        final ctx = tester.element(find.byType(MaterialApp));
+        final container = ProviderScope.containerOf(ctx);
+        container
+            .read(themeModeProvider.notifier)
+            .setThemeMode(ThemeMode.dark);
+        await tester.pumpAndSettle(const Duration(seconds: 1));
+        final actual = container.read(themeModeProvider);
+        debugPrint('[SS] Dark theme applied (themeMode=$actual)');
+      } catch (e) {
+        debugPrint('[SS] WARNING: dark theme switch: $e');
+      }
+    }
 
     // Dev mode (7 taps)
     final appInfoTile = find.byKey(const Key('app_info_tile'));
@@ -245,19 +274,62 @@ void main() {
     }
 
     // --- Screenshot 2: AI result ---
-    // v1: 「AIが整理しました」 / v2: 「整理完了」 のいずれかが見つかれば結果画面と判定
+    // AI 整理 API call が dart-define で API key 渡されていないと空応答になり、
+    // /ai-result が「整理するタスクがありません」 placeholder で固定される。
+    // → ProviderContainer 直接操作でダミー response を仕込んでから push する。
+    {
+      final ctx = tester.element(find.byType(MaterialApp));
+      final container = ProviderScope.containerOf(ctx);
+      final current = container.read(aiSortResponseProvider);
+      if (current == null || current.tasks.isEmpty) {
+        final allTasksAsync = container.read(tasksProvider);
+        final allTasks = allTasksAsync.valueOrNull ?? const [];
+        final pickable = allTasks
+            .where((t) => t.id != null && t.completedAt == null)
+            .take(8)
+            .toList();
+        final comments = [
+          '締切が近く、 影響範囲が広いので最優先',
+          '短時間で片付くため早めに着手',
+          '関係者依存。 先に連絡だけ済ませる',
+          'まとまった集中時間が必要',
+          '体力に余裕のあるうちに',
+          '同カテゴリでまとめて処理',
+          '今週中に終われば OK',
+          '余裕があれば前倒し',
+        ];
+        final dummyTasks = <AiSortResult>[];
+        for (var i = 0; i < pickable.length; i++) {
+          dummyTasks.add(AiSortResult(
+            taskId: pickable[i].id!,
+            priority: (i ~/ 2 + 1).clamp(1, 4),
+            commentJa: comments[i % comments.length],
+            commentEn: 'AI suggested ordering for this task',
+          ));
+        }
+        container.read(aiSortResponseProvider.notifier).state = AiSortResponse(
+          summaryJa: '今日の最優先 3件から着手し、 集中力が必要なものは午前中に。',
+          summaryEn: 'Start with the 3 highest priorities; tackle deep-focus work in the morning.',
+          tasks: dummyTasks,
+        );
+        debugPrint('[SS] aiSortResponse injected (${dummyTasks.length} tasks)');
+      }
+    }
     final hasResultScreen =
         find.textContaining('整理しました').evaluate().isNotEmpty ||
             find.textContaining('整理完了').evaluate().isNotEmpty;
-    if (hasResultScreen) {
-      await takeScreenshot('raw_02_ai_result');
-      debugPrint('[SS] raw_02_ai_result');
-    } else {
+    if (!hasResultScreen) {
       GoRouter.of(tester.element(find.byType(Scaffold).first)).push('/ai-result');
       await tester.pumpAndSettle(const Duration(seconds: 2));
-      await takeScreenshot('raw_02_ai_result');
-      debugPrint('[SS] raw_02_ai_result (pushed)');
     }
+    // hero オーブ + sparkle badge + 統計バー + AIコメント の登場アニメーションを
+    // 完全に流し切ってからベストフレームを撮るため、 settle 後に追加で 1.6秒 wait。
+    for (var i = 0; i < 16; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await tester.pumpAndSettle();
+    await takeScreenshot('raw_02_ai_result');
+    debugPrint('[SS] raw_02_ai_result');
 
     // Go back to home and dismiss any overlays/sheets
     // v2 では IndexedStack の _index リセットのためボトムナビ「ホーム」も明示タップ
@@ -271,8 +343,9 @@ void main() {
     await dismissOverlays(tester);
 
     // --- Screenshot 1: Home (clean, no bottom sheet) ---
-    for (var i = 0; i < 10; i++) {
-      if (find.byType(Card).evaluate().isNotEmpty) break;
+    // V2 では Card ではなく V2TaskCard (Material+InkWell) なので InkWell 出現を待つ。
+    for (var i = 0; i < 20; i++) {
+      if (find.byType(InkWell).evaluate().isNotEmpty) break;
       await tester.pump(const Duration(milliseconds: 500));
     }
     await tester.pumpAndSettle();
@@ -280,27 +353,30 @@ void main() {
     await takeScreenshot('raw_01_home');
     debugPrint('[SS] raw_01_home');
 
-    // --- Screenshot 4: Task detail (expand card to show AI comment) ---
-    bool taskExpanded = false;
-    // Try tapping the expand chevron on a card
-    final expandIcons = find.byIcon(Icons.expand_more);
-    if (expandIcons.evaluate().isNotEmpty) {
-      await tester.tap(expandIcons.first);
-      await tester.pumpAndSettle(const Duration(seconds: 1));
-      taskExpanded = true;
-      debugPrint('[SS] Task expanded via chevron');
-    } else {
-      // Fallback: tap any Card
-      final cards = find.byType(Card);
-      if (cards.evaluate().isNotEmpty) {
-        await tester.tap(cards.first);
-        await tester.pumpAndSettle(const Duration(seconds: 1));
-        taskExpanded = true;
-        debugPrint('[SS] Task tapped');
-      }
+    // --- Screenshot 4: Task detail (V2TaskCard tap -> detail screen) ---
+    // V2TaskCard を直接 type 一致で取得。 SliverList 内でも widget tree から
+    // 見つかるので確実。
+    final v2Cards = find.byType(V2TaskCard);
+    final cardCount = v2Cards.evaluate().length;
+    debugPrint('[SS] V2TaskCard count=$cardCount');
+    if (cardCount > 0) {
+      await tester.tap(v2Cards.first, warnIfMissed: false);
+      // task detail 画面の遷移アニメーション + AI コメント表示
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      debugPrint('[SS] V2TaskCard tapped');
     }
     await takeScreenshot('raw_04_ai_comment');
     debugPrint('[SS] raw_04_ai_comment');
+
+    // 詳細画面から戻る (以降の Calendar 撮影のため)
+    final backBtn = find.byTooltip('戻る');
+    if (backBtn.evaluate().isNotEmpty) {
+      await tester.tap(backBtn.first, warnIfMissed: false);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+    } else {
+      GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/home');
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+    }
 
     // --- Screenshot 3: Calendar ---
     // v1: フィルターchip「カレンダー」 / v2: ボトムナビ「カレンダー」

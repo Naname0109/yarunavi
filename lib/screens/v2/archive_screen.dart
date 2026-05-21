@@ -118,18 +118,72 @@ class V2ArchiveScreen extends ConsumerWidget {
                   final t = older[i];
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10),
-                    child: V2TaskCard(
-                      task: t,
-                      category: t.categoryId != null
-                          ? categoryMap[t.categoryId]
-                          : null,
-                      mode: V2TaskCardMode.archived,
-                      onTap: () {
-                        if (t.id != null) context.push('/task/${t.id}');
+                    child: Dismissible(
+                      key: ValueKey(
+                          'archive-${t.id ?? t.title}-${t.completedAt}'),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 20),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .error
+                              .withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .error
+                                .withValues(alpha: 0.45),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.delete_outline_rounded,
+                          color: Theme.of(context).colorScheme.error,
+                          size: 22,
+                        ),
+                      ),
+                      confirmDismiss: (_) => _confirmDeleteOne(context, l10n),
+                      onDismissed: (_) async {
+                        if (t.id != null) {
+                          await ref
+                              .read(tasksProvider.notifier)
+                              .deleteTask(t.id!);
+                        }
                       },
-                      onToggleComplete: () {
-                        ref.read(tasksProvider.notifier).completeTask(t);
-                      },
+                      child: V2TaskCard(
+                        task: t,
+                        category: t.categoryId != null
+                            ? categoryMap[t.categoryId]
+                            : null,
+                        mode: V2TaskCardMode.archived,
+                        onTap: () {
+                          if (t.id != null) context.push('/task/${t.id}');
+                        },
+                        onToggleComplete: () {},
+                        onUncomplete: () async {
+                          await ref
+                              .read(tasksProvider.notifier)
+                              .uncompleteTask(t);
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).clearSnackBars();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(l10n.taskUncompletedSnack),
+                              action: SnackBarAction(
+                                label: l10n.undo,
+                                onPressed: () {
+                                  ref
+                                      .read(tasksProvider.notifier)
+                                      .completeTask(t);
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   );
                 },
@@ -139,5 +193,30 @@ class V2ArchiveScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<bool> _confirmDeleteOne(
+      BuildContext context, AppLocalizations l10n) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.deleteHistoryConfirmTitle),
+        content: Text(l10n.deleteHistoryConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton.tonal(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(
+              foregroundColor: Theme.of(ctx).colorScheme.error,
+            ),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
   }
 }

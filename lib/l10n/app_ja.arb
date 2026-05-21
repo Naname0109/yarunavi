@@ -1375,5 +1375,30 @@
   "archiveEmptyHint": "7日より前に完了したタスクがここにたまります",
   "@archiveEmptyHint": {},
   "archiveEmptyCta": "ホームに戻る",
-  "@archiveEmptyCta": {}
+  "@archiveEmptyCta": {},
+
+  "uncompleteTask": "未完了に戻す",
+  "@uncompleteTask": {},
+  "taskUncompletedSnack": "タスクを未完了に戻しました",
+  "@taskUncompletedSnack": {},
+  "undo": "取り消し",
+  "@undo": {},
+  "deleteHistory": "履歴を削除",
+  "@deleteHistory": {},
+  "deleteHistoryConfirmTitle": "この履歴を削除しますか?",
+  "@deleteHistoryConfirmTitle": {},
+  "deleteHistoryConfirmBody": "選択した完了済みタスクを削除します。 この操作は取り消せません。",
+  "@deleteHistoryConfirmBody": {},
+  "deleteAllHistoryConfirmTitle": "完了済みタスクをすべて削除しますか?",
+  "@deleteAllHistoryConfirmTitle": {},
+  "deleteAllHistoryConfirmBody": "完了済みタスクの履歴をすべて削除します。 この操作は取り消せません。",
+  "@deleteAllHistoryConfirmBody": {},
+  "deleteAllAction": "すべて削除",
+  "@deleteAllAction": {},
+  "historyDeletedSnack": "{count}件の履歴を削除しました",
+  "@historyDeletedSnack": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
 }

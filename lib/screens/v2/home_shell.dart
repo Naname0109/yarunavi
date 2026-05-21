@@ -741,6 +741,21 @@ class _CompletedSectionState extends ConsumerState<_CompletedSection> {
                     color: yaru.line,
                   ),
                 ),
+                // 履歴一括削除 (オーバーフロー回避のため省スペース)
+                InkWell(
+                  onTap: () => _confirmDeleteAllHistory(context, l10n),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 4),
+                    child: Icon(
+                      Icons.delete_sweep_rounded,
+                      size: 16,
+                      color: yaru.inkTertiary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
                 Icon(
                   _expanded
                       ? Icons.expand_less_rounded
@@ -760,18 +775,7 @@ class _CompletedSectionState extends ConsumerState<_CompletedSection> {
               for (final t in preview)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: V2TaskCard(
-                    task: t,
-                    category: t.categoryId != null
-                        ? widget.categoryMap[t.categoryId]
-                        : null,
-                    onTap: () {
-                      if (t.id != null) context.push('/task/${t.id}');
-                    },
-                    onToggleComplete: () {
-                      ref.read(tasksProvider.notifier).completeTask(t);
-                    },
-                  ),
+                  child: _completedRow(context, l10n, t),
                 ),
               if (olderCount > 0) ...[
                 const SizedBox(height: 4),
@@ -796,6 +800,127 @@ class _CompletedSectionState extends ConsumerState<_CompletedSection> {
         ),
         const SizedBox(height: 18),
       ],
+    );
+  }
+
+  /// 完了済みカード 1行: Dismissible (左スワイプで個別削除) +
+  /// V2TaskCard (archived モード, onUncomplete)。
+  Widget _completedRow(
+    BuildContext context,
+    AppLocalizations l10n,
+    Task t,
+  ) {
+    final yaru = context.yaru;
+    return Dismissible(
+      key: ValueKey('completed-${t.id ?? t.title}-${t.completedAt}'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          color: yaru.urgent.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: yaru.urgent.withValues(alpha: 0.45)),
+        ),
+        child: Icon(Icons.delete_outline_rounded,
+            color: yaru.urgent, size: 22),
+      ),
+      confirmDismiss: (_) async {
+        return _confirmDeleteOne(context, l10n);
+      },
+      onDismissed: (_) async {
+        if (t.id != null) {
+          await ref.read(tasksProvider.notifier).deleteTask(t.id!);
+        }
+      },
+      child: V2TaskCard(
+        task: t,
+        category:
+            t.categoryId != null ? widget.categoryMap[t.categoryId] : null,
+        mode: V2TaskCardMode.archived,
+        onTap: () {
+          if (t.id != null) context.push('/task/${t.id}');
+        },
+        onToggleComplete: () {},
+        onUncomplete: () => _uncompleteWithSnack(context, l10n, t),
+      ),
+    );
+  }
+
+  Future<void> _uncompleteWithSnack(
+    BuildContext context,
+    AppLocalizations l10n,
+    Task t,
+  ) async {
+    await ref.read(tasksProvider.notifier).uncompleteTask(t);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.taskUncompletedSnack),
+        action: SnackBarAction(
+          label: l10n.undo,
+          onPressed: () {
+            ref.read(tasksProvider.notifier).completeTask(t);
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _confirmDeleteOne(
+      BuildContext context, AppLocalizations l10n) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.deleteHistoryConfirmTitle),
+        content: Text(l10n.deleteHistoryConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton.tonal(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(
+              foregroundColor: Theme.of(ctx).colorScheme.error,
+            ),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
+  Future<void> _confirmDeleteAllHistory(
+      BuildContext context, AppLocalizations l10n) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.deleteAllHistoryConfirmTitle),
+        content: Text(l10n.deleteAllHistoryConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton.tonal(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(
+              foregroundColor: Theme.of(ctx).colorScheme.error,
+            ),
+            child: Text(l10n.deleteAllAction),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !context.mounted) return;
+    final count =
+        await ref.read(tasksProvider.notifier).deleteAllCompletedHistory();
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.historyDeletedSnack(count))),
     );
   }
 }

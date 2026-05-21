@@ -3655,6 +3655,66 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'ホームに戻る'**
   String get archiveEmptyCta;
+
+  /// No description provided for @uncompleteTask.
+  ///
+  /// In ja, this message translates to:
+  /// **'未完了に戻す'**
+  String get uncompleteTask;
+
+  /// No description provided for @taskUncompletedSnack.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクを未完了に戻しました'**
+  String get taskUncompletedSnack;
+
+  /// No description provided for @undo.
+  ///
+  /// In ja, this message translates to:
+  /// **'取り消し'**
+  String get undo;
+
+  /// No description provided for @deleteHistory.
+  ///
+  /// In ja, this message translates to:
+  /// **'履歴を削除'**
+  String get deleteHistory;
+
+  /// No description provided for @deleteHistoryConfirmTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'この履歴を削除しますか?'**
+  String get deleteHistoryConfirmTitle;
+
+  /// No description provided for @deleteHistoryConfirmBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'選択した完了済みタスクを削除します。 この操作は取り消せません。'**
+  String get deleteHistoryConfirmBody;
+
+  /// No description provided for @deleteAllHistoryConfirmTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'完了済みタスクをすべて削除しますか?'**
+  String get deleteAllHistoryConfirmTitle;
+
+  /// No description provided for @deleteAllHistoryConfirmBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'完了済みタスクの履歴をすべて削除します。 この操作は取り消せません。'**
+  String get deleteAllHistoryConfirmBody;
+
+  /// No description provided for @deleteAllAction.
+  ///
+  /// In ja, this message translates to:
+  /// **'すべて削除'**
+  String get deleteAllAction;
+
+  /// No description provided for @historyDeletedSnack.
+  ///
+  /// In ja, this message translates to:
+  /// **'{count}件の履歴を削除しました'**
+  String historyDeletedSnack(int count);
 }
 
 class _AppLocalizationsDelegate

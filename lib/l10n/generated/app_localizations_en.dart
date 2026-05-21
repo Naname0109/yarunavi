@@ -1913,4 +1913,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get archiveEmptyCta => 'Back to home';
+
+  @override
+  String get uncompleteTask => 'Mark active';
+
+  @override
+  String get taskUncompletedSnack => 'Task moved back to active';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get deleteHistory => 'Clear history';
+
+  @override
+  String get deleteHistoryConfirmTitle => 'Delete this entry?';
+
+  @override
+  String get deleteHistoryConfirmBody =>
+      'The selected completed task will be removed. This cannot be undone.';
+
+  @override
+  String get deleteAllHistoryConfirmTitle => 'Clear all completed history?';
+
+  @override
+  String get deleteAllHistoryConfirmBody =>
+      'All completed task history will be removed. This cannot be undone.';
+
+  @override
+  String get deleteAllAction => 'Delete all';
+
+  @override
+  String historyDeletedSnack(int count) {
+    return '$count entries deleted';
+  }
 }

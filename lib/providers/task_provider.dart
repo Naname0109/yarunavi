@@ -194,6 +194,37 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
     ref.invalidateSelf();
   }
 
+  /// 完了済みタスクを未完了に戻す。 XP は減算せず、 通知だけ再スケジュール。
+  /// 「未完了に戻す」ボタン専用 (toggle ではない)。
+  Future<void> uncompleteTask(Task task) async {
+    if (!task.isCompleted) return;
+    final now = DateTime.now();
+    final updated = task.copyWith(
+      isCompleted: false,
+      completedAt: null,
+      updatedAt: now,
+    );
+    await _db.updateTask(updated);
+    if (task.id != null) {
+      await _notify.scheduleTaskNotifications(updated, isPremium: _isPremium);
+    }
+    ref.invalidateSelf();
+  }
+
+  /// 完了済みタスクをすべて物理削除 (履歴の一括削除)。 削除件数を返す。
+  Future<int> deleteAllCompletedHistory() async {
+    final completed =
+        (await _db.getAllTasks()).where((t) => t.isCompleted).toList();
+    for (final t in completed) {
+      if (t.id != null) {
+        await _notify.cancelTaskNotifications(t.id!);
+      }
+    }
+    final count = await _db.deleteAllCompletedTasks();
+    ref.invalidateSelf();
+    return count;
+  }
+
   /// タスクを完了する。定期タスクなら次回タスクを自動生成して返す。
   Future<Task?> completeTask(Task task) async {
     if (task.recurrenceType != null) {

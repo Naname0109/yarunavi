@@ -33,6 +33,22 @@ bool get _isMobile =>
     (defaultTargetPlatform == TargetPlatform.android ||
         defaultTargetPlatform == TargetPlatform.iOS);
 
+// スクショ撮影時に強制テーマを指定するための env override (--dart-define=THEME_MODE=dark)
+const _forcedThemeMode = String.fromEnvironment('THEME_MODE');
+
+ThemeMode _resolveThemeMode(ThemeMode fallback) {
+  switch (_forcedThemeMode) {
+    case 'dark':
+      return ThemeMode.dark;
+    case 'light':
+      return ThemeMode.light;
+    default:
+      return fallback;
+  }
+}
+
+bool get _shouldDebugTheme => _forcedThemeMode.isNotEmpty;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -195,7 +211,16 @@ void main() async {
         secureStorageServiceProvider.overrideWithValue(secureStorage),
         reviewServiceProvider.overrideWithValue(reviewService),
         initialLocaleProvider.overrideWithValue(settings.locale),
-        initialThemeModeProvider.overrideWithValue(settings.themeMode),
+        initialThemeModeProvider.overrideWithValue(
+          () {
+            final resolved = _resolveThemeMode(settings.themeMode);
+            if (_shouldDebugTheme) {
+              debugPrint('[INIT] _forcedThemeMode="$_forcedThemeMode" '
+                  'fallback=${settings.themeMode} -> $resolved');
+            }
+            return resolved;
+          }(),
+        ),
         initialExecutionTimingProvider
             .overrideWithValue(settings.executionTiming),
         initialSoundEnabledProvider.overrideWithValue(settings.soundEnabled),

@@ -426,6 +426,11 @@ class DatabaseService {
     return db.delete('tasks', where: 'id = ?', whereArgs: [id]);
   }
 
+  /// 完了済みタスクをすべて物理削除 (履歴の一括削除用)。 削除件数を返す。
+  Future<int> deleteAllCompletedTasks() async {
+    return db.delete('tasks', where: 'is_completed = 1');
+  }
+
   Future<Task?> getTaskById(int id) async {
     final maps = await db.query('tasks', where: 'id = ?', whereArgs: [id]);
     if (maps.isEmpty) return null;

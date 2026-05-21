@@ -717,5 +717,16 @@
 
   "executionTimingHint": "How AI picks the day to start each task. 'Deadline' keeps it close to the due date; 'Early' gives more buffer.",
   "archiveEmptyHint": "Tasks completed more than 7 days ago show up here",
-  "archiveEmptyCta": "Back to home"
+  "archiveEmptyCta": "Back to home",
+
+  "uncompleteTask": "Mark active",
+  "taskUncompletedSnack": "Task moved back to active",
+  "undo": "Undo",
+  "deleteHistory": "Clear history",
+  "deleteHistoryConfirmTitle": "Delete this entry?",
+  "deleteHistoryConfirmBody": "The selected completed task will be removed. This cannot be undone.",
+  "deleteAllHistoryConfirmTitle": "Clear all completed history?",
+  "deleteAllHistoryConfirmBody": "All completed task history will be removed. This cannot be undone.",
+  "deleteAllAction": "Delete all",
+  "historyDeletedSnack": "{count} entries deleted"
 }

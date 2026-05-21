@@ -190,12 +190,15 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     // ローディングモーダル表示
     bool backgroundMode = false;
     bool dialogDismissed = false;
-    if (mounted) {
-      _showLoadingModal(l10n, progressController, () {
-        backgroundMode = true;
-        dialogDismissed = true;
-      });
-    }
+    if (!mounted) return;
+    // 非同期処理中に State の context が無効化 (mounted=false) されても遷移が
+    // 走るよう、 root navigator と go_router 参照を最初に capture しておく。
+    final rootNavigator = Navigator.of(context, rootNavigator: true);
+    final goRouter = GoRouter.of(context);
+    _showLoadingModal(l10n, progressController, () {
+      backgroundMode = true;
+      dialogDismissed = true;
+    });
 
     // 送信開始 → 0%→5%へ (500ms)
     progressController.setPhase(AiSortPhase.sending);
@@ -382,6 +385,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
 
       // 90% → 100% (DB保存完了、500ms)
       progressController.setPhase(AiSortPhase.finalizing);
+      debugPrint('[AI-FLOW] finalizing → 550ms hold');
       await Future.delayed(const Duration(milliseconds: 550));
 
       // 100%到達 → 完了演出
@@ -391,6 +395,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       //   t=350ms   チェックマーク登場 (500ms elasticOut) + lightImpact + サウンド
       //   t=350ms以降 余韻 → 1500ms 後に画面遷移
       progressController.setPhase(AiSortPhase.complete);
+      debugPrint('[AI-FLOW] setPhase(complete)');
 
       // 視覚に同期したハプティクス + サウンド
       final sound = ref.read(soundServiceProvider);
@@ -409,24 +414,29 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
 
       // 演出の余韻を保ってから遷移
       // (バー Gold 0.3s + バースト 0.5s + チェック 0.5s + ホールド 0.2s = 1.5s)
+      debugPrint('[AI-FLOW] 演出開始 → 1500ms hold');
       await Future.delayed(const Duration(milliseconds: 1500));
+      debugPrint('[AI-FLOW] 演出完了 (mounted=$mounted dismissed=$dialogDismissed)');
 
-      // モーダルを閉じる。 dialog 系がスタックに残ると後の遷移で詰まるため、
-      // popUntil で PageRoute (ホーム画面) まで一気に戻す。
-      if (mounted && !dialogDismissed) {
-        Navigator.of(context, rootNavigator: true)
-            .popUntil((route) => route is PageRoute);
+      // モーダルを閉じる。 release で State が unmount される race を避け、
+      // 起動時に capture した rootNavigator を直接呼ぶ (mounted 不要)。
+      if (!dialogDismissed) {
+        try {
+          rootNavigator.popUntil((route) => route is PageRoute);
+        } catch (e) {
+          debugPrint('[AI-FLOW] popUntil exception: $e');
+        }
         dialogDismissed = true;
+        debugPrint('[AI-FLOW] ダイアログ閉じ');
       }
 
       // ダイアログ pop のアニメーションが完了するまで少し待つ。
       // これを入れないと pop と直後の push('/ai-result') が同一フレームで
       // 競合し、 結果画面が出ない/フリーズする場合がある。
-      await Future.delayed(const Duration(milliseconds: 280));
-      if (!mounted) return;
+      await Future.delayed(const Duration(milliseconds: 300));
 
       // フォールバック時はSnackbarで通知（API未設定時のみ走るパス）
-      if (response.isFallback) {
+      if (response.isFallback && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.aiFallbackNotice)),
         );
@@ -434,8 +444,12 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
 
       if (backgroundMode) {
         ref.read(aiCompleteBannerProvider.notifier).state = true;
+        debugPrint('[AI-FLOW] backgroundMode banner shown');
       } else {
-        context.push('/ai-result');
+        // capture した goRouter を使用 (mounted=false でも遷移可能)
+        debugPrint('[AI-FLOW] 結果画面遷移');
+        goRouter.push('/ai-result');
+        debugPrint('[AI-FLOW] push 完了');
       }
 
       // ゲーミフィケーション (XP/バッジ/レベルアップ) と レビュー依頼は、
