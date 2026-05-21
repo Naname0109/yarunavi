@@ -294,7 +294,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addToCalendar => 'カレンダーに追加';
 
   @override
-  String get calendarPermissionDenied => 'カレンダーへのアクセスが許可されていません';
+  String get calendarPermissionDenied => 'カレンダーへのアクセスを許可してください';
 
   @override
   String get calendarAddFailed => 'カレンダーへの追加に失敗しました';
@@ -2405,4 +2405,14 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get viewDetails => '詳細';
+
+  @override
+  String taskCardExpandedSemantics(String title) {
+    return '$title、展開中。 タップで折りたたみます';
+  }
+
+  @override
+  String taskCardCollapsedSemantics(String title) {
+    return '$title、折りたたみ。 タップで展開します';
+  }
 }

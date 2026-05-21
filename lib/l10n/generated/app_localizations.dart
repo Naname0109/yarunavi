@@ -635,7 +635,7 @@ abstract class AppLocalizations {
   /// No description provided for @calendarPermissionDenied.
   ///
   /// In ja, this message translates to:
-  /// **'カレンダーへのアクセスが許可されていません'**
+  /// **'カレンダーへのアクセスを許可してください'**
   String get calendarPermissionDenied;
 
   /// No description provided for @calendarAddFailed.
@@ -4352,25 +4352,25 @@ abstract class AppLocalizations {
   /// **'実行日を更新しました'**
   String get executionDayUpdated;
 
-  /// No description provided for @aiResultChangeDate.
+  /// AI結果画面で実行日を編集する「変更」 リンクのラベル
   ///
   /// In ja, this message translates to:
   /// **'変更'**
   String get aiResultChangeDate;
 
-  /// No description provided for @calendarSectionTasks.
+  /// カレンダー画面のタスクセクション見出し
   ///
   /// In ja, this message translates to:
   /// **'タスク'**
   String get calendarSectionTasks;
 
-  /// No description provided for @calendarSectionEvents.
+  /// カレンダー画面の予定セクション見出し
   ///
   /// In ja, this message translates to:
   /// **'予定'**
   String get calendarSectionEvents;
 
-  /// No description provided for @eventDeleted.
+  /// 予定削除後のスナックバー (Undo付き)
   ///
   /// In ja, this message translates to:
   /// **'予定を削除しました'**
@@ -4382,7 +4382,7 @@ abstract class AppLocalizations {
   /// **'{count}件の予定を取り込みました'**
   String calendarSyncDone(int count);
 
-  /// No description provided for @calendarSyncFailed.
+  /// device_calendar 同期失敗時のスナックバー
   ///
   /// In ja, this message translates to:
   /// **'カレンダーの取り込みに失敗しました'**
@@ -4472,13 +4472,13 @@ abstract class AppLocalizations {
   /// **'カレンダーから取り込む'**
   String get fabSyncCalendar;
 
-  /// No description provided for @avoidEventDaysToggle.
+  /// 設定: 予定がある日を避けるトグルのラベル
   ///
   /// In ja, this message translates to:
   /// **'予定がある日のタスク割り当て'**
   String get avoidEventDaysToggle;
 
-  /// No description provided for @avoidEventDaysDesc.
+  /// 設定: 予定がある日を避けるトグルの説明文
   ///
   /// In ja, this message translates to:
   /// **'予定がある日にはタスクを入れない (AI 整理に反映)'**
@@ -4646,19 +4646,19 @@ abstract class AppLocalizations {
   /// **'残り {remaining}/{max} 回利用可能'**
   String aiRewardedRemaining(int remaining, int max);
 
-  /// No description provided for @aiRewardedExhausted.
+  /// AI購入シート: 動画リワードの上限到達時の説明
   ///
   /// In ja, this message translates to:
   /// **'動画での回復は上限に達しました'**
   String get aiRewardedExhausted;
 
-  /// No description provided for @aiPremiumRequiredNote.
+  /// AI購入シート: 動画もチケットも枯渇時のプレミアム案内文
   ///
   /// In ja, this message translates to:
   /// **'AI 整理を継続するにはプレミアムプランへの登録が必要です'**
   String get aiPremiumRequiredNote;
 
-  /// No description provided for @aiSortQuotaVip.
+  /// Hero AI Card: VIP 解放中の残数表示 (無制限)
   ///
   /// In ja, this message translates to:
   /// **'VIP 無制限'**
@@ -4670,11 +4670,23 @@ abstract class AppLocalizations {
   /// **'残り {remaining}回'**
   String aiSortQuotaFreeShort(int remaining);
 
-  /// No description provided for @viewDetails.
+  /// タスクカードの詳細表示リンクのラベル
   ///
   /// In ja, this message translates to:
   /// **'詳細'**
   String get viewDetails;
+
+  /// 展開中タスクカードの VoiceOver 用ラベル
+  ///
+  /// In ja, this message translates to:
+  /// **'{title}、展開中。 タップで折りたたみます'**
+  String taskCardExpandedSemantics(String title);
+
+  /// 折りたたみ中タスクカードの VoiceOver 用ラベル
+  ///
+  /// In ja, this message translates to:
+  /// **'{title}、折りたたみ。 タップで展開します'**
+  String taskCardCollapsedSemantics(String title);
 }
 
 class _AppLocalizationsDelegate

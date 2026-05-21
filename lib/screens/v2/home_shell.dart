@@ -224,6 +224,10 @@ class _V2HomeTabState extends ConsumerState<_V2HomeTab> {
   final _keyThisWeek = GlobalKey();
   final _keyLater = GlobalKey();
 
+  /// 同時に展開できるカードを 1 つに制限 (#101 Gmail 風)。
+  /// null = どれも展開していない。 同じ ID を再タップで折りたたむ。
+  int? _expandedTaskId;
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -707,6 +711,13 @@ class _V2HomeTabState extends ConsumerState<_V2HomeTab> {
                 task: t,
                 category:
                     t.categoryId != null ? categoryMap[t.categoryId] : null,
+                isExpanded: _expandedTaskId == t.id,
+                onToggleExpand: () {
+                  setState(() {
+                    _expandedTaskId =
+                        _expandedTaskId == t.id ? null : t.id;
+                  });
+                },
                 onComplete: () {
                   ref.read(tasksProvider.notifier).completeTask(t);
                 },

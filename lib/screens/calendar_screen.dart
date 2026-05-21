@@ -34,6 +34,9 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
   DateTime? _selectedDay;
   _CalendarViewMode _viewMode = _CalendarViewMode.recommended;
 
+  /// 同時展開を 1 カードに制限 (#101 Gmail 風)。 null = 全カード閉じ。
+  int? _expandedTaskId;
+
   @override
   void initState() {
     super.initState();
@@ -469,6 +472,13 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
         child: ExpandableV2TaskCard(
           task: task,
           category: category,
+          isExpanded: _expandedTaskId == task.id,
+          onToggleExpand: () {
+            setState(() {
+              _expandedTaskId =
+                  _expandedTaskId == task.id ? null : task.id;
+            });
+          },
           onComplete: onComplete,
         ),
       );

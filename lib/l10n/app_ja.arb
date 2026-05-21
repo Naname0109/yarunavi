@@ -1701,13 +1701,21 @@
   "executionDayUpdated": "実行日を更新しました",
   "@executionDayUpdated": {},
   "aiResultChangeDate": "変更",
-  "@aiResultChangeDate": {},
+  "@aiResultChangeDate": {
+    "description": "AI結果画面で実行日を編集する「変更」 リンクのラベル"
+  },
   "calendarSectionTasks": "タスク",
-  "@calendarSectionTasks": {},
+  "@calendarSectionTasks": {
+    "description": "カレンダー画面のタスクセクション見出し"
+  },
   "calendarSectionEvents": "予定",
-  "@calendarSectionEvents": {},
+  "@calendarSectionEvents": {
+    "description": "カレンダー画面の予定セクション見出し"
+  },
   "eventDeleted": "予定を削除しました",
-  "@eventDeleted": {},
+  "@eventDeleted": {
+    "description": "予定削除後のスナックバー (Undo付き)"
+  },
   "calendarSyncDone": "{count}件の予定を取り込みました",
   "@calendarSyncDone": {
     "placeholders": {
@@ -1715,9 +1723,9 @@
     }
   },
   "calendarSyncFailed": "カレンダーの取り込みに失敗しました",
-  "@calendarSyncFailed": {},
-  "calendarPermissionDenied": "カレンダーへのアクセスが許可されていません",
-  "@calendarPermissionDenied": {},
+  "@calendarSyncFailed": {
+    "description": "device_calendar 同期失敗時のスナックバー"
+  },
 
   "eventAdd": "予定を追加",
   "@eventAdd": {},
@@ -1750,9 +1758,13 @@
   "save": "保存",
   "@save": {},
   "avoidEventDaysToggle": "予定がある日のタスク割り当て",
-  "@avoidEventDaysToggle": {},
+  "@avoidEventDaysToggle": {
+    "description": "設定: 予定がある日を避けるトグルのラベル"
+  },
   "avoidEventDaysDesc": "予定がある日にはタスクを入れない (AI 整理に反映)",
-  "@avoidEventDaysDesc": {},
+  "@avoidEventDaysDesc": {
+    "description": "設定: 予定がある日を避けるトグルの説明文"
+  },
 
   "tipsHeader": "Tips",
   "@tipsHeader": {},
@@ -1819,11 +1831,17 @@
     }
   },
   "aiRewardedExhausted": "動画での回復は上限に達しました",
-  "@aiRewardedExhausted": {},
+  "@aiRewardedExhausted": {
+    "description": "AI購入シート: 動画リワードの上限到達時の説明"
+  },
   "aiPremiumRequiredNote": "AI 整理を継続するにはプレミアムプランへの登録が必要です",
-  "@aiPremiumRequiredNote": {},
+  "@aiPremiumRequiredNote": {
+    "description": "AI購入シート: 動画もチケットも枯渇時のプレミアム案内文"
+  },
   "aiSortQuotaVip": "VIP 無制限",
-  "@aiSortQuotaVip": {},
+  "@aiSortQuotaVip": {
+    "description": "Hero AI Card: VIP 解放中の残数表示 (無制限)"
+  },
   "aiSortQuotaFreeShort": "残り {remaining}回",
   "@aiSortQuotaFreeShort": {
     "placeholders": {
@@ -1831,5 +1849,21 @@
     }
   },
   "viewDetails": "詳細",
-  "@viewDetails": {}
+  "@viewDetails": {
+    "description": "タスクカードの詳細表示リンクのラベル"
+  },
+  "taskCardExpandedSemantics": "{title}、展開中。 タップで折りたたみます",
+  "@taskCardExpandedSemantics": {
+    "description": "展開中タスクカードの VoiceOver 用ラベル",
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "taskCardCollapsedSemantics": "{title}、折りたたみ。 タップで展開します",
+  "@taskCardCollapsedSemantics": {
+    "description": "折りたたみ中タスクカードの VoiceOver 用ラベル",
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  }
 }

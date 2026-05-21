@@ -889,7 +889,6 @@
   "eventDeleted": "Event deleted",
   "calendarSyncDone": "Imported {count} events",
   "calendarSyncFailed": "Calendar import failed",
-  "calendarPermissionDenied": "Calendar access not granted",
 
   "eventAdd": "Add event",
   "eventEdit": "Edit event",
@@ -940,5 +939,7 @@
   "aiPremiumRequiredNote": "Upgrade to Premium to keep using AI sort",
   "aiSortQuotaVip": "VIP Unlimited",
   "aiSortQuotaFreeShort": "{remaining} left",
-  "viewDetails": "Details"
+  "viewDetails": "Details",
+  "taskCardExpandedSemantics": "{title}, expanded. Tap to collapse.",
+  "taskCardCollapsedSemantics": "{title}, collapsed. Tap to expand."
 }
