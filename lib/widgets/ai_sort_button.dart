@@ -435,6 +435,8 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       // rec==due / rec==null が残る可能性に備える。 ここで blocked_dates 回避も
       // 含めて最終調整し、 確実に rec < due になることを保証する。
       // 手動指定された taskId はそのまま (skipManualDateIds で守る)。
+      // 注意: `due` には時刻が含まれることがあるため、 比較・減算は dueNorm
+      // (時刻 0:00 正規化) を使う。
       final blockedDateSet =
           (await db.getBlockedDates()).map((d) => d.toIso8601String().substring(0, 10)).toSet();
       final safetyKeys = finalUpdates.keys.toList(growable: false);
@@ -446,20 +448,24 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         final task = taskMatch.first;
         final rec = update.recommendedDate;
         final due = task.dueDate;
+        final dueNorm = DateTime(due.year, due.month, due.day);
 
         bool needsFix = false;
         if (rec == null) {
           needsFix = true;
           if (kDebugMode) debugPrint('[SAFETY] ${task.title}: rec is NULL');
-        } else if (rec.year == due.year &&
-            rec.month == due.month &&
-            rec.day == due.day) {
-          needsFix = true;
-          if (kDebugMode) debugPrint('[SAFETY] ${task.title}: rec == due ($rec)');
+        } else {
+          final recNorm = DateTime(rec.year, rec.month, rec.day);
+          if (recNorm == dueNorm) {
+            needsFix = true;
+            if (kDebugMode) {
+              debugPrint('[SAFETY] ${task.title}: rec == due ($recNorm)');
+            }
+          }
         }
         if (!needsFix) continue;
 
-        final daysLeft = due.difference(today2).inDays;
+        final daysLeft = dueNorm.difference(today2).inDays;
         int daysBack;
         if (daysLeft <= 0) {
           daysBack = 0;
@@ -474,7 +480,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         } else {
           daysBack = 7;
         }
-        var newRec = due.subtract(Duration(days: daysBack));
+        var newRec = dueNorm.subtract(Duration(days: daysBack));
         if (newRec.isBefore(today2)) newRec = today2;
         // blocked_dates 回避 (最大 30 日まで遡って空き日を探す)
         var retry = 30;
@@ -495,7 +501,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         );
         if (kDebugMode) {
           debugPrint(
-              '[SAFETY] ${task.title}: FIXED rec=$newRec (due=$due, daysLeft=$daysLeft)');
+              '[SAFETY] ${task.title}: FIXED rec=$newRec (dueNorm=$dueNorm, daysLeft=$daysLeft)');
         }
       }
       // ========== END SAFETY NET ==========

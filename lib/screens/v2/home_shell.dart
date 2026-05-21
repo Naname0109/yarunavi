@@ -190,7 +190,7 @@ class _V2HomeShellState extends ConsumerState<V2HomeShell> {
           index: _index,
           children: [
             const _V2HomeTab(),
-            const V2CalendarScreen(),
+            V2CalendarScreen(isActive: _index == 1),
             // IndexedStack は全タブを mount するため、 統計タブの
             // 初回チュートリアルがホームタブ上で表示されてしまわないよう
             // isActive を渡す。
@@ -937,6 +937,7 @@ class _CompletedSectionState extends ConsumerState<_CompletedSection> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(l10n.taskUncompletedSnack),
+        duration: const Duration(seconds: 4),
         action: SnackBarAction(
           label: l10n.undo,
           onPressed: () {

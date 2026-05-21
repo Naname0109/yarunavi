@@ -56,9 +56,10 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
   Widget build(BuildContext context) {
     final yaru = context.yaru;
     final l10n = AppLocalizations.of(context)!;
-    final tasksAsync = ref.watch(tasksProvider);
+    // #4: 完了済みタスクも含めて検索するため allTasksProvider を watch する。
+    final allTasksAsync = ref.watch(allTasksProvider);
 
-    return tasksAsync.when(
+    return allTasksAsync.when(
       loading: () => Scaffold(
         backgroundColor: yaru.scaffoldBg,
         body: const Center(child: CircularProgressIndicator()),
@@ -68,15 +69,23 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
         body: Center(child: Text('$e')),
       ),
       data: (tasks) {
-        final task = tasks.firstWhere(
-          (t) => t.id == widget.taskId,
-          orElse: () => Task(
-            title: 'Unknown',
-            dueDate: DateTime.now(),
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          ),
-        );
+        Task? task;
+        for (final t in tasks) {
+          if (t.id == widget.taskId) {
+            task = t;
+            break;
+          }
+        }
+        if (task == null) {
+          // タスクが見つからない (削除されたなど): ホームに戻る
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) context.pop();
+          });
+          return Scaffold(
+            backgroundColor: yaru.scaffoldBg,
+            body: const SizedBox.shrink(),
+          );
+        }
         return Scaffold(
           backgroundColor: yaru.scaffoldBg,
           body: SafeArea(
@@ -137,20 +146,37 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+                      // #4: 完了済みなら「未完了に戻す」、 未完了なら「完了にする」
                       child: NeonButton(
                         label: task.isCompleted
-                            ? l10n.completed
+                            ? l10n.uncompleteTask
                             : l10n.taskCompleteAction,
-                        icon: Icons.check_rounded,
+                        icon: task.isCompleted
+                            ? Icons.undo_rounded
+                            : Icons.check_rounded,
                         height: 54,
-                        onPressed: task.isCompleted
-                            ? null
-                            : () async {
-                                await ref
-                                    .read(tasksProvider.notifier)
-                                    .completeTask(task);
-                                if (context.mounted) context.pop();
-                              },
+                        onPressed: () async {
+                          if (task!.isCompleted) {
+                            await ref
+                                .read(tasksProvider.notifier)
+                                .uncompleteTask(task);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).clearSnackBars();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(l10n.taskUncompletedSnack),
+                                  duration: const Duration(seconds: 4),
+                                ),
+                              );
+                              context.pop();
+                            }
+                          } else {
+                            await ref
+                                .read(tasksProvider.notifier)
+                                .completeTask(task);
+                            if (context.mounted) context.pop();
+                          }
+                        },
                       ),
                     ),
                   ),
@@ -314,11 +340,20 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
   }
 
   Widget _countdownCard(YaruTheme yaru, AppLocalizations l10n, Task task) {
+    // #4: 完了済みタスクではカウントダウンを「完了済み」 + 完了日に切り替え
+    final isCompleted = task.isCompleted;
     final diff = task.dueDate.difference(_now);
-    final overdue = diff.isNegative;
+    final overdue = !isCompleted && diff.isNegative;
     final remaining = diff.abs();
-    final countdownText = _formatCountdown(remaining, overdue, l10n);
-    final accent = overdue ? yaru.urgent : yaru.flame;
+    final locale = Localizations.localeOf(context).languageCode;
+    final countdownText = isCompleted
+        ? l10n.completed
+        : _formatCountdown(remaining, overdue, l10n);
+    final accent = isCompleted
+        ? yaru.calm
+        : overdue
+            ? yaru.urgent
+            : yaru.flame;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
@@ -360,7 +395,11 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      overdue ? l10n.labelOverdue : l10n.taskDetailCountdown,
+                      isCompleted
+                          ? l10n.completed
+                          : (overdue
+                              ? l10n.labelOverdue
+                              : l10n.taskDetailCountdown),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
@@ -374,7 +413,7 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
                 Text(
                   countdownText,
                   style: TextStyle(
-                    fontSize: 32,
+                    fontSize: isCompleted ? 24 : 32,
                     fontWeight: FontWeight.w800,
                     color: yaru.inkPrimary,
                     height: 1.1,
@@ -383,8 +422,11 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  app_date.formatDateWithWeekday(task.dueDate,
-                      Localizations.localeOf(context).languageCode),
+                  isCompleted && task.completedAt != null
+                      ? l10n.taskCompletedOn(
+                          app_date.formatDateWithWeekday(
+                              task.completedAt!, locale))
+                      : app_date.formatDateWithWeekday(task.dueDate, locale),
                   style: TextStyle(
                     fontSize: 11,
                     color: yaru.inkTertiary,

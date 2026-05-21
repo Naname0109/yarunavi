@@ -1439,38 +1439,38 @@ class AppLocalizationsJa extends AppLocalizations {
   String get statsHelpTooltip => '仕組みの説明';
 
   @override
-  String get gamificationHelpTitle => 'やるナビの仕組み';
+  String get gamificationHelpTitle => 'やるナビの実績システム';
 
   @override
-  String get gamificationHelpSubtitle => '使うほど報われる、シンプルなレベルシステム';
+  String get gamificationHelpSubtitle => 'タスクをこなすほど成長する、あなただけの実績記録です。';
 
   @override
-  String get gamificationHelpXpTitle => 'XPでレベルアップ';
+  String get gamificationHelpXpTitle => 'XP（経験値）';
 
   @override
   String get gamificationHelpXpBody =>
-      '完了で +10 XP、AI整理で +5 XP、今日の全完了でさらに +25 XP。';
+      'タスク完了で +10 XP、AI 整理で +5 XP を獲得。全タスク完了ボーナスは +25 XP。';
 
   @override
-  String get gamificationHelpStreakTitle => 'ストリーク (連続日数)';
+  String get gamificationHelpStreakTitle => 'ストリーク';
 
   @override
   String get gamificationHelpStreakBody =>
-      '1日1回でも操作すると連続日数が伸びます。3・7・14・30日でボーナスXPとバッジを獲得。';
+      'アプリを開くだけで連続日数がカウントされます。3日・7日・14日・30日でボーナス XP とバッジを獲得。';
 
   @override
-  String get gamificationHelpLevelTitle => '8段階のレベル';
+  String get gamificationHelpLevelTitle => 'レベル';
 
   @override
   String get gamificationHelpLevelBody =>
-      'Lv.1 はじめてのナビ → Lv.5 AIの右腕 → Lv.8 伝説のプランナーまで。Lv.9以降も継続可能。';
+      'Lv.1 から最大 Lv.100 まで。レベルが上がるたびに称号が変化。最高レベルを目指しましょう！';
 
   @override
-  String get gamificationHelpBadgeTitle => '11個のバッジ';
+  String get gamificationHelpBadgeTitle => 'バッジ';
 
   @override
   String get gamificationHelpBadgeBody =>
-      '初タスク完了、累計10/50/100件、AI初体験、ストリーク達成、レベル到達などで獲得。';
+      '全 41 種類のバッジを用意。条件が公開されているものと、秘密の隠しバッジがあります。どんな条件で獲得できるかはお楽しみ！';
 
   @override
   String statsNextLevelHint(int xp, int level) {
@@ -2432,6 +2432,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get fabSyncCalendar => 'カレンダーから取り込む';
 
   @override
+  String get calendarSyncShort => '取込';
+
+  @override
   String get blockedDatesPickerHint =>
       'タスクを入れない日付をタップして選択し、「保存」 で反映します。 過去の日付は自動的に削除されます。';
 
@@ -2534,7 +2537,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tip13Title => 'Tips: 最高レベル';
 
   @override
-  String get tip13 => 'レベルは 100 まで。 最高レベルに到達するには約 10 年かかります。';
+  String get tip13 => 'レベルは最大 100 まで。 レベルが上がるたびに新しい称号が解放されます。';
 
   @override
   String get tip14Title => 'Tips: シークレット';

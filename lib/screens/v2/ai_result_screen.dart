@@ -542,28 +542,12 @@ class V2AiResultScreen extends ConsumerWidget {
     );
   }
 
-  /// 「この順番で進める」: AI整理結果の最優先タスク詳細へ遷移。
-  /// 該当タスクが無ければホームへフォールバック。
-  /// 「次の一手」へ即着手できる導線にすることで整理→実行の摩擦を減らす。
+  /// 「この順番で進める」: ホーム画面に戻る (#2)。
+  /// 旧仕様では最優先タスクの詳細画面まで自動 push していたが、
+  /// ユーザーが整理結果を眺める前に詳細画面に飛ばされて困惑するため、
+  /// ホーム画面の「今日」 セクションを見せるだけに変更。
   void _startWithTopTask(BuildContext context, WidgetRef ref) {
-    final response = ref.read(aiSortResponseProvider);
-    final tasks = response?.tasks ?? const [];
-    if (tasks.isEmpty) {
-      context.go('/home');
-      return;
-    }
-    // priority 昇順(1=最優先) + taskId 昇順で並べて先頭を最優先と扱う
-    final sorted = [...tasks]
-      ..sort((a, b) {
-        final p = a.priority.compareTo(b.priority);
-        return p != 0 ? p : a.taskId.compareTo(b.taskId);
-      });
-    final top = sorted.first;
-    // ホームを下層に置いてから詳細へ push (戻るボタンでホームに戻る)
     context.go('/home');
-    Future.delayed(const Duration(milliseconds: 250), () {
-      if (context.mounted) context.push('/task/${top.taskId}');
-    });
   }
 
   String _now() {

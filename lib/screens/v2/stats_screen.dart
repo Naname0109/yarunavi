@@ -349,17 +349,46 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  _helpRow(yaru, '⚡', l10n.gamificationHelpXpTitle,
-                      l10n.gamificationHelpXpBody),
+                  // #9: Material Icons + 改訂テキスト (絵文字は使わない)
+                  _helpRow(
+                    yaru,
+                    Icons.bolt_rounded,
+                    Theme.of(ctx).colorScheme.primary,
+                    l10n.gamificationHelpXpTitle,
+                    l10n.gamificationHelpXpBody,
+                  ),
                   const SizedBox(height: 14),
-                  _helpRow(yaru, '🔥', l10n.gamificationHelpStreakTitle,
-                      l10n.gamificationHelpStreakBody),
+                  _helpRow(
+                    yaru,
+                    Icons.local_fire_department_rounded,
+                    Colors.amber.shade700,
+                    l10n.gamificationHelpStreakTitle,
+                    l10n.gamificationHelpStreakBody,
+                  ),
                   const SizedBox(height: 14),
-                  _helpRow(yaru, '🏆', l10n.gamificationHelpLevelTitle,
-                      l10n.gamificationHelpLevelBody),
+                  _helpRow(
+                    yaru,
+                    Icons.star_rounded,
+                    Theme.of(ctx).colorScheme.primary,
+                    l10n.gamificationHelpLevelTitle,
+                    l10n.gamificationHelpLevelBody,
+                  ),
                   const SizedBox(height: 14),
-                  _helpRow(yaru, '🎖️', l10n.gamificationHelpBadgeTitle,
-                      l10n.gamificationHelpBadgeBody),
+                  _helpRow(
+                    yaru,
+                    Icons.emoji_events_rounded,
+                    Colors.amber.shade700,
+                    l10n.gamificationHelpBadgeTitle,
+                    l10n.gamificationHelpBadgeBody,
+                  ),
+                  const SizedBox(height: 20),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: FilledButton.tonal(
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      child: Text(l10n.cancel),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -369,20 +398,21 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
     );
   }
 
-  Widget _helpRow(YaruTheme yaru, String emoji, String title, String body) {
+  Widget _helpRow(YaruTheme yaru, IconData icon, Color iconColor,
+      String title, String body) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 40,
-          height: 40,
+          width: 44,
+          height: 44,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: yaru.accent.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: yaru.accent.withValues(alpha: 0.25)),
           ),
-          child: Text(emoji, style: const TextStyle(fontSize: 20)),
+          child: Icon(icon, size: 24, color: iconColor),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -392,7 +422,7 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: FontWeight.w800,
                   color: yaru.inkPrimary,
                 ),
@@ -401,7 +431,7 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
               Text(
                 body,
                 style: TextStyle(
-                  fontSize: 12.5,
+                  fontSize: 13,
                   color: yaru.inkSecondary,
                   height: 1.55,
                 ),

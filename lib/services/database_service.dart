@@ -795,6 +795,8 @@ class DatabaseService {
   }
 
   /// #7: 定期タスクの「次回」 のみを生成。 completeRecurringTask の生成部分を流用。
+  /// #8 dedup: 既に同 title + 同 due_date + 未完了のタスクが居れば再生成しない。
+  /// connection の重複や race で同タスクが 2 件生成されるバグを防ぐ。
   Future<Task> generateNextRecurringTask(Task task) async {
     final now = DateTime.now();
     final parentId = task.recurrenceParentId ?? task.id;
@@ -803,6 +805,21 @@ class DatabaseService {
       recurrenceType: task.recurrenceType!,
       recurrenceValue: task.recurrenceValue!,
     );
+    final dueIso = DateTime(nextDueDate.year, nextDueDate.month, nextDueDate.day)
+        .toIso8601String();
+    // 既存重複チェック
+    final existing = await db.query(
+      'tasks',
+      where:
+          'title = ? AND date(due_date) = date(?) AND is_completed = 0',
+      whereArgs: [task.title, dueIso],
+      limit: 1,
+    );
+    if (existing.isNotEmpty) {
+      final dup = Task.fromMap(existing.first);
+      // 既に同名同日があれば、 それを返す (新規挿入しない)
+      return dup;
+    }
     final newTask = Task(
       title: task.title,
       dueDate: nextDueDate,

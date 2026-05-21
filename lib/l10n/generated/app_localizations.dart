@@ -2837,61 +2837,61 @@ abstract class AppLocalizations {
   /// No description provided for @gamificationHelpTitle.
   ///
   /// In ja, this message translates to:
-  /// **'やるナビの仕組み'**
+  /// **'やるナビの実績システム'**
   String get gamificationHelpTitle;
 
   /// No description provided for @gamificationHelpSubtitle.
   ///
   /// In ja, this message translates to:
-  /// **'使うほど報われる、シンプルなレベルシステム'**
+  /// **'タスクをこなすほど成長する、あなただけの実績記録です。'**
   String get gamificationHelpSubtitle;
 
   /// No description provided for @gamificationHelpXpTitle.
   ///
   /// In ja, this message translates to:
-  /// **'XPでレベルアップ'**
+  /// **'XP（経験値）'**
   String get gamificationHelpXpTitle;
 
   /// No description provided for @gamificationHelpXpBody.
   ///
   /// In ja, this message translates to:
-  /// **'完了で +10 XP、AI整理で +5 XP、今日の全完了でさらに +25 XP。'**
+  /// **'タスク完了で +10 XP、AI 整理で +5 XP を獲得。全タスク完了ボーナスは +25 XP。'**
   String get gamificationHelpXpBody;
 
   /// No description provided for @gamificationHelpStreakTitle.
   ///
   /// In ja, this message translates to:
-  /// **'ストリーク (連続日数)'**
+  /// **'ストリーク'**
   String get gamificationHelpStreakTitle;
 
   /// No description provided for @gamificationHelpStreakBody.
   ///
   /// In ja, this message translates to:
-  /// **'1日1回でも操作すると連続日数が伸びます。3・7・14・30日でボーナスXPとバッジを獲得。'**
+  /// **'アプリを開くだけで連続日数がカウントされます。3日・7日・14日・30日でボーナス XP とバッジを獲得。'**
   String get gamificationHelpStreakBody;
 
   /// No description provided for @gamificationHelpLevelTitle.
   ///
   /// In ja, this message translates to:
-  /// **'8段階のレベル'**
+  /// **'レベル'**
   String get gamificationHelpLevelTitle;
 
   /// No description provided for @gamificationHelpLevelBody.
   ///
   /// In ja, this message translates to:
-  /// **'Lv.1 はじめてのナビ → Lv.5 AIの右腕 → Lv.8 伝説のプランナーまで。Lv.9以降も継続可能。'**
+  /// **'Lv.1 から最大 Lv.100 まで。レベルが上がるたびに称号が変化。最高レベルを目指しましょう！'**
   String get gamificationHelpLevelBody;
 
   /// No description provided for @gamificationHelpBadgeTitle.
   ///
   /// In ja, this message translates to:
-  /// **'11個のバッジ'**
+  /// **'バッジ'**
   String get gamificationHelpBadgeTitle;
 
   /// No description provided for @gamificationHelpBadgeBody.
   ///
   /// In ja, this message translates to:
-  /// **'初タスク完了、累計10/50/100件、AI初体験、ストリーク達成、レベル到達などで獲得。'**
+  /// **'全 41 種類のバッジを用意。条件が公開されているものと、秘密の隠しバッジがあります。どんな条件で獲得できるかはお楽しみ！'**
   String get gamificationHelpBadgeBody;
 
   /// No description provided for @statsNextLevelHint.
@@ -4700,6 +4700,12 @@ abstract class AppLocalizations {
   /// **'カレンダーから取り込む'**
   String get fabSyncCalendar;
 
+  /// カレンダー画面ヘッダーの同期 TextButton ラベル
+  ///
+  /// In ja, this message translates to:
+  /// **'取込'**
+  String get calendarSyncShort;
+
   /// blocked_dates カレンダーグリッドの説明文
   ///
   /// In ja, this message translates to:
@@ -4901,7 +4907,7 @@ abstract class AppLocalizations {
   /// No description provided for @tip13.
   ///
   /// In ja, this message translates to:
-  /// **'レベルは 100 まで。 最高レベルに到達するには約 10 年かかります。'**
+  /// **'レベルは最大 100 まで。 レベルが上がるたびに新しい称号が解放されます。'**
   String get tip13;
 
   /// No description provided for @tip14Title.

@@ -1469,39 +1469,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsHelpTooltip => 'How it works';
 
   @override
-  String get gamificationHelpTitle => 'How YaruNavi rewards you';
+  String get gamificationHelpTitle => 'Your YaruNavi achievements';
 
   @override
   String get gamificationHelpSubtitle =>
-      'A simple level system that rewards consistent use';
+      'A personal record that grows as you complete tasks.';
 
   @override
-  String get gamificationHelpXpTitle => 'Earn XP and level up';
+  String get gamificationHelpXpTitle => 'XP (experience)';
 
   @override
   String get gamificationHelpXpBody =>
-      '+10 XP per done task, +5 XP for AI sort, +25 XP bonus for clearing today.';
+      '+10 XP per task, +5 XP per AI sort. Clear every task today for a +25 XP bonus.';
 
   @override
-  String get gamificationHelpStreakTitle => 'Streak (consecutive days)';
+  String get gamificationHelpStreakTitle => 'Streak';
 
   @override
   String get gamificationHelpStreakBody =>
-      'Any activity once a day keeps your streak. Day 3/7/14/30 unlock bonus XP and badges.';
+      'Opening the app every day counts. Day 3/7/14/30 unlock bonus XP and badges.';
 
   @override
-  String get gamificationHelpLevelTitle => '8 named levels';
+  String get gamificationHelpLevelTitle => 'Level';
 
   @override
   String get gamificationHelpLevelBody =>
-      'Lv.1 First Steps → Lv.5 AI Companion → Lv.8 Legendary Planner. Continues beyond Lv.9.';
+      'From Lv.1 up to Lv.100. Each level unlocks a new title — aim for the top!';
 
   @override
-  String get gamificationHelpBadgeTitle => '11 badges to unlock';
+  String get gamificationHelpBadgeTitle => 'Badges';
 
   @override
   String get gamificationHelpBadgeBody =>
-      'Earn them by completing your first task, hitting 10/50/100 completions, AI first run, streak milestones, level reaches.';
+      '41 badges in total. Some conditions are public, others are hidden surprises — keep exploring!';
 
   @override
   String statsNextLevelHint(int xp, int level) {
@@ -2478,6 +2478,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fabSyncCalendar => 'Sync from Calendar';
 
   @override
+  String get calendarSyncShort => 'Sync';
+
+  @override
   String get blockedDatesPickerHint =>
       'Tap days to mark as blocked, then press Save. Past dates are removed automatically.';
 
@@ -2590,7 +2593,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tip13 =>
-      'The level cap is 100 — reaching it takes about 10 years.';
+      'The level cap is 100. Every level unlocks a new title — keep climbing!';
 
   @override
   String get tip14Title => 'Tips: Secret';

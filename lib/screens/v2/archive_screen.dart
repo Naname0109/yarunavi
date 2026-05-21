@@ -172,6 +172,7 @@ class V2ArchiveScreen extends ConsumerWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(l10n.taskUncompletedSnack),
+                              duration: const Duration(seconds: 4),
                               action: SnackBarAction(
                                 label: l10n.undo,
                                 onPressed: () {

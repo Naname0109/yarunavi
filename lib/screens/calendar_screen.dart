@@ -24,7 +24,11 @@ import '../utils/date_utils.dart' as app_date;
 enum _CalendarViewMode { recommended, due }
 
 class CalendarScreen extends ConsumerStatefulWidget {
-  const CalendarScreen({super.key});
+  const CalendarScreen({super.key, this.isActive = true});
+
+  /// #1: IndexedStack で全タブが mount されるため、 タブが実際に見える時のみ
+  /// 初回コーチマーク SnackBar を表示する判定に使う。
+  final bool isActive;
 
   @override
   ConsumerState<CalendarScreen> createState() => CalendarScreenState();
@@ -38,19 +42,33 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
   /// 同時展開を 1 カードに制限 (#101 Gmail 風)。 null = 全カード閉じ。
   int? _expandedTaskId;
 
+  bool _coachShown = false;
+
   @override
   void initState() {
     super.initState();
     _selectedDay = DateTime.now();
-    // 初回表示時のみ「AIのおすすめ日 / 期限の日」のコーチマークSnackBarを出す。
-    // ?アイコンを廃止する代わりに、 ユーザーが2モードの意味を 1度だけ
-    // 自然に学べるようにする (B-11)。
+    if (widget.isActive) _maybeShowCoachmark();
+  }
+
+  @override
+  void didUpdateWidget(CalendarScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 他タブ → カレンダータブへ切替時にコーチマークを表示
+    if (!oldWidget.isActive && widget.isActive) _maybeShowCoachmark();
+  }
+
+  /// #1: 初回表示時のみ「AI のおすすめ日 / 期限の日」 のコーチマーク SnackBar。
+  /// IndexedStack 全 mount で home タブ表示中に発火しないよう、 isActive を見る。
+  void _maybeShowCoachmark() {
+    if (_coachShown) return;
+    _coachShown = true;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted) return;
+      if (!mounted || !widget.isActive) return;
       final prefs = await SharedPreferences.getInstance();
       const key = 'calendar_mode_coachmark_shown';
       if (prefs.getBool(key) == true) return;
-      if (!mounted) return;
+      if (!mounted || !widget.isActive) return;
       final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -174,9 +192,9 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
 
         return Column(
           children: [
-            // #2-A: カレンダー画面ヘッダー (タイトル + 同期ボタン)
+            // #2-A / #7: カレンダー画面ヘッダー (タイトル + 取込 TextButton)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 8, 4),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
               child: Row(
                 children: [
                   Expanded(
@@ -186,10 +204,13 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                           fontSize: 18, fontWeight: FontWeight.w800),
                     ),
                   ),
-                  IconButton(
+                  TextButton.icon(
                     onPressed: () => _confirmAndSyncCalendar(l10n),
-                    icon: const Icon(Icons.sync_rounded),
-                    tooltip: l10n.fabSyncCalendar,
+                    icon: const Icon(Icons.sync_rounded, size: 18),
+                    label: Text(l10n.calendarSyncShort),
+                    style: TextButton.styleFrom(
+                      visualDensity: VisualDensity.compact,
+                    ),
                   ),
                 ],
               ),
