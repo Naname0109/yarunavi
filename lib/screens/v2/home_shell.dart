@@ -18,6 +18,7 @@ import '../../widgets/event_form_sheet.dart';
 import '../../widgets/responsive_wrapper.dart';
 import '../../widgets/task_form_sheet.dart';
 import '../../widgets/v2/badge_unlock_popup.dart';
+import '../../widgets/v2/expandable_task_card.dart';
 import '../../widgets/v2/glass_bottom_nav.dart';
 import '../../widgets/v2/hero_ai_card.dart';
 import '../../widgets/v2/level_up_overlay.dart';
@@ -702,13 +703,11 @@ class _V2HomeTabState extends ConsumerState<_V2HomeTab> {
           for (final t in tasks)
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: V2TaskCard(
+              child: ExpandableV2TaskCard(
                 task: t,
-                category: t.categoryId != null ? categoryMap[t.categoryId] : null,
-                onTap: () {
-                  if (t.id != null) ref.context.push('/task/${t.id}');
-                },
-                onToggleComplete: () {
+                category:
+                    t.categoryId != null ? categoryMap[t.categoryId] : null,
+                onComplete: () {
                   ref.read(tasksProvider.notifier).completeTask(t);
                 },
               ),

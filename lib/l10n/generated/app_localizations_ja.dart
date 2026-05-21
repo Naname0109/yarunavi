@@ -2385,9 +2385,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiPurchaseRewardedTitle => '動画を視聴';
 
   @override
-  String get aiPurchaseRewardedSubtitle => '短い動画を見て AI 整理を 1 回回復';
-
-  @override
   String aiRewardedRemaining(int remaining, int max) {
     return '残り $remaining/$max 回利用可能';
   }
@@ -2405,4 +2402,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String aiSortQuotaFreeShort(int remaining) {
     return '残り $remaining回';
   }
+
+  @override
+  String get viewDetails => '詳細';
 }

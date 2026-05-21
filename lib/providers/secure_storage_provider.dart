@@ -31,7 +31,10 @@ final aiSortQuotaProvider =
     return (remaining: 999, total: 999, isPremium: true);
   }
   if (isVip) {
-    // VIP は無制限。 remaining=-1 を「VIP 無制限」 マーカーに使う
+    // VIP は無制限のため remaining=-1 を「VIP 無制限」 マーカーとして扱う。
+    // VIP がチケット (ai_ticket_count) を保有している場合でも UI には
+    // 表示しない (= 「VIP 無制限」 のみ)。 在庫は内部保持され、
+    // VIP 解除時に再び有効化される設計。
     return (remaining: -1, total: 0, isPremium: true);
   }
 

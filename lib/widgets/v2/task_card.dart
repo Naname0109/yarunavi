@@ -335,13 +335,15 @@ class _RecommendedDateRow extends StatelessWidget {
           ),
         ),
         if (onEdit != null) ...[
-          const SizedBox(width: 6),
+          const SizedBox(width: 2),
+          // タップターゲットを 44pt 以上確保 (アクセシビリティ最小値)
           InkWell(
             onTap: onEdit,
+            borderRadius: BorderRadius.circular(22),
             child: Padding(
-              padding: const EdgeInsets.all(2),
+              padding: const EdgeInsets.all(14),
               child: Icon(Icons.edit,
-                  size: 14, color: yaru.inkSecondary),
+                  size: 16, color: yaru.inkSecondary),
             ),
           ),
         ],

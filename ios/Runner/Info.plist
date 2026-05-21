@@ -29,9 +29,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>タスクの期限日をカレンダーに追加するために使用します</string>
+	<string>カレンダーの予定を取り込んで、タスクの実行日を最適化するために使用します。予定の追加・変更も行えます。</string>
 	<key>NSCalendarsUsageDescription</key>
-	<string>タスクの期限日をカレンダーに追加するために使用します</string>
+	<string>カレンダーの予定を取り込んで、タスクの実行日を最適化するために使用します。予定の追加・変更も行えます。</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

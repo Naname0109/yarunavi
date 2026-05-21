@@ -271,13 +271,24 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       var blockedDates =
           ref.read(blockedDatesProvider).valueOrNull;
 
-      // #2: avoidEventDays=ON の場合、 予定がある日も blocked_dates 同等に追加
+      // #2: avoidEventDays=ON の場合、 予定がある日も blocked_dates 同等に追加。
+      // ただし AI プロンプトのトークン消費を抑えるため、
+      // 「今日〜AI整理対象タスクの最遠期限日 + 7日」 の範囲だけを採用する。
       final avoidEvent =
           ref.read(avoidEventDaysProvider).valueOrNull ?? false;
-      if (avoidEvent) {
+      if (avoidEvent && incompleteTasks.isNotEmpty) {
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+        final maxDue = incompleteTasks
+            .map((t) => t.dueDate)
+            .reduce((a, b) => a.isAfter(b) ? a : b);
+        final windowEnd = DateTime(maxDue.year, maxDue.month, maxDue.day)
+            .add(const Duration(days: 7));
         final events = ref.read(eventsProvider).valueOrNull ?? const [];
         final eventDates = events
             .map((e) => DateTime(e.date.year, e.date.month, e.date.day))
+            .where((d) =>
+                !d.isBefore(today) && !d.isAfter(windowEnd))
             .toSet();
         blockedDates = <DateTime>[
           ...(blockedDates ?? const []),
@@ -756,41 +767,6 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     // skipUsageCount: リワード動画視聴 = free 枠を 1 回追加した形なので、
     // _executeAiSort 内で incrementLifetimeFreeUsage が走っても整合する
     await _executeAiSort(l10n, locale);
-  }
-
-  /// 今日はリワード広告を使用済み
-  Future<void> _showTodayLimitDialog(AppLocalizations l10n) async {
-    await showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.aiSort),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.aiRewardedAdUsedToday),
-            const SizedBox(height: 12),
-            Text(l10n.aiRewardedAdTomorrow,
-                style: TextStyle(
-                    fontSize: 13,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              context.push('/store');
-            },
-            child: Text(l10n.aiSortUpgradeToPremium),
-          ),
-        ],
-      ),
-    );
   }
 
   /// プレミアムの月間上限到達

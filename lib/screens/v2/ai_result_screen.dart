@@ -462,13 +462,15 @@ class V2AiResultScreen extends ConsumerWidget {
                                     color: yaru.inkSecondary,
                                     fontWeight: FontWeight.w700),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 4),
+                              // タップターゲットを 44pt 確保 (アクセシビリティ)
                               InkWell(
                                 onTap: () =>
                                     _editRecommendedDate(ctx, ref, task),
+                                borderRadius: BorderRadius.circular(8),
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 4, vertical: 2),
+                                      horizontal: 12, vertical: 12),
                                   child: Text(
                                     l10n.aiResultChangeDate,
                                     style: TextStyle(

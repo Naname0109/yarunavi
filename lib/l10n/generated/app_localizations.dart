@@ -4640,12 +4640,6 @@ abstract class AppLocalizations {
   /// **'動画を視聴'**
   String get aiPurchaseRewardedTitle;
 
-  /// No description provided for @aiPurchaseRewardedSubtitle.
-  ///
-  /// In ja, this message translates to:
-  /// **'短い動画を見て AI 整理を 1 回回復'**
-  String get aiPurchaseRewardedSubtitle;
-
   /// No description provided for @aiRewardedRemaining.
   ///
   /// In ja, this message translates to:
@@ -4675,6 +4669,12 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'残り {remaining}回'**
   String aiSortQuotaFreeShort(int remaining);
+
+  /// No description provided for @viewDetails.
+  ///
+  /// In ja, this message translates to:
+  /// **'詳細'**
+  String get viewDetails;
 }
 
 class _AppLocalizationsDelegate

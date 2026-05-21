@@ -935,10 +935,10 @@
   "aiPurchaseTicketSubtitle": "Add 1 run ({remaining} of {max} left to buy)",
   "aiPurchaseTicketDisabled": "Ticket limit reached",
   "aiPurchaseRewardedTitle": "Watch a video",
-  "aiPurchaseRewardedSubtitle": "Watch a short ad to recover one AI sort",
   "aiRewardedRemaining": "{remaining}/{max} left",
   "aiRewardedExhausted": "Video recovery limit reached",
   "aiPremiumRequiredNote": "Upgrade to Premium to keep using AI sort",
   "aiSortQuotaVip": "VIP Unlimited",
-  "aiSortQuotaFreeShort": "{remaining} left"
+  "aiSortQuotaFreeShort": "{remaining} left",
+  "viewDetails": "Details"
 }

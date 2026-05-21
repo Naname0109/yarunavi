@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -18,7 +17,7 @@ import '../providers/dev_mode_provider.dart';
 import '../widgets/event_form_sheet.dart';
 import '../widgets/task_card.dart';
 import '../widgets/task_form_sheet.dart';
-import '../widgets/v2/task_card.dart' as v2;
+import '../widgets/v2/expandable_task_card.dart';
 import '../utils/date_utils.dart' as app_date;
 
 enum _CalendarViewMode { recommended, due }
@@ -463,17 +462,14 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
       }
     }
 
-    // 新UI: v2 デザインのカード (高コントラスト + ネオン)
+    // 新UI: v2 デザインのカード (高コントラスト + ネオン) + #1-1 編集導線
     if (useNewUi) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-        child: v2.V2TaskCard(
+        child: ExpandableV2TaskCard(
           task: task,
           category: category,
-          onTap: () {
-            if (task.id != null) context.push('/task/${task.id}');
-          },
-          onToggleComplete: onComplete,
+          onComplete: onComplete,
         ),
       );
     }

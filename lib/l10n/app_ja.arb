@@ -1811,8 +1811,6 @@
   "@aiPurchaseTicketDisabled": {},
   "aiPurchaseRewardedTitle": "動画を視聴",
   "@aiPurchaseRewardedTitle": {},
-  "aiPurchaseRewardedSubtitle": "短い動画を見て AI 整理を 1 回回復",
-  "@aiPurchaseRewardedSubtitle": {},
   "aiRewardedRemaining": "残り {remaining}/{max} 回利用可能",
   "@aiRewardedRemaining": {
     "placeholders": {
@@ -1831,5 +1829,7 @@
     "placeholders": {
       "remaining": { "type": "int" }
     }
-  }
+  },
+  "viewDetails": "詳細",
+  "@viewDetails": {}
 }

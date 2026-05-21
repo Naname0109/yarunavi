@@ -2446,10 +2446,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiPurchaseRewardedTitle => 'Watch a video';
 
   @override
-  String get aiPurchaseRewardedSubtitle =>
-      'Watch a short ad to recover one AI sort';
-
-  @override
   String aiRewardedRemaining(int remaining, int max) {
     return '$remaining/$max left';
   }
@@ -2468,4 +2464,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String aiSortQuotaFreeShort(int remaining) {
     return '$remaining left';
   }
+
+  @override
+  String get viewDetails => 'Details';
 }
