@@ -294,7 +294,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addToCalendar => 'カレンダーに追加';
 
   @override
-  String get calendarPermissionDenied => 'カレンダーへのアクセスを許可してください';
+  String get calendarPermissionDenied => 'カレンダーへのアクセスが許可されていません';
 
   @override
   String get calendarAddFailed => 'カレンダーへの追加に失敗しました';
@@ -2237,6 +2237,26 @@ class AppLocalizationsJa extends AppLocalizations {
   String get executionDayUpdated => '実行日を更新しました';
 
   @override
+  String get aiResultChangeDate => '変更';
+
+  @override
+  String get calendarSectionTasks => 'タスク';
+
+  @override
+  String get calendarSectionEvents => '予定';
+
+  @override
+  String get eventDeleted => '予定を削除しました';
+
+  @override
+  String calendarSyncDone(int count) {
+    return '$count件の予定を取り込みました';
+  }
+
+  @override
+  String get calendarSyncFailed => 'カレンダーの取り込みに失敗しました';
+
+  @override
   String get eventAdd => '予定を追加';
 
   @override
@@ -2362,8 +2382,27 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiPurchaseTicketDisabled => 'チケット購入は上限に達しています';
 
   @override
-  String get aiPurchaseRewardedTitle => '動画を視聴 (1 日 1 回)';
+  String get aiPurchaseRewardedTitle => '動画を視聴';
 
   @override
-  String get aiPurchaseRewardedSubtitle => '短い動画を見て今日 1 回 AI 整理';
+  String get aiPurchaseRewardedSubtitle => '短い動画を見て AI 整理を 1 回回復';
+
+  @override
+  String aiRewardedRemaining(int remaining, int max) {
+    return '残り $remaining/$max 回利用可能';
+  }
+
+  @override
+  String get aiRewardedExhausted => '動画での回復は上限に達しました';
+
+  @override
+  String get aiPremiumRequiredNote => 'AI 整理を継続するにはプレミアムプランへの登録が必要です';
+
+  @override
+  String get aiSortQuotaVip => 'VIP 無制限';
+
+  @override
+  String aiSortQuotaFreeShort(int remaining) {
+    return '残り $remaining回';
+  }
 }

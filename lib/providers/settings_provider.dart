@@ -13,6 +13,7 @@ const _executionTimingKey = 'execution_timing_factor';
 const _soundEnabledKey = 'sound_enabled';
 const _weekdayBusynessKey = 'weekday_busyness'; // #3-1: 1=暇〜5=忙しい × 7曜日
 const _aiReminderEnabledKey = 'ai_sort_reminder_enabled'; // #6-2
+const _avoidEventDaysKey = 'avoid_event_days'; // #2 続: 予定日に AI 整理を割り振らない
 
 /// 曜日ごとの「忙しさ」。 月=0 〜 日=6 のリスト、 値は 1〜5。
 /// AI 整理時に「忙しい曜日にはタスクを集中させない」 ヒントとして渡す。
@@ -218,4 +219,24 @@ class AiReminderEnabledNotifier extends AsyncNotifier<bool> {
 final aiReminderEnabledProvider =
     AsyncNotifierProvider<AiReminderEnabledNotifier, bool>(
   AiReminderEnabledNotifier.new,
+);
+
+/// #2: 予定がある日にはタスクを入れない (AI 整理プロンプトに反映)。 デフォルト OFF。
+class AvoidEventDaysNotifier extends AsyncNotifier<bool> {
+  @override
+  Future<bool> build() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_avoidEventDaysKey) ?? false;
+  }
+
+  Future<void> setEnabled(bool value) async {
+    state = AsyncValue.data(value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_avoidEventDaysKey, value);
+  }
+}
+
+final avoidEventDaysProvider =
+    AsyncNotifierProvider<AvoidEventDaysNotifier, bool>(
+  AvoidEventDaysNotifier.new,
 );

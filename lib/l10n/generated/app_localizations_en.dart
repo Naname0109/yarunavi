@@ -296,7 +296,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addToCalendar => 'Add to Calendar';
 
   @override
-  String get calendarPermissionDenied => 'Please allow calendar access';
+  String get calendarPermissionDenied => 'Calendar access not granted';
 
   @override
   String get calendarAddFailed => 'Failed to add to calendar';
@@ -2282,6 +2282,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get executionDayUpdated => 'Execution day updated';
 
   @override
+  String get aiResultChangeDate => 'Change';
+
+  @override
+  String get calendarSectionTasks => 'Tasks';
+
+  @override
+  String get calendarSectionEvents => 'Events';
+
+  @override
+  String get eventDeleted => 'Event deleted';
+
+  @override
+  String calendarSyncDone(int count) {
+    return 'Imported $count events';
+  }
+
+  @override
+  String get calendarSyncFailed => 'Calendar import failed';
+
+  @override
   String get eventAdd => 'Add event';
 
   @override
@@ -2423,8 +2443,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiPurchaseTicketDisabled => 'Ticket limit reached';
 
   @override
-  String get aiPurchaseRewardedTitle => 'Watch a video (1×/day)';
+  String get aiPurchaseRewardedTitle => 'Watch a video';
 
   @override
-  String get aiPurchaseRewardedSubtitle => 'See a short ad for today\'s run';
+  String get aiPurchaseRewardedSubtitle =>
+      'Watch a short ad to recover one AI sort';
+
+  @override
+  String aiRewardedRemaining(int remaining, int max) {
+    return '$remaining/$max left';
+  }
+
+  @override
+  String get aiRewardedExhausted => 'Video recovery limit reached';
+
+  @override
+  String get aiPremiumRequiredNote =>
+      'Upgrade to Premium to keep using AI sort';
+
+  @override
+  String get aiSortQuotaVip => 'VIP Unlimited';
+
+  @override
+  String aiSortQuotaFreeShort(int remaining) {
+    return '$remaining left';
+  }
 }

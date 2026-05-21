@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 
 import '../l10n/generated/app_localizations.dart';
 import '../services/secure_storage_service.dart';
+import '../providers/event_provider.dart';
 import 'ai_purchase_bottom_sheet.dart';
 import 'ai_sort_tips.dart';
 import '../providers/gamification_provider.dart';
@@ -18,7 +19,6 @@ import '../providers/sound_provider.dart';
 import '../providers/task_provider.dart';
 import '../services/ai_service.dart';
 import '../services/rewarded_ad_service.dart';
-import '../services/secure_storage_service.dart';
 import '../services/sound_service.dart';
 import '../utils/category_helper.dart';
 import '../utils/constants.dart';
@@ -155,11 +155,13 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     required SecureStorageService secure,
   }) async {
     final lifetime = await secure.getAiTicketLifetimePurchases();
+    final rewardedTotal = await secure.getRewardedTotalUsed();
     if (!mounted) return;
     final choice = await AiPurchaseBottomSheet.show(
       context,
       rewardedAvailable: rewardedAvailable,
       ticketLifetime: lifetime,
+      rewardedTotalUsed: rewardedTotal,
     );
     if (!mounted || choice == null) return;
     switch (choice) {
@@ -266,8 +268,22 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       // #3-3: スケジュール設定を AI に渡す
       final weekdayBusyness =
           ref.read(weekdayBusynessProvider).valueOrNull;
-      final blockedDates =
+      var blockedDates =
           ref.read(blockedDatesProvider).valueOrNull;
+
+      // #2: avoidEventDays=ON の場合、 予定がある日も blocked_dates 同等に追加
+      final avoidEvent =
+          ref.read(avoidEventDaysProvider).valueOrNull ?? false;
+      if (avoidEvent) {
+        final events = ref.read(eventsProvider).valueOrNull ?? const [];
+        final eventDates = events
+            .map((e) => DateTime(e.date.year, e.date.month, e.date.day))
+            .toSet();
+        blockedDates = <DateTime>[
+          ...(blockedDates ?? const []),
+          ...eventDates,
+        ];
+      }
 
       final response = await AiService.sortTasks(
         incompleteTasks,

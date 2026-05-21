@@ -12,6 +12,8 @@ import '../../providers/gamification_provider.dart';
 import '../../providers/task_provider.dart';
 import '../../theme/yaru_theme.dart';
 import '../../utils/date_utils.dart' as app_date;
+import '../../providers/event_provider.dart';
+import '../../services/event_sync_service.dart';
 import '../../widgets/event_form_sheet.dart';
 import '../../widgets/responsive_wrapper.dart';
 import '../../widgets/task_form_sheet.dart';
@@ -92,10 +94,37 @@ class _V2HomeShellState extends ConsumerState<V2HomeShell> {
                 EventFormSheet.show(context);
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.sync_outlined),
+              title: Text(l10n.fabSyncCalendar),
+              onTap: () async {
+                Navigator.of(ctx).pop();
+                await _syncCalendarEvents();
+              },
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _syncCalendarEvents() async {
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final db = ref.read(databaseServiceProvider);
+    final svc = EventSyncService(db);
+    final count = await svc.syncNext60Days();
+    ref.invalidate(eventsProvider);
+    if (!mounted) return;
+    if (count < 0) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.calendarPermissionDenied)),
+      );
+    } else {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.calendarSyncDone(count))),
+      );
+    }
   }
 
   @override

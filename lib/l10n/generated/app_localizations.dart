@@ -635,7 +635,7 @@ abstract class AppLocalizations {
   /// No description provided for @calendarPermissionDenied.
   ///
   /// In ja, this message translates to:
-  /// **'カレンダーへのアクセスを許可してください'**
+  /// **'カレンダーへのアクセスが許可されていません'**
   String get calendarPermissionDenied;
 
   /// No description provided for @calendarAddFailed.
@@ -4352,6 +4352,42 @@ abstract class AppLocalizations {
   /// **'実行日を更新しました'**
   String get executionDayUpdated;
 
+  /// No description provided for @aiResultChangeDate.
+  ///
+  /// In ja, this message translates to:
+  /// **'変更'**
+  String get aiResultChangeDate;
+
+  /// No description provided for @calendarSectionTasks.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク'**
+  String get calendarSectionTasks;
+
+  /// No description provided for @calendarSectionEvents.
+  ///
+  /// In ja, this message translates to:
+  /// **'予定'**
+  String get calendarSectionEvents;
+
+  /// No description provided for @eventDeleted.
+  ///
+  /// In ja, this message translates to:
+  /// **'予定を削除しました'**
+  String get eventDeleted;
+
+  /// No description provided for @calendarSyncDone.
+  ///
+  /// In ja, this message translates to:
+  /// **'{count}件の予定を取り込みました'**
+  String calendarSyncDone(int count);
+
+  /// No description provided for @calendarSyncFailed.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダーの取り込みに失敗しました'**
+  String get calendarSyncFailed;
+
   /// No description provided for @eventAdd.
   ///
   /// In ja, this message translates to:
@@ -4601,14 +4637,44 @@ abstract class AppLocalizations {
   /// No description provided for @aiPurchaseRewardedTitle.
   ///
   /// In ja, this message translates to:
-  /// **'動画を視聴 (1 日 1 回)'**
+  /// **'動画を視聴'**
   String get aiPurchaseRewardedTitle;
 
   /// No description provided for @aiPurchaseRewardedSubtitle.
   ///
   /// In ja, this message translates to:
-  /// **'短い動画を見て今日 1 回 AI 整理'**
+  /// **'短い動画を見て AI 整理を 1 回回復'**
   String get aiPurchaseRewardedSubtitle;
+
+  /// No description provided for @aiRewardedRemaining.
+  ///
+  /// In ja, this message translates to:
+  /// **'残り {remaining}/{max} 回利用可能'**
+  String aiRewardedRemaining(int remaining, int max);
+
+  /// No description provided for @aiRewardedExhausted.
+  ///
+  /// In ja, this message translates to:
+  /// **'動画での回復は上限に達しました'**
+  String get aiRewardedExhausted;
+
+  /// No description provided for @aiPremiumRequiredNote.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI 整理を継続するにはプレミアムプランへの登録が必要です'**
+  String get aiPremiumRequiredNote;
+
+  /// No description provided for @aiSortQuotaVip.
+  ///
+  /// In ja, this message translates to:
+  /// **'VIP 無制限'**
+  String get aiSortQuotaVip;
+
+  /// No description provided for @aiSortQuotaFreeShort.
+  ///
+  /// In ja, this message translates to:
+  /// **'残り {remaining}回'**
+  String aiSortQuotaFreeShort(int remaining);
 }
 
 class _AppLocalizationsDelegate

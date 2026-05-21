@@ -883,6 +883,13 @@
   "labelExecutionDay": "EXEC",
   "pickExecutionDayTooltip": "Pick execution day (manual changes may be re-suggested by next AI sort)",
   "executionDayUpdated": "Execution day updated",
+  "aiResultChangeDate": "Change",
+  "calendarSectionTasks": "Tasks",
+  "calendarSectionEvents": "Events",
+  "eventDeleted": "Event deleted",
+  "calendarSyncDone": "Imported {count} events",
+  "calendarSyncFailed": "Calendar import failed",
+  "calendarPermissionDenied": "Calendar access not granted",
 
   "eventAdd": "Add event",
   "eventEdit": "Edit event",
@@ -927,6 +934,11 @@
   "aiPurchaseTicketTitle": "AI sort ticket ¥120",
   "aiPurchaseTicketSubtitle": "Add 1 run ({remaining} of {max} left to buy)",
   "aiPurchaseTicketDisabled": "Ticket limit reached",
-  "aiPurchaseRewardedTitle": "Watch a video (1×/day)",
-  "aiPurchaseRewardedSubtitle": "See a short ad for today's run"
+  "aiPurchaseRewardedTitle": "Watch a video",
+  "aiPurchaseRewardedSubtitle": "Watch a short ad to recover one AI sort",
+  "aiRewardedRemaining": "{remaining}/{max} left",
+  "aiRewardedExhausted": "Video recovery limit reached",
+  "aiPremiumRequiredNote": "Upgrade to Premium to keep using AI sort",
+  "aiSortQuotaVip": "VIP Unlimited",
+  "aiSortQuotaFreeShort": "{remaining} left"
 }

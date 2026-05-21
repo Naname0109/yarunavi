@@ -14,15 +14,18 @@ class AiPurchaseBottomSheet extends ConsumerWidget {
   const AiPurchaseBottomSheet._({
     required this.rewardedAvailable,
     required this.ticketLifetime,
+    required this.rewardedTotalUsed,
   });
 
   final bool rewardedAvailable;
   final int ticketLifetime;
+  final int rewardedTotalUsed; // #4: 生涯使用済み回数 (0-2)
 
   static Future<AiPurchaseChoice?> show(
     BuildContext context, {
     required bool rewardedAvailable,
     required int ticketLifetime,
+    required int rewardedTotalUsed,
   }) {
     return showModalBottomSheet<AiPurchaseChoice>(
       context: context,
@@ -31,6 +34,7 @@ class AiPurchaseBottomSheet extends ConsumerWidget {
       builder: (ctx) => AiPurchaseBottomSheet._(
         rewardedAvailable: rewardedAvailable,
         ticketLifetime: ticketLifetime,
+        rewardedTotalUsed: rewardedTotalUsed,
       ),
     );
   }
@@ -100,41 +104,79 @@ class AiPurchaseBottomSheet extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            _OptionTile(
-              icon: Icons.workspace_premium_rounded,
-              iconColor: yaru.accent,
-              title: '${l10n.aiPurchasePremiumLabel} $monthlyPrice',
-              subtitle: l10n.aiPurchasePremiumSubtitle,
-              onTap: () =>
-                  Navigator.of(context).pop(AiPurchaseChoice.premium),
-            ),
-            const SizedBox(height: 8),
-            _OptionTile(
-              icon: Icons.confirmation_number_outlined,
-              iconColor: ticketDisabled ? yaru.inkQuaternary : yaru.accent,
-              title: '${l10n.aiPurchaseTicketLabel} $ticketPrice',
-              subtitle: ticketDisabled
-                  ? l10n.aiPurchaseTicketDisabled
-                  : l10n.aiPurchaseTicketSubtitle(
-                      remainingTickets,
-                      AppConstants.kAiTicketMaxLifetimePurchases,
+            // #4: 全枯渇時はプレミアム推し
+            Builder(builder: (ctx) {
+              final rewardedDisabled = rewardedTotalUsed >=
+                  AppConstants.kRewardedAdMaxLifetime;
+              final allExhausted = rewardedDisabled && ticketDisabled;
+              final remainingRewarded = AppConstants.kRewardedAdMaxLifetime -
+                  rewardedTotalUsed;
+              return Column(
+                children: [
+                  _OptionTile(
+                    icon: Icons.workspace_premium_rounded,
+                    iconColor: yaru.accent,
+                    title:
+                        '${l10n.aiPurchasePremiumLabel} $monthlyPrice',
+                    subtitle: l10n.aiPurchasePremiumSubtitle,
+                    highlight: allExhausted,
+                    onTap: () => Navigator.of(context)
+                        .pop(AiPurchaseChoice.premium),
+                  ),
+                  const SizedBox(height: 8),
+                  _OptionTile(
+                    icon: Icons.confirmation_number_outlined,
+                    iconColor:
+                        ticketDisabled ? yaru.inkQuaternary : yaru.accent,
+                    title:
+                        '${l10n.aiPurchaseTicketLabel} $ticketPrice',
+                    subtitle: ticketDisabled
+                        ? l10n.aiPurchaseTicketDisabled
+                        : l10n.aiPurchaseTicketSubtitle(
+                            remainingTickets,
+                            AppConstants
+                                .kAiTicketMaxLifetimePurchases,
+                          ),
+                    enabled: !ticketDisabled,
+                    onTap: ticketDisabled
+                        ? null
+                        : () => Navigator.of(context)
+                            .pop(AiPurchaseChoice.ticket),
+                  ),
+                  if (rewardedAvailable || rewardedDisabled) ...[
+                    const SizedBox(height: 8),
+                    _OptionTile(
+                      icon: Icons.movie_filter_rounded,
+                      iconColor: rewardedDisabled
+                          ? yaru.inkQuaternary
+                          : yaru.accent,
+                      title: l10n.aiPurchaseRewardedTitle,
+                      subtitle: rewardedDisabled
+                          ? l10n.aiRewardedExhausted
+                          : l10n.aiRewardedRemaining(remainingRewarded,
+                              AppConstants.kRewardedAdMaxLifetime),
+                      enabled: !rewardedDisabled,
+                      onTap: rewardedDisabled
+                          ? null
+                          : () => Navigator.of(context)
+                              .pop(AiPurchaseChoice.rewarded),
                     ),
-              enabled: !ticketDisabled,
-              onTap: ticketDisabled
-                  ? null
-                  : () => Navigator.of(context).pop(AiPurchaseChoice.ticket),
-            ),
-            if (rewardedAvailable) ...[
-              const SizedBox(height: 8),
-              _OptionTile(
-                icon: Icons.movie_filter_rounded,
-                iconColor: yaru.accent,
-                title: l10n.aiPurchaseRewardedTitle,
-                subtitle: l10n.aiPurchaseRewardedSubtitle,
-                onTap: () =>
-                    Navigator.of(context).pop(AiPurchaseChoice.rewarded),
-              ),
-            ],
+                  ],
+                  if (allExhausted) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      l10n.aiPremiumRequiredNote,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: yaru.accent,
+                      ),
+                    ),
+                  ],
+                ],
+              );
+            }),
             const SizedBox(height: 12),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -155,6 +197,7 @@ class _OptionTile extends StatelessWidget {
     required this.subtitle,
     required this.onTap,
     this.enabled = true,
+    this.highlight = false,
   });
 
   final IconData icon;
@@ -163,6 +206,7 @@ class _OptionTile extends StatelessWidget {
   final String subtitle;
   final VoidCallback? onTap;
   final bool enabled;
+  final bool highlight; // #4: 「おすすめ」 強調 (枯渇時に premium カード)
 
   @override
   Widget build(BuildContext context) {
@@ -178,10 +222,10 @@ class _OptionTile extends StatelessWidget {
             color: yaru.paperEmph,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: enabled
-                  ? iconColor.withValues(alpha: 0.35)
-                  : yaru.line,
-              width: 1,
+              color: highlight
+                  ? iconColor
+                  : (enabled ? iconColor.withValues(alpha: 0.35) : yaru.line),
+              width: highlight ? 2 : 1,
             ),
           ),
           child: Opacity(

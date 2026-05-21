@@ -231,25 +231,46 @@ class HeroAiCard extends ConsumerWidget {
     );
   }
 
-  /// CTA直下の残回数表示。無料/プレミアムで文言切り替え。
+  /// CTA直下の残回数表示。 #4 改定:
+  /// - VIP (remaining=-1): 「VIP 無制限」 + ★
+  /// - プレミアム: 「今月 残り N/30回」
+  /// - 無料: 「残り N回」 (free + ticket 合算)
+  /// - 0 回: 赤テキスト
   Widget _quotaRow({
     required AppLocalizations l10n,
     required ({int remaining, int total, bool isPremium}) quota,
     required bool isDark,
   }) {
-    final label = quota.isPremium
-        ? l10n.aiSortQuotaPremium(quota.remaining, quota.total)
-        : l10n.aiSortQuotaFree(quota.remaining, quota.total);
+    final isVip = quota.isPremium && quota.total == 0 && quota.remaining < 0;
+    final exhausted = quota.remaining == 0;
+    final label = isVip
+        ? l10n.aiSortQuotaVip
+        : quota.isPremium
+            ? l10n.aiSortQuotaPremium(quota.remaining, quota.total)
+            : l10n.aiSortQuotaFreeShort(quota.remaining);
+    final color = exhausted
+        ? Colors.red.shade300
+        : Colors.white.withValues(alpha: 0.7);
     return Center(
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: Colors.white.withValues(alpha: 0.7),
-          fontFeatures: const [FontFeature.tabularFigures()],
-          letterSpacing: 0.2,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isVip) ...[
+            const Icon(Icons.star_rounded,
+                size: 12, color: Colors.amberAccent),
+            const SizedBox(width: 4),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: color,
+              fontFeatures: const [FontFeature.tabularFigures()],
+              letterSpacing: 0.2,
+            ),
+          ),
+        ],
       ),
     );
   }

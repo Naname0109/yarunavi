@@ -248,6 +248,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _buildSectionHeader(context, l10n.scheduleSection),
                   _WeekdayBusynessTile(),
                   _BlockedDatesTile(),
+                  _AvoidEventDaysToggle(),
                   _AiReminderToggle(),
                   const Divider(),
 
@@ -901,6 +902,25 @@ class _BlockedDatesTile extends ConsumerWidget {
     );
     if (picked == null) return;
     await ref.read(blockedDatesProvider.notifier).add(picked);
+  }
+}
+
+/// #2: 予定がある日のタスク割り当てを避ける toggle。
+class _AvoidEventDaysToggle extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final asyncEnabled = ref.watch(avoidEventDaysProvider);
+    final enabled = asyncEnabled.valueOrNull ?? false;
+    return SwitchListTile(
+      secondary: const Icon(Icons.event_busy_outlined),
+      title: Text(l10n.avoidEventDaysToggle),
+      subtitle: Text(l10n.avoidEventDaysDesc),
+      value: enabled,
+      onChanged: (v) {
+        ref.read(avoidEventDaysProvider.notifier).setEnabled(v);
+      },
+    );
   }
 }
 

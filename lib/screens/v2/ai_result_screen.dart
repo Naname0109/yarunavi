@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../l10n/generated/app_localizations.dart';
+import '../../models/task.dart';
 import '../../providers/task_provider.dart';
 import '../../services/ai_service.dart';
 import '../../theme/yaru_colors.dart';
@@ -430,6 +432,57 @@ class V2AiResultScreen extends ConsumerWidget {
                           ),
                         );
                       }),
+                      // #1-2: 推奨実行日 + 「変更」 リンク
+                      Consumer(builder: (ctx, ref, _) {
+                        final tasksAsync = ref.watch(tasksProvider);
+                        final task = tasksAsync.maybeWhen(
+                          data: (list) => list
+                              .where((t) => t.id == items[i].taskId)
+                              .cast<Task?>()
+                              .firstWhere((t) => t != null,
+                                  orElse: () => null),
+                          orElse: () => null,
+                        );
+                        if (task == null) return const SizedBox.shrink();
+                        final rec = task.recommendedDate;
+                        if (rec == null) return const SizedBox.shrink();
+                        final l10n = AppLocalizations.of(ctx)!;
+                        final fmt = DateFormat.MMMd(locale).format(rec);
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Row(
+                            children: [
+                              Icon(Icons.flag_outlined,
+                                  size: 12, color: yaru.inkTertiary),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${l10n.labelExecutionDay} $fmt',
+                                style: TextStyle(
+                                    fontSize: 11.5,
+                                    color: yaru.inkSecondary,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(width: 8),
+                              InkWell(
+                                onTap: () =>
+                                    _editRecommendedDate(ctx, ref, task),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 4, vertical: 2),
+                                  child: Text(
+                                    l10n.aiResultChangeDate,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                      color: yaru.accent,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ),
@@ -464,6 +517,34 @@ class V2AiResultScreen extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  /// #1-2: AI 結果画面で 推奨実行日を変更する DatePicker。
+  Future<void> _editRecommendedDate(
+      BuildContext context, WidgetRef ref, Task task) async {
+    final l10n = AppLocalizations.of(context)!;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final lastDate = task.dueDate.isBefore(today)
+        ? today.add(const Duration(days: 30))
+        : task.dueDate;
+    final initial = task.recommendedDate ?? today;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial.isBefore(today) ? today : initial,
+      firstDate: today,
+      lastDate: lastDate,
+      helpText: l10n.pickExecutionDayTooltip,
+    );
+    if (picked == null || task.id == null) return;
+    if (!context.mounted) return;
+    await ref
+        .read(tasksProvider.notifier)
+        .updateRecommendedDate(task.id!, picked);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.executionDayUpdated)),
     );
   }
 

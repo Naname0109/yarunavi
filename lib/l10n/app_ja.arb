@@ -1700,6 +1700,24 @@
   "@pickExecutionDayTooltip": {},
   "executionDayUpdated": "実行日を更新しました",
   "@executionDayUpdated": {},
+  "aiResultChangeDate": "変更",
+  "@aiResultChangeDate": {},
+  "calendarSectionTasks": "タスク",
+  "@calendarSectionTasks": {},
+  "calendarSectionEvents": "予定",
+  "@calendarSectionEvents": {},
+  "eventDeleted": "予定を削除しました",
+  "@eventDeleted": {},
+  "calendarSyncDone": "{count}件の予定を取り込みました",
+  "@calendarSyncDone": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "calendarSyncFailed": "カレンダーの取り込みに失敗しました",
+  "@calendarSyncFailed": {},
+  "calendarPermissionDenied": "カレンダーへのアクセスが許可されていません",
+  "@calendarPermissionDenied": {},
 
   "eventAdd": "予定を追加",
   "@eventAdd": {},
@@ -1791,8 +1809,27 @@
   },
   "aiPurchaseTicketDisabled": "チケット購入は上限に達しています",
   "@aiPurchaseTicketDisabled": {},
-  "aiPurchaseRewardedTitle": "動画を視聴 (1 日 1 回)",
+  "aiPurchaseRewardedTitle": "動画を視聴",
   "@aiPurchaseRewardedTitle": {},
-  "aiPurchaseRewardedSubtitle": "短い動画を見て今日 1 回 AI 整理",
-  "@aiPurchaseRewardedSubtitle": {}
+  "aiPurchaseRewardedSubtitle": "短い動画を見て AI 整理を 1 回回復",
+  "@aiPurchaseRewardedSubtitle": {},
+  "aiRewardedRemaining": "残り {remaining}/{max} 回利用可能",
+  "@aiRewardedRemaining": {
+    "placeholders": {
+      "remaining": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "aiRewardedExhausted": "動画での回復は上限に達しました",
+  "@aiRewardedExhausted": {},
+  "aiPremiumRequiredNote": "AI 整理を継続するにはプレミアムプランへの登録が必要です",
+  "@aiPremiumRequiredNote": {},
+  "aiSortQuotaVip": "VIP 無制限",
+  "@aiSortQuotaVip": {},
+  "aiSortQuotaFreeShort": "残り {remaining}回",
+  "@aiSortQuotaFreeShort": {
+    "placeholders": {
+      "remaining": { "type": "int" }
+    }
+  }
 }

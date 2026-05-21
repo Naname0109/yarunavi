@@ -8,11 +8,14 @@ import 'package:table_calendar/table_calendar.dart';
 
 import '../l10n/generated/app_localizations.dart';
 import '../models/task.dart';
+import '../models/event.dart';
 import '../models/category.dart' as model;
 import '../providers/category_provider.dart';
+import '../providers/event_provider.dart';
 import '../providers/task_provider.dart';
 import '../theme/colors.dart';
 import '../providers/dev_mode_provider.dart';
+import '../widgets/event_form_sheet.dart';
 import '../widgets/task_card.dart';
 import '../widgets/task_form_sheet.dart';
 import '../widgets/v2/task_card.dart' as v2;
@@ -74,6 +77,15 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
         ? ref.watch(allTasksProvider)
         : ref.watch(tasksProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
+    // #2 カレンダー予定 (タスクとは独立) を読み込み
+    final eventsAsync = ref.watch(eventsProvider);
+    final events = eventsAsync.valueOrNull ?? const [];
+    // 日付ごとに予定をグループ化 (DateTime キー、 日のみ)
+    final eventsByDate = <DateTime, List<Event>>{};
+    for (final e in events) {
+      final key = DateTime(e.date.year, e.date.month, e.date.day);
+      eventsByDate.putIfAbsent(key, () => []).add(e);
+    }
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -126,6 +138,9 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
         final selectedTasks = selectedDayNorm != null
             ? (activeMap[selectedDayNorm] ?? <Task>[])
             : <Task>[];
+        final selectedEvents = selectedDayNorm != null
+            ? (eventsByDate[selectedDayNorm] ?? <Event>[])
+            : <Event>[];
 
         // 「次の予定日」サジェスト用: 選択日より後で最も近いタスクのある日
         DateTime? nextTaskDay;
@@ -252,7 +267,7 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
             Expanded(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
-                child: selectedTasks.isEmpty
+                child: (selectedTasks.isEmpty && selectedEvents.isEmpty)
                     ? _emptyState(
                         key: const ValueKey('empty'),
                         theme: theme,
@@ -262,14 +277,51 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                         nextTaskCount: nextTaskCount,
                         monthHasNoTask: monthHasNoTask,
                       )
-                    : ListView.builder(
+                    : ListView(
                         key: ValueKey('$_viewMode-$selectedDayNorm'),
                         padding: EdgeInsets.only(
                             left: 4, right: 4, top: 4,
                             bottom: 100 + MediaQuery.of(context).padding.bottom),
-                        itemCount: selectedTasks.length,
-                        itemBuilder: (context, index) =>
-                            _buildTaskTile(selectedTasks[index], categoryMap, l10n, locale),
+                        children: [
+                          if (selectedTasks.isNotEmpty) ...[
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                              child: Text(
+                                l10n.calendarSectionTasks,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color: theme.colorScheme.outline,
+                                  letterSpacing: 0.4,
+                                ),
+                              ),
+                            ),
+                            for (final t in selectedTasks)
+                              _buildTaskTile(t, categoryMap, l10n, locale),
+                          ],
+                          if (selectedEvents.isNotEmpty) ...[
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 12, 8, 4),
+                              child: Text(
+                                l10n.calendarSectionEvents,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color: const Color(0xFF8A4BFF),
+                                  letterSpacing: 0.4,
+                                ),
+                              ),
+                            ),
+                            for (final e in selectedEvents)
+                              _EventTile(
+                                event: e,
+                                locale: locale,
+                                l10n: l10n,
+                                onTap: () => _editEvent(context, e),
+                                onDelete: () => _deleteEvent(context, e),
+                              ),
+                          ],
+                        ],
                       ),
               ),
             ),
@@ -544,6 +596,140 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
     }
     return AppColors.getPriorityColor(task.priority, task.dueDate,
         isDark: isDark);
+  }
+
+  /// #2: 予定編集 (calendar_sync 由来は read-only ガード)
+  void _editEvent(BuildContext context, Event e) {
+    EventFormSheet.show(context, editTarget: e);
+  }
+
+  /// #2-4: 予定削除 (確認なし + SnackBar 取り消し)
+  Future<void> _deleteEvent(BuildContext context, Event e) async {
+    if (e.id == null) return;
+    final l10n = AppLocalizations.of(context)!;
+    await ref.read(eventsProvider.notifier).delete(e.id!);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.eventDeleted),
+        action: SnackBarAction(
+          label: l10n.undo,
+          onPressed: () {
+            ref.read(eventsProvider.notifier).add(e);
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// #2: 予定タイル — 紫バー + 時計アイコン + タイトル + 時刻範囲。
+/// 左スワイプで削除可能。
+class _EventTile extends StatelessWidget {
+  const _EventTile({
+    required this.event,
+    required this.locale,
+    required this.l10n,
+    required this.onTap,
+    required this.onDelete,
+  });
+
+  final Event event;
+  final String locale;
+  final AppLocalizations l10n;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    const purple = Color(0xFF8A4BFF);
+    final theme = Theme.of(context);
+    final allDayLabel = locale == 'ja' ? '終日' : 'All day';
+    final timeRange = event.timeRangeLabel(allDayLabel: allDayLabel);
+
+    return Dismissible(
+      key: ValueKey('event-${event.id ?? event.title}'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.error.withValues(alpha: 0.18),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(Icons.delete_outline_rounded,
+            color: theme.colorScheme.error, size: 22),
+      ),
+      onDismissed: (_) => onDelete(),
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: theme.dividerColor, width: 1),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: IntrinsicHeight(
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  decoration: const BoxDecoration(
+                    color: purple,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      bottomLeft: Radius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Icon(Icons.schedule, size: 16, color: purple),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          event.title,
+                          style: const TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (timeRange.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              timeRange,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                color: theme.colorScheme.outline,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (event.source == 'calendar_sync')
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Icon(Icons.cloud_outlined,
+                        size: 14, color: theme.colorScheme.outline),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

@@ -28,6 +28,7 @@ class V2TaskCard extends StatelessWidget {
     this.note,
     this.mode = V2TaskCardMode.active,
     this.onUncomplete,
+    this.onEditRecommendedDate,
   });
 
   final Task task;
@@ -37,6 +38,10 @@ class V2TaskCard extends StatelessWidget {
 
   /// archived モード時の「未完了に戻す」 callback。 null なら従来の checkbox。
   final VoidCallback? onUncomplete;
+
+  /// #1-1: expanded=true で表示する「実行日」 chip の編集 callback。
+  /// null なら chip は表示するが ✏️ なし。
+  final VoidCallback? onEditRecommendedDate;
 
   /// 展開状態（AIアドバイスやメタチップを下に出す）
   final bool expanded;
@@ -187,6 +192,15 @@ class V2TaskCard extends StatelessWidget {
                         ),
                         if (expanded) ...[
                           const SizedBox(height: 12),
+                          // #1-1: 実行日 + 編集アイコン (callback 有時)
+                          if (task.recommendedDate != null)
+                            _RecommendedDateRow(
+                              date: task.recommendedDate!,
+                              locale: locale,
+                              onEdit: onEditRecommendedDate,
+                            ),
+                          if (task.recommendedDate != null)
+                            const SizedBox(height: 8),
                           _MetaChips(
                             task: task,
                             category: category,
@@ -288,6 +302,50 @@ class _CheckCircle extends StatelessWidget {
               )
             : null,
       ),
+    );
+  }
+}
+
+/// #1-1: 展開時の「実行日: M/d ✏️」 行。 onEdit が null なら ✏️ なし。
+class _RecommendedDateRow extends StatelessWidget {
+  const _RecommendedDateRow({
+    required this.date,
+    required this.locale,
+    required this.onEdit,
+  });
+
+  final DateTime date;
+  final String locale;
+  final VoidCallback? onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    final yaru = context.yaru;
+    final l10n = AppLocalizations.of(context)!;
+    return Row(
+      children: [
+        Icon(Icons.flag_outlined, size: 12, color: yaru.inkTertiary),
+        const SizedBox(width: 4),
+        Text(
+          '${l10n.labelExecutionDay} ${DateFormat.MMMd(locale).format(date)}',
+          style: TextStyle(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w700,
+            color: yaru.inkSecondary,
+          ),
+        ),
+        if (onEdit != null) ...[
+          const SizedBox(width: 6),
+          InkWell(
+            onTap: onEdit,
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: Icon(Icons.edit,
+                  size: 14, color: yaru.inkSecondary),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
