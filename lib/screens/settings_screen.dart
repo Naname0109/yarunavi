@@ -169,6 +169,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     enabled: isPremium,
                   ),
+                  // #4: 通知タイミング (実行日 / 期限日 / 期限超過 + 時刻)
+                  const _NotifyTimingTile(),
                   // サウンドのON/OFF
                   Consumer(
                     builder: (context, ref, _) {
@@ -250,11 +252,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _BlockedDatesTile(),
                   _AvoidEventDaysToggle(),
                   _AiReminderToggle(),
-                  const Divider(),
-
-                  // --- 通知 (#4) ---
-                  _buildSectionHeader(context, l10n.notification),
-                  const _NotifyTimingTile(),
                   const Divider(),
 
                   // --- データ管理 ---

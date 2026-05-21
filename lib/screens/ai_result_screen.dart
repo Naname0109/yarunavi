@@ -10,6 +10,7 @@ import '../providers/task_provider.dart';
 import '../services/calendar_service.dart';
 import '../services/ai_service.dart';
 import '../theme/colors.dart';
+import '../utils/date_utils.dart' as app_date;
 import '../utils/notification_utils.dart';
 import '../widgets/ai_sort_button.dart';
 import '../widgets/responsive_wrapper.dart';
@@ -634,7 +635,8 @@ class _AiTaskCardState extends ConsumerState<_AiTaskCard> {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
     final theme = Theme.of(context);
-    final fmt = DateFormat.MMMd(locale);
+    // #3: 曜日付きフォーマッタを使う
+    String fmt(DateTime d) => app_date.formatDateWithWeekday(d, locale);
     final task = widget.task;
 
     return Card(
@@ -681,7 +683,7 @@ class _AiTaskCardState extends ConsumerState<_AiTaskCard> {
                                     color: theme.colorScheme.primary),
                                 const SizedBox(width: 4),
                                 Text(
-                                  fmt.format(task.recommendedDate!),
+                                  fmt(task.recommendedDate!),
                                   style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -718,7 +720,7 @@ class _AiTaskCardState extends ConsumerState<_AiTaskCard> {
   Widget _buildDetails(
     BuildContext context,
     AppLocalizations l10n,
-    DateFormat fmt,
+    String Function(DateTime) fmt,
     ThemeData theme,
   ) {
     final task = widget.task;
@@ -798,7 +800,7 @@ class _AiTaskCardState extends ConsumerState<_AiTaskCard> {
                     Flexible(
                       child: Text(
                         l10n.recommendedDateEditHint(
-                            fmt.format(task.recommendedDate!)),
+                            fmt(task.recommendedDate!)),
                         style: TextStyle(
                             fontSize: 12, color: theme.colorScheme.primary),
                       ),
@@ -821,7 +823,7 @@ class _AiTaskCardState extends ConsumerState<_AiTaskCard> {
               Icon(Icons.schedule, size: 14, color: theme.colorScheme.outline),
               const SizedBox(width: 4),
               Text(
-                l10n.dueDateLabel(fmt.format(task.dueDate)),
+                l10n.dueDateLabel(fmt(task.dueDate)),
                 style: TextStyle(fontSize: 12, color: theme.colorScheme.outline),
               ),
             ],

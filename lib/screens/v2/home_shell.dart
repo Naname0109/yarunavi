@@ -12,7 +12,6 @@ import '../../providers/category_provider.dart';
 import '../../providers/gamification_provider.dart';
 import '../../providers/task_provider.dart';
 import '../../theme/yaru_theme.dart';
-import '../../utils/date_utils.dart' as app_date;
 import '../../providers/event_provider.dart';
 import '../../services/event_sync_service.dart';
 import '../../widgets/event_form_sheet.dart';
@@ -1085,21 +1084,22 @@ class _CompletedSectionState extends ConsumerState<_CompletedSection> {
 }
 
 (int, int) _todayDoneTotal(List<Task> tasks) {
+  // #5: _splitTasks と同じ判定で「今日」 セクションに入るタスクの完了率を計算。
+  // 旧: priority==1 で水増しされる問題があったため統一。
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
-  final todayKey = app_date.formatDateForDb(today);
   int total = 0;
   int done = 0;
   for (final t in tasks) {
-    final dueKey = app_date.formatDateForDb(t.dueDate);
-    final isTodayDue = dueKey == todayKey;
-    final isPriority1 = t.priority == 1;
-    final recKey = t.recommendedDate != null
-        ? app_date.formatDateForDb(t.recommendedDate!)
+    final dueDay = DateTime(t.dueDate.year, t.dueDate.month, t.dueDate.day);
+    final recDay = t.recommendedDate != null
+        ? DateTime(t.recommendedDate!.year, t.recommendedDate!.month,
+            t.recommendedDate!.day)
         : null;
-    final isRecToday = recKey == todayKey;
-    final include = isTodayDue || isPriority1 || isRecToday;
-    if (include) {
+    final targetDay = recDay ?? dueDay;
+    final isOverdue = dueDay.isBefore(today);
+    final isToday = targetDay == today;
+    if (isOverdue || isToday) {
       total++;
       if (t.isCompleted) done++;
     }

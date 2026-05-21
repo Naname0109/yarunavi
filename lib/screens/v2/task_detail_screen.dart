@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../../models/task.dart';
@@ -384,9 +383,8 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  DateFormat.yMMMd(Localizations.localeOf(context).languageCode)
-                      .add_Hm()
-                      .format(task.dueDate),
+                  app_date.formatDateWithWeekday(task.dueDate,
+                      Localizations.localeOf(context).languageCode),
                   style: TextStyle(
                     fontSize: 11,
                     color: yaru.inkTertiary,

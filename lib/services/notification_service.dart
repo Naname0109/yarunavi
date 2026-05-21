@@ -221,10 +221,12 @@ class NotificationService {
         : DateTime(rec.year, rec.month, rec.day);
     final dueDay = DateTime(due.year, due.month, due.day);
 
-    // 既存の 3 段通知を一度キャンセル (置き換え)
-    await _plugin.cancel(taskId * 10 + 1);
-    await _plugin.cancel(taskId * 10 + 2);
-    await _plugin.cancel(taskId * 10 + 3);
+    // 既存の 3 段通知を一度キャンセル (置き換え)。
+    // ID オフセット 0-3 は AppConstants.notifyOffsets (on_due / 1_day_before /
+    // 3_days_before / 1_week_before) で予約済みのため、 重複を避けて 7-9 を使う。
+    await _plugin.cancel(taskId * 10 + 7);
+    await _plugin.cancel(taskId * 10 + 8);
+    await _plugin.cancel(taskId * 10 + 9);
 
     Future<void> schedule({
       required int id,
@@ -256,7 +258,7 @@ class NotificationService {
     // #4-1 (a) 実行日朝
     if (onRec && recDay != null) {
       await schedule(
-        id: taskId * 10 + 1,
+        id: taskId * 10 + 7,
         when: tz.TZDateTime(
             tz.local, recDay.year, recDay.month, recDay.day, hour, minute),
         body: locale == 'ja'
@@ -268,7 +270,7 @@ class NotificationService {
     // #4-1 (b) 期限日朝 (rec と異なる場合のみ)
     if (onDue && (recDay == null || recDay != dueDay)) {
       await schedule(
-        id: taskId * 10 + 2,
+        id: taskId * 10 + 8,
         when: tz.TZDateTime(
             tz.local, dueDay.year, dueDay.month, dueDay.day, hour, minute),
         body: locale == 'ja'
@@ -281,7 +283,7 @@ class NotificationService {
     if (onOverdue) {
       final over = dueDay.add(const Duration(days: 1));
       await schedule(
-        id: taskId * 10 + 3,
+        id: taskId * 10 + 9,
         when: tz.TZDateTime(
             tz.local, over.year, over.month, over.day, hour, minute),
         body: locale == 'ja'

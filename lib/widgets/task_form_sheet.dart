@@ -13,6 +13,7 @@ import '../providers/purchase_provider.dart';
 import '../providers/task_provider.dart';
 import '../services/calendar_service.dart';
 import '../utils/category_helper.dart';
+import '../utils/date_utils.dart' as app_date;
 import '../utils/notification_utils.dart';
 import '../utils/recurring_keyword_guide.dart';
 
@@ -243,7 +244,7 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
   }
 
   Widget _buildDueDateField(AppLocalizations l10n, String locale) {
-    final dateStr = DateFormat.yMMMd(locale).format(_dueDate);
+    final dateStr = app_date.formatDateWithWeekday(_dueDate, locale);
 
     return ListTile(
       contentPadding: EdgeInsets.zero,
@@ -612,7 +613,8 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
               : l10n.recommendedDateAiSet)
           : l10n.recommendedDateAiSet),
       subtitle: hasRecommendedDate
-          ? Text(DateFormat.yMMMd(locale).format(task!.recommendedDate!))
+          ? Text(app_date.formatDateWithWeekday(
+              task!.recommendedDate!, locale))
           : Text(l10n.recommendedDateNotSet,
               style: TextStyle(color: theme.colorScheme.outline)),
       trailing: hasRecommendedDate ? const Icon(Icons.chevron_right) : null,
