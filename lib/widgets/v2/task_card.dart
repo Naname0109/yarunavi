@@ -439,6 +439,7 @@ class _AIAdviceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final yaru = context.yaru;
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -461,7 +462,7 @@ class _AIAdviceCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'AI ADVICE',
+                  l10n.labelAiAdvice,
                   style: TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w800,

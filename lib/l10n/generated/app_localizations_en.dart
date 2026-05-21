@@ -2207,6 +2207,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiPurchasePremiumTitle => 'Premium ¥580/mo';
 
   @override
+  String get aiPurchasePremiumLabel => 'Premium';
+
+  @override
+  String get aiPurchaseTicketLabel => 'AI sort ticket';
+
+  @override
+  String get labelOverdue => 'OVERDUE';
+
+  @override
+  String get labelDue => 'DUE';
+
+  @override
+  String get labelDueToday => 'DUE TODAY';
+
+  @override
+  String get labelRepeat => 'REPEAT';
+
+  @override
+  String get labelEst => 'EST';
+
+  @override
+  String get labelUrgent => 'URGENT';
+
+  @override
+  String get labelAiAdvice => 'AI ADVICE';
+
+  @override
+  String get labelNow => 'NOW';
+
+  @override
+  String get labelThisWeek => 'THIS WEEK';
+
+  @override
+  String get labelLater => 'LATER';
+
+  @override
+  String get labelNormal => 'NORMAL';
+
+  @override
   String get aiPurchasePremiumSubtitle =>
       '30 AI sorts/month + every feature unlocked';
 

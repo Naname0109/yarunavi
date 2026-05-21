@@ -2162,6 +2162,45 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiPurchasePremiumTitle => 'プレミアムプラン ¥580/月';
 
   @override
+  String get aiPurchasePremiumLabel => 'プレミアムプラン';
+
+  @override
+  String get aiPurchaseTicketLabel => 'AI 整理チケット';
+
+  @override
+  String get labelOverdue => '期限切れ';
+
+  @override
+  String get labelDue => '期限';
+
+  @override
+  String get labelDueToday => '今日が期限';
+
+  @override
+  String get labelRepeat => '定期';
+
+  @override
+  String get labelEst => '推定';
+
+  @override
+  String get labelUrgent => '緊急';
+
+  @override
+  String get labelAiAdvice => 'AIアドバイス';
+
+  @override
+  String get labelNow => '今すぐ';
+
+  @override
+  String get labelThisWeek => '今週';
+
+  @override
+  String get labelLater => '来週以降';
+
+  @override
+  String get labelNormal => '通常';
+
+  @override
   String get aiPurchasePremiumSubtitle => 'AI 整理 月 30 回 + 全機能解放';
 
   @override

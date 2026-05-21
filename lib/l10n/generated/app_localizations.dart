@@ -4214,6 +4214,84 @@ abstract class AppLocalizations {
   /// **'プレミアムプラン ¥580/月'**
   String get aiPurchasePremiumTitle;
 
+  /// No description provided for @aiPurchasePremiumLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムプラン'**
+  String get aiPurchasePremiumLabel;
+
+  /// No description provided for @aiPurchaseTicketLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI 整理チケット'**
+  String get aiPurchaseTicketLabel;
+
+  /// No description provided for @labelOverdue.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限切れ'**
+  String get labelOverdue;
+
+  /// No description provided for @labelDue.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限'**
+  String get labelDue;
+
+  /// No description provided for @labelDueToday.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日が期限'**
+  String get labelDueToday;
+
+  /// No description provided for @labelRepeat.
+  ///
+  /// In ja, this message translates to:
+  /// **'定期'**
+  String get labelRepeat;
+
+  /// No description provided for @labelEst.
+  ///
+  /// In ja, this message translates to:
+  /// **'推定'**
+  String get labelEst;
+
+  /// No description provided for @labelUrgent.
+  ///
+  /// In ja, this message translates to:
+  /// **'緊急'**
+  String get labelUrgent;
+
+  /// No description provided for @labelAiAdvice.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIアドバイス'**
+  String get labelAiAdvice;
+
+  /// No description provided for @labelNow.
+  ///
+  /// In ja, this message translates to:
+  /// **'今すぐ'**
+  String get labelNow;
+
+  /// No description provided for @labelThisWeek.
+  ///
+  /// In ja, this message translates to:
+  /// **'今週'**
+  String get labelThisWeek;
+
+  /// No description provided for @labelLater.
+  ///
+  /// In ja, this message translates to:
+  /// **'来週以降'**
+  String get labelLater;
+
+  /// No description provided for @labelNormal.
+  ///
+  /// In ja, this message translates to:
+  /// **'通常'**
+  String get labelNormal;
+
   /// No description provided for @aiPurchasePremiumSubtitle.
   ///
   /// In ja, this message translates to:

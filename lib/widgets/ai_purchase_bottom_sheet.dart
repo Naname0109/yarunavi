@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n/generated/app_localizations.dart';
+import '../providers/purchase_provider.dart';
 import '../theme/yaru_theme.dart';
 import '../utils/constants.dart';
 
@@ -8,7 +10,7 @@ import '../utils/constants.dart';
 /// 表示する購入案内シート。 ユーザーが選んだ手段を返す。
 enum AiPurchaseChoice { premium, ticket, rewarded }
 
-class AiPurchaseBottomSheet extends StatelessWidget {
+class AiPurchaseBottomSheet extends ConsumerWidget {
   const AiPurchaseBottomSheet._({
     required this.rewardedAvailable,
     required this.ticketLifetime,
@@ -34,12 +36,18 @@ class AiPurchaseBottomSheet extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final yaru = context.yaru;
     final l10n = AppLocalizations.of(context)!;
     final remainingTickets =
         AppConstants.kAiTicketMaxLifetimePurchases - ticketLifetime;
     final ticketDisabled = remainingTickets <= 0;
+    // #2: StoreKit のローカライズ済価格を優先、 fallback は arb
+    final purchaseService = ref.read(purchaseServiceProvider);
+    final monthlyPrice =
+        purchaseService.monthlyProduct?.price ?? l10n.storeMonthlyPrice;
+    final ticketPrice =
+        purchaseService.aiTicketProduct?.price ?? '¥120';
 
     return SafeArea(
       child: Container(
@@ -85,7 +93,7 @@ class AiPurchaseBottomSheet extends StatelessWidget {
             _OptionTile(
               icon: Icons.workspace_premium_rounded,
               iconColor: yaru.accent,
-              title: l10n.aiPurchasePremiumTitle,
+              title: '${l10n.aiPurchasePremiumLabel} $monthlyPrice',
               subtitle: l10n.aiPurchasePremiumSubtitle,
               onTap: () =>
                   Navigator.of(context).pop(AiPurchaseChoice.premium),
@@ -94,7 +102,7 @@ class AiPurchaseBottomSheet extends StatelessWidget {
             _OptionTile(
               icon: Icons.confirmation_number_outlined,
               iconColor: ticketDisabled ? yaru.inkQuaternary : yaru.accent,
-              title: l10n.aiPurchaseTicketTitle,
+              title: '${l10n.aiPurchaseTicketLabel} $ticketPrice',
               subtitle: ticketDisabled
                   ? l10n.aiPurchaseTicketDisabled
                   : l10n.aiPurchaseTicketSubtitle(

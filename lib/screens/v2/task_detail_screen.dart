@@ -274,13 +274,42 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
     );
   }
 
+  /// #4: 期限カウントダウンを 日/時/分/秒 単位で表示。
+  /// - 1 日以上残: N日 H時間 M分 (秒は省略)
+  /// - 1 日未満:   H時間 M分 S秒
+  /// - 期限切れ:    (N日) H時間 超過
+  String _formatCountdown(
+      Duration remaining, bool overdue, AppLocalizations l10n) {
+    final days = remaining.inDays;
+    final hours = remaining.inHours % 24;
+    final minutes = remaining.inMinutes % 60;
+    final seconds = remaining.inSeconds % 60;
+    final isJa = l10n.localeName == 'ja';
+    if (overdue) {
+      if (days > 0) {
+        return isJa
+            ? '$days日 ${hours}時間 超過'
+            : '${days}d ${hours}h overdue';
+      }
+      return isJa ? '${hours}時間 超過' : '${hours}h overdue';
+    }
+    if (days > 0) {
+      return isJa
+          ? '$days日 ${hours}時間 ${minutes}分'
+          : '${days}d ${hours}h ${minutes}m';
+    }
+    return isJa
+        ? '${hours}時間 ${minutes}分 ${seconds}秒'
+        : '${hours}h ${minutes}m ${seconds}s';
+  }
+
   String _priorityLabel(AppLocalizations l10n, int priority) {
     return switch (priority) {
-      1 => 'URGENT',
-      2 => 'SOON',
-      3 => 'LATER',
-      4 => 'CALM',
-      _ => 'NORMAL',
+      1 => l10n.labelUrgent,
+      2 => l10n.labelNow,
+      3 => l10n.labelLater,
+      4 => l10n.labelThisWeek,
+      _ => l10n.labelNormal,
     };
   }
 
@@ -288,9 +317,7 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
     final diff = task.dueDate.difference(_now);
     final overdue = diff.isNegative;
     final remaining = diff.abs();
-    final h = remaining.inHours.toString().padLeft(2, '0');
-    final m = (remaining.inMinutes % 60).toString().padLeft(2, '0');
-    final s = (remaining.inSeconds % 60).toString().padLeft(2, '0');
+    final countdownText = _formatCountdown(remaining, overdue, l10n);
     final accent = overdue ? yaru.urgent : yaru.flame;
 
     return Padding(
@@ -333,7 +360,7 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      overdue ? 'OVERDUE' : l10n.taskDetailCountdown,
+                      overdue ? l10n.labelOverdue : l10n.taskDetailCountdown,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
@@ -345,12 +372,12 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '$h:$m:$s',
+                  countdownText,
                   style: TextStyle(
-                    fontSize: 40,
+                    fontSize: 32,
                     fontWeight: FontWeight.w800,
                     color: yaru.inkPrimary,
-                    height: 1,
+                    height: 1.1,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
@@ -451,7 +478,7 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
         children: [
           _row(
             icon: Icons.event_rounded,
-            label: 'DUE',
+            label: l10n.labelDue,
             value: DateFormat.yMMMd(locale).add_Hm().format(task.dueDate),
             yaru: yaru,
           ),
@@ -460,7 +487,7 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
           if (task.recurrenceType != null)
             _row(
               icon: Icons.repeat_rounded,
-              label: 'REPEAT',
+              label: l10n.labelRepeat,
               value: _recurrenceLabel(l10n, task.recurrenceType!),
               yaru: yaru,
             ),
@@ -468,7 +495,7 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
             _divider(yaru),
             _row(
               icon: Icons.bolt_rounded,
-              label: 'EST',
+              label: l10n.labelEst,
               value: task.estimatedTime!,
               yaru: yaru,
             ),
