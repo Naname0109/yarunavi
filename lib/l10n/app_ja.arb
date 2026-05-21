@@ -1400,5 +1400,30 @@
     "placeholders": {
       "count": { "type": "int" }
     }
-  }
+  },
+
+  "scheduleSection": "タスクのスケジュール",
+  "@scheduleSection": {},
+  "scheduleBusynessLabel": "曜日ごとの忙しさ (1=暇〜5=多忙)",
+  "@scheduleBusynessLabel": {},
+  "blockedDatesLabel": "タスク実行不可日",
+  "@blockedDatesLabel": {},
+  "blockedDatesAdd": "日付を追加",
+  "@blockedDatesAdd": {},
+  "blockedDatesEmpty": "登録されていません",
+  "@blockedDatesEmpty": {},
+  "weekdayMonShort": "月",
+  "@weekdayMonShort": {},
+  "weekdayTueShort": "火",
+  "@weekdayTueShort": {},
+  "weekdayWedShort": "水",
+  "@weekdayWedShort": {},
+  "weekdayThuShort": "木",
+  "@weekdayThuShort": {},
+  "weekdayFriShort": "金",
+  "@weekdayFriShort": {},
+  "weekdaySatShort": "土",
+  "@weekdaySatShort": {},
+  "weekdaySunShort": "日",
+  "@weekdaySunShort": {}
 }

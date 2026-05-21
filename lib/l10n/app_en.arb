@@ -728,5 +728,18 @@
   "deleteAllHistoryConfirmTitle": "Clear all completed history?",
   "deleteAllHistoryConfirmBody": "All completed task history will be removed. This cannot be undone.",
   "deleteAllAction": "Delete all",
-  "historyDeletedSnack": "{count} entries deleted"
+  "historyDeletedSnack": "{count} entries deleted",
+
+  "scheduleSection": "Task schedule",
+  "scheduleBusynessLabel": "How busy each weekday is (1 = free, 5 = busy)",
+  "blockedDatesLabel": "Days I can't work on tasks",
+  "blockedDatesAdd": "Add date",
+  "blockedDatesEmpty": "None set",
+  "weekdayMonShort": "Mon",
+  "weekdayTueShort": "Tue",
+  "weekdayWedShort": "Wed",
+  "weekdayThuShort": "Thu",
+  "weekdayFriShort": "Fri",
+  "weekdaySatShort": "Sat",
+  "weekdaySunShort": "Sun"
 }

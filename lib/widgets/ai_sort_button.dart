@@ -217,12 +217,19 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       }
 
       final timingFactor = ref.read(executionTimingProvider);
+      // #3-3: スケジュール設定を AI に渡す
+      final weekdayBusyness =
+          ref.read(weekdayBusynessProvider).valueOrNull;
+      final blockedDates =
+          ref.read(blockedDatesProvider).valueOrNull;
 
       final response = await AiService.sortTasks(
         incompleteTasks,
         categoryNames: categoryNames,
         additionalContext: additionalContext,
         executionTimingFactor: timingFactor,
+        weekdayBusyness: weekdayBusyness,
+        blockedDates: blockedDates,
       );
 
       // レスポンス受信 → 80%→95%

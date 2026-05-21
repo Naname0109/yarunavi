@@ -314,6 +314,8 @@ summary_ja/summary_enに今日のアクションプランを1-2文で具体的�
     Map<int, String> categoryNames = const {},
     String? additionalContext,
     double executionTimingFactor = 0.5,
+    List<int>? weekdayBusyness, // #3-3: 月-日 の 1〜5 (1=暇)
+    List<DateTime>? blockedDates, // #3-3: タスク実行不可日
   }) async {
     debugPrint('[PROXY-DEBUG] AI_PROXY_URL: "${AppConstants.aiProxyUrl}"');
     debugPrint('[PROXY-DEBUG] AI_APP_TOKEN: ${AppConstants.aiAppToken.isNotEmpty ? "設定済み(${AppConstants.aiAppToken.length}文字)" : "未設定"}');
@@ -323,7 +325,12 @@ summary_ja/summary_enに今日のアクションプランを1-2文で具体的�
     if (AppConstants.aiProxyUrl.isEmpty &&
         (!kDebugMode || AppConstants.anthropicApiKey.isEmpty)) {
       debugPrint('[PROXY-DEBUG] → フォールバック実行（API設定なし）');
-      return _fallbackSort(tasks, executionTimingFactor: executionTimingFactor);
+      return _fallbackSort(
+        tasks,
+        executionTimingFactor: executionTimingFactor,
+        weekdayBusyness: weekdayBusyness,
+        blockedDates: blockedDates,
+      );
     }
 
     final now = DateTime.now();
@@ -360,6 +367,26 @@ summary_ja/summary_enに今日のアクションプランを1-2文で具体的�
         '（0.0=期限直前、0.5=バランス、1.0=かなり早め）。'
         'この値に応じてrecommended_dateを調整してください。'
         '値が低いほど期限に近い日を、高いほど余裕を持った日を推奨してください。';
+
+    // #3-3: 曜日忙しさ + 実行不可日をシステムプロンプトに反映
+    if (weekdayBusyness != null && weekdayBusyness.length == 7) {
+      final lines = <String>[];
+      for (var i = 0; i < 7; i++) {
+        lines.add('${weekdays[i]}: ${weekdayBusyness[i]}/5');
+      }
+      userPrompt +=
+          '\n\nユーザーの曜日ごとの忙しさ (1=暇, 5=多忙):\n${lines.join(', ')}'
+          '\n忙しい曜日にはなるべくタスクを集中させず、 暇な曜日に分散してください。';
+    }
+    if (blockedDates != null && blockedDates.isNotEmpty) {
+      final iso = blockedDates
+          .map((d) => app_date.formatDateForDb(d))
+          .toList()
+          .join(', ');
+      userPrompt +=
+          '\n\nタスク実行不可日 (recommended_date には設定禁止):\n$iso';
+    }
+
     if (additionalContext != null) {
       userPrompt += '\n\n追加情報:\n$additionalContext';
     }
@@ -681,9 +708,35 @@ summary_ja/summary_enに今日のアクションプランを1-2文で具体的�
   static AiSortResponse _fallbackSort(
     List<Task> tasks, {
     double executionTimingFactor = 0.5,
+    List<int>? weekdayBusyness,
+    List<DateTime>? blockedDates,
   }) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
+
+    // #3-3: blocked / busy 日を 1 日後ろにずらすヘルパー
+    final blockedSet = <String>{
+      if (blockedDates != null)
+        for (final d in blockedDates) app_date.formatDateForDb(d),
+    };
+    bool isBusyDay(DateTime d) {
+      if (weekdayBusyness == null || weekdayBusyness.length != 7) return false;
+      return weekdayBusyness[d.weekday - 1] >= 4;
+    }
+
+    DateTime avoidBlocked(DateTime d, DateTime due) {
+      var probe = d;
+      for (var i = 0; i < 14; i++) {
+        final iso = app_date.formatDateForDb(probe);
+        if (!blockedSet.contains(iso) && !isBusyDay(probe)) return probe;
+        probe = probe.subtract(const Duration(days: 1));
+        if (probe.isBefore(today)) {
+          // 今日も blocked なら due 側に寄せる (どうしようもないので)
+          return today;
+        }
+      }
+      return d;
+    }
 
     final results = tasks.where((t) => t.id != null).map((t) {
       final due = DateTime(t.dueDate.year, t.dueDate.month, t.dueDate.day);
@@ -742,6 +795,8 @@ summary_ja/summary_enに今日のアクションプランを1-2文で具体的�
         recDate = due.subtract(const Duration(days: 1));
         if (recDate.isBefore(today)) recDate = today;
       }
+      // #3-3: blocked / 忙しい日を回避
+      recDate = avoidBlocked(recDate, due);
 
       // フォールバック用コメント生成
       String commentJa;

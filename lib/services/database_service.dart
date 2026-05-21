@@ -24,7 +24,7 @@ class DatabaseService {
     // v12: tasks.xp_granted (XP 1 タスク 1 回保証)
     _db = await openDatabase(
       path,
-      version: 12,
+      version: 13,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -202,6 +202,14 @@ class DatabaseService {
       )
     ''');
 
+    // v13: タスク実行不可日 (#3)
+    await db.execute('''
+      CREATE TABLE blocked_dates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL UNIQUE
+      )
+    ''');
+
     // デフォルトカテゴリ投入（nameはi18nキーとして保存）
     final now = DateTime.now().toIso8601String();
     final defaultCategories = [
@@ -302,6 +310,38 @@ class DatabaseService {
       );
       await db.execute('UPDATE tasks SET xp_granted = 1 WHERE is_completed = 1');
     }
+    if (oldVersion < 13) {
+      // #3 タスク実行不可日
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS blocked_dates (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          date TEXT NOT NULL UNIQUE
+        )
+      ''');
+    }
+  }
+
+  // ====== Blocked dates (#3 タスク実行不可日) ======
+
+  Future<List<DateTime>> getBlockedDates() async {
+    final rows = await db.query('blocked_dates', orderBy: 'date ASC');
+    return rows
+        .map((r) => DateTime.parse(r['date'] as String))
+        .toList(growable: false);
+  }
+
+  Future<void> addBlockedDate(DateTime date) async {
+    final iso = DateTime(date.year, date.month, date.day).toIso8601String();
+    await db.insert(
+      'blocked_dates',
+      {'date': iso},
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
+  }
+
+  Future<void> removeBlockedDate(DateTime date) async {
+    final iso = DateTime(date.year, date.month, date.day).toIso8601String();
+    await db.delete('blocked_dates', where: 'date = ?', whereArgs: [iso]);
   }
 
   // ====== Gamification: user_stats / badges / xp_history ======

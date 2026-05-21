@@ -207,6 +207,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   const Divider(),
 
+                  // --- タスクのスケジュール (#3) ---
+                  _buildSectionHeader(context, l10n.scheduleSection),
+                  _WeekdayBusynessTile(),
+                  _BlockedDatesTile(),
+                  const Divider(),
+
                   // --- データ管理 ---
                   _buildSectionHeader(context, l10n.dataManagement),
                   ListTile(
@@ -691,5 +697,139 @@ class _DevModeToggles extends ConsumerWidget {
         ),
       ],
     );
+  }
+}
+
+/// #3-1: 曜日ごとの忙しさ (1=暇〜5=多忙)。 Slider × 7 曜日。
+class _WeekdayBusynessTile extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final asyncValue = ref.watch(weekdayBusynessProvider);
+    final values = asyncValue.valueOrNull ?? defaultWeekdayBusyness;
+    final weekdayLabels = [
+      l10n.weekdayMonShort,
+      l10n.weekdayTueShort,
+      l10n.weekdayWedShort,
+      l10n.weekdayThuShort,
+      l10n.weekdayFriShort,
+      l10n.weekdaySatShort,
+      l10n.weekdaySunShort,
+    ];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 4),
+            child: Text(
+              l10n.scheduleBusynessLabel,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+            ),
+          ),
+          for (var i = 0; i < 7; i++)
+            Row(
+              children: [
+                SizedBox(
+                  width: 36,
+                  child: Text(weekdayLabels[i],
+                      style:
+                          const TextStyle(fontWeight: FontWeight.w700)),
+                ),
+                Expanded(
+                  child: Slider(
+                    value: values[i].toDouble(),
+                    min: 1,
+                    max: 5,
+                    divisions: 4,
+                    label: '${values[i]}',
+                    onChanged: (v) {
+                      ref
+                          .read(weekdayBusynessProvider.notifier)
+                          .setBusyness(i, v.round());
+                    },
+                  ),
+                ),
+                SizedBox(
+                  width: 24,
+                  child: Text('${values[i]}',
+                      textAlign: TextAlign.end,
+                      style:
+                          const TextStyle(fontWeight: FontWeight.w700)),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// #3-2: タスク実行不可日。
+class _BlockedDatesTile extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final asyncDates = ref.watch(blockedDatesProvider);
+    final dates = asyncDates.valueOrNull ?? const <DateTime>[];
+    final fmt = DateFormat.yMd(
+        Localizations.localeOf(context).toLanguageTag());
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(l10n.blockedDatesLabel,
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w700)),
+              ),
+              TextButton.icon(
+                onPressed: () => _addDate(context, ref),
+                icon: const Icon(Icons.add, size: 18),
+                label: Text(l10n.blockedDatesAdd),
+              ),
+            ],
+          ),
+          if (dates.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 8),
+              child: Text(
+                l10n.blockedDatesEmpty,
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).hintColor),
+              ),
+            ),
+          for (final d in dates)
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.block, size: 18),
+              title: Text(fmt.format(d)),
+              trailing: IconButton(
+                icon: const Icon(Icons.close, size: 18),
+                onPressed: () =>
+                    ref.read(blockedDatesProvider.notifier).remove(d),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _addDate(BuildContext context, WidgetRef ref) async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: DateTime(now.year, now.month - 1, 1),
+      lastDate: DateTime(now.year + 1, 12, 31),
+    );
+    if (picked == null) return;
+    await ref.read(blockedDatesProvider.notifier).add(picked);
   }
 }

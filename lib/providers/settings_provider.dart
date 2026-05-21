@@ -2,10 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'task_provider.dart' show databaseServiceProvider;
+
 const _localeKey = 'app_locale';
 const _themeModeKey = 'app_theme_mode';
 const _executionTimingKey = 'execution_timing_factor';
 const _soundEnabledKey = 'sound_enabled';
+const _weekdayBusynessKey = 'weekday_busyness'; // #3-1: 1=暇〜5=忙しい × 7曜日
+
+/// 曜日ごとの「忙しさ」。 月=0 〜 日=6 のリスト、 値は 1〜5。
+/// AI 整理時に「忙しい曜日にはタスクを集中させない」 ヒントとして渡す。
+typedef WeekdayBusyness = List<int>;
+
+const WeekdayBusyness defaultWeekdayBusyness = [3, 3, 3, 3, 3, 3, 3];
 
 /// 起動時の初期設定値（main.dartでoverrideされる）
 final initialLocaleProvider = Provider<Locale>((ref) => const Locale('ja'));
@@ -116,3 +125,58 @@ class SoundEnabledNotifier extends Notifier<bool> {
 
 final soundEnabledProvider =
     NotifierProvider<SoundEnabledNotifier, bool>(SoundEnabledNotifier.new);
+
+/// 曜日ごとの忙しさ設定 (#3-1)。 SharedPreferences に「3,3,3,3,3,3,3」形式で保存。
+class WeekdayBusynessNotifier extends AsyncNotifier<WeekdayBusyness> {
+  @override
+  Future<WeekdayBusyness> build() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_weekdayBusynessKey);
+    if (raw == null) return defaultWeekdayBusyness;
+    final parts = raw.split(',');
+    if (parts.length != 7) return defaultWeekdayBusyness;
+    return [
+      for (final p in parts) (int.tryParse(p) ?? 3).clamp(1, 5),
+    ];
+  }
+
+  Future<void> setBusyness(int weekdayIndex, int value) async {
+    final current = state.valueOrNull ?? defaultWeekdayBusyness;
+    final next = [...current];
+    next[weekdayIndex] = value.clamp(1, 5);
+    state = AsyncValue.data(next);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_weekdayBusynessKey, next.join(','));
+  }
+}
+
+final weekdayBusynessProvider =
+    AsyncNotifierProvider<WeekdayBusynessNotifier, WeekdayBusyness>(
+  WeekdayBusynessNotifier.new,
+);
+
+/// タスク実行不可日 (#3-2)。 blocked_dates テーブルから読み込み。
+class BlockedDatesNotifier extends AsyncNotifier<List<DateTime>> {
+  @override
+  Future<List<DateTime>> build() async {
+    final db = ref.read(databaseServiceProvider);
+    return db.getBlockedDates();
+  }
+
+  Future<void> add(DateTime date) async {
+    final db = ref.read(databaseServiceProvider);
+    await db.addBlockedDate(date);
+    ref.invalidateSelf();
+  }
+
+  Future<void> remove(DateTime date) async {
+    final db = ref.read(databaseServiceProvider);
+    await db.removeBlockedDate(date);
+    ref.invalidateSelf();
+  }
+}
+
+final blockedDatesProvider =
+    AsyncNotifierProvider<BlockedDatesNotifier, List<DateTime>>(
+  BlockedDatesNotifier.new,
+);

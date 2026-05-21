@@ -3715,6 +3715,78 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'{count}件の履歴を削除しました'**
   String historyDeletedSnack(int count);
+
+  /// No description provided for @scheduleSection.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクのスケジュール'**
+  String get scheduleSection;
+
+  /// No description provided for @scheduleBusynessLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'曜日ごとの忙しさ (1=暇〜5=多忙)'**
+  String get scheduleBusynessLabel;
+
+  /// No description provided for @blockedDatesLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク実行不可日'**
+  String get blockedDatesLabel;
+
+  /// No description provided for @blockedDatesAdd.
+  ///
+  /// In ja, this message translates to:
+  /// **'日付を追加'**
+  String get blockedDatesAdd;
+
+  /// No description provided for @blockedDatesEmpty.
+  ///
+  /// In ja, this message translates to:
+  /// **'登録されていません'**
+  String get blockedDatesEmpty;
+
+  /// No description provided for @weekdayMonShort.
+  ///
+  /// In ja, this message translates to:
+  /// **'月'**
+  String get weekdayMonShort;
+
+  /// No description provided for @weekdayTueShort.
+  ///
+  /// In ja, this message translates to:
+  /// **'火'**
+  String get weekdayTueShort;
+
+  /// No description provided for @weekdayWedShort.
+  ///
+  /// In ja, this message translates to:
+  /// **'水'**
+  String get weekdayWedShort;
+
+  /// No description provided for @weekdayThuShort.
+  ///
+  /// In ja, this message translates to:
+  /// **'木'**
+  String get weekdayThuShort;
+
+  /// No description provided for @weekdayFriShort.
+  ///
+  /// In ja, this message translates to:
+  /// **'金'**
+  String get weekdayFriShort;
+
+  /// No description provided for @weekdaySatShort.
+  ///
+  /// In ja, this message translates to:
+  /// **'土'**
+  String get weekdaySatShort;
+
+  /// No description provided for @weekdaySunShort.
+  ///
+  /// In ja, this message translates to:
+  /// **'日'**
+  String get weekdaySunShort;
 }
 
 class _AppLocalizationsDelegate

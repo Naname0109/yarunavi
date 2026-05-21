@@ -1911,4 +1911,40 @@ class AppLocalizationsJa extends AppLocalizations {
   String historyDeletedSnack(int count) {
     return '$count件の履歴を削除しました';
   }
+
+  @override
+  String get scheduleSection => 'タスクのスケジュール';
+
+  @override
+  String get scheduleBusynessLabel => '曜日ごとの忙しさ (1=暇〜5=多忙)';
+
+  @override
+  String get blockedDatesLabel => 'タスク実行不可日';
+
+  @override
+  String get blockedDatesAdd => '日付を追加';
+
+  @override
+  String get blockedDatesEmpty => '登録されていません';
+
+  @override
+  String get weekdayMonShort => '月';
+
+  @override
+  String get weekdayTueShort => '火';
+
+  @override
+  String get weekdayWedShort => '水';
+
+  @override
+  String get weekdayThuShort => '木';
+
+  @override
+  String get weekdayFriShort => '金';
+
+  @override
+  String get weekdaySatShort => '土';
+
+  @override
+  String get weekdaySunShort => '日';
 }

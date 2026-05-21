@@ -1947,4 +1947,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String historyDeletedSnack(int count) {
     return '$count entries deleted';
   }
+
+  @override
+  String get scheduleSection => 'Task schedule';
+
+  @override
+  String get scheduleBusynessLabel =>
+      'How busy each weekday is (1 = free, 5 = busy)';
+
+  @override
+  String get blockedDatesLabel => 'Days I can\'t work on tasks';
+
+  @override
+  String get blockedDatesAdd => 'Add date';
+
+  @override
+  String get blockedDatesEmpty => 'None set';
+
+  @override
+  String get weekdayMonShort => 'Mon';
+
+  @override
+  String get weekdayTueShort => 'Tue';
+
+  @override
+  String get weekdayWedShort => 'Wed';
+
+  @override
+  String get weekdayThuShort => 'Thu';
+
+  @override
+  String get weekdayFriShort => 'Fri';
+
+  @override
+  String get weekdaySatShort => 'Sat';
+
+  @override
+  String get weekdaySunShort => 'Sun';
 }
