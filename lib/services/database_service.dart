@@ -21,9 +21,10 @@ class DatabaseService {
     final dbPath = await getDatabasesPath();
     final path = p.join(dbPath, 'yarunavi.db');
 
+    // v12: tasks.xp_granted (XP 1 タスク 1 回保証)
     _db = await openDatabase(
       path,
-      version: 11,
+      version: 12,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -161,6 +162,7 @@ class DatabaseService {
         is_recommended_date_manual INTEGER NOT NULL DEFAULT 0,
         recommended_start TEXT,
         recommended_end TEXT,
+        xp_granted INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
@@ -292,6 +294,14 @@ class DatabaseService {
     if (oldVersion < 11) {
       await _migrateToV11(db);
     }
+    if (oldVersion < 12) {
+      // tasks.xp_granted: 1 タスクにつき XP 付与は生涯 1 回のみ。
+      // 既に完了済みのタスクは付与済みとして扱う (旧版で XP 付与済みと仮定)。
+      await db.execute(
+        'ALTER TABLE tasks ADD COLUMN xp_granted INTEGER NOT NULL DEFAULT 0',
+      );
+      await db.execute('UPDATE tasks SET xp_granted = 1 WHERE is_completed = 1');
+    }
   }
 
   // ====== Gamification: user_stats / badges / xp_history ======
@@ -357,6 +367,30 @@ class DatabaseService {
       orderBy: 'earned_at DESC',
       limit: limit,
     );
+  }
+
+  /// 今日獲得した XP 合計 (#2-B: 1 日 200 XP 上限チェック用)。
+  Future<int> getTodayXpTotal() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day).toIso8601String();
+    final rows = await db.rawQuery(
+      'SELECT COALESCE(SUM(amount), 0) AS total FROM xp_history '
+      'WHERE earned_at >= ?',
+      [today],
+    );
+    return (rows.first['total'] as int?) ?? 0;
+  }
+
+  /// 今日 指定 reason の XP イベントが既にあるか (#2-E: all_today_done を 1 日 1 回保証)。
+  Future<bool> hasXpReasonToday(String reason) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day).toIso8601String();
+    final rows = await db.rawQuery(
+      'SELECT COUNT(*) AS cnt FROM xp_history '
+      'WHERE reason = ? AND earned_at >= ?',
+      [reason, today],
+    );
+    return ((rows.first['cnt'] as int?) ?? 0) > 0;
   }
 
   // --- Tasks CRUD ---

@@ -168,9 +168,13 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
   Future<void> toggleComplete(Task task) async {
     final justCompleting = !task.isCompleted;
     final now = DateTime.now();
+    // XP 不正取得防止 (#2-A): 1 タスクにつき XP 付与は生涯 1 回のみ。
+    // 一度 xp_granted=1 にしたタスクは未完了→完了 を繰り返しても XP が増えない。
+    final shouldGrantXp = justCompleting && !task.xpGranted;
     final updated = task.copyWith(
       isCompleted: !task.isCompleted,
       completedAt: !task.isCompleted ? now : null,
+      xpGranted: task.xpGranted || shouldGrantXp,
       updatedAt: now,
     );
     await _db.updateTask(updated);
@@ -183,12 +187,12 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
       }
     }
 
-    if (justCompleting) {
+    if (shouldGrantXp) {
       final remaining = await _db.getActiveTodayTasksBroad();
       final allDone = remaining.isEmpty;
       await ref
           .read(userStatsProvider.notifier)
-          .recordTaskCompletion(isAllTodayDone: allDone);
+          .recordTaskCompletion(isAllTodayDone: allDone, task: updated);
     }
 
     ref.invalidateSelf();
@@ -230,6 +234,9 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
     if (task.recurrenceType != null) {
       if (task.isCompleted) return null;
 
+      // XP 不正取得防止 (#2-A): xp_granted=1 のタスクは XP 付与スキップ
+      final shouldGrantXp = !task.xpGranted;
+
       final newTask = await _db.completeRecurringTask(task);
 
       if (task.id != null) {
@@ -249,11 +256,14 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
       await _notify.scheduleTaskNotifications(newTask, isPremium: _isPremium);
 
       // ゲーミフィケーション統合: 完了XP+ストリーク+バッジ
-      final remaining = await _db.getActiveTodayTasksBroad();
-      final allDone = remaining.isEmpty;
-      await ref
-          .read(userStatsProvider.notifier)
-          .recordTaskCompletion(isAllTodayDone: allDone);
+      if (shouldGrantXp) {
+        final remaining = await _db.getActiveTodayTasksBroad();
+        final allDone = remaining.isEmpty;
+        await ref.read(userStatsProvider.notifier).recordTaskCompletion(
+              isAllTodayDone: allDone,
+              task: task.copyWith(xpGranted: true),
+            );
+      }
 
       ref.invalidateSelf();
       return newTask;

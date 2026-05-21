@@ -17,6 +17,7 @@ import 'providers/settings_provider.dart';
 import 'providers/task_provider.dart';
 import 'services/calendar_service.dart';
 import 'services/database_service.dart';
+import 'services/gamification_service.dart' as services;
 import 'services/notification_service.dart';
 import 'services/purchase_service.dart';
 import 'services/review_service.dart';
@@ -197,6 +198,16 @@ void main() async {
       ));
       debugPrint('[INIT] seeded 3 sample tasks');
     }
+  }
+
+  // #2-D: 累計 XP の Keychain バックアップ vs DB 値の reconciliation
+  try {
+    final gam =
+        services.GamificationService(dbService, secureStorage: secureStorage);
+    await gam.reconcileTotalXpBackup();
+    debugPrint('[INIT] XP backup reconciled');
+  } catch (e) {
+    debugPrint('[INIT] XP backup reconcile skipped: $e');
   }
 
   debugPrint('[INIT] all done, launching app');

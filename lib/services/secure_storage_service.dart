@@ -108,4 +108,27 @@ class SecureStorageService {
   Future<void> resetAiUsage(String monthKey) async {
     await _storage.delete(key: _usageKey(monthKey));
   }
+
+  // ====== #2-D: total XP バックアップ (再 install 対策) ======
+  // Keychain は端末紐付けで再 install しても残るため、 DB がクリアされても
+  // total_xp の最大値を復元できる。
+
+  static const String _kTotalXpBackupKey = 'total_xp_backup';
+
+  /// Keychain に保存された累計 XP のバックアップ値 (なければ 0)。
+  Future<int> getTotalXpBackup() async {
+    final v = await _storage.read(key: _kTotalXpBackupKey);
+    return v == null ? 0 : int.tryParse(v) ?? 0;
+  }
+
+  /// DB の最新 total_xp を Keychain に書き戻す (`>=` 現在値のときだけ更新)。
+  Future<void> updateTotalXpBackup(int totalXp) async {
+    final current = await getTotalXpBackup();
+    if (totalXp > current) {
+      await _storage.write(
+        key: _kTotalXpBackupKey,
+        value: totalXp.toString(),
+      );
+    }
+  }
 }

@@ -1,8 +1,16 @@
 import 'dart:math' as math;
 
+import '../models/task.dart';
 import '../models/user_badge.dart';
 import '../models/user_stats.dart';
 import 'database_service.dart';
+import 'secure_storage_service.dart';
+
+/// 1 日あたりのタスク完了 XP の上限 (#2-B: 不正稼ぎ抑止)。
+const int kDailyTaskXpCap = 200;
+
+/// タスク作成から完了までの最小経過時間。 これ未満は XP 付与しない (#2-B)。
+const Duration kMinTaskAge = Duration(seconds: 60);
 
 /// ゲーミフィケーション基盤サービス。XP/レベル/ストリーク/バッジ判定を一括管理。
 ///
@@ -11,8 +19,10 @@ import 'database_service.dart';
 /// - [onAiSorted]      : AI整理実行時
 /// - [touchActivity]   : アプリ操作（XPを伴わない活動）でストリーク維持
 class GamificationService {
-  GamificationService(this._db);
+  GamificationService(this._db, {SecureStorageService? secureStorage})
+      : _secure = secureStorage;
   final DatabaseService _db;
+  final SecureStorageService? _secure;
 
   /// Lv.1〜8 に必要な累計XP（v1要件で固定）
   /// Lv.N (N>=9) は前デルタ × 1.4 で外挿。
@@ -37,6 +47,24 @@ class GamificationService {
     return UserStats.fromMap(row);
   }
 
+  /// #2-D: 起動時 1 回呼ぶ。 Keychain バックアップと DB を比較し、
+  /// Keychain の方が大きければ (= 再 install 等で DB がクリアされた状態) DB を書き戻す。
+  /// バックアップが小さければ DB の値で Keychain を更新。
+  Future<void> reconcileTotalXpBackup() async {
+    if (_secure == null) return;
+    final stats = await getStats();
+    final backup = await _secure.getTotalXpBackup();
+    if (backup > stats.totalXp) {
+      final restoredLevel = levelFromXp(backup);
+      await _db.updateUserStats({
+        'total_xp': backup,
+        'current_level': restoredLevel,
+      });
+    } else if (stats.totalXp > backup) {
+      await _secure.updateTotalXpBackup(stats.totalXp);
+    }
+  }
+
   Future<List<UserBadge>> getBadges() async {
     final rows = await _db.getAllBadges();
     return rows.map(UserBadge.fromMap).toList();
@@ -52,8 +80,14 @@ class GamificationService {
   ///
   /// - +10 XP / 全完了なら +25 ボーナス / ストリーク維持 / バッジ判定
   /// - 累計タスク完了数を +1
+  ///
+  /// XP 不正取得対策 (#2):
+  /// - B: [task] の作成 1 分以内 (kMinTaskAge) は XP 付与しない
+  /// - B: 当日獲得 XP が kDailyTaskXpCap 以上なら以降スキップ
+  /// - E: 全完了ボーナス (all_today_done) は 1 日 1 回まで
   Future<TaskCompleteResult> onTaskCompleted({
     required bool isAllTodayDone,
+    required Task task,
   }) async {
     final stats = await getStats();
     final xpEvents = <XpAwardResult>[];
@@ -62,11 +96,20 @@ class GamificationService {
     final newCompleted = stats.totalTasksCompleted + 1;
     await _db.updateUserStats({'total_tasks_completed': newCompleted});
 
-    final base = await _award(amount: 10, reason: 'task_complete');
-    xpEvents.add(base);
-    earned.addAll(base.newlyEarnedBadges);
+    // #2-B: 作成 → 完了 が短すぎる / 1 日上限超過 ならベース XP 付与しない
+    final completedAt = task.completedAt ?? DateTime.now();
+    final age = completedAt.difference(task.createdAt);
+    final todayXp = await _db.getTodayXpTotal();
+    final tooFresh = age < kMinTaskAge;
+    final overCap = todayXp >= kDailyTaskXpCap;
+    if (!tooFresh && !overCap) {
+      final base = await _award(amount: 10, reason: 'task_complete');
+      xpEvents.add(base);
+      earned.addAll(base.newlyEarnedBadges);
+    }
 
-    if (isAllTodayDone) {
+    // #2-E: all_today_done は当日まだ付与していない場合のみ
+    if (isAllTodayDone && !await _db.hasXpReasonToday('all_today_done')) {
       final bonus = await _award(amount: 25, reason: 'all_today_done');
       xpEvents.add(bonus);
       earned.addAll(bonus.newlyEarnedBadges);
@@ -181,7 +224,9 @@ class GamificationService {
     final lastDay = DateTime(last.year, last.month, last.day);
     final diff = today.difference(lastDay).inDays;
 
-    if (diff == 0) {
+    // #2-C: 端末日付を巻き戻されても (今日 < 最後の活動日) ストリークを伸ばさない。
+    // 「同日扱い」と同じ no-op で返す。
+    if (diff <= 0) {
       return StreakUpdate(
         streakDays: stats.streakDays,
         extended: false,
@@ -236,6 +281,8 @@ class GamificationService {
       'total_xp': newTotal,
       'current_level': newLevel,
     });
+    // #2-D: 累計 XP の Keychain バックアップを更新
+    await _secure?.updateTotalXpBackup(newTotal);
 
     final earned = <UserBadge>[];
     if (newLevel >= 5 &&

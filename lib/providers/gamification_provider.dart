@@ -1,15 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/task.dart';
 import '../models/user_badge.dart';
 import '../models/user_stats.dart';
 import '../services/gamification_service.dart';
+import 'secure_storage_provider.dart';
 import 'task_provider.dart';
 
-/// GamificationService の提供。DatabaseService 経由で自動生成（main.dart の
-/// override は不要）。
+/// GamificationService の提供。 SecureStorage 経由で XP バックアップを統合 (#2-D)。
 final gamificationServiceProvider = Provider<GamificationService>((ref) {
   final db = ref.watch(databaseServiceProvider);
-  return GamificationService(db);
+  final secure = ref.watch(secureStorageServiceProvider);
+  return GamificationService(db, secureStorage: secure);
 });
 
 // ========== Main State ==========
@@ -23,9 +25,15 @@ class UserStatsNotifier extends AsyncNotifier<UserStats> {
   /// タスク完了を記録（XP・ストリーク・バッジ・レベル判定を一括処理）。
   /// UI 演出のための [xpFloatingProvider] / [levelUpProvider] / [newBadgesProvider]
   /// もここで発火する。
-  Future<void> recordTaskCompletion({required bool isAllTodayDone}) async {
+  ///
+  /// [task] は XP 不正取得防止 (#2-B: 作成 1 分以内完了で XP なし) の判定用。
+  Future<void> recordTaskCompletion({
+    required bool isAllTodayDone,
+    required Task task,
+  }) async {
     final result = await _service.onTaskCompleted(
       isAllTodayDone: isAllTodayDone,
+      task: task,
     );
     state = AsyncValue.data(result.finalStats);
     _broadcastEvents(
