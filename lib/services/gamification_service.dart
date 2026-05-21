@@ -395,10 +395,14 @@ class GamificationService {
     }
 
     // 復帰 (back_from_hibernation): 今のタスクを除く最後の完了から 60 日以上
-    final last = await _db.getLastCompletedAt(excludingTaskId: task.id);
-    if (last != null && now.difference(last).inDays >= 60) {
-      final r = await _tryEarnBadge('back_from_hibernation');
-      if (r != null) out.add(r);
+    // task.id が null (理論上発生しない経路) でも 今回完了の `now` 自身を除外する
+    // 必要があるため、 ガードして excludingTaskId が null の場合は判定スキップ。
+    if (task.id != null) {
+      final last = await _db.getLastCompletedAt(excludingTaskId: task.id);
+      if (last != null && now.difference(last).inDays >= 60) {
+        final r = await _tryEarnBadge('back_from_hibernation');
+        if (r != null) out.add(r);
+      }
     }
 
     // multi_tasker: 3 つ以上のカテゴリで完了済み

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -162,7 +164,7 @@ class WeekdayBusynessNotifier extends AsyncNotifier<WeekdayBusyness> {
     // 変更されている場合に獲得 (初回のみ markBadgeEarned が true を返す)
     final isDefault = _listEquals(next, defaultWeekdayBusyness);
     if (!isDefault) {
-      ref.read(gamificationServiceProvider).checkScheduleMaster();
+      unawaited(ref.read(gamificationServiceProvider).checkScheduleMaster());
     }
   }
 }

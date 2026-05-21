@@ -113,12 +113,15 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     );
 
     // #8: AI 整理チケット在庫を先にチェック。 allowed でなくてもチケットがあれば消費。
+    // チケット消費パスでは usage count を増やさない (premium 月間 30 回上限を圧迫しない)。
     final ticketsAvailable = await secure.getAiTicketsAvailable();
     if (access != AiSortAccess.allowed && ticketsAvailable > 0) {
       await secure.consumeAiTicket();
       if (!mounted) return;
       final confirmed = await _showAiSortSheet(l10n);
-      if (confirmed == true) await _executeAiSort(l10n, locale);
+      if (confirmed == true) {
+        await _executeAiSort(l10n, locale, skipUsageCount: true);
+      }
       return;
     }
 
@@ -179,6 +182,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     AppLocalizations l10n,
     String locale, {
     String? additionalContext,
+    bool skipUsageCount = false, // #8: チケット消費パスでは月次/無料枠カウンタを増やさない
   }) async {
     final db = ref.read(databaseServiceProvider);
 
@@ -424,15 +428,17 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
 
       if (isRealApiCall) {
         await db.recordAiUsage();
-        final secure = ref.read(secureStorageServiceProvider);
-        final isPremium = ref.read(isPremiumProvider);
-        if (isPremium) {
-          await secure.incrementAiUsage(
-            SecureStorageService.currentMonthKey(DateTime.now()),
-          );
-        } else {
-          // 無料ユーザー: 永続カウンターをインクリメント
-          await secure.incrementLifetimeFreeUsage();
+        if (!skipUsageCount) {
+          final secure = ref.read(secureStorageServiceProvider);
+          final isPremium = ref.read(isPremiumProvider);
+          if (isPremium) {
+            await secure.incrementAiUsage(
+              SecureStorageService.currentMonthKey(DateTime.now()),
+            );
+          } else {
+            // 無料ユーザー: 永続カウンターをインクリメント
+            await secure.incrementLifetimeFreeUsage();
+          }
         }
       }
 
