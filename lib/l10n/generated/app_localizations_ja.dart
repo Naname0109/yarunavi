@@ -2201,6 +2201,32 @@ class AppLocalizationsJa extends AppLocalizations {
   String get labelNormal => '通常';
 
   @override
+  String statsBadgesEarnedCount(int earned, int total) {
+    return '$earned / $total 達成';
+  }
+
+  @override
+  String get statsTutorialTitle => '実績をアンロックしよう!';
+
+  @override
+  String get statsTutorialBody =>
+      'タスクを完了して XP を獲得し、レベルアップを目指しましょう。隠しバッジも多数用意されています — どんな条件で獲得できるかはお楽しみ!';
+
+  @override
+  String get statsTutorialCta => 'さっそく始める';
+
+  @override
+  String get naviHintTitle => 'ナビからのひとこと';
+
+  @override
+  String naviHintLastSort(String timestamp) {
+    return '最終整理: $timestamp';
+  }
+
+  @override
+  String get naviHintDetail => '詳細';
+
+  @override
   String get aiPurchasePremiumSubtitle => 'AI 整理 月 30 回 + 全機能解放';
 
   @override

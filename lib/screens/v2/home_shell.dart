@@ -242,6 +242,7 @@ class _V2HomeTabState extends ConsumerState<_V2HomeTab> {
                         },
                       ),
                     ),
+                    const _NaviHintMiniCard(),
                     const SizedBox(height: 14),
                     _summaryStrip(
                       context: context,
@@ -1001,4 +1002,148 @@ class _CompletedSectionState extends ConsumerState<_CompletedSection> {
     }
   }
   return (done, total);
+}
+
+/// #9: Hero AI カード下に表示する「ナビからのひとこと」 ミニカード。
+/// 最新の AI 整理履歴の summary を表示。 未実行ならカード自体非表示。
+class _NaviHintMiniCard extends ConsumerStatefulWidget {
+  const _NaviHintMiniCard();
+
+  @override
+  ConsumerState<_NaviHintMiniCard> createState() => _NaviHintMiniCardState();
+}
+
+class _NaviHintMiniCardState extends ConsumerState<_NaviHintMiniCard> {
+  Future<Map<String, dynamic>?>? _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = ref.read(databaseServiceProvider).getLatestAiHistory();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final yaru = context.yaru;
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: _future,
+      builder: (context, snap) {
+        final row = snap.data;
+        if (row == null) return const SizedBox.shrink();
+        final summary = locale == 'ja'
+            ? (row['summary_ja'] as String?)
+            : (row['summary_en'] as String?);
+        if (summary == null || summary.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        final createdAtStr = row['created_at'] as String?;
+        DateTime? createdAt;
+        if (createdAtStr != null) createdAt = DateTime.tryParse(createdAtStr);
+        final timestamp = createdAt != null
+            ? DateFormat.MMMd(locale).add_Hm().format(createdAt)
+            : '';
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: yaru.paperEmph,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: yaru.line, width: 1),
+            ),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    width: 4,
+                    decoration: BoxDecoration(
+                      color: yaru.accent,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(14),
+                        bottomLeft: Radius.circular(14),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.auto_awesome,
+                                  size: 14, color: yaru.accent),
+                              const SizedBox(width: 6),
+                              Text(
+                                l10n.naviHintTitle,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
+                                  color: yaru.accent,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            summary,
+                            style: TextStyle(
+                              fontSize: 13,
+                              height: 1.5,
+                              color: yaru.inkPrimary,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Text(
+                                l10n.naviHintLastSort(timestamp),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: yaru.inkTertiary,
+                                ),
+                              ),
+                              const Spacer(),
+                              InkWell(
+                                onTap: () => context.push('/ai-history'),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        l10n.naviHintDetail,
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: yaru.accent,
+                                        ),
+                                      ),
+                                      Icon(Icons.chevron_right,
+                                          size: 14, color: yaru.accent),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

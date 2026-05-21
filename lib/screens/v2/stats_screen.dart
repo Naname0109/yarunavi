@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/generated/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../models/user_badge.dart';
 import '../../models/user_stats.dart';
 import '../../providers/gamification_provider.dart';
@@ -18,11 +20,51 @@ import '../../widgets/v2/streak_card.dart';
 /// v2 実績/ストリーク画面。
 ///
 /// ストリーク炎カード + 統計タイル (Done/Week/Best) + 14日ヒートマップ + Lv/XP + バッジ
-class V2StatsScreen extends ConsumerWidget {
+class V2StatsScreen extends ConsumerStatefulWidget {
   const V2StatsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<V2StatsScreen> createState() => _V2StatsScreenState();
+}
+
+class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
+  static const _kTutorialShownKey = 'stats_tutorial_shown';
+
+  @override
+  void initState() {
+    super.initState();
+    // #8: 初回のみチュートリアル overlay
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool(_kTutorialShownKey) ?? false) return;
+      if (!mounted) return;
+      await prefs.setBool(_kTutorialShownKey, true);
+      if (!mounted) return;
+      await _showTutorialDialog();
+    });
+  }
+
+  Future<void> _showTutorialDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: Icon(Icons.emoji_events_rounded,
+            size: 36, color: Theme.of(ctx).colorScheme.primary),
+        title: Text(l10n.statsTutorialTitle),
+        content: Text(l10n.statsTutorialBody),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.statsTutorialCta),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final yaru = context.yaru;
     final l10n = AppLocalizations.of(context)!;
     final statsAsync = ref.watch(userStatsProvider);
@@ -530,6 +572,17 @@ class V2StatsScreen extends ConsumerWidget {
     AppLocalizations l10n,
     List<UserBadge> badges,
   ) {
+    // #8: 獲得率 + 並び替え (獲得済み → 未獲得 (表) → 隠し未獲得)
+    final earned = badges.where((b) => b.isEarned).length;
+    final total = badges.length;
+    final pct = total == 0 ? 0 : ((earned / total) * 100).round();
+    final sorted = [...badges]
+      ..sort((a, b) {
+        if (a.isEarned != b.isEarned) return a.isEarned ? -1 : 1;
+        if (a.isHidden != b.isHidden) return a.isHidden ? 1 : -1;
+        return a.id.compareTo(b.id);
+      });
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -537,17 +590,47 @@ class V2StatsScreen extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text(
-              l10n.statsBadges,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: yaru.inkSecondary,
-                letterSpacing: 0.4,
+            child: Row(
+              children: [
+                Icon(Icons.emoji_events_outlined,
+                    size: 16, color: yaru.inkSecondary),
+                const SizedBox(width: 6),
+                Text(
+                  l10n.statsBadgesEarnedCount(earned, total),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: yaru.inkSecondary,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '$pct%',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: yaru.inkTertiary,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: total == 0 ? 0 : earned / total,
+                minHeight: 6,
+                backgroundColor: yaru.line,
+                valueColor: AlwaysStoppedAnimation(yaru.accent),
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           GridView.count(
             crossAxisCount: 3,
             shrinkWrap: true,
@@ -555,7 +638,7 @@ class V2StatsScreen extends ConsumerWidget {
             childAspectRatio: 1.0,
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
-            children: badges
+            children: sorted
                 .map((b) => _BadgeTile(badge: b))
                 .toList(growable: false),
           ),

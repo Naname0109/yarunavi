@@ -4292,6 +4292,48 @@ abstract class AppLocalizations {
   /// **'通常'**
   String get labelNormal;
 
+  /// No description provided for @statsBadgesEarnedCount.
+  ///
+  /// In ja, this message translates to:
+  /// **'{earned} / {total} 達成'**
+  String statsBadgesEarnedCount(int earned, int total);
+
+  /// No description provided for @statsTutorialTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'実績をアンロックしよう!'**
+  String get statsTutorialTitle;
+
+  /// No description provided for @statsTutorialBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクを完了して XP を獲得し、レベルアップを目指しましょう。隠しバッジも多数用意されています — どんな条件で獲得できるかはお楽しみ!'**
+  String get statsTutorialBody;
+
+  /// No description provided for @statsTutorialCta.
+  ///
+  /// In ja, this message translates to:
+  /// **'さっそく始める'**
+  String get statsTutorialCta;
+
+  /// No description provided for @naviHintTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'ナビからのひとこと'**
+  String get naviHintTitle;
+
+  /// No description provided for @naviHintLastSort.
+  ///
+  /// In ja, this message translates to:
+  /// **'最終整理: {timestamp}'**
+  String naviHintLastSort(String timestamp);
+
+  /// No description provided for @naviHintDetail.
+  ///
+  /// In ja, this message translates to:
+  /// **'詳細'**
+  String get naviHintDetail;
+
   /// No description provided for @aiPurchasePremiumSubtitle.
   ///
   /// In ja, this message translates to:

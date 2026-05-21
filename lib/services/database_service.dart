@@ -1029,6 +1029,13 @@ class DatabaseService {
     return db.query('ai_history', orderBy: 'created_at DESC');
   }
 
+  /// #9: 最新の AI 整理履歴 1 件 (なければ null)。
+  Future<Map<String, dynamic>?> getLatestAiHistory() async {
+    final rows = await db.query('ai_history',
+        orderBy: 'created_at DESC', limit: 1);
+    return rows.isEmpty ? null : rows.first;
+  }
+
   Future<Map<String, dynamic>?> getAiHistoryById(int id) async {
     final maps =
         await db.query('ai_history', where: 'id = ?', whereArgs: [id]);

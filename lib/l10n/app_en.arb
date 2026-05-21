@@ -870,6 +870,15 @@
   "labelThisWeek": "THIS WEEK",
   "labelLater": "LATER",
   "labelNormal": "NORMAL",
+
+  "statsBadgesEarnedCount": "{earned} / {total} earned",
+  "statsTutorialTitle": "Unlock achievements!",
+  "statsTutorialBody": "Complete tasks to earn XP and level up. There are plenty of hidden badges — discover their conditions as you play!",
+  "statsTutorialCta": "Get started",
+
+  "naviHintTitle": "From your navigator",
+  "naviHintLastSort": "Last sorted: {timestamp}",
+  "naviHintDetail": "Details",
   "aiPurchasePremiumSubtitle": "30 AI sorts/month + every feature unlocked",
   "aiPurchaseTicketTitle": "AI sort ticket ¥120",
   "aiPurchaseTicketSubtitle": "Add 1 run ({remaining} of {max} left to buy)",

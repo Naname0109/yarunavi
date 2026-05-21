@@ -2246,6 +2246,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get labelNormal => 'NORMAL';
 
   @override
+  String statsBadgesEarnedCount(int earned, int total) {
+    return '$earned / $total earned';
+  }
+
+  @override
+  String get statsTutorialTitle => 'Unlock achievements!';
+
+  @override
+  String get statsTutorialBody =>
+      'Complete tasks to earn XP and level up. There are plenty of hidden badges — discover their conditions as you play!';
+
+  @override
+  String get statsTutorialCta => 'Get started';
+
+  @override
+  String get naviHintTitle => 'From your navigator';
+
+  @override
+  String naviHintLastSort(String timestamp) {
+    return 'Last sorted: $timestamp';
+  }
+
+  @override
+  String get naviHintDetail => 'Details';
+
+  @override
   String get aiPurchasePremiumSubtitle =>
       '30 AI sorts/month + every feature unlocked';
 

@@ -1668,6 +1668,31 @@
   "@labelLater": {},
   "labelNormal": "通常",
   "@labelNormal": {},
+
+  "statsBadgesEarnedCount": "{earned} / {total} 達成",
+  "@statsBadgesEarnedCount": {
+    "placeholders": {
+      "earned": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "statsTutorialTitle": "実績をアンロックしよう!",
+  "@statsTutorialTitle": {},
+  "statsTutorialBody": "タスクを完了して XP を獲得し、レベルアップを目指しましょう。隠しバッジも多数用意されています — どんな条件で獲得できるかはお楽しみ!",
+  "@statsTutorialBody": {},
+  "statsTutorialCta": "さっそく始める",
+  "@statsTutorialCta": {},
+
+  "naviHintTitle": "ナビからのひとこと",
+  "@naviHintTitle": {},
+  "naviHintLastSort": "最終整理: {timestamp}",
+  "@naviHintLastSort": {
+    "placeholders": {
+      "timestamp": { "type": "String" }
+    }
+  },
+  "naviHintDetail": "詳細",
+  "@naviHintDetail": {},
   "aiPurchasePremiumSubtitle": "AI 整理 月 30 回 + 全機能解放",
   "@aiPurchasePremiumSubtitle": {},
   "aiPurchaseTicketTitle": "AI 整理チケット ¥120",
