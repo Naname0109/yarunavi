@@ -4448,6 +4448,132 @@ abstract class AppLocalizations {
   /// **'予定がある日にはタスクを入れない (AI 整理に反映)'**
   String get avoidEventDaysDesc;
 
+  /// No description provided for @tipsHeader.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips'**
+  String get tipsHeader;
+
+  /// No description provided for @tip0.
+  ///
+  /// In ja, this message translates to:
+  /// **'曜日ごとの空き具合を設定すると、AI がもっと賢く実行日を提案します。'**
+  String get tip0;
+
+  /// No description provided for @tip1.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク実行不可の日を設定すると、その日にはタスクが割り当てられません。'**
+  String get tip1;
+
+  /// No description provided for @tip2.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダーから予定を取り込むと、予定のある日を避けてタスクを配置できます。'**
+  String get tip2;
+
+  /// No description provided for @tip3.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI が提案した実行日は、自分で変更することもできます。'**
+  String get tip3;
+
+  /// No description provided for @tip4.
+  ///
+  /// In ja, this message translates to:
+  /// **'定期的に発生するタスクは、定期タスクに設定すると毎月自動で作成されます。'**
+  String get tip4;
+
+  /// No description provided for @tip5.
+  ///
+  /// In ja, this message translates to:
+  /// **'完了したタスクは履歴として保存されます。 いつでも確認できます。'**
+  String get tip5;
+
+  /// No description provided for @tip6.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI 整理の回数が足りない時は、リワード動画を視聴すると 1 回分追加されます。'**
+  String get tip6;
+
+  /// No description provided for @tip7.
+  ///
+  /// In ja, this message translates to:
+  /// **'カテゴリを設定すると、タスクの分類がわかりやすくなります。'**
+  String get tip7;
+
+  /// No description provided for @tip8.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダーは「AI のおすすめ日」 と「期限の日」 を切り替えて確認できます。'**
+  String get tip8;
+
+  /// No description provided for @tip9.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク詳細画面では、期限までのカウントダウンがリアルタイム表示されます。'**
+  String get tip9;
+
+  /// No description provided for @tip10.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクを完了すると XP が貯まり、レベルアップできます。'**
+  String get tip10;
+
+  /// No description provided for @tip11.
+  ///
+  /// In ja, this message translates to:
+  /// **'アプリを毎日開くだけでストリーク (連続記録) が伸びていきます。'**
+  String get tip11;
+
+  /// No description provided for @tip12.
+  ///
+  /// In ja, this message translates to:
+  /// **'隠しバッジが複数あります。 どんな条件で獲得できるかはお楽しみ!'**
+  String get tip12;
+
+  /// No description provided for @tip13.
+  ///
+  /// In ja, this message translates to:
+  /// **'レベルは 100 まで。 最高レベルに到達するには約 10 年かかります。'**
+  String get tip13;
+
+  /// No description provided for @tip14.
+  ///
+  /// In ja, this message translates to:
+  /// **'早朝や深夜にタスクを完了すると、特別なバッジがもらえるかも?'**
+  String get tip14;
+
+  /// No description provided for @tip15.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク名に「振込」 「家賃」 などを含めると、定期タスク化がおすすめされます。'**
+  String get tip15;
+
+  /// No description provided for @tip16.
+  ///
+  /// In ja, this message translates to:
+  /// **'1 日に 5 件以上タスクを完了すると… 何かが起きるかも?'**
+  String get tip16;
+
+  /// No description provided for @tip17.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI 整理は一度に多くのタスクを登録してから実行すると、より効果的です。'**
+  String get tip17;
+
+  /// No description provided for @tip18.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限切れのタスクをゼロにすると、実績が解除されます。'**
+  String get tip18;
+
+  /// No description provided for @tip19.
+  ///
+  /// In ja, this message translates to:
+  /// **'週末にまとめてタスクを片付ける派ですか? それも実績になるかもしれません。'**
+  String get tip19;
+
   /// No description provided for @aiPurchasePremiumSubtitle.
   ///
   /// In ja, this message translates to:

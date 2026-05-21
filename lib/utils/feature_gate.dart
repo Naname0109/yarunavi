@@ -39,9 +39,11 @@ class FeatureGate {
       return AiSortAccess.allowed;
     }
 
-    // 無料枠を使い切った → リワード広告で1日1回
-    final usedToday = await secure.hasUsedRewardedToday();
-    if (usedToday) {
+    // #4: 無料枠を使い切った → リワード広告で生涯 2 回まで
+    final rewardedTotal = await secure.getRewardedTotalUsed();
+    if (rewardedTotal >= AppConstants.kRewardedAdMaxLifetime) {
+      // 動画上限到達。 BottomSheet 側は rewardedAvailable=false で
+      // チケット / プレミアム のみ提示する。
       return AiSortAccess.rewardedAdUsedToday;
     }
 

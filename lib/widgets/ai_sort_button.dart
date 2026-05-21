@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../services/secure_storage_service.dart';
 import 'ai_purchase_bottom_sheet.dart';
+import 'ai_sort_tips.dart';
 import '../providers/gamification_provider.dart';
 import '../providers/purchase_provider.dart';
 import '../providers/secure_storage_provider.dart';
@@ -731,10 +732,13 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     final rewarded = await _rewardedAdService.show();
     if (!rewarded || !mounted) return;
 
-    // リワード成功 → 使用記録
+    // リワード成功 → 累計使用カウンタを進める (#4: 生涯 2 回まで)
     final secure = ref.read(secureStorageServiceProvider);
     await secure.recordRewardedUsage();
+    await secure.incrementRewardedTotalUsed();
 
+    // skipUsageCount: リワード動画視聴 = free 枠を 1 回追加した形なので、
+    // _executeAiSort 内で incrementLifetimeFreeUsage が走っても整合する
     await _executeAiSort(l10n, locale);
   }
 
@@ -1164,6 +1168,16 @@ class _AiLoadingDialogState extends State<AiLoadingDialog>
               const SizedBox(height: 20),
               // プログレスバー (グロウ + フラッシュオーバーレイ付き)
               _buildProgressBar(theme, isComplete, isError),
+              const SizedBox(height: 16),
+              // #3: AI 整理中の Tips カード
+              if (!isError)
+                AnimatedBuilder(
+                  animation: _progressAnimation,
+                  builder: (context, _) {
+                    final progress = _progressAnimation.value.clamp(0.0, 1.0);
+                    return AiSortTipsCard(progress: progress);
+                  },
+                ),
               const SizedBox(height: 20),
               if (!isComplete && !isError)
                 OutlinedButton(

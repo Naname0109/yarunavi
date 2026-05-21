@@ -87,6 +87,22 @@ class SecureStorageService {
     await _storage.delete(key: _lastRewardedDateKey);
   }
 
+  // #4: リワード動画の累計使用回数 (生涯 2 回まで)
+  static const String _kRewardedTotalUsedKey = 'rewarded_ai_total_used';
+
+  Future<int> getRewardedTotalUsed() async {
+    final v = await _storage.read(key: _kRewardedTotalUsedKey);
+    return int.tryParse(v ?? '') ?? 0;
+  }
+
+  Future<void> incrementRewardedTotalUsed() async {
+    final current = await getRewardedTotalUsed();
+    await _storage.write(
+      key: _kRewardedTotalUsedKey,
+      value: '${current + 1}',
+    );
+  }
+
   // ─── 月別AI使用回数（プレミアム用） ───
 
   /// 月別AI使用回数を取得

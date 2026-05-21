@@ -2331,6 +2331,83 @@ class AppLocalizationsEn extends AppLocalizations {
       'AI sort won\'t place tasks on days that already have events';
 
   @override
+  String get tipsHeader => 'Tips';
+
+  @override
+  String get tip0 =>
+      'Set how busy each weekday is so AI can propose smarter execution days.';
+
+  @override
+  String get tip1 => 'Mark unavailable days and AI will skip them.';
+
+  @override
+  String get tip2 =>
+      'Import calendar events so AI avoids days that are already taken.';
+
+  @override
+  String get tip3 => 'You can manually override the execution day AI suggests.';
+
+  @override
+  String get tip4 =>
+      'Mark recurring tasks once and YaruNavi creates them every cycle.';
+
+  @override
+  String get tip5 =>
+      'Completed tasks stay in the history — review them anytime.';
+
+  @override
+  String get tip6 =>
+      'Out of AI sorts? Watch a rewarded video for one more run.';
+
+  @override
+  String get tip7 => 'Categories make your task list easier to scan.';
+
+  @override
+  String get tip8 =>
+      'Calendar lets you toggle between “AI suggested” and “Due date” views.';
+
+  @override
+  String get tip9 => 'Task detail shows a live countdown to the deadline.';
+
+  @override
+  String get tip10 => 'Completing tasks earns XP and levels you up.';
+
+  @override
+  String get tip11 =>
+      'Opening the app daily extends your streak — even with zero tasks done.';
+
+  @override
+  String get tip12 =>
+      'There are many hidden badges. Their unlock conditions are a surprise!';
+
+  @override
+  String get tip13 =>
+      'The level cap is 100 — reaching it takes about 10 years.';
+
+  @override
+  String get tip14 =>
+      'Finish a task before dawn or after midnight to unlock something special.';
+
+  @override
+  String get tip15 =>
+      'Task names like “rent” or “transfer” trigger recurring-task suggestions.';
+
+  @override
+  String get tip16 =>
+      'Complete 5+ tasks in a single day and… something might happen.';
+
+  @override
+  String get tip17 =>
+      'AI sort works best when you batch many tasks before running it.';
+
+  @override
+  String get tip18 => 'Bring overdue tasks to zero to unlock an achievement.';
+
+  @override
+  String get tip19 =>
+      'Weekend warrior? That might be an achievement of its own.';
+
+  @override
   String get aiPurchasePremiumSubtitle =>
       '30 AI sorts/month + every feature unlocked';
 

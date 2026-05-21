@@ -10,6 +10,8 @@ class AppConstants {
   // #8: AI 整理チケット (消費型 IAP, ¥120, 1 ユーザー 3 回まで)
   static const String aiTicketProductId = 'yarunavi_ai_ticket';
   static const int kAiTicketMaxLifetimePurchases = 3;
+  // #4: リワード動画による AI 回復の生涯上限 (1 日 1 回 → 生涯 2 回)
+  static const int kRewardedAdMaxLifetime = 2;
 
   // Free tier limits
   static const int freeTaskLimit = 20;
