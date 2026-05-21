@@ -104,6 +104,14 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
           final recDate = t.recommendedDate ?? t.dueDate;
           final recKey = DateTime(recDate.year, recDate.month, recDate.day);
           byRecommended.putIfAbsent(recKey, () => []).add(t);
+          // #4: priority=0 のままなら AI 整理が DB に反映されていない可能性
+          assert(() {
+            if (t.priority == 0 && !t.isCompleted) {
+              debugPrint('[CAL] priority=0 task: id=${t.id} '
+                  'title="${t.title}" rec=${t.recommendedDate} due=${t.dueDate}');
+            }
+            return true;
+          }());
         }
 
         // viewModeに応じたマップを使用
