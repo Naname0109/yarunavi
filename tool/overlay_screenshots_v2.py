@@ -77,7 +77,8 @@ def fit_text_in_width(
     min_size: int = 60,
 ) -> tuple[ImageFont.FreeTypeFont, int]:
     """テキストが max_width に収まる font + size を返す。
-    initial_size から 2px ずつ縮小、 min_size まで。"""
+    initial_size から 2px ずつ縮小、 min_size まで。
+    min_size でも収まらない場合は警告を print する (静かな overflow を防ぐ)。"""
     size = initial_size
     font = ImageFont.truetype(font_path, size)
     while size > min_size:
@@ -86,6 +87,12 @@ def fit_text_in_width(
             return font, size
         size -= 2
         font = ImageFont.truetype(font_path, size)
+    # min_size でも収まらないケース: 警告 + そのまま返す
+    bbox = font.getbbox(text)
+    actual_w = bbox[2] - bbox[0]
+    if actual_w > max_width:
+        print(f"  WARN: fit_text_in_width overflow — "
+              f"text={text!r} size={size} actual_w={actual_w} > max={max_width}")
     return font, size
 
 
@@ -796,7 +803,7 @@ def render_hero_left(
     # 矢印の左半分 (右端のフレーム境界ぴったりに半円)
     cn_size = int(120 * (frame_h / 2796))
     _draw_arrow_half(canvas, frame_w, py + int(phone_h * 0.50),
-                     cn_size, side="left",
+                     cn_size,
                      grad=((125, 245, 237), (180, 140, 255)))
 
     validate_frame(canvas, frame_w, frame_h, name="hero_left")
@@ -867,7 +874,7 @@ def render_hero_right(
     # 矢印の右半分 (左端のフレーム境界ぴったりに半円)
     cn_size = int(120 * (frame_h / 2796))
     _draw_arrow_half(canvas, 0, py + int(phone_h * 0.50),
-                     cn_size, side="right",
+                     cn_size,
                      grad=((125, 245, 237), (180, 140, 255)))
 
     validate_frame(canvas, frame_w, frame_h, name="hero_right")
@@ -876,13 +883,12 @@ def render_hero_right(
 
 def _draw_arrow_half(
     canvas: Image.Image, edge_x: int, cy: int, size: int,
-    *, side: str,
-    grad: tuple[tuple[int, int, int], tuple[int, int, int]],
+    *, grad: tuple[tuple[int, int, int], tuple[int, int, int]],
 ):
     """連結ヒーロー境界に半円の矢印 connector を描画。
-    side='left' なら canvas の右端 (edge_x=frame_w) に左半分の半円。
-    side='right' なら canvas の左端 (edge_x=0) に右半分の半円。
-    左右を並べると 1 つの円 + 矢印になる。
+    edge_x にフレーム端の x 座標を渡すと、 その位置を円中心として
+    自動的にはみ出した側だけ canvas 内に描画される。
+    左右フレームをつなげると 1 つの完全な円 + 矢印になる。
     """
     full = size
     # 円全体を別レイヤーに描き、 必要な半分だけ canvas に貼る
@@ -963,39 +969,6 @@ def _draw_step_badge(
     canvas.alpha_composite(overlay)
 
 
-def _draw_connector(
-    canvas: Image.Image, cx: int, cy: int, size: int,
-    grad: tuple[tuple[int, int, int], tuple[int, int, int]],
-):
-    layer = Image.new("RGBA", (size + 80, size + 80), (0, 0, 0, 0))
-    ld = ImageDraw.Draw(layer)
-    pad = 40
-    # 円の RGBA グラデ
-    arr = np.zeros((size, size, 4), dtype=np.uint8)
-    yy, xx = np.mgrid[0:size, 0:size]
-    inside = ((xx - size / 2) ** 2 + (yy - size / 2) ** 2) <= (size / 2) ** 2
-    # 角度 t: 135deg ≈ left-top -> right-bottom
-    t = ((xx + yy) / (2 * size)).clip(0, 1)
-    arr[..., 0] = (grad[0][0] * (1 - t) + grad[1][0] * t).astype(np.uint8)
-    arr[..., 1] = (grad[0][1] * (1 - t) + grad[1][1] * t).astype(np.uint8)
-    arr[..., 2] = (grad[0][2] * (1 - t) + grad[1][2] * t).astype(np.uint8)
-    arr[..., 3] = (inside * 255).astype(np.uint8)
-    circle = Image.fromarray(arr, "RGBA")
-    layer.alpha_composite(circle, (pad, pad))
-    # 白い線 (border)
-    ld.ellipse([pad, pad, pad + size, pad + size], outline=(255, 255, 255, 70), width=4)
-    # 矢印テキスト
-    font = _font(FONT_HEAVY, int(size * 0.5))
-    aw, ah = measure("→", font)
-    ld.text((pad + size // 2 - aw // 2, pad + size // 2 - ah // 2 - int(size * 0.1)),
-            "→", font=font, fill=(6, 36, 61, 255))
-    # glow 影
-    glow_layer = Image.new("RGBA", layer.size, (0, 0, 0, 0))
-    gd = ImageDraw.Draw(glow_layer)
-    gd.ellipse([pad, pad, pad + size, pad + size], fill=(125, 245, 237, 80))
-    glow_layer = glow_layer.filter(ImageFilter.GaussianBlur(radius=40))
-    canvas.alpha_composite(glow_layer, (cx - layer.width // 2, cy - layer.height // 2))
-    canvas.alpha_composite(layer, (cx - layer.width // 2, cy - layer.height // 2))
 
 
 # ============================================================
@@ -1015,7 +988,6 @@ def render_all_for_device(
         phone_h = int(1980 * (frame_w / 1290))  # 1980
         hero_phone_w = int(1020 * (frame_w / 1290))
         hero_phone_h = int(2090 * (frame_w / 1290))
-        title_size_hero = int(180 * (frame_w / 1290))
         eyebrow_font = 38
         sub_font = 42
         headline_top = 170
@@ -1028,7 +1000,6 @@ def render_all_for_device(
         phone_h = 2160   # 1620/0.75 = 2160
         hero_phone_w = 1200
         hero_phone_h = 1600  # 4:3
-        title_size_hero = int(180 * (frame_w / 2580) * 1.25)
         eyebrow_font = 46
         sub_font = 50
         headline_top = 170
