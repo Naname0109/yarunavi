@@ -24,8 +24,8 @@ class GamificationService {
   final DatabaseService _db;
   final SecureStorageService? _secure;
 
-  /// Lv.1〜8 に必要な累計XP（v1要件で固定）
-  /// Lv.N (N>=9) は前デルタ × 1.4 で外挿。
+  /// Lv.1〜10 に必要な累計XP (個別指定)。
+  /// Lv.11 以降は [_levelCheckpoints] 間を線形補間して算出 (Lv.100 で 116000 XP)。
   static const List<int> _baseLevelXp = <int>[
     0, // Lv.1
     30, // Lv.2 (+30)
@@ -35,7 +35,20 @@ class GamificationService {
     500, // Lv.6 (+200)
     800, // Lv.7 (+300)
     1200, // Lv.8 (+400)
+    1760, // Lv.9 (+560)
+    2544, // Lv.10 (+784)
   ];
+
+  /// Lv.11+ の補間用チェックポイント (累計 XP)。 仕様の到達目安表に合わせて
+  /// Lv.10 (2544) から Lv.100 (116000) まで非線形に成長。
+  static const Map<int, int> _levelCheckpoints = <int, int>{
+    10: 2544,
+    20: 11500,
+    30: 17500,
+    50: 35500,
+    70: 61500,
+    100: 116000,
+  };
 
   // ====== Public: Reads ======
 
@@ -128,8 +141,12 @@ class GamificationService {
 
     await tryBadge('first_step', 1);
     await tryBadge('task_10', 10);
+    await tryBadge('task_25', 25);
     await tryBadge('task_50', 50);
     await tryBadge('task_100', 100);
+    await tryBadge('task_250', 250);
+    await tryBadge('task_500', 500);
+    await tryBadge('task_1000', 1000);
 
     // ストリーク
     final streak = await touchActivity();
@@ -171,13 +188,19 @@ class GamificationService {
       earned.addAll(bonus.newlyEarnedBadges);
     }
 
-    if (newCount == 1 && await _db.markBadgeEarned('ai_first')) {
-      earned.add(UserBadge(
-        id: 'ai_first',
-        isEarned: true,
-        earnedAt: DateTime.now(),
-      ));
+    Future<void> tryAiBadge(String id, int threshold) async {
+      if (newCount >= threshold && await _db.markBadgeEarned(id)) {
+        earned.add(UserBadge(
+          id: id,
+          isEarned: true,
+          earnedAt: DateTime.now(),
+        ));
+      }
     }
+
+    await tryAiBadge('ai_first', 1);
+    await tryAiBadge('ai_10', 10);
+    await tryAiBadge('ai_50', 50);
 
     final streak = await touchActivity();
     if (streak.extended) {
@@ -285,24 +308,25 @@ class GamificationService {
     await _secure?.updateTotalXpBackup(newTotal);
 
     final earned = <UserBadge>[];
-    if (newLevel >= 5 &&
-        stats.currentLevel < 5 &&
-        await _db.markBadgeEarned('level_5')) {
-      earned.add(UserBadge(
-        id: 'level_5',
-        isEarned: true,
-        earnedAt: DateTime.now(),
-      ));
+    Future<void> tryLevelBadge(String id, int threshold) async {
+      if (newLevel >= threshold &&
+          stats.currentLevel < threshold &&
+          await _db.markBadgeEarned(id)) {
+        earned.add(UserBadge(
+          id: id,
+          isEarned: true,
+          earnedAt: DateTime.now(),
+        ));
+      }
     }
-    if (newLevel >= 10 &&
-        stats.currentLevel < 10 &&
-        await _db.markBadgeEarned('level_10')) {
-      earned.add(UserBadge(
-        id: 'level_10',
-        isEarned: true,
-        earnedAt: DateTime.now(),
-      ));
-    }
+
+    await tryLevelBadge('level_5', 5);
+    await tryLevelBadge('level_10', 10);
+    await tryLevelBadge('level_20', 20);
+    await tryLevelBadge('level_30', 30);
+    await tryLevelBadge('level_50', 50);
+    await tryLevelBadge('level_70', 70);
+    await tryLevelBadge('level_100', 100);
 
     return XpAwardResult(
       amount: amount,
@@ -314,7 +338,7 @@ class GamificationService {
     );
   }
 
-  /// ストリーク達成バッジ（3/7/14/30 日）→ バッジ獲得時に XP ボーナス
+  /// ストリーク達成バッジ (3/7/14/30/60/100 日) → バッジ獲得時に XP ボーナス
   Future<List<XpAwardResult>> _awardStreakCheckpoints(int streakDays) async {
     final results = <XpAwardResult>[];
     final checkpoints = <({int days, String badge, int xp})>[
@@ -322,6 +346,8 @@ class GamificationService {
       (days: 7, badge: 'streak_7', xp: 30),
       (days: 14, badge: 'streak_14', xp: 50),
       (days: 30, badge: 'streak_30', xp: 100),
+      (days: 60, badge: 'streak_60', xp: 200),
+      (days: 100, badge: 'streak_100', xp: 500),
     ];
     for (final cp in checkpoints) {
       if (streakDays >= cp.days && await _db.markBadgeEarned(cp.badge)) {
@@ -340,28 +366,65 @@ class GamificationService {
 
   // ====== Level calculation (static helpers) ======
 
-  /// レベルNに到達するための累計XP閾値。
+  /// レベルNに到達するための累計XP閾値 (Lv.1〜100)。
   static int xpForLevel(int level) {
     if (level <= 0) return 0;
     if (level <= _baseLevelXp.length) return _baseLevelXp[level - 1];
-    int total = _baseLevelXp.last;
-    int delta = _baseLevelXp.last - _baseLevelXp[_baseLevelXp.length - 2];
-    for (int l = _baseLevelXp.length + 1; l <= level; l++) {
-      delta = (delta * 1.4).round();
-      total += delta;
+    if (level >= 100) return _levelCheckpoints[100]!;
+    // _levelCheckpoints の前後で線形補間
+    final keys = _levelCheckpoints.keys.toList()..sort();
+    for (var i = 0; i < keys.length - 1; i++) {
+      final lo = keys[i];
+      final hi = keys[i + 1];
+      if (level >= lo && level <= hi) {
+        final t = (level - lo) / (hi - lo);
+        final xp = _levelCheckpoints[lo]! +
+            (_levelCheckpoints[hi]! - _levelCheckpoints[lo]!) * t;
+        return xp.round();
+      }
     }
-    return total;
+    return _levelCheckpoints[100]!;
   }
 
-  /// 累計XPからレベルを算出。
+  /// 累計XPからレベルを算出 (1〜100)。
   static int levelFromXp(int totalXp) {
     if (totalXp < 0) return 1;
     int level = 1;
-    while (xpForLevel(level + 1) <= totalXp) {
+    while (level < 100 && xpForLevel(level + 1) <= totalXp) {
       level++;
-      if (level > 200) break;
     }
     return level;
+  }
+
+  /// レベル名 (固定名 14 段階)。 該当なしは null → 呼び出し側で「Lv.N」表記。
+  static const Map<int, String> _levelNameKeys = <int, String>{
+    1: 'levelName1',
+    2: 'levelName2',
+    3: 'levelName3',
+    4: 'levelName4',
+    5: 'levelName5',
+    6: 'levelName6',
+    7: 'levelName7',
+    8: 'levelName8',
+    9: 'levelName9',
+    10: 'levelName10',
+    15: 'levelName15',
+    20: 'levelName20',
+    30: 'levelName30',
+    50: 'levelName50',
+    70: 'levelName70',
+    100: 'levelName100',
+  };
+
+  /// 該当レベル以下で一番大きい固定名 key を返す。 該当なしは null。
+  static String? levelNameKeyFor(int level) {
+    int? best;
+    for (final k in _levelNameKeys.keys) {
+      if (k <= level && (best == null || k > best)) {
+        best = k;
+      }
+    }
+    return best == null ? null : _levelNameKeys[best];
   }
 
   /// 次レベルまでの残りXP。
@@ -384,10 +447,10 @@ class GamificationService {
     return ((totalXp - start) / span).clamp(0.0, 1.0);
   }
 
-  /// レベル名 i18n キー（Lv.1〜8は固有、9以降は共通キー＋プレースホルダ）
+  /// レベル名 i18n キー。 固定名 14 段階のいずれか、 該当なしは null。
+  /// 表示側で null なら 'Lv.N' を使う。
   static String levelNameKey(int level) {
-    if (level >= 1 && level <= 8) return 'levelName$level';
-    return 'levelNameHigh';
+    return levelNameKeyFor(level) ?? 'levelNameHigh';
   }
 }
 

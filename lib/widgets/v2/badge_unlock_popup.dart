@@ -121,9 +121,10 @@ class _PopupState extends State<_Popup>
                       ),
                       child: Row(
                         children: [
-                          Text(
-                            widget.badge.emoji,
-                            style: const TextStyle(fontSize: 30),
+                          Icon(
+                            widget.badge.icon,
+                            size: 30,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           const SizedBox(width: 12),
                           Expanded(

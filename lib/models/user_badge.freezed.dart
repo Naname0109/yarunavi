@@ -23,6 +23,7 @@ UserBadge _$UserBadgeFromJson(Map<String, dynamic> json) {
 mixin _$UserBadge {
   String get id => throw _privateConstructorUsedError;
   bool get isEarned => throw _privateConstructorUsedError;
+  bool get isHidden => throw _privateConstructorUsedError;
   DateTime? get earnedAt => throw _privateConstructorUsedError;
 
   /// Serializes this UserBadge to a JSON map.
@@ -40,7 +41,7 @@ abstract class $UserBadgeCopyWith<$Res> {
   factory $UserBadgeCopyWith(UserBadge value, $Res Function(UserBadge) then) =
       _$UserBadgeCopyWithImpl<$Res, UserBadge>;
   @useResult
-  $Res call({String id, bool isEarned, DateTime? earnedAt});
+  $Res call({String id, bool isEarned, bool isHidden, DateTime? earnedAt});
 }
 
 /// @nodoc
@@ -60,6 +61,7 @@ class _$UserBadgeCopyWithImpl<$Res, $Val extends UserBadge>
   $Res call({
     Object? id = null,
     Object? isEarned = null,
+    Object? isHidden = null,
     Object? earnedAt = freezed,
   }) {
     return _then(
@@ -71,6 +73,10 @@ class _$UserBadgeCopyWithImpl<$Res, $Val extends UserBadge>
             isEarned: null == isEarned
                 ? _value.isEarned
                 : isEarned // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isHidden: null == isHidden
+                ? _value.isHidden
+                : isHidden // ignore: cast_nullable_to_non_nullable
                       as bool,
             earnedAt: freezed == earnedAt
                 ? _value.earnedAt
@@ -91,7 +97,7 @@ abstract class _$$UserBadgeImplCopyWith<$Res>
   ) = __$$UserBadgeImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String id, bool isEarned, DateTime? earnedAt});
+  $Res call({String id, bool isEarned, bool isHidden, DateTime? earnedAt});
 }
 
 /// @nodoc
@@ -110,6 +116,7 @@ class __$$UserBadgeImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? isEarned = null,
+    Object? isHidden = null,
     Object? earnedAt = freezed,
   }) {
     return _then(
@@ -121,6 +128,10 @@ class __$$UserBadgeImplCopyWithImpl<$Res>
         isEarned: null == isEarned
             ? _value.isEarned
             : isEarned // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isHidden: null == isHidden
+            ? _value.isHidden
+            : isHidden // ignore: cast_nullable_to_non_nullable
                   as bool,
         earnedAt: freezed == earnedAt
             ? _value.earnedAt
@@ -137,6 +148,7 @@ class _$UserBadgeImpl extends _UserBadge {
   const _$UserBadgeImpl({
     required this.id,
     this.isEarned = false,
+    this.isHidden = false,
     this.earnedAt,
   }) : super._();
 
@@ -149,11 +161,14 @@ class _$UserBadgeImpl extends _UserBadge {
   @JsonKey()
   final bool isEarned;
   @override
+  @JsonKey()
+  final bool isHidden;
+  @override
   final DateTime? earnedAt;
 
   @override
   String toString() {
-    return 'UserBadge(id: $id, isEarned: $isEarned, earnedAt: $earnedAt)';
+    return 'UserBadge(id: $id, isEarned: $isEarned, isHidden: $isHidden, earnedAt: $earnedAt)';
   }
 
   @override
@@ -164,13 +179,16 @@ class _$UserBadgeImpl extends _UserBadge {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.isEarned, isEarned) ||
                 other.isEarned == isEarned) &&
+            (identical(other.isHidden, isHidden) ||
+                other.isHidden == isHidden) &&
             (identical(other.earnedAt, earnedAt) ||
                 other.earnedAt == earnedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, isEarned, earnedAt);
+  int get hashCode =>
+      Object.hash(runtimeType, id, isEarned, isHidden, earnedAt);
 
   /// Create a copy of UserBadge
   /// with the given fields replaced by the non-null parameter values.
@@ -190,6 +208,7 @@ abstract class _UserBadge extends UserBadge {
   const factory _UserBadge({
     required final String id,
     final bool isEarned,
+    final bool isHidden,
     final DateTime? earnedAt,
   }) = _$UserBadgeImpl;
   const _UserBadge._() : super._();
@@ -201,6 +220,8 @@ abstract class _UserBadge extends UserBadge {
   String get id;
   @override
   bool get isEarned;
+  @override
+  bool get isHidden;
   @override
   DateTime? get earnedAt;
 

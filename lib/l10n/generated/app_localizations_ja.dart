@@ -1491,7 +1491,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String levelNameHigh(int level) {
-    return '達人 Lv.$level';
+    return 'Lv.$level';
   }
 
   @override
@@ -1501,64 +1501,64 @@ class AppLocalizationsJa extends AppLocalizations {
   String get badgeDesc_first_step => '最初のタスクを完了';
 
   @override
-  String get badgeName_streak_3 => '3日連続';
+  String get badgeName_streak_3 => '三日坊主とは言わせない';
 
   @override
-  String get badgeDesc_streak_3 => '3日連続で操作';
+  String get badgeDesc_streak_3 => '3日連続でアプリを起動';
 
   @override
-  String get badgeName_streak_7 => '7日連続';
+  String get badgeName_streak_7 => '一週間の習慣';
 
   @override
-  String get badgeDesc_streak_7 => '1週間続けた';
+  String get badgeDesc_streak_7 => '7日連続でアプリを起動';
 
   @override
-  String get badgeName_streak_14 => '14日連続';
+  String get badgeName_streak_14 => 'フォートナイト達成';
 
   @override
-  String get badgeDesc_streak_14 => '2週間続けた';
+  String get badgeDesc_streak_14 => '14日連続でアプリを起動';
 
   @override
-  String get badgeName_streak_30 => '30日連続';
+  String get badgeName_streak_30 => '月間皆勤賞';
 
   @override
-  String get badgeDesc_streak_30 => '1ヶ月続けた';
+  String get badgeDesc_streak_30 => '30日連続でアプリを起動';
 
   @override
   String get badgeName_ai_first => 'AI初体験';
 
   @override
-  String get badgeDesc_ai_first => 'AI整理を初実行';
+  String get badgeDesc_ai_first => '初めてAI整理を実行';
 
   @override
-  String get badgeName_task_10 => '10件達成';
+  String get badgeName_task_10 => 'コツコツ職人';
 
   @override
   String get badgeDesc_task_10 => '累計10件完了';
 
   @override
-  String get badgeName_task_50 => '50件達成';
+  String get badgeName_task_50 => '半世紀の重み';
 
   @override
   String get badgeDesc_task_50 => '累計50件完了';
 
   @override
-  String get badgeName_task_100 => '100件達成';
+  String get badgeName_task_100 => 'センチュリオン';
 
   @override
   String get badgeDesc_task_100 => '累計100件完了';
 
   @override
-  String get badgeName_level_5 => 'Lv.5到達';
+  String get badgeName_level_5 => '駆け出しプランナー';
 
   @override
-  String get badgeDesc_level_5 => 'AIの右腕に進化';
+  String get badgeDesc_level_5 => 'Lv.5到達';
 
   @override
-  String get badgeName_level_10 => 'Lv.10到達';
+  String get badgeName_level_10 => '一人前の整理人';
 
   @override
-  String get badgeDesc_level_10 => '達人の領域';
+  String get badgeDesc_level_10 => 'Lv.10到達';
 
   @override
   String get greetingMorning => 'おはよう';
@@ -1947,4 +1947,202 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get weekdaySunShort => '日';
+
+  @override
+  String get levelName9 => 'タスク仙人';
+
+  @override
+  String get levelName10 => '究極のオーガナイザー';
+
+  @override
+  String get levelName15 => 'タスクの求道者';
+
+  @override
+  String get levelName20 => '整理の哲学者';
+
+  @override
+  String get levelName30 => '効率化の帝王';
+
+  @override
+  String get levelName50 => 'タスク界の生ける伝説';
+
+  @override
+  String get levelName70 => '時空を超えし者';
+
+  @override
+  String get levelName100 => '∞ 無限のプランナー';
+
+  @override
+  String get badgeName_task_25 => 'やりくり上手';
+
+  @override
+  String get badgeDesc_task_25 => '累計25件完了';
+
+  @override
+  String get badgeName_task_250 => 'タスクハンター';
+
+  @override
+  String get badgeDesc_task_250 => '累計250件完了';
+
+  @override
+  String get badgeName_task_500 => '500の頂';
+
+  @override
+  String get badgeDesc_task_500 => '累計500件完了';
+
+  @override
+  String get badgeName_task_1000 => '千の証';
+
+  @override
+  String get badgeDesc_task_1000 => '累計1000件完了';
+
+  @override
+  String get badgeName_streak_60 => '鉄の意志';
+
+  @override
+  String get badgeDesc_streak_60 => '60日連続でアプリを起動';
+
+  @override
+  String get badgeName_streak_100 => 'もはや生活の一部';
+
+  @override
+  String get badgeDesc_streak_100 => '100日連続でアプリを起動';
+
+  @override
+  String get badgeName_ai_10 => 'AIの常連';
+
+  @override
+  String get badgeDesc_ai_10 => 'AI整理10回';
+
+  @override
+  String get badgeName_ai_50 => 'AI整理マニア';
+
+  @override
+  String get badgeDesc_ai_50 => 'AI整理50回';
+
+  @override
+  String get badgeName_level_20 => '効率化の求道者';
+
+  @override
+  String get badgeDesc_level_20 => 'Lv.20到達';
+
+  @override
+  String get badgeName_level_30 => '伝説のオーガナイザー';
+
+  @override
+  String get badgeDesc_level_30 => 'Lv.30到達';
+
+  @override
+  String get badgeName_early_bird => '早起きは三文の徳';
+
+  @override
+  String get badgeDesc_early_bird => '朝6時前にタスクを完了';
+
+  @override
+  String get badgeName_night_owl => '真夜中のタスクランナー';
+
+  @override
+  String get badgeDesc_night_owl => '深夜0時〜3時にタスクを完了';
+
+  @override
+  String get badgeName_busy_day_5 => '夏休みの宿題はまとめてやるタイプ';
+
+  @override
+  String get badgeDesc_busy_day_5 => '1日に5件以上のタスクを完了';
+
+  @override
+  String get badgeName_busy_day_10 => '嵐のような一日';
+
+  @override
+  String get badgeDesc_busy_day_10 => '1日に10件以上のタスクを完了';
+
+  @override
+  String get badgeName_busy_month_30 => '月間マラソンランナー';
+
+  @override
+  String get badgeDesc_busy_month_30 => '1ヶ月に30件以上完了';
+
+  @override
+  String get badgeName_back_from_hibernation => '冬眠からの目覚め';
+
+  @override
+  String get badgeDesc_back_from_hibernation => '60日以上ぶりにタスクを完了';
+
+  @override
+  String get badgeName_long_time_no_see => 'お久しぶりです';
+
+  @override
+  String get badgeDesc_long_time_no_see => '30日以上ぶりにアプリを起動';
+
+  @override
+  String get badgeName_category_master => '整理整頓の達人';
+
+  @override
+  String get badgeDesc_category_master => 'カテゴリを5つ以上作成';
+
+  @override
+  String get badgeName_habit_demon => '習慣の鬼';
+
+  @override
+  String get badgeDesc_habit_demon => '定期タスクを5件以上登録';
+
+  @override
+  String get badgeName_schedule_master => 'スケジュールマスター';
+
+  @override
+  String get badgeDesc_schedule_master => '曜日空き設定を初めて変更';
+
+  @override
+  String get badgeName_zero_overdue => 'ゼロの境地';
+
+  @override
+  String get badgeDesc_zero_overdue => '期限切れタスクを0にした';
+
+  @override
+  String get badgeName_multi_tasker => 'マルチタスカー';
+
+  @override
+  String get badgeDesc_multi_tasker => '3つ以上のカテゴリでタスク完了';
+
+  @override
+  String get badgeName_ticket_buyer => 'AI整理チケット購入者';
+
+  @override
+  String get badgeDesc_ticket_buyer => 'AI整理チケットを初めて購入';
+
+  @override
+  String get badgeName_weekend_warrior => '週末の戦士';
+
+  @override
+  String get badgeDesc_weekend_warrior => '土日に合計5件以上のタスクを完了';
+
+  @override
+  String get badgeName_perfect_week => 'パーフェクトウィーク';
+
+  @override
+  String get badgeDesc_perfect_week => '1週間毎日タスクを1件以上完了';
+
+  @override
+  String get badgeName_level_50 => 'タスク界の生ける伝説';
+
+  @override
+  String get badgeDesc_level_50 => 'Lv.50到達';
+
+  @override
+  String get badgeName_level_70 => '時空を超えし者';
+
+  @override
+  String get badgeDesc_level_70 => 'Lv.70到達';
+
+  @override
+  String get badgeName_level_100 => '∞ 到達不可能を可能にした者';
+
+  @override
+  String get badgeDesc_level_100 => 'Lv.100到達';
+
+  @override
+  String get badgeHidden => '???';
+
+  @override
+  String get badgeHiddenLabel => 'Hidden';
 }

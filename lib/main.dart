@@ -201,13 +201,15 @@ void main() async {
   }
 
   // #2-D: 累計 XP の Keychain バックアップ vs DB 値の reconciliation
+  // #5-C: アプリ起動 1 回ごとにストリーク (連続起動日数) を更新
   try {
     final gam =
         services.GamificationService(dbService, secureStorage: secureStorage);
     await gam.reconcileTotalXpBackup();
-    debugPrint('[INIT] XP backup reconciled');
+    await gam.touchActivity();
+    debugPrint('[INIT] XP backup reconciled + streak touched');
   } catch (e) {
-    debugPrint('[INIT] XP backup reconcile skipped: $e');
+    debugPrint('[INIT] gamification init skipped: $e');
   }
 
   debugPrint('[INIT] all done, launching app');

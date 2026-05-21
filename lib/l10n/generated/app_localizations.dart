@@ -2927,7 +2927,7 @@ abstract class AppLocalizations {
   /// No description provided for @levelNameHigh.
   ///
   /// In ja, this message translates to:
-  /// **'達人 Lv.{level}'**
+  /// **'Lv.{level}'**
   String levelNameHigh(int level);
 
   /// No description provided for @badgeName_first_step.
@@ -2945,49 +2945,49 @@ abstract class AppLocalizations {
   /// No description provided for @badgeName_streak_3.
   ///
   /// In ja, this message translates to:
-  /// **'3日連続'**
+  /// **'三日坊主とは言わせない'**
   String get badgeName_streak_3;
 
   /// No description provided for @badgeDesc_streak_3.
   ///
   /// In ja, this message translates to:
-  /// **'3日連続で操作'**
+  /// **'3日連続でアプリを起動'**
   String get badgeDesc_streak_3;
 
   /// No description provided for @badgeName_streak_7.
   ///
   /// In ja, this message translates to:
-  /// **'7日連続'**
+  /// **'一週間の習慣'**
   String get badgeName_streak_7;
 
   /// No description provided for @badgeDesc_streak_7.
   ///
   /// In ja, this message translates to:
-  /// **'1週間続けた'**
+  /// **'7日連続でアプリを起動'**
   String get badgeDesc_streak_7;
 
   /// No description provided for @badgeName_streak_14.
   ///
   /// In ja, this message translates to:
-  /// **'14日連続'**
+  /// **'フォートナイト達成'**
   String get badgeName_streak_14;
 
   /// No description provided for @badgeDesc_streak_14.
   ///
   /// In ja, this message translates to:
-  /// **'2週間続けた'**
+  /// **'14日連続でアプリを起動'**
   String get badgeDesc_streak_14;
 
   /// No description provided for @badgeName_streak_30.
   ///
   /// In ja, this message translates to:
-  /// **'30日連続'**
+  /// **'月間皆勤賞'**
   String get badgeName_streak_30;
 
   /// No description provided for @badgeDesc_streak_30.
   ///
   /// In ja, this message translates to:
-  /// **'1ヶ月続けた'**
+  /// **'30日連続でアプリを起動'**
   String get badgeDesc_streak_30;
 
   /// No description provided for @badgeName_ai_first.
@@ -2999,13 +2999,13 @@ abstract class AppLocalizations {
   /// No description provided for @badgeDesc_ai_first.
   ///
   /// In ja, this message translates to:
-  /// **'AI整理を初実行'**
+  /// **'初めてAI整理を実行'**
   String get badgeDesc_ai_first;
 
   /// No description provided for @badgeName_task_10.
   ///
   /// In ja, this message translates to:
-  /// **'10件達成'**
+  /// **'コツコツ職人'**
   String get badgeName_task_10;
 
   /// No description provided for @badgeDesc_task_10.
@@ -3017,7 +3017,7 @@ abstract class AppLocalizations {
   /// No description provided for @badgeName_task_50.
   ///
   /// In ja, this message translates to:
-  /// **'50件達成'**
+  /// **'半世紀の重み'**
   String get badgeName_task_50;
 
   /// No description provided for @badgeDesc_task_50.
@@ -3029,7 +3029,7 @@ abstract class AppLocalizations {
   /// No description provided for @badgeName_task_100.
   ///
   /// In ja, this message translates to:
-  /// **'100件達成'**
+  /// **'センチュリオン'**
   String get badgeName_task_100;
 
   /// No description provided for @badgeDesc_task_100.
@@ -3041,25 +3041,25 @@ abstract class AppLocalizations {
   /// No description provided for @badgeName_level_5.
   ///
   /// In ja, this message translates to:
-  /// **'Lv.5到達'**
+  /// **'駆け出しプランナー'**
   String get badgeName_level_5;
 
   /// No description provided for @badgeDesc_level_5.
   ///
   /// In ja, this message translates to:
-  /// **'AIの右腕に進化'**
+  /// **'Lv.5到達'**
   String get badgeDesc_level_5;
 
   /// No description provided for @badgeName_level_10.
   ///
   /// In ja, this message translates to:
-  /// **'Lv.10到達'**
+  /// **'一人前の整理人'**
   String get badgeName_level_10;
 
   /// No description provided for @badgeDesc_level_10.
   ///
   /// In ja, this message translates to:
-  /// **'達人の領域'**
+  /// **'Lv.10到達'**
   String get badgeDesc_level_10;
 
   /// No description provided for @greetingMorning.
@@ -3787,6 +3787,402 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'日'**
   String get weekdaySunShort;
+
+  /// No description provided for @levelName9.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク仙人'**
+  String get levelName9;
+
+  /// No description provided for @levelName10.
+  ///
+  /// In ja, this message translates to:
+  /// **'究極のオーガナイザー'**
+  String get levelName10;
+
+  /// No description provided for @levelName15.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクの求道者'**
+  String get levelName15;
+
+  /// No description provided for @levelName20.
+  ///
+  /// In ja, this message translates to:
+  /// **'整理の哲学者'**
+  String get levelName20;
+
+  /// No description provided for @levelName30.
+  ///
+  /// In ja, this message translates to:
+  /// **'効率化の帝王'**
+  String get levelName30;
+
+  /// No description provided for @levelName50.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク界の生ける伝説'**
+  String get levelName50;
+
+  /// No description provided for @levelName70.
+  ///
+  /// In ja, this message translates to:
+  /// **'時空を超えし者'**
+  String get levelName70;
+
+  /// No description provided for @levelName100.
+  ///
+  /// In ja, this message translates to:
+  /// **'∞ 無限のプランナー'**
+  String get levelName100;
+
+  /// No description provided for @badgeName_task_25.
+  ///
+  /// In ja, this message translates to:
+  /// **'やりくり上手'**
+  String get badgeName_task_25;
+
+  /// No description provided for @badgeDesc_task_25.
+  ///
+  /// In ja, this message translates to:
+  /// **'累計25件完了'**
+  String get badgeDesc_task_25;
+
+  /// No description provided for @badgeName_task_250.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクハンター'**
+  String get badgeName_task_250;
+
+  /// No description provided for @badgeDesc_task_250.
+  ///
+  /// In ja, this message translates to:
+  /// **'累計250件完了'**
+  String get badgeDesc_task_250;
+
+  /// No description provided for @badgeName_task_500.
+  ///
+  /// In ja, this message translates to:
+  /// **'500の頂'**
+  String get badgeName_task_500;
+
+  /// No description provided for @badgeDesc_task_500.
+  ///
+  /// In ja, this message translates to:
+  /// **'累計500件完了'**
+  String get badgeDesc_task_500;
+
+  /// No description provided for @badgeName_task_1000.
+  ///
+  /// In ja, this message translates to:
+  /// **'千の証'**
+  String get badgeName_task_1000;
+
+  /// No description provided for @badgeDesc_task_1000.
+  ///
+  /// In ja, this message translates to:
+  /// **'累計1000件完了'**
+  String get badgeDesc_task_1000;
+
+  /// No description provided for @badgeName_streak_60.
+  ///
+  /// In ja, this message translates to:
+  /// **'鉄の意志'**
+  String get badgeName_streak_60;
+
+  /// No description provided for @badgeDesc_streak_60.
+  ///
+  /// In ja, this message translates to:
+  /// **'60日連続でアプリを起動'**
+  String get badgeDesc_streak_60;
+
+  /// No description provided for @badgeName_streak_100.
+  ///
+  /// In ja, this message translates to:
+  /// **'もはや生活の一部'**
+  String get badgeName_streak_100;
+
+  /// No description provided for @badgeDesc_streak_100.
+  ///
+  /// In ja, this message translates to:
+  /// **'100日連続でアプリを起動'**
+  String get badgeDesc_streak_100;
+
+  /// No description provided for @badgeName_ai_10.
+  ///
+  /// In ja, this message translates to:
+  /// **'AIの常連'**
+  String get badgeName_ai_10;
+
+  /// No description provided for @badgeDesc_ai_10.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理10回'**
+  String get badgeDesc_ai_10;
+
+  /// No description provided for @badgeName_ai_50.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理マニア'**
+  String get badgeName_ai_50;
+
+  /// No description provided for @badgeDesc_ai_50.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理50回'**
+  String get badgeDesc_ai_50;
+
+  /// No description provided for @badgeName_level_20.
+  ///
+  /// In ja, this message translates to:
+  /// **'効率化の求道者'**
+  String get badgeName_level_20;
+
+  /// No description provided for @badgeDesc_level_20.
+  ///
+  /// In ja, this message translates to:
+  /// **'Lv.20到達'**
+  String get badgeDesc_level_20;
+
+  /// No description provided for @badgeName_level_30.
+  ///
+  /// In ja, this message translates to:
+  /// **'伝説のオーガナイザー'**
+  String get badgeName_level_30;
+
+  /// No description provided for @badgeDesc_level_30.
+  ///
+  /// In ja, this message translates to:
+  /// **'Lv.30到達'**
+  String get badgeDesc_level_30;
+
+  /// No description provided for @badgeName_early_bird.
+  ///
+  /// In ja, this message translates to:
+  /// **'早起きは三文の徳'**
+  String get badgeName_early_bird;
+
+  /// No description provided for @badgeDesc_early_bird.
+  ///
+  /// In ja, this message translates to:
+  /// **'朝6時前にタスクを完了'**
+  String get badgeDesc_early_bird;
+
+  /// No description provided for @badgeName_night_owl.
+  ///
+  /// In ja, this message translates to:
+  /// **'真夜中のタスクランナー'**
+  String get badgeName_night_owl;
+
+  /// No description provided for @badgeDesc_night_owl.
+  ///
+  /// In ja, this message translates to:
+  /// **'深夜0時〜3時にタスクを完了'**
+  String get badgeDesc_night_owl;
+
+  /// No description provided for @badgeName_busy_day_5.
+  ///
+  /// In ja, this message translates to:
+  /// **'夏休みの宿題はまとめてやるタイプ'**
+  String get badgeName_busy_day_5;
+
+  /// No description provided for @badgeDesc_busy_day_5.
+  ///
+  /// In ja, this message translates to:
+  /// **'1日に5件以上のタスクを完了'**
+  String get badgeDesc_busy_day_5;
+
+  /// No description provided for @badgeName_busy_day_10.
+  ///
+  /// In ja, this message translates to:
+  /// **'嵐のような一日'**
+  String get badgeName_busy_day_10;
+
+  /// No description provided for @badgeDesc_busy_day_10.
+  ///
+  /// In ja, this message translates to:
+  /// **'1日に10件以上のタスクを完了'**
+  String get badgeDesc_busy_day_10;
+
+  /// No description provided for @badgeName_busy_month_30.
+  ///
+  /// In ja, this message translates to:
+  /// **'月間マラソンランナー'**
+  String get badgeName_busy_month_30;
+
+  /// No description provided for @badgeDesc_busy_month_30.
+  ///
+  /// In ja, this message translates to:
+  /// **'1ヶ月に30件以上完了'**
+  String get badgeDesc_busy_month_30;
+
+  /// No description provided for @badgeName_back_from_hibernation.
+  ///
+  /// In ja, this message translates to:
+  /// **'冬眠からの目覚め'**
+  String get badgeName_back_from_hibernation;
+
+  /// No description provided for @badgeDesc_back_from_hibernation.
+  ///
+  /// In ja, this message translates to:
+  /// **'60日以上ぶりにタスクを完了'**
+  String get badgeDesc_back_from_hibernation;
+
+  /// No description provided for @badgeName_long_time_no_see.
+  ///
+  /// In ja, this message translates to:
+  /// **'お久しぶりです'**
+  String get badgeName_long_time_no_see;
+
+  /// No description provided for @badgeDesc_long_time_no_see.
+  ///
+  /// In ja, this message translates to:
+  /// **'30日以上ぶりにアプリを起動'**
+  String get badgeDesc_long_time_no_see;
+
+  /// No description provided for @badgeName_category_master.
+  ///
+  /// In ja, this message translates to:
+  /// **'整理整頓の達人'**
+  String get badgeName_category_master;
+
+  /// No description provided for @badgeDesc_category_master.
+  ///
+  /// In ja, this message translates to:
+  /// **'カテゴリを5つ以上作成'**
+  String get badgeDesc_category_master;
+
+  /// No description provided for @badgeName_habit_demon.
+  ///
+  /// In ja, this message translates to:
+  /// **'習慣の鬼'**
+  String get badgeName_habit_demon;
+
+  /// No description provided for @badgeDesc_habit_demon.
+  ///
+  /// In ja, this message translates to:
+  /// **'定期タスクを5件以上登録'**
+  String get badgeDesc_habit_demon;
+
+  /// No description provided for @badgeName_schedule_master.
+  ///
+  /// In ja, this message translates to:
+  /// **'スケジュールマスター'**
+  String get badgeName_schedule_master;
+
+  /// No description provided for @badgeDesc_schedule_master.
+  ///
+  /// In ja, this message translates to:
+  /// **'曜日空き設定を初めて変更'**
+  String get badgeDesc_schedule_master;
+
+  /// No description provided for @badgeName_zero_overdue.
+  ///
+  /// In ja, this message translates to:
+  /// **'ゼロの境地'**
+  String get badgeName_zero_overdue;
+
+  /// No description provided for @badgeDesc_zero_overdue.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限切れタスクを0にした'**
+  String get badgeDesc_zero_overdue;
+
+  /// No description provided for @badgeName_multi_tasker.
+  ///
+  /// In ja, this message translates to:
+  /// **'マルチタスカー'**
+  String get badgeName_multi_tasker;
+
+  /// No description provided for @badgeDesc_multi_tasker.
+  ///
+  /// In ja, this message translates to:
+  /// **'3つ以上のカテゴリでタスク完了'**
+  String get badgeDesc_multi_tasker;
+
+  /// No description provided for @badgeName_ticket_buyer.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理チケット購入者'**
+  String get badgeName_ticket_buyer;
+
+  /// No description provided for @badgeDesc_ticket_buyer.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI整理チケットを初めて購入'**
+  String get badgeDesc_ticket_buyer;
+
+  /// No description provided for @badgeName_weekend_warrior.
+  ///
+  /// In ja, this message translates to:
+  /// **'週末の戦士'**
+  String get badgeName_weekend_warrior;
+
+  /// No description provided for @badgeDesc_weekend_warrior.
+  ///
+  /// In ja, this message translates to:
+  /// **'土日に合計5件以上のタスクを完了'**
+  String get badgeDesc_weekend_warrior;
+
+  /// No description provided for @badgeName_perfect_week.
+  ///
+  /// In ja, this message translates to:
+  /// **'パーフェクトウィーク'**
+  String get badgeName_perfect_week;
+
+  /// No description provided for @badgeDesc_perfect_week.
+  ///
+  /// In ja, this message translates to:
+  /// **'1週間毎日タスクを1件以上完了'**
+  String get badgeDesc_perfect_week;
+
+  /// No description provided for @badgeName_level_50.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク界の生ける伝説'**
+  String get badgeName_level_50;
+
+  /// No description provided for @badgeDesc_level_50.
+  ///
+  /// In ja, this message translates to:
+  /// **'Lv.50到達'**
+  String get badgeDesc_level_50;
+
+  /// No description provided for @badgeName_level_70.
+  ///
+  /// In ja, this message translates to:
+  /// **'時空を超えし者'**
+  String get badgeName_level_70;
+
+  /// No description provided for @badgeDesc_level_70.
+  ///
+  /// In ja, this message translates to:
+  /// **'Lv.70到達'**
+  String get badgeDesc_level_70;
+
+  /// No description provided for @badgeName_level_100.
+  ///
+  /// In ja, this message translates to:
+  /// **'∞ 到達不可能を可能にした者'**
+  String get badgeName_level_100;
+
+  /// No description provided for @badgeDesc_level_100.
+  ///
+  /// In ja, this message translates to:
+  /// **'Lv.100到達'**
+  String get badgeDesc_level_100;
+
+  /// No description provided for @badgeHidden.
+  ///
+  /// In ja, this message translates to:
+  /// **'???'**
+  String get badgeHidden;
+
+  /// No description provided for @badgeHiddenLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'Hidden'**
+  String get badgeHiddenLabel;
 }
 
 class _AppLocalizationsDelegate

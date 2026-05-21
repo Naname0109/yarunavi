@@ -1497,22 +1497,22 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get levelName1 => 'First Steps';
+  String get levelName1 => 'First Step Navigator';
 
   @override
-  String get levelName2 => 'Apprentice Planner';
+  String get levelName2 => 'Rookie Planner';
 
   @override
-  String get levelName3 => 'Smart Planner';
+  String get levelName3 => 'Quick Organizer';
 
   @override
   String get levelName4 => 'Task Master';
 
   @override
-  String get levelName5 => 'AI Companion';
+  String get levelName5 => 'AI\'s Right Hand';
 
   @override
-  String get levelName6 => 'Organizer Pro';
+  String get levelName6 => 'Pro Organizer';
 
   @override
   String get levelName7 => 'Time Lord';
@@ -1522,7 +1522,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String levelNameHigh(int level) {
-    return 'Master Lv.$level';
+    return 'Lv.$level';
   }
 
   @override
@@ -1532,64 +1532,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String get badgeDesc_first_step => 'Complete your first task';
 
   @override
-  String get badgeName_streak_3 => '3-Day Streak';
+  String get badgeName_streak_3 => 'No More Quitting on Day Three';
 
   @override
-  String get badgeDesc_streak_3 => 'Active 3 days in a row';
+  String get badgeDesc_streak_3 => 'Open the app 3 days in a row';
 
   @override
-  String get badgeName_streak_7 => '7-Day Streak';
+  String get badgeName_streak_7 => 'Week-long Habit';
 
   @override
-  String get badgeDesc_streak_7 => 'A week of momentum';
+  String get badgeDesc_streak_7 => 'Open the app 7 days in a row';
 
   @override
-  String get badgeName_streak_14 => '14-Day Streak';
+  String get badgeName_streak_14 => 'Fortnight Achieved';
 
   @override
-  String get badgeDesc_streak_14 => 'Two weeks strong';
+  String get badgeDesc_streak_14 => 'Open the app 14 days in a row';
 
   @override
-  String get badgeName_streak_30 => '30-Day Streak';
+  String get badgeName_streak_30 => 'Monthly Perfect Attendance';
 
   @override
-  String get badgeDesc_streak_30 => 'A full month';
+  String get badgeDesc_streak_30 => 'Open the app 30 days in a row';
 
   @override
-  String get badgeName_ai_first => 'AI Debut';
+  String get badgeName_ai_first => 'First Brush with AI';
 
   @override
-  String get badgeDesc_ai_first => 'Run your first AI sort';
+  String get badgeDesc_ai_first => 'Run AI sort for the first time';
 
   @override
-  String get badgeName_task_10 => '10 Tasks';
+  String get badgeName_task_10 => 'Steady Hand';
 
   @override
-  String get badgeDesc_task_10 => 'Completed 10 tasks';
+  String get badgeDesc_task_10 => 'Complete 10 tasks total';
 
   @override
-  String get badgeName_task_50 => '50 Tasks';
+  String get badgeName_task_50 => 'Half Century';
 
   @override
-  String get badgeDesc_task_50 => 'Completed 50 tasks';
+  String get badgeDesc_task_50 => 'Complete 50 tasks total';
 
   @override
-  String get badgeName_task_100 => '100 Tasks';
+  String get badgeName_task_100 => 'Centurion';
 
   @override
-  String get badgeDesc_task_100 => 'Completed 100 tasks';
+  String get badgeDesc_task_100 => 'Complete 100 tasks total';
 
   @override
-  String get badgeName_level_5 => 'Reached Lv.5';
+  String get badgeName_level_5 => 'Rookie Planner';
 
   @override
-  String get badgeDesc_level_5 => 'Became AI Companion';
+  String get badgeDesc_level_5 => 'Reach Lv.5';
 
   @override
-  String get badgeName_level_10 => 'Reached Lv.10';
+  String get badgeName_level_10 => 'Full-fledged Organizer';
 
   @override
-  String get badgeDesc_level_10 => 'Master tier';
+  String get badgeDesc_level_10 => 'Reach Lv.10';
 
   @override
   String get greetingMorning => 'Good morning';
@@ -1984,4 +1984,208 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weekdaySunShort => 'Sun';
+
+  @override
+  String get levelName9 => 'Task Sage';
+
+  @override
+  String get levelName10 => 'Ultimate Organizer';
+
+  @override
+  String get levelName15 => 'Task Devotee';
+
+  @override
+  String get levelName20 => 'Philosopher of Order';
+
+  @override
+  String get levelName30 => 'Emperor of Efficiency';
+
+  @override
+  String get levelName50 => 'A Living Legend of Tasks';
+
+  @override
+  String get levelName70 => 'Transcender of Time';
+
+  @override
+  String get levelName100 => '∞ Infinite Planner';
+
+  @override
+  String get badgeName_task_25 => 'Skilled Juggler';
+
+  @override
+  String get badgeDesc_task_25 => 'Complete 25 tasks total';
+
+  @override
+  String get badgeName_task_250 => 'Task Hunter';
+
+  @override
+  String get badgeDesc_task_250 => 'Complete 250 tasks total';
+
+  @override
+  String get badgeName_task_500 => 'Peak of 500';
+
+  @override
+  String get badgeDesc_task_500 => 'Complete 500 tasks total';
+
+  @override
+  String get badgeName_task_1000 => 'Mark of a Thousand';
+
+  @override
+  String get badgeDesc_task_1000 => 'Complete 1000 tasks total';
+
+  @override
+  String get badgeName_streak_60 => 'Iron Will';
+
+  @override
+  String get badgeDesc_streak_60 => 'Open the app 60 days in a row';
+
+  @override
+  String get badgeName_streak_100 => 'It\'s a Lifestyle Now';
+
+  @override
+  String get badgeDesc_streak_100 => 'Open the app 100 days in a row';
+
+  @override
+  String get badgeName_ai_10 => 'AI Regular';
+
+  @override
+  String get badgeDesc_ai_10 => 'Run AI sort 10 times';
+
+  @override
+  String get badgeName_ai_50 => 'AI Sort Aficionado';
+
+  @override
+  String get badgeDesc_ai_50 => 'Run AI sort 50 times';
+
+  @override
+  String get badgeName_level_20 => 'Devotee of Efficiency';
+
+  @override
+  String get badgeDesc_level_20 => 'Reach Lv.20';
+
+  @override
+  String get badgeName_level_30 => 'Legendary Organizer';
+
+  @override
+  String get badgeDesc_level_30 => 'Reach Lv.30';
+
+  @override
+  String get badgeName_early_bird => 'Early Bird Catches the Task';
+
+  @override
+  String get badgeDesc_early_bird => 'Complete a task before 6am';
+
+  @override
+  String get badgeName_night_owl => 'Midnight Task Runner';
+
+  @override
+  String get badgeDesc_night_owl => 'Complete a task between 0 and 3 am';
+
+  @override
+  String get badgeName_busy_day_5 => 'Cram It All In One Day';
+
+  @override
+  String get badgeDesc_busy_day_5 => 'Complete 5+ tasks in a single day';
+
+  @override
+  String get badgeName_busy_day_10 => 'A Stormy Day';
+
+  @override
+  String get badgeDesc_busy_day_10 => 'Complete 10+ tasks in a single day';
+
+  @override
+  String get badgeName_busy_month_30 => 'Monthly Marathon Runner';
+
+  @override
+  String get badgeDesc_busy_month_30 => 'Complete 30+ tasks in a month';
+
+  @override
+  String get badgeName_back_from_hibernation => 'Back from Hibernation';
+
+  @override
+  String get badgeDesc_back_from_hibernation =>
+      'Complete a task after 60+ days of silence';
+
+  @override
+  String get badgeName_long_time_no_see => 'Long Time No See';
+
+  @override
+  String get badgeDesc_long_time_no_see => 'Open the app after 30+ days away';
+
+  @override
+  String get badgeName_category_master => 'Tidiness Master';
+
+  @override
+  String get badgeDesc_category_master => 'Create 5+ categories';
+
+  @override
+  String get badgeName_habit_demon => 'Demon of Habit';
+
+  @override
+  String get badgeDesc_habit_demon => 'Register 5+ recurring tasks';
+
+  @override
+  String get badgeName_schedule_master => 'Schedule Master';
+
+  @override
+  String get badgeDesc_schedule_master =>
+      'Change weekday busyness for the first time';
+
+  @override
+  String get badgeName_zero_overdue => 'Inbox Zero State of Mind';
+
+  @override
+  String get badgeDesc_zero_overdue => 'Bring overdue tasks down to zero';
+
+  @override
+  String get badgeName_multi_tasker => 'Multitasker';
+
+  @override
+  String get badgeDesc_multi_tasker =>
+      'Complete tasks in 3+ different categories';
+
+  @override
+  String get badgeName_ticket_buyer => 'AI Ticket Believer';
+
+  @override
+  String get badgeDesc_ticket_buyer =>
+      'Purchase an AI sort ticket for the first time';
+
+  @override
+  String get badgeName_weekend_warrior => 'Weekend Warrior';
+
+  @override
+  String get badgeDesc_weekend_warrior =>
+      'Complete 5+ tasks across Saturday and Sunday';
+
+  @override
+  String get badgeName_perfect_week => 'Perfect Week';
+
+  @override
+  String get badgeDesc_perfect_week =>
+      'Complete at least 1 task every day for a week';
+
+  @override
+  String get badgeName_level_50 => 'A Living Legend of Tasks';
+
+  @override
+  String get badgeDesc_level_50 => 'Reach Lv.50';
+
+  @override
+  String get badgeName_level_70 => 'Transcender of Time';
+
+  @override
+  String get badgeDesc_level_70 => 'Reach Lv.70';
+
+  @override
+  String get badgeName_level_100 => '∞ The Impossible Made Possible';
+
+  @override
+  String get badgeDesc_level_100 => 'Reach Lv.100';
+
+  @override
+  String get badgeHidden => '???';
+
+  @override
+  String get badgeHiddenLabel => 'Hidden';
 }

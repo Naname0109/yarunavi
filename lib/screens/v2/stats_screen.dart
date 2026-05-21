@@ -576,6 +576,12 @@ class _BadgeTile extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final earned = badge.isEarned;
 
+    // 隠しバッジ未獲得時は名前・条件を「???」 で伏せる (#5)
+    final concealed = badge.isHidden && !earned;
+    final displayIcon = concealed ? Icons.help_outline_rounded : badge.icon;
+    final displayName =
+        concealed ? l10n.badgeHidden : _localizedBadgeName(l10n, badge.id);
+
     return GlassCard(
       borderRadius: 14,
       padding: const EdgeInsets.all(10),
@@ -587,23 +593,24 @@ class _BadgeTile extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    badge.emoji,
-                    style: TextStyle(
-                      fontSize: 32,
-                      shadows: earned && isDark
-                          ? [
-                              Shadow(
-                                color: yaru.accent.withValues(alpha: 0.6),
-                                blurRadius: 8,
-                              ),
-                            ]
-                          : null,
-                    ),
+                  Icon(
+                    displayIcon,
+                    size: 32,
+                    color: earned
+                        ? Theme.of(context).colorScheme.primary
+                        : yaru.inkTertiary,
+                    shadows: earned && isDark
+                        ? [
+                            Shadow(
+                              color: yaru.accent.withValues(alpha: 0.6),
+                              blurRadius: 8,
+                            ),
+                          ]
+                        : null,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _localizedBadgeName(l10n, badge.id),
+                    displayName,
                     style: TextStyle(
                       fontSize: 9.5,
                       fontWeight: FontWeight.w800,
@@ -622,7 +629,7 @@ class _BadgeTile extends StatelessWidget {
               top: 4,
               right: 4,
               child: Icon(
-                Icons.lock_rounded,
+                concealed ? Icons.visibility_off_rounded : Icons.lock_rounded,
                 size: 12,
                 color: yaru.inkQuaternary,
               ),
@@ -649,17 +656,47 @@ String _localizedLevelName(AppLocalizations l10n, int level) {
 
 String _localizedBadgeName(AppLocalizations l10n, String id) {
   return switch (id) {
+    // 表バッジ
     'first_step' => l10n.badgeName_first_step,
+    'task_10' => l10n.badgeName_task_10,
+    'task_25' => l10n.badgeName_task_25,
+    'task_50' => l10n.badgeName_task_50,
+    'task_100' => l10n.badgeName_task_100,
+    'task_250' => l10n.badgeName_task_250,
+    'task_500' => l10n.badgeName_task_500,
+    'task_1000' => l10n.badgeName_task_1000,
     'streak_3' => l10n.badgeName_streak_3,
     'streak_7' => l10n.badgeName_streak_7,
     'streak_14' => l10n.badgeName_streak_14,
     'streak_30' => l10n.badgeName_streak_30,
+    'streak_60' => l10n.badgeName_streak_60,
+    'streak_100' => l10n.badgeName_streak_100,
     'ai_first' => l10n.badgeName_ai_first,
-    'task_10' => l10n.badgeName_task_10,
-    'task_50' => l10n.badgeName_task_50,
-    'task_100' => l10n.badgeName_task_100,
+    'ai_10' => l10n.badgeName_ai_10,
+    'ai_50' => l10n.badgeName_ai_50,
     'level_5' => l10n.badgeName_level_5,
     'level_10' => l10n.badgeName_level_10,
+    'level_20' => l10n.badgeName_level_20,
+    'level_30' => l10n.badgeName_level_30,
+    // 隠しバッジ
+    'early_bird' => l10n.badgeName_early_bird,
+    'night_owl' => l10n.badgeName_night_owl,
+    'busy_day_5' => l10n.badgeName_busy_day_5,
+    'busy_day_10' => l10n.badgeName_busy_day_10,
+    'busy_month_30' => l10n.badgeName_busy_month_30,
+    'back_from_hibernation' => l10n.badgeName_back_from_hibernation,
+    'long_time_no_see' => l10n.badgeName_long_time_no_see,
+    'category_master' => l10n.badgeName_category_master,
+    'habit_demon' => l10n.badgeName_habit_demon,
+    'schedule_master' => l10n.badgeName_schedule_master,
+    'zero_overdue' => l10n.badgeName_zero_overdue,
+    'multi_tasker' => l10n.badgeName_multi_tasker,
+    'ticket_buyer' => l10n.badgeName_ticket_buyer,
+    'weekend_warrior' => l10n.badgeName_weekend_warrior,
+    'perfect_week' => l10n.badgeName_perfect_week,
+    'level_50' => l10n.badgeName_level_50,
+    'level_70' => l10n.badgeName_level_70,
+    'level_100' => l10n.badgeName_level_100,
     _ => id,
   };
 }

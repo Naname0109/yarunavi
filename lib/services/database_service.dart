@@ -24,26 +24,73 @@ class DatabaseService {
     // v12: tasks.xp_granted (XP 1 タスク 1 回保証)
     _db = await openDatabase(
       path,
-      version: 13,
+      version: 14,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
   }
 
-  /// バッジ定義の正規ID一覧（user_stats計算とUIで共有）
+  /// バッジ定義の正規ID一覧 (#5 全 41 個)。
+  /// 表 (23) と 隠し (18) は [kHiddenBadgeIds] で区別する。
   static const List<String> kBadgeIds = [
+    // === 表バッジ 23 個 ===
+    // タスク完了系 (8)
     'first_step',
-    'streak_3',
-    'streak_7',
-    'streak_14',
-    'streak_30',
-    'ai_first',
-    'task_10',
-    'task_50',
-    'task_100',
-    'level_5',
-    'level_10',
+    'task_10', 'task_25', 'task_50', 'task_100',
+    'task_250', 'task_500', 'task_1000',
+    // ストリーク系 (6)
+    'streak_3', 'streak_7', 'streak_14', 'streak_30', 'streak_60', 'streak_100',
+    // AI 整理系 (3)
+    'ai_first', 'ai_10', 'ai_50',
+    // レベル系 (4)
+    'level_5', 'level_10', 'level_20', 'level_30',
+
+    // === 隠しバッジ 18 個 ===
+    // 時間帯
+    'early_bird', 'night_owl',
+    // 大量処理
+    'busy_day_5', 'busy_day_10', 'busy_month_30',
+    // 復帰
+    'back_from_hibernation', 'long_time_no_see',
+    // 設定
+    'category_master', 'habit_demon', 'schedule_master',
+    // 特殊
+    'zero_overdue', 'multi_tasker', 'ticket_buyer',
+    'weekend_warrior', 'perfect_week',
+    // 高レベル (隠し)
+    'level_50', 'level_70', 'level_100',
   ];
+
+  /// 隠しバッジ (条件を「???」 で伏せる)。
+  static const Set<String> kHiddenBadgeIds = {
+    'early_bird', 'night_owl',
+    'busy_day_5', 'busy_day_10', 'busy_month_30',
+    'back_from_hibernation', 'long_time_no_see',
+    'category_master', 'habit_demon', 'schedule_master',
+    'zero_overdue', 'multi_tasker', 'ticket_buyer',
+    'weekend_warrior', 'perfect_week',
+    'level_50', 'level_70', 'level_100',
+  };
+
+  /// バッジ獲得時に付与する XP ボーナス
+  static const Map<String, int> kBadgeXpReward = {
+    // 表
+    'first_step': 5,
+    'task_10': 20, 'task_25': 30, 'task_50': 50, 'task_100': 100,
+    'task_250': 150, 'task_500': 200, 'task_1000': 500,
+    'streak_3': 10, 'streak_7': 30, 'streak_14': 50,
+    'streak_30': 100, 'streak_60': 200, 'streak_100': 500,
+    'ai_first': 10, 'ai_10': 30, 'ai_50': 100,
+    'level_5': 50, 'level_10': 100, 'level_20': 200, 'level_30': 300,
+    // 隠し
+    'early_bird': 15, 'night_owl': 15,
+    'busy_day_5': 40, 'busy_day_10': 80, 'busy_month_30': 100,
+    'back_from_hibernation': 30, 'long_time_no_see': 15,
+    'category_master': 20, 'habit_demon': 30, 'schedule_master': 10,
+    'zero_overdue': 30, 'multi_tasker': 20, 'ticket_buyer': 10,
+    'weekend_warrior': 25, 'perfect_week': 50,
+    'level_50': 500, 'level_70': 700, 'level_100': 1000,
+  };
 
   /// マイグレーション時に既存データから遡及して獲得済みにすべきバッジか
   static bool _shouldAutoEarnOnMigration(
@@ -54,9 +101,15 @@ class DatabaseService {
     return switch (id) {
       'first_step' => completed >= 1,
       'task_10' => completed >= 10,
+      'task_25' => completed >= 25,
       'task_50' => completed >= 50,
       'task_100' => completed >= 100,
+      'task_250' => completed >= 250,
+      'task_500' => completed >= 500,
+      'task_1000' => completed >= 1000,
       'ai_first' => aiSorts >= 1,
+      'ai_10' => aiSorts >= 10,
+      'ai_50' => aiSorts >= 50,
       _ => false,
     };
   }
@@ -83,6 +136,7 @@ class DatabaseService {
     await db.execute('''
       CREATE TABLE badges (
         id TEXT PRIMARY KEY,
+        is_hidden INTEGER NOT NULL DEFAULT 0,
         is_earned INTEGER NOT NULL DEFAULT 0,
         earned_at TEXT
       )
@@ -129,11 +183,16 @@ class DatabaseService {
     final batch = db.batch();
     for (final id in kBadgeIds) {
       final retro = _shouldAutoEarnOnMigration(id, totalCompleted, totalAiSorts);
-      batch.insert('badges', {
-        'id': id,
-        'is_earned': retro ? 1 : 0,
-        'earned_at': retro ? now : null,
-      });
+      batch.insert(
+        'badges',
+        {
+          'id': id,
+          'is_hidden': kHiddenBadgeIds.contains(id) ? 1 : 0,
+          'is_earned': retro ? 1 : 0,
+          'earned_at': retro ? now : null,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     }
     await batch.commit(noResult: true);
   }
@@ -318,6 +377,49 @@ class DatabaseService {
           date TEXT NOT NULL UNIQUE
         )
       ''');
+    }
+    if (oldVersion < 14) {
+      // #5 バッジ刷新 (41 個) + is_hidden カラム
+      // 既存 is_earned は保持し、 新規 badge を追加 + is_hidden を埋める。
+      try {
+        await db.execute(
+          'ALTER TABLE badges ADD COLUMN is_hidden INTEGER NOT NULL DEFAULT 0',
+        );
+      } catch (_) {/* 既に存在する場合は無視 */}
+
+      final existing = await db.query('badges');
+      final existingIds = existing.map((r) => r['id'] as String).toSet();
+      final batch = db.batch();
+      final now = DateTime.now().toIso8601String();
+
+      // 集計の取り直し (タスク完了数 + AI 整理回数)
+      final completedRow = await db.rawQuery(
+          'SELECT COUNT(*) as cnt FROM tasks WHERE is_completed = 1');
+      final totalCompleted = Sqflite.firstIntValue(completedRow) ?? 0;
+      final aiSortRow =
+          await db.rawQuery('SELECT COUNT(*) as cnt FROM ai_history');
+      final totalAiSorts = Sqflite.firstIntValue(aiSortRow) ?? 0;
+
+      for (final id in kBadgeIds) {
+        if (!existingIds.contains(id)) {
+          final retro =
+              _shouldAutoEarnOnMigration(id, totalCompleted, totalAiSorts);
+          batch.insert('badges', {
+            'id': id,
+            'is_hidden': kHiddenBadgeIds.contains(id) ? 1 : 0,
+            'is_earned': retro ? 1 : 0,
+            'earned_at': retro ? now : null,
+          });
+        } else {
+          batch.update(
+            'badges',
+            {'is_hidden': kHiddenBadgeIds.contains(id) ? 1 : 0},
+            where: 'id = ?',
+            whereArgs: [id],
+          );
+        }
+      }
+      await batch.commit(noResult: true);
     }
   }
 
