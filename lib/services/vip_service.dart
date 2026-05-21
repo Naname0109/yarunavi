@@ -85,11 +85,22 @@ class VipService {
           .get(Uri.parse('$url/vip-version'))
           .timeout(const Duration(seconds: 8));
       if (res.statusCode != 200) {
-        await _markCheckedNow();
+        // サーバー側エラー (KV 未バインド/障害等) は「正常判定不能」 扱いで
+        // オフライン猶予のロジックに乗せる。 ここで _markCheckedNow を呼ぶと
+        // 障害中の VIP ユーザを誤って剥奪する可能性があるため呼ばない。
+        debugPrint('[VIP] /vip-version returned ${res.statusCode}');
+        await _expireIfOfflineTooLong();
         return;
       }
       final json = jsonDecode(res.body) as Map<String, dynamic>;
       final serverVersion = (json['version'] as int?) ?? 0;
+      // server が version=0 を返す状況 (例: KV 未バインドで try-catch 経由) は
+      // 信頼できないため正常判定不能扱い
+      if (serverVersion == 0) {
+        debugPrint('[VIP] /vip-version returned version=0 — treating as transient');
+        await _expireIfOfflineTooLong();
+        return;
+      }
       final localVersionStr = await _secure.readRaw(_kVipVersionKey);
       final localVersion = int.tryParse(localVersionStr ?? '') ?? 0;
       if (serverVersion != localVersion) {

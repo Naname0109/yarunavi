@@ -1004,33 +1004,31 @@ class _CompletedSectionState extends ConsumerState<_CompletedSection> {
   return (done, total);
 }
 
+/// #9: 最新 AI 履歴サマリーを返す FutureProvider。
+/// ai_sort_button から `ref.invalidate(latestAiHistoryProvider)` で再取得できる。
+final latestAiHistoryProvider =
+    FutureProvider<Map<String, dynamic>?>((ref) async {
+  // tasksProvider への変更で AI 整理直後にも自動再評価される
+  ref.watch(tasksProvider);
+  final db = ref.read(databaseServiceProvider);
+  return db.getLatestAiHistory();
+});
+
 /// #9: Hero AI カード下に表示する「ナビからのひとこと」 ミニカード。
 /// 最新の AI 整理履歴の summary を表示。 未実行ならカード自体非表示。
-class _NaviHintMiniCard extends ConsumerStatefulWidget {
+class _NaviHintMiniCard extends ConsumerWidget {
   const _NaviHintMiniCard();
 
   @override
-  ConsumerState<_NaviHintMiniCard> createState() => _NaviHintMiniCardState();
-}
-
-class _NaviHintMiniCardState extends ConsumerState<_NaviHintMiniCard> {
-  Future<Map<String, dynamic>?>? _future;
-
-  @override
-  void initState() {
-    super.initState();
-    _future = ref.read(databaseServiceProvider).getLatestAiHistory();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final yaru = context.yaru;
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
-    return FutureBuilder<Map<String, dynamic>?>(
-      future: _future,
-      builder: (context, snap) {
-        final row = snap.data;
+    final asyncHistory = ref.watch(latestAiHistoryProvider);
+    return asyncHistory.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (row) {
         if (row == null) return const SizedBox.shrink();
         final summary = locale == 'ja'
             ? (row['summary_ja'] as String?)

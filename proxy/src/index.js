@@ -75,12 +75,22 @@ async function handleRedeemCode(request, env) {
 }
 
 async function handleVipVersion(env) {
-  let version = 0;
+  // KV 未バインド時は意図せず version=0 を返さない。 200 で 0 を返すと
+  // Flutter 側 (本来 version>=1 で VIP 有効) が「世代不一致」と誤判定し
+  // VIP を剥奪してしまうため、 明示的に 500 を返す。
+  if (!env.VIP_CONFIG) {
+    return jsonResponse(500, { error: "VIP_CONFIG not bound" });
+  }
   try {
     const v = await env.VIP_CONFIG.get("code_version");
-    version = v ? parseInt(v) : 0;
-  } catch (_) {}
-  return jsonResponse(200, { version });
+    const version = v ? parseInt(v) : 0;
+    if (!version) {
+      return jsonResponse(500, { error: "code_version not set" });
+    }
+    return jsonResponse(200, { version });
+  } catch (_) {
+    return jsonResponse(500, { error: "VIP_CONFIG read failed" });
+  }
 }
 
 export default {
