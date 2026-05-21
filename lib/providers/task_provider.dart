@@ -230,6 +230,9 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
   }
 
   /// タスクを完了する。定期タスクなら次回タスクを自動生成して返す。
+  ///
+  /// #7: 残タスクが他に無い場合は「全完了演出」を尊重して 5 秒後に次回生成、
+  /// 残ありなら従来通り即生成する。
   Future<Task?> completeTask(Task task) async {
     if (task.recurrenceType != null) {
       if (task.isCompleted) return null;
@@ -237,35 +240,49 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
       // XP 不正取得防止 (#2-A): xp_granted=1 のタスクは XP 付与スキップ
       final shouldGrantXp = !task.xpGranted;
 
-      final newTask = await _db.completeRecurringTask(task);
-
+      // 1. 完了化だけ先に
+      await _db.markRecurringTaskCompletedOnly(task);
       if (task.id != null) {
         await _notify.cancelTaskNotifications(task.id!);
       }
 
-      // 旧タスクのカレンダーイベント削除 + 新タスクにイベント作成
-      if (task.calendarEventId != null && _isPremium) {
-        await _calendar.deleteCalendarEvent(task.calendarEventId!);
-        final (_, eventId) = await _calendar.addTaskToCalendar(newTask);
-        if (eventId != null) {
-          final withEvent = newTask.copyWith(calendarEventId: eventId);
-          await _db.updateTask(withEvent);
-        }
-      }
+      // 2. 残タスクの有無を確認
+      final remaining = await _db.getActiveTodayTasksBroad();
+      final allDone = remaining.isEmpty;
 
-      await _notify.scheduleTaskNotifications(newTask, isPremium: _isPremium);
+      Future<Task> doGenerate() async {
+        final newTask = await _db.generateNextRecurringTask(task);
+        if (task.calendarEventId != null && _isPremium) {
+          await _calendar.deleteCalendarEvent(task.calendarEventId!);
+          final (_, eventId) = await _calendar.addTaskToCalendar(newTask);
+          if (eventId != null) {
+            final withEvent = newTask.copyWith(calendarEventId: eventId);
+            await _db.updateTask(withEvent);
+            ref.invalidateSelf();
+            return withEvent;
+          }
+        }
+        await _notify.scheduleTaskNotifications(newTask, isPremium: _isPremium);
+        ref.invalidateSelf();
+        return newTask;
+      }
 
       // ゲーミフィケーション統合: 完了XP+ストリーク+バッジ
       if (shouldGrantXp) {
-        final remaining = await _db.getActiveTodayTasksBroad();
-        final allDone = remaining.isEmpty;
         await ref.read(userStatsProvider.notifier).recordTaskCompletion(
               isAllTodayDone: allDone,
               task: task.copyWith(xpGranted: true),
             );
       }
 
-      ref.invalidateSelf();
+      if (allDone) {
+        // 「すべて完了」演出を遮らないよう 5 秒遅延して生成
+        Future.delayed(const Duration(seconds: 5), doGenerate);
+        ref.invalidateSelf();
+        return null;
+      }
+
+      final newTask = await doGenerate();
       return newTask;
     } else {
       await toggleComplete(task);

@@ -598,6 +598,50 @@ class DatabaseService {
     return newTask.copyWith(id: newTaskId);
   }
 
+  /// #7: 現タスクの完了化だけを行う (次回タスクは別タイミングで生成)。
+  /// 残タスクなしの「全完了演出」 → 5 秒後に次回生成、 という UX のため。
+  Future<void> markRecurringTaskCompletedOnly(Task task) async {
+    final now = DateTime.now().toIso8601String();
+    await db.update(
+      'tasks',
+      {
+        'is_completed': 1,
+        'completed_at': now,
+        'updated_at': now,
+        'xp_granted': 1,
+      },
+      where: 'id = ?',
+      whereArgs: [task.id],
+    );
+  }
+
+  /// #7: 定期タスクの「次回」 のみを生成。 completeRecurringTask の生成部分を流用。
+  Future<Task> generateNextRecurringTask(Task task) async {
+    final now = DateTime.now();
+    final parentId = task.recurrenceParentId ?? task.id;
+    final nextDueDate = calculateNextDueDate(
+      currentDueDate: task.dueDate,
+      recurrenceType: task.recurrenceType!,
+      recurrenceValue: task.recurrenceValue!,
+    );
+    final newTask = Task(
+      title: task.title,
+      dueDate: nextDueDate,
+      memo: task.memo,
+      categoryId: task.categoryId,
+      recurrenceType: task.recurrenceType,
+      recurrenceValue: task.recurrenceValue,
+      recurrenceParentId: parentId,
+      notifySettings: task.notifySettings,
+      estimatedTime: task.estimatedTime,
+      importance: task.importance,
+      createdAt: now,
+      updatedAt: now,
+    );
+    final newId = await db.insert('tasks', newTask.toMap());
+    return newTask.copyWith(id: newId);
+  }
+
   Future<int> deleteTask(int id) async {
     return db.delete('tasks', where: 'id = ?', whereArgs: [id]);
   }
