@@ -132,6 +132,13 @@ class SecureStorageService {
     }
   }
 
+  // ====== Raw read/write (VIP 等の汎用) ======
+
+  /// 任意のキーに対する read/write。 caller が key を直接管理する。
+  Future<String?> readRaw(String key) => _storage.read(key: key);
+  Future<void> writeRaw(String key, String value) =>
+      _storage.write(key: key, value: value);
+
   // ====== #8: AI 整理チケット (消費型 IAP) ======
   // - 累計購入数 (lifetime) で 3 回までの上限を管理
   // - 残チケット数 (available) を消費していく

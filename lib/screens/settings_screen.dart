@@ -35,14 +35,29 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   int _versionTapCount = 0;
+  // #1 VIP コード: 10 連続タップで入力フィールド出現 (カウント表示しない)
+  bool _showVipField = false;
+  final _vipShakeKey = GlobalKey<_ShakeWrapperState>();
+  final _vipController = TextEditingController();
+
+  @override
+  void dispose() {
+    _vipController.dispose();
+    super.dispose();
+  }
 
   void _onVersionTap() {
     _versionTapCount++;
     final l10n = AppLocalizations.of(context)!;
 
+    // #1 VIP コード: 10 タップで無言で field 表示
+    if (_versionTapCount == 10) {
+      setState(() => _showVipField = true);
+      return;
+    }
+
     if (_versionTapCount >= 7) {
       ref.read(_devModeEnabledProvider.notifier).state = true;
-      _versionTapCount = 0;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.devModeEnabled)),
       );
@@ -54,6 +69,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           duration: const Duration(milliseconds: 800),
         ),
       );
+    }
+  }
+
+  Future<void> _submitVipCode() async {
+    final code = _vipController.text.trim();
+    if (code.isEmpty) {
+      _vipShakeKey.currentState?.shake();
+      return;
+    }
+    final vip = ref.read(vipServiceProvider);
+    final ok = await vip.redeemCode(code);
+    if (!mounted) return;
+    if (ok) {
+      ref.read(isVipProvider.notifier).state = true;
+      ref.read(isPremiumProvider.notifier).refresh();
+      setState(() {
+        _showVipField = false;
+        _vipController.clear();
+        _versionTapCount = 0;
+      });
+    } else {
+      _vipShakeKey.currentState?.shake();
     }
   }
 
@@ -267,25 +304,57 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   const Divider(),
 
-                  // --- アプリ情報（7回タップで開発者モード解放） ---
-                  ListTile(
-                    key: const Key('app_info_tile'),
-                    leading: const Icon(Icons.info_outline),
-                    title: Text(l10n.appInfo),
-                    subtitle: FutureBuilder<PackageInfo>(
-                      future: PackageInfo.fromPlatform(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return Text(
-                            '${l10n.settingsVersion} ${snapshot.data!.version}'
-                            ' (${snapshot.data!.buildNumber})',
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                    onTap: _onVersionTap,
+                  // --- アプリ情報（7回タップで開発者モード解放、 10回タップで VIP 入力 #1） ---
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final vipActive = ref.watch(isVipProvider);
+                      return ListTile(
+                        key: const Key('app_info_tile'),
+                        leading: const Icon(Icons.info_outline),
+                        title: Row(
+                          children: [
+                            Text(l10n.appInfo),
+                            if (vipActive) ...[
+                              const SizedBox(width: 6),
+                              Icon(Icons.star_rounded,
+                                  size: 14,
+                                  color: Theme.of(context).colorScheme.primary),
+                            ],
+                          ],
+                        ),
+                        subtitle: FutureBuilder<PackageInfo>(
+                          future: PackageInfo.fromPlatform(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Text(
+                                '${l10n.settingsVersion} ${snapshot.data!.version}'
+                                ' (${snapshot.data!.buildNumber})',
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                        onTap: _onVersionTap,
+                      );
+                    },
                   ),
+                  if (_showVipField)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
+                      child: _ShakeWrapper(
+                        key: _vipShakeKey,
+                        child: TextField(
+                          controller: _vipController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                          textInputAction: TextInputAction.go,
+                          onSubmitted: (_) => _submitVipCode(),
+                        ),
+                      ),
+                    ),
                   ListTile(
                     leading: const Icon(Icons.article_outlined),
                     title: Text(l10n.settingsLicenses),
@@ -850,6 +919,63 @@ class _AiReminderToggle extends ConsumerWidget {
       onChanged: (v) {
         ref.read(aiReminderEnabledProvider.notifier).setEnabled(v);
       },
+    );
+  }
+}
+
+/// #1 VIP コード入力フィールド用: 失敗時に揺らす効果。
+class _ShakeWrapper extends StatefulWidget {
+  const _ShakeWrapper({super.key, required this.child});
+  final Widget child;
+
+  @override
+  State<_ShakeWrapper> createState() => _ShakeWrapperState();
+}
+
+class _ShakeWrapperState extends State<_ShakeWrapper>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void shake() {
+    _ctrl.forward(from: 0);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (context, child) {
+        final t = _ctrl.value;
+        // 4 回振動、 振幅 12px
+        final dx = (t == 0)
+            ? 0.0
+            : 12 *
+                (1 - t) *
+                (t < 0.25
+                    ? t * 4
+                    : t < 0.5
+                        ? 1 - (t - 0.25) * 4
+                        : t < 0.75
+                            ? -((t - 0.5) * 4)
+                            : -1 + (t - 0.75) * 4);
+        return Transform.translate(offset: Offset(dx, 0), child: child);
+      },
+      child: widget.child,
     );
   }
 }

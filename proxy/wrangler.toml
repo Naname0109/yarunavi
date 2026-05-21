@@ -8,3 +8,11 @@ ALLOWED_ORIGIN = "*"
 [[kv_namespaces]]
 binding = "RATE_LIMIT"
 id = "2bf17148c82146c599ccaab241539c63"
+
+# VIP コード機能用 (要: wrangler kv:namespace create VIP_CONFIG → id 置換)
+# 設定後:
+#   wrangler kv:key put --binding=VIP_CONFIG code_current "SpecialCode_For_KK_YRNV2026"
+#   wrangler kv:key put --binding=VIP_CONFIG code_version "1"
+[[kv_namespaces]]
+binding = "VIP_CONFIG"
+id = "REPLACE_WITH_VIP_CONFIG_KV_ID"

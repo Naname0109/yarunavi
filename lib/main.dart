@@ -11,10 +11,12 @@ import 'package:timezone/timezone.dart' as tz;
 import 'app.dart';
 import 'models/task.dart';
 import 'providers/dev_mode_provider.dart';
-import 'providers/purchase_provider.dart';
+import 'providers/purchase_provider.dart' show purchaseServiceProvider, isVipProvider;
 import 'providers/secure_storage_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/task_provider.dart';
+import 'dart:async';
+
 import 'services/calendar_service.dart';
 import 'services/database_service.dart';
 import 'services/gamification_service.dart' as services;
@@ -22,6 +24,7 @@ import 'services/notification_service.dart';
 import 'services/purchase_service.dart';
 import 'services/review_service.dart';
 import 'services/secure_storage_service.dart';
+import 'services/vip_service.dart' show VipService;
 
 bool get _isDesktop =>
     !kIsWeb &&
@@ -212,6 +215,11 @@ void main() async {
     }
   }
 
+  // #1 VIP コードチェック: 起動時に世代照合 (オフライン 7 日猶予)
+  final vipService = VipService(secureStorage);
+  unawaited(vipService.checkVersion());
+  final initialVipActive = await vipService.isVipActive();
+
   // #2-D: 累計 XP の Keychain バックアップ vs DB 値の reconciliation
   // #5-C: アプリ起動 1 回ごとにストリーク (連続起動日数) を更新
   try {
@@ -254,6 +262,7 @@ void main() async {
         initialDevAiUnlimitedProvider.overrideWithValue(devMode.aiUnlimited),
         initialDevPremiumProvider.overrideWithValue(devMode.premium),
         initialUseNewUiProvider.overrideWithValue(devMode.useNewUi),
+        isVipProvider.overrideWith((ref) => initialVipActive),
       ],
       child: const YaruNaviApp(),
     ),
