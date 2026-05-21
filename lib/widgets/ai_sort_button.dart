@@ -586,11 +586,15 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
             isPremium: true,
             locale: locale,
           );
-          // notify_settings を ai_auto に統一
-          await db.updateTask(task.copyWith(
-            notifySettings: jsonEncode(['ai_auto']),
-            updatedAt: DateTime.now(),
-          ));
+          // #6: 列指定 UPDATE で notify_settings だけ書く。
+          // task.copyWith() + updateTask だと、 古いスナップショットの
+          // recommended_date が SAFETY NET の修正を上書きしてしまうため。
+          if (task.id != null) {
+            await db.updateTaskNotifySettings(
+              task.id!,
+              jsonEncode(['ai_auto']),
+            );
+          }
         }
       }
 

@@ -729,6 +729,23 @@ class DatabaseService {
     );
   }
 
+  /// #6 (rec==due 根本原因): notify_settings だけを更新する。
+  /// updateTask は task.copyWith() で渡された古いスナップショットの
+  /// 全フィールドを書き戻すため、 直前に updateTaskPriorities で書いた
+  /// recommended_date を古い値で上書きしてしまっていた。
+  /// 列指定 UPDATE に切り替えてこの「読込み-修正-書込み」 競合を排除する。
+  Future<int> updateTaskNotifySettings(int id, String? notifySettings) async {
+    return db.update(
+      'tasks',
+      {
+        'notify_settings': notifySettings,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   /// 定期タスクを完了し、次回タスクを自動生成する
   Future<Task> completeRecurringTask(Task task) async {
     final now = DateTime.now();
