@@ -16,6 +16,12 @@ import 'package:yarunavi/widgets/v2/task_card.dart';
 const _envThemeMode = String.fromEnvironment('THEME_MODE');
 const _isDarkShot = _envThemeMode == 'dark';
 
+// 真の AI API を呼びたい時用 (--dart-define=DISABLE_AI_MOCK=true)。
+// 既定の screenshot 撮影では mock を仕込んで「整理するタスクがありません」を回避するが、
+// rec_date の動作検証では実 API を経由させたいので無効化する。
+const _disableAiMock =
+    bool.fromEnvironment('DISABLE_AI_MOCK', defaultValue: false);
+
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -249,9 +255,17 @@ void main() {
     debugPrint('[SS] Home ready');
 
     // --- AI sort ---
-    final aiButton = find.byKey(const Key('ai_sort_button'));
+    // v1: Key('ai_sort_button')、 v2: HeroAiCard 内の builder 経由なので
+    // text "今日のタスクをAIで整理" / "Get AI to plan today" を fallback で探す。
+    var aiButton = find.byKey(const Key('ai_sort_button'));
+    if (aiButton.evaluate().isEmpty) {
+      aiButton = find.textContaining('AIで整理');
+    }
+    if (aiButton.evaluate().isEmpty) {
+      aiButton = find.textContaining('Get AI');
+    }
     if (aiButton.evaluate().isNotEmpty) {
-      await tester.tap(aiButton);
+      await tester.tap(aiButton.first, warnIfMissed: false);
       debugPrint('[SS] AI sort started');
 
       for (var i = 0; i < 60; i++) {
@@ -277,7 +291,10 @@ void main() {
     // AI 整理 API call が dart-define で API key 渡されていないと空応答になり、
     // /ai-result が「整理するタスクがありません」 placeholder で固定される。
     // → ProviderContainer 直接操作でダミー response を仕込んでから push する。
-    {
+    // DISABLE_AI_MOCK=true の場合は実 API のレスポンスをそのまま検証したいので skip。
+    if (_disableAiMock) {
+      debugPrint('[SS] AI mock disabled (DISABLE_AI_MOCK=true) — 実 API 結果を使用');
+    } else {
       final ctx = tester.element(find.byType(MaterialApp));
       final container = ProviderScope.containerOf(ctx);
       final current = container.read(aiSortResponseProvider);
