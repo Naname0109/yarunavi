@@ -53,6 +53,50 @@ IP_W, IP_H = 1290, 2796
 PD_W, PD_H = 2048, 2732
 
 
+@dataclass
+class SafeArea:
+    """各フレームの描画可能領域 (これを跨いだ描画は禁止)。
+    Hero 連結等で「テキストが境界を跨ぐ」 のを防ぐため、 全フレームで
+    SafeArea 内に収まるように自動 fit する。
+    """
+    left: int = 80
+    right: int = 80
+    top: int = 120
+    bottom: int = 100
+
+    def text_width(self, frame_w: int) -> int:
+        return frame_w - self.left - self.right
+
+
+def fit_text_in_width(
+    text: str,
+    font_path: str,
+    max_width: int,
+    initial_size: int,
+    *,
+    min_size: int = 60,
+) -> tuple[ImageFont.FreeTypeFont, int]:
+    """テキストが max_width に収まる font + size を返す。
+    initial_size から 2px ずつ縮小、 min_size まで。"""
+    size = initial_size
+    font = ImageFont.truetype(font_path, size)
+    while size > min_size:
+        bbox = font.getbbox(text)
+        if (bbox[2] - bbox[0]) <= max_width:
+            return font, size
+        size -= 2
+        font = ImageFont.truetype(font_path, size)
+    return font, size
+
+
+def validate_frame(img: Image.Image, expected_w: int, expected_h: int,
+                   name: str = "frame") -> None:
+    """生成後の最小バリデーション。 NG なら AssertionError。"""
+    w, h = img.size
+    assert w == expected_w, f"{name}: width {w} != {expected_w}"
+    assert h == expected_h, f"{name}: height {h} != {expected_h}"
+
+
 # ============================================================
 # Utility: color
 # ============================================================
@@ -490,8 +534,10 @@ TEXTS_JA = {
         "title_l1": "登録するだけ。",
         "title_l2_pre": "",
         "title_l2_accent": "AI",
-        "title_l2_post": "が今日の道筋を作る。",
+        "title_l2_post": "が道筋を作る。",
         "sub": "書き出す → 優先順位を提案 → 迷わず動ける",
+        "sub_left": "書き出す → AIが整理",
+        "sub_right": "優先順位を提案 → 迷わず動ける",
         "step1_text": "STEP 01",
         "step1_caption": "書き出す",
         "step2_text": "STEP 02",
@@ -544,6 +590,8 @@ TEXTS_EN = {
         "title_l2_accent": "AI",
         "title_l2_post": " maps your day.",
         "sub": "Capture → Prioritize → Act without doubt",
+        "sub_left": "Capture → AI sorts",
+        "sub_right": "Prioritize → Act without doubt",
         "step1_text": "STEP 01",
         "step1_caption": "Capture",
         "step2_text": "STEP 02",
@@ -675,105 +723,196 @@ def render_single_frame(
     return canvas
 
 
-def render_hero_2up(
-    texts: dict, raw_dir: Path,
-    *, frame_w_each: int, frame_h: int,
-    phone_w: int, phone_h: int,
-    title_size: int,
-    eyebrow_font_size: int,
-    sub_font_size: int,
-) -> tuple[Image.Image, Image.Image]:
-    """連結ヒーロー: 全幅で描画して中央分割して 2 枚返す。"""
-    full_w = frame_w_each * 2
-
+def _build_hero_shared_background(
+    full_w: int, frame_h: int,
+) -> Image.Image:
+    """連結ヒーロー用の共有背景 (gradient + dots + 2 つの glow)。
+    左右独立フレーム生成時に半分ずつ crop して使う。
+    """
     canvas = draw_radial_bg(
         full_w, frame_h, center_pct=(0.5, 0.1), radius_pct=(1.20, 0.70),
         stops=[(0.0, (14, 24, 69)), (0.6, (5, 11, 34)), (1.0, (2, 5, 15))],
     )
     draw_dots(canvas, (255, 255, 255, 10))
-    draw_glow(canvas, (0.35, 0.2), int(1300 * (frame_w_each / 1290)),
+    draw_glow(canvas, (0.35, 0.2), int(1300 * (full_w / 2580)),
               (125, 245, 237, 200))
-    draw_glow(canvas, (0.70, 0.15), int(1100 * (frame_w_each / 1290)),
+    draw_glow(canvas, (0.70, 0.15), int(1100 * (full_w / 2580)),
               (180, 140, 255, 180))
+    return canvas
 
-    # ヘッドライン (中央)
-    cx = full_w // 2
-    headline_top = int(170 * (frame_h / 2796))
+
+def render_hero_left(
+    texts: dict, raw_dir: Path,
+    *, frame_w: int, frame_h: int,
+    phone_w: int, phone_h: int,
+    title_size: int,
+    eyebrow_font_size: int,
+    sub_font_size: int,
+    shared_bg_left: Image.Image,
+) -> Image.Image:
+    """連結ヒーロー左半分 (1290x2796)。 テキスト/端末は frame 内で完結。"""
     h = texts["hero"]
-    draw_eyebrow_badge(canvas, h["eyebrow_text"], cx, headline_top,
+    safe = SafeArea()
+    canvas = shared_bg_left.copy()
+    cx = frame_w // 2
+
+    # アイブロウバッジ
+    eyebrow_y = safe.top + 20
+    draw_eyebrow_badge(canvas, h["eyebrow_text"], cx, eyebrow_y,
                        (125, 245, 237), icon=h["eyebrow_icon"],
                        font_size=eyebrow_font_size)
 
-    # タイトル 2 行
-    title_y = headline_top + 90
-    font = _font(FONT_HEAVY, title_size)
-    # 1行目: "登録するだけ。" (white)
-    l1 = h["title_l1"]
-    w1, _ = measure(l1, font)
+    # タイトル: 「登録するだけ。」 (フレーム内で fit)
+    title_y = eyebrow_y + 90
+    text_max = safe.text_width(frame_w)
+    font, _ = fit_text_in_width(
+        h["title_l1"], FONT_HEAVY, text_max, title_size, min_size=80)
+    w1, h1 = measure(h["title_l1"], font)
     d = ImageDraw.Draw(canvas)
-    d.text((cx - w1 // 2, title_y), l1, font=font, fill=(255, 255, 255, 255))
+    d.text((cx - w1 // 2, title_y), h["title_l1"],
+           font=font, fill=(255, 255, 255, 255))
 
-    # 2行目: pre + AI (gradient) + post
+    # サブコピー (left 専用)
+    sub_y = title_y + int(font.size * 1.18) + 20
+    sub_font, _ = fit_text_in_width(
+        h["sub_left"], FONT_SEMI, text_max, sub_font_size, min_size=22)
+    draw_sub(canvas, h["sub_left"], cx, sub_y,
+             color=(255, 255, 255, 165), size=sub_font.size)
+
+    # 端末 (ホーム画面)
+    prefix = "ipad_" if raw_dir.name.startswith("ipad") else "raw_"
+    raw1 = raw_dir / f"{prefix}01_home.png"
+    py = frame_h - phone_h + int(-50 * (frame_h / 2796))
+    px = cx - phone_w // 2 - int(40 * (frame_w / 1290))  # 中央より少し左
+    if raw1.exists():
+        f1, _ = make_phone_frame(raw1, phone_w, phone_h,
+                                  glow_color=(125, 245, 237))
+        paste_phone_with_glow(canvas, f1, px, py, glow_color=(125, 245, 237))
+
+    # ステップバッジ (端末上左寄せ)
+    _draw_step_badge(canvas, h["step1_text"], h["step1_caption"],
+                     px + 30, py - 100, (125, 245, 237))
+
+    # 矢印の左半分 (右端のフレーム境界ぴったりに半円)
+    cn_size = int(120 * (frame_h / 2796))
+    _draw_arrow_half(canvas, frame_w, py + int(phone_h * 0.50),
+                     cn_size, side="left",
+                     grad=((125, 245, 237), (180, 140, 255)))
+
+    validate_frame(canvas, frame_w, frame_h, name="hero_left")
+    return canvas
+
+
+def render_hero_right(
+    texts: dict, raw_dir: Path,
+    *, frame_w: int, frame_h: int,
+    phone_w: int, phone_h: int,
+    title_size: int,
+    eyebrow_font_size: int,
+    sub_font_size: int,
+    shared_bg_right: Image.Image,
+) -> Image.Image:
+    """連結ヒーロー右半分 (1290x2796)。 テキスト/端末は frame 内で完結。"""
+    h = texts["hero"]
+    safe = SafeArea()
+    canvas = shared_bg_right.copy()
+    cx = frame_w // 2
+
+    # タイトル: pre + AI accent + post を frame 内で fit
+    headline_y = safe.top + 90  # 左フレームの eyebrow 高さに揃える
     l2_pre = h["title_l2_pre"]
     l2_acc = h["title_l2_accent"]
     l2_post = h["title_l2_post"]
-    line_h = int(title_size * 1.12)
+    full_text = f"{l2_pre}{l2_acc}{l2_post}"
+    text_max = safe.text_width(frame_w)
+    font, _ = fit_text_in_width(
+        full_text, FONT_HEAVY, text_max, title_size, min_size=80)
     w_pre, _ = measure(l2_pre, font) if l2_pre else (0, 0)
     w_acc, _ = measure(l2_acc, font)
     w_post, _ = measure(l2_post, font)
     total = w_pre + w_acc + w_post
     x = cx - total // 2
-    y2 = title_y + line_h
+    title_y = headline_y
+    d = ImageDraw.Draw(canvas)
     if l2_pre:
-        d.text((x, y2), l2_pre, font=font, fill=(255, 255, 255, 255))
+        d.text((x, title_y), l2_pre, font=font, fill=(255, 255, 255, 255))
         x += w_pre
-    _draw_gradient_text(canvas, l2_acc, font, (x, y2),
+    _draw_gradient_text(canvas, l2_acc, font, (x, title_y),
                         ((125, 245, 237), (180, 140, 255)))
     x += w_acc
-    d.text((x, y2), l2_post, font=font, fill=(255, 255, 255, 255))
+    d.text((x, title_y), l2_post, font=font, fill=(255, 255, 255, 255))
 
-    # サブテキスト
-    sub_y = y2 + line_h - int(title_size * 0.1) + 24
-    draw_sub(canvas, h["sub"], cx, sub_y, color=(255, 255, 255, 165),
-             size=sub_font_size)
+    # サブコピー (right 専用)
+    sub_y = title_y + int(font.size * 1.18) + 20
+    sub_font, _ = fit_text_in_width(
+        h["sub_right"], FONT_SEMI, text_max, sub_font_size, min_size=22)
+    draw_sub(canvas, h["sub_right"], cx, sub_y,
+             color=(255, 255, 255, 165), size=sub_font.size)
 
-    # 端末 2 台 + 中央 connector
-    # 配置: 中央付近に近接、 phone_w + gap*2 + phone_w が full_w に収まるよう
-    gap = int(100 * (frame_w_each / 1290))
-    total_phone_w = phone_w * 2 + gap
-    px_left = (full_w - total_phone_w) // 2
-    px_right = px_left + phone_w + gap
-    # 端末 bottom を少し画面外に飛び出す ( -160 of JSX)
-    py = frame_h - phone_h - int(-160 * (frame_h / 2796))
-
+    # 端末 (AI 結果画面)
     prefix = "ipad_" if raw_dir.name.startswith("ipad") else "raw_"
-    raw1 = raw_dir / f"{prefix}01_home.png"
     raw2 = raw_dir / f"{prefix}02_ai_result.png"
-    if raw1.exists():
-        f1, _ = make_phone_frame(raw1, phone_w, phone_h, glow_color=(125, 245, 237))
-        paste_phone_with_glow(canvas, f1, px_left, py, glow_color=(125, 245, 237))
+    py = frame_h - phone_h + int(-50 * (frame_h / 2796))
+    px = cx - phone_w // 2 + int(40 * (frame_w / 1290))  # 中央より少し右
     if raw2.exists():
-        f2, _ = make_phone_frame(raw2, phone_w, phone_h, glow_color=(180, 140, 255))
-        paste_phone_with_glow(canvas, f2, px_right, py, glow_color=(180, 140, 255))
+        f2, _ = make_phone_frame(raw2, phone_w, phone_h,
+                                  glow_color=(180, 140, 255))
+        paste_phone_with_glow(canvas, f2, px, py, glow_color=(180, 140, 255))
 
-    # ステップバッジ (端末上に float)
-    _draw_step_badge(canvas, h["step1_text"], h["step1_caption"],
-                     px_left + 30, py - 130, (125, 245, 237))
+    # ステップバッジ (端末上右寄せ)
     _draw_step_badge(canvas, h["step2_text"], h["step2_caption"],
-                     px_right + phone_w - 30, py - 130, (180, 140, 255),
+                     px + phone_w - 30, py - 100, (180, 140, 255),
                      align="right")
 
-    # 中央 connector (140px の円, gradient + 矢印)
-    cn_size = int(140 * (frame_h / 2796))
-    cn_cx = full_w // 2
-    cn_cy = py + int(phone_h * 0.52)
-    _draw_connector(canvas, cn_cx, cn_cy, cn_size,
-                    ((125, 245, 237), (180, 140, 255)))
+    # 矢印の右半分 (左端のフレーム境界ぴったりに半円)
+    cn_size = int(120 * (frame_h / 2796))
+    _draw_arrow_half(canvas, 0, py + int(phone_h * 0.50),
+                     cn_size, side="right",
+                     grad=((125, 245, 237), (180, 140, 255)))
 
-    # 中央で分割して 2 枚
-    left = canvas.crop((0, 0, frame_w_each, frame_h))
-    right = canvas.crop((frame_w_each, 0, full_w, frame_h))
-    return left, right
+    validate_frame(canvas, frame_w, frame_h, name="hero_right")
+    return canvas
+
+
+def _draw_arrow_half(
+    canvas: Image.Image, edge_x: int, cy: int, size: int,
+    *, side: str,
+    grad: tuple[tuple[int, int, int], tuple[int, int, int]],
+):
+    """連結ヒーロー境界に半円の矢印 connector を描画。
+    side='left' なら canvas の右端 (edge_x=frame_w) に左半分の半円。
+    side='right' なら canvas の左端 (edge_x=0) に右半分の半円。
+    左右を並べると 1 つの円 + 矢印になる。
+    """
+    full = size
+    # 円全体を別レイヤーに描き、 必要な半分だけ canvas に貼る
+    layer = Image.new("RGBA", (full + 40, full + 40), (0, 0, 0, 0))
+    arr = np.zeros((full, full, 4), dtype=np.uint8)
+    yy, xx = np.mgrid[0:full, 0:full]
+    inside = ((xx - full / 2) ** 2 + (yy - full / 2) ** 2) <= (full / 2) ** 2
+    t = ((xx + yy) / (2 * full)).clip(0, 1)
+    arr[..., 0] = (grad[0][0] * (1 - t) + grad[1][0] * t).astype(np.uint8)
+    arr[..., 1] = (grad[0][1] * (1 - t) + grad[1][1] * t).astype(np.uint8)
+    arr[..., 2] = (grad[0][2] * (1 - t) + grad[1][2] * t).astype(np.uint8)
+    arr[..., 3] = (inside * 255).astype(np.uint8)
+    circle = Image.fromarray(arr, "RGBA")
+    layer.alpha_composite(circle, (20, 20))
+    ld = ImageDraw.Draw(layer)
+    ld.ellipse([20, 20, 20 + full, 20 + full],
+               outline=(255, 255, 255, 70), width=4)
+    # 矢印テキストは円中央に
+    font = _font(FONT_HEAVY, int(full * 0.5))
+    aw, ah = measure("→", font)
+    ld.text((20 + full // 2 - aw // 2,
+             20 + full // 2 - ah // 2 - int(full * 0.1)),
+            "→", font=font, fill=(6, 36, 61, 255))
+
+    # 円中心を canvas の境界に重ねるオフセットで貼る
+    # paste 左上 = (edge_x - layer.width // 2, cy - layer.height // 2)
+    canvas.alpha_composite(
+        layer,
+        (edge_x - layer.width // 2, cy - layer.height // 2),
+    )
 
 
 def _draw_step_badge(
@@ -898,18 +1037,35 @@ def render_all_for_device(
 
     print(f"\n=== {lang} / {device} ({frame_w}x{frame_h}) ===")
 
-    # Hero 2-up
-    left, right = render_hero_2up(
+    # 連結ヒーロー: 共有背景を 2 倍幅で生成 → 左右に crop → 各フレーム独立 render
+    # → テキストが境界を跨ぐ問題を構造的に解消。
+    full_w = frame_w * 2
+    shared_bg = _build_hero_shared_background(full_w, frame_h)
+    bg_left = shared_bg.crop((0, 0, frame_w, frame_h))
+    bg_right = shared_bg.crop((frame_w, 0, full_w, frame_h))
+    # iPhone は title 120-130px、 iPad は少し大きめ
+    hero_title_size = 120 if device == "iphone" else 156
+    left = render_hero_left(
         texts, raw_dir_use,
-        frame_w_each=frame_w, frame_h=frame_h,
+        frame_w=frame_w, frame_h=frame_h,
         phone_w=hero_phone_w, phone_h=hero_phone_h,
-        title_size=title_size_hero,
+        title_size=hero_title_size,
         eyebrow_font_size=eyebrow_font,
         sub_font_size=sub_font,
+        shared_bg_left=bg_left,
+    )
+    right = render_hero_right(
+        texts, raw_dir_use,
+        frame_w=frame_w, frame_h=frame_h,
+        phone_w=hero_phone_w, phone_h=hero_phone_h,
+        title_size=hero_title_size,
+        eyebrow_font_size=eyebrow_font,
+        sub_font_size=sub_font,
+        shared_bg_right=bg_right,
     )
     left.convert("RGB").save(out_dir / "01_hero_left.png", "PNG", optimize=True)
     right.convert("RGB").save(out_dir / "02_hero_right.png", "PNG", optimize=True)
-    print(f"  01_hero_left.png / 02_hero_right.png")
+    print("  01_hero_left.png / 02_hero_right.png")
 
     # Single frames
     configs = build_single_configs(texts, raw_dir_use)
