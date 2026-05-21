@@ -304,9 +304,45 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         );
       }
 
+      // Safety net 0: AI response に含まれなかった incompleteTask にも
+      // デフォルト entry を作る。 後段の「rec==null/due と同じなら前倒し」
+      // ロジックに乗せて、 取りこぼし task の rec=null を必ず埋める。
+      for (final t in incompleteTasks) {
+        if (t.id != null && !updates.containsKey(t.id)) {
+          updates[t.id!] = (
+            priority: t.priority > 0 ? t.priority : 3,
+            aiComment: t.aiComment,
+            recommendedDate: t.recommendedDate,
+          );
+          if (kDebugMode) {
+            debugPrint('[AI-DEBUG] AI 未返却 → デフォルト entry: '
+                'id=${t.id} title="${t.title}" rec=${t.recommendedDate}');
+          }
+        }
+      }
+
       // Safety net: recommended_date != due_date を強制保証
+      // blocked_dates も避ける (1 度の getBlockedDates 呼び出しで使い回し)
       final now2 = DateTime.now();
       final today2 = DateTime(now2.year, now2.month, now2.day);
+      final blockedSet = <String>{
+        for (final d in await db.getBlockedDates())
+          '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}',
+      };
+      bool isBlocked(DateTime d) {
+        final iso =
+            '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+        return blockedSet.contains(iso);
+      }
+      DateTime avoidBlocked(DateTime d) {
+        var probe = d;
+        for (var i = 0; i < 30; i++) {
+          if (!isBlocked(probe)) return probe;
+          probe = probe.subtract(const Duration(days: 1));
+          if (probe.isBefore(today2)) return today2;
+        }
+        return d;
+      }
       final finalUpdates = <int,
           ({
             int priority,
@@ -350,10 +386,19 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
             newRec = dueNorm.subtract(const Duration(days: 7));
           }
           if (newRec.isBefore(today2)) newRec = today2;
+          // #3: blocked_dates 回避 (前に向かって 1 日ずつシフト)
+          newRec = avoidBlocked(newRec);
           if (kDebugMode) debugPrint('[AI-DEBUG] FORCE FIX: ${taskObj.title} rec→${newRec.toIso8601String().substring(0, 10)}');
           finalUpdates[taskId] = (priority: data.priority, aiComment: data.aiComment, recommendedDate: newRec);
         } else {
-          finalUpdates[taskId] = data;
+          // AI が return した rec が blocked_dates に当たる場合も回避
+          final shifted = avoidBlocked(recNorm);
+          if (shifted != recNorm) {
+            if (kDebugMode) debugPrint('[AI-DEBUG] BLOCKED SHIFT: ${taskObj.title} rec=$recStr→${shifted.toIso8601String().substring(0, 10)}');
+            finalUpdates[taskId] = (priority: data.priority, aiComment: data.aiComment, recommendedDate: shifted);
+          } else {
+            finalUpdates[taskId] = data;
+          }
         }
       }
 
@@ -382,6 +427,23 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
 
       await db.updateTaskPriorities(finalUpdates,
           skipRecommendedDateIds: skipManualDateIds);
+
+      // 保存直後に DB から読み直して [AI-READ] で検証 (rec/due/priority)
+      if (kDebugMode) {
+        final saved = await db.getAllTasks();
+        debugPrint('[AI-READ] ===== DB 保存後 readback =====');
+        for (final t in saved.where((s) => !s.isCompleted)) {
+          final rec = t.recommendedDate;
+          final due = t.dueDate;
+          final isSame = rec != null &&
+              rec.year == due.year &&
+              rec.month == due.month &&
+              rec.day == due.day;
+          final mark = isSame ? '⚠️SAME' : (rec == null ? '⚠️NULL' : '✅OK');
+          debugPrint('[AI-READ] $mark ${t.title}: rec=$rec due=$due pri=${t.priority}');
+        }
+        debugPrint('[AI-READ] ================================');
+      }
 
       // プレミアム: AIのnotify_dateで自動通知スケジュール (手動設定済みは尊重)
       final isPremium = ref.read(isPremiumProvider);

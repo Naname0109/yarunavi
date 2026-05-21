@@ -391,6 +391,13 @@ summary_ja/summary_enに今日のアクションプランを1-2文で具体的�
       userPrompt += '\n\n追加情報:\n$additionalContext';
     }
 
+    if (kDebugMode) {
+      debugPrint('[AI-REQ] === システムプロンプト (head 200) ===');
+      debugPrint(_systemPrompt.substring(0, _systemPrompt.length.clamp(0, 200)));
+      debugPrint('[AI-REQ] === ユーザープロンプト ===');
+      debugPrint(userPrompt);
+    }
+
     final requestBody = jsonEncode({
       'model': AppConstants.anthropicModel,
       'max_tokens': 4096,
@@ -433,8 +440,24 @@ summary_ja/summary_enに今日のアクションプランを1-2文で具体的�
         // allowMalformed: 万一壊れたバイトが来ても catch all へ落とさず継続解析。
         final decodedBody =
             utf8.decode(response.bodyBytes, allowMalformed: true);
+        if (kDebugMode) {
+          // 過大ログ抑止のため先頭 800 字に切る
+          final preview = decodedBody.substring(
+              0, decodedBody.length.clamp(0, 800));
+          debugPrint('[AI-RES] === レスポンス生テキスト (head 800) ===');
+          debugPrint(preview);
+        }
         final result = _tryParseResponse(
             decodedBody, tasks, executionTimingFactor);
+        if (kDebugMode) {
+          debugPrint('[AI-PARSE] === パース結果 ${result.tasks.length} 件 ===');
+          final dueMap = {for (final t in tasks) t.id: t.dueDate};
+          for (final r in result.tasks) {
+            final due = dueMap[r.taskId];
+            debugPrint('[AI-PARSE] id=${r.taskId} '
+                'rec=${r.recommendedDate} due=$due pri=${r.priority}');
+          }
+        }
         debugPrint('[AI] パース完了: ${result.tasks.length}件');
         return result;
       } on AiServiceException {

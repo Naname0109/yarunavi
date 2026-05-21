@@ -98,7 +98,7 @@ Future<void> insertDetailedTestData(DatabaseService db) async {
       importance: 1,
     ),
     (
-      title: '日用品買��出し',
+      title: '日用品の買い出し',
       days: 4,
       categoryId: 3,
       memo: 'シャンプー、洗剤、ティッシュ',
@@ -215,7 +215,7 @@ Future<void> insertEdgeCaseTestData(DatabaseService db) async {
       categoryId: 2,
       memo: null,
     ),
-    (title: 'メモが非���に長いタスク', days: 14, categoryId: null, memo: longMemo),
+    (title: 'メモが非常に長いタスク', days: 14, categoryId: null, memo: longMemo),
     (
       title: '全カテゴリ設定タスク',
       days: 7,
