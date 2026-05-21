@@ -2227,6 +2227,64 @@ class AppLocalizationsJa extends AppLocalizations {
   String get naviHintDetail => '詳細';
 
   @override
+  String get labelExecutionDay => '実行日';
+
+  @override
+  String get pickExecutionDayTooltip =>
+      '実行日を選択 (手動で変更した実行日は、次回 AI 整理で再提案される場合があります)';
+
+  @override
+  String get executionDayUpdated => '実行日を更新しました';
+
+  @override
+  String get eventAdd => '予定を追加';
+
+  @override
+  String get eventEdit => '予定を編集';
+
+  @override
+  String get eventTitleLabel => 'タイトル';
+
+  @override
+  String get eventDateLabel => '日付';
+
+  @override
+  String get eventAllDayLabel => '終日';
+
+  @override
+  String get eventStartTime => '開始時刻';
+
+  @override
+  String get eventEndTime => '終了時刻';
+
+  @override
+  String get eventMemoLabel => 'メモ';
+
+  @override
+  String get eventSaved => '予定を保存しました';
+
+  @override
+  String get eventReadOnlyNote => 'iOS カレンダーから取り込んだ予定は編集できません';
+
+  @override
+  String get eventSectionLabel => '予定';
+
+  @override
+  String get fabAddTask => 'タスクを追加';
+
+  @override
+  String get fabAddEvent => '予定を追加';
+
+  @override
+  String get fabSyncCalendar => 'カレンダーから取り込む';
+
+  @override
+  String get avoidEventDaysToggle => '予定がある日のタスク割り当て';
+
+  @override
+  String get avoidEventDaysDesc => '予定がある日にはタスクを入れない (AI 整理に反映)';
+
+  @override
   String get aiPurchasePremiumSubtitle => 'AI 整理 月 30 回 + 全機能解放';
 
   @override

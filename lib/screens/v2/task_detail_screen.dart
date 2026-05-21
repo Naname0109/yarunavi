@@ -482,6 +482,20 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
             value: DateFormat.yMMMd(locale).add_Hm().format(task.dueDate),
             yaru: yaru,
           ),
+          if (task.recommendedDate != null) ...[
+            _divider(yaru),
+            // #1: 実行日 (rec_date) はタップで DatePicker → 変更可能
+            InkWell(
+              onTap: () => _pickRecommendedDate(context, task),
+              child: _row(
+                icon: Icons.flag_outlined,
+                label: l10n.labelExecutionDay,
+                value: DateFormat.yMMMd(locale).format(task.recommendedDate!),
+                yaru: yaru,
+                trailing: Icon(Icons.edit, size: 16, color: yaru.inkSecondary),
+              ),
+            ),
+          ],
           if (task.recurrenceType != null)
             _divider(yaru),
           if (task.recurrenceType != null)
@@ -513,6 +527,7 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
     required String label,
     required String value,
     required YaruTheme yaru,
+    Widget? trailing,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -542,8 +557,36 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          if (trailing != null) ...[const SizedBox(width: 6), trailing],
         ],
       ),
+    );
+  }
+
+  /// #1: 実行日 (rec_date) を DatePicker で変更。 due_date が lastDate。
+  Future<void> _pickRecommendedDate(BuildContext context, Task task) async {
+    final l10n = AppLocalizations.of(context)!;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final lastDate = task.dueDate.isBefore(today)
+        ? today.add(const Duration(days: 30))
+        : task.dueDate;
+    final initial = task.recommendedDate ?? today;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial.isBefore(today) ? today : initial,
+      firstDate: today,
+      lastDate: lastDate,
+      helpText: l10n.pickExecutionDayTooltip,
+    );
+    if (picked == null || task.id == null) return;
+    if (!context.mounted) return;
+    await ref
+        .read(tasksProvider.notifier)
+        .updateRecommendedDate(task.id!, picked);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.executionDayUpdated)),
     );
   }
 

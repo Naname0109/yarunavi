@@ -2272,6 +2272,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String get naviHintDetail => 'Details';
 
   @override
+  String get labelExecutionDay => 'EXEC';
+
+  @override
+  String get pickExecutionDayTooltip =>
+      'Pick execution day (manual changes may be re-suggested by next AI sort)';
+
+  @override
+  String get executionDayUpdated => 'Execution day updated';
+
+  @override
+  String get eventAdd => 'Add event';
+
+  @override
+  String get eventEdit => 'Edit event';
+
+  @override
+  String get eventTitleLabel => 'Title';
+
+  @override
+  String get eventDateLabel => 'Date';
+
+  @override
+  String get eventAllDayLabel => 'All day';
+
+  @override
+  String get eventStartTime => 'Start time';
+
+  @override
+  String get eventEndTime => 'End time';
+
+  @override
+  String get eventMemoLabel => 'Memo';
+
+  @override
+  String get eventSaved => 'Event saved';
+
+  @override
+  String get eventReadOnlyNote => 'Events from iOS Calendar are read-only';
+
+  @override
+  String get eventSectionLabel => 'Events';
+
+  @override
+  String get fabAddTask => 'Add task';
+
+  @override
+  String get fabAddEvent => 'Add event';
+
+  @override
+  String get fabSyncCalendar => 'Sync from Calendar';
+
+  @override
+  String get avoidEventDaysToggle => 'Avoid task on days with events';
+
+  @override
+  String get avoidEventDaysDesc =>
+      'AI sort won\'t place tasks on days that already have events';
+
+  @override
   String get aiPurchasePremiumSubtitle =>
       '30 AI sorts/month + every feature unlocked';
 

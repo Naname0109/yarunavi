@@ -4334,6 +4334,120 @@ abstract class AppLocalizations {
   /// **'詳細'**
   String get naviHintDetail;
 
+  /// No description provided for @labelExecutionDay.
+  ///
+  /// In ja, this message translates to:
+  /// **'実行日'**
+  String get labelExecutionDay;
+
+  /// No description provided for @pickExecutionDayTooltip.
+  ///
+  /// In ja, this message translates to:
+  /// **'実行日を選択 (手動で変更した実行日は、次回 AI 整理で再提案される場合があります)'**
+  String get pickExecutionDayTooltip;
+
+  /// No description provided for @executionDayUpdated.
+  ///
+  /// In ja, this message translates to:
+  /// **'実行日を更新しました'**
+  String get executionDayUpdated;
+
+  /// No description provided for @eventAdd.
+  ///
+  /// In ja, this message translates to:
+  /// **'予定を追加'**
+  String get eventAdd;
+
+  /// No description provided for @eventEdit.
+  ///
+  /// In ja, this message translates to:
+  /// **'予定を編集'**
+  String get eventEdit;
+
+  /// No description provided for @eventTitleLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'タイトル'**
+  String get eventTitleLabel;
+
+  /// No description provided for @eventDateLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'日付'**
+  String get eventDateLabel;
+
+  /// No description provided for @eventAllDayLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'終日'**
+  String get eventAllDayLabel;
+
+  /// No description provided for @eventStartTime.
+  ///
+  /// In ja, this message translates to:
+  /// **'開始時刻'**
+  String get eventStartTime;
+
+  /// No description provided for @eventEndTime.
+  ///
+  /// In ja, this message translates to:
+  /// **'終了時刻'**
+  String get eventEndTime;
+
+  /// No description provided for @eventMemoLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'メモ'**
+  String get eventMemoLabel;
+
+  /// No description provided for @eventSaved.
+  ///
+  /// In ja, this message translates to:
+  /// **'予定を保存しました'**
+  String get eventSaved;
+
+  /// No description provided for @eventReadOnlyNote.
+  ///
+  /// In ja, this message translates to:
+  /// **'iOS カレンダーから取り込んだ予定は編集できません'**
+  String get eventReadOnlyNote;
+
+  /// No description provided for @eventSectionLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'予定'**
+  String get eventSectionLabel;
+
+  /// No description provided for @fabAddTask.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクを追加'**
+  String get fabAddTask;
+
+  /// No description provided for @fabAddEvent.
+  ///
+  /// In ja, this message translates to:
+  /// **'予定を追加'**
+  String get fabAddEvent;
+
+  /// No description provided for @fabSyncCalendar.
+  ///
+  /// In ja, this message translates to:
+  /// **'カレンダーから取り込む'**
+  String get fabSyncCalendar;
+
+  /// No description provided for @avoidEventDaysToggle.
+  ///
+  /// In ja, this message translates to:
+  /// **'予定がある日のタスク割り当て'**
+  String get avoidEventDaysToggle;
+
+  /// No description provided for @avoidEventDaysDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'予定がある日にはタスクを入れない (AI 整理に反映)'**
+  String get avoidEventDaysDesc;
+
   /// No description provided for @aiPurchasePremiumSubtitle.
   ///
   /// In ja, this message translates to:

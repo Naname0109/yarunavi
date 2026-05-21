@@ -12,6 +12,7 @@ import '../../providers/gamification_provider.dart';
 import '../../providers/task_provider.dart';
 import '../../theme/yaru_theme.dart';
 import '../../utils/date_utils.dart' as app_date;
+import '../../widgets/event_form_sheet.dart';
 import '../../widgets/responsive_wrapper.dart';
 import '../../widgets/task_form_sheet.dart';
 import '../../widgets/v2/badge_unlock_popup.dart';
@@ -59,7 +60,42 @@ class _V2HomeShellState extends ConsumerState<V2HomeShell> {
 
   void _onAdd() {
     HapticFeedback.mediumImpact();
-    TaskFormSheet.show(context);
+    // #2: カレンダータブ (index=1) の場合は「タスク / 予定」 選択シート、
+    // それ以外は従来通り直接タスク追加。
+    if (_index == 1) {
+      _showAddChoiceSheet();
+    } else {
+      TaskFormSheet.show(context);
+    }
+  }
+
+  void _showAddChoiceSheet() {
+    final l10n = AppLocalizations.of(context)!;
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.check_circle_outline),
+              title: Text(l10n.fabAddTask),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                TaskFormSheet.show(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.event_outlined),
+              title: Text(l10n.fabAddEvent),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                EventFormSheet.show(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override

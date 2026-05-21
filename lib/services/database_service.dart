@@ -4,6 +4,7 @@ import 'package:path/path.dart' as p;
 
 import '../models/task.dart';
 import '../models/category.dart' as model;
+import '../models/event.dart';
 import '../utils/date_utils.dart' as app_date;
 import '../utils/recurrence_utils.dart';
 
@@ -24,7 +25,7 @@ class DatabaseService {
     // v12: tasks.xp_granted (XP 1 タスク 1 回保証)
     _db = await openDatabase(
       path,
-      version: 14,
+      version: 15,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -269,6 +270,25 @@ class DatabaseService {
       )
     ''');
 
+    // v15: カレンダーの予定 (#2 — タスクとは独立。 AI 整理対象外)
+    await db.execute('''
+      CREATE TABLE events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        date TEXT NOT NULL,
+        start_time TEXT,
+        end_time TEXT,
+        is_all_day INTEGER NOT NULL DEFAULT 1,
+        memo TEXT,
+        source TEXT NOT NULL DEFAULT 'manual',
+        external_id TEXT,
+        created_at TEXT NOT NULL
+      )
+    ''');
+    await db.execute(
+      'CREATE INDEX idx_events_date ON events(date)',
+    );
+
     // デフォルトカテゴリ投入（nameはi18nキーとして保存）
     final now = DateTime.now().toIso8601String();
     final defaultCategories = [
@@ -377,6 +397,27 @@ class DatabaseService {
           date TEXT NOT NULL UNIQUE
         )
       ''');
+    }
+    if (oldVersion < 15) {
+      // #2 events テーブル
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS events (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          date TEXT NOT NULL,
+          start_time TEXT,
+          end_time TEXT,
+          is_all_day INTEGER NOT NULL DEFAULT 1,
+          memo TEXT,
+          source TEXT NOT NULL DEFAULT 'manual',
+          external_id TEXT,
+          created_at TEXT NOT NULL
+        )
+      ''');
+      try {
+        await db.execute(
+            'CREATE INDEX IF NOT EXISTS idx_events_date ON events(date)');
+      } catch (_) {}
     }
     if (oldVersion < 14) {
       // #5 バッジ刷新 (41 個) + is_hidden カラム
@@ -992,6 +1033,50 @@ class DatabaseService {
       );
     }
     await batch.commit(noResult: true);
+  }
+
+  // ====== Events (#2 カレンダー予定 — タスクと独立、 AI 整理対象外) ======
+
+  Future<int> insertEvent(Event event) async {
+    return db.insert('events', event.toMap());
+  }
+
+  Future<int> updateEvent(Event event) async {
+    if (event.id == null) return 0;
+    return db.update(
+      'events',
+      event.toMap()..remove('id'),
+      where: 'id = ?',
+      whereArgs: [event.id],
+    );
+  }
+
+  Future<int> deleteEvent(int id) async {
+    return db.delete('events', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<List<Event>> getAllEvents() async {
+    final rows = await db.query('events', orderBy: 'date ASC, start_time ASC');
+    return rows.map(Event.fromMap).toList();
+  }
+
+  Future<List<Event>> getEventsInRange(
+      DateTime from, DateTime to) async {
+    final rows = await db.query(
+      'events',
+      where: 'date >= ? AND date <= ?',
+      whereArgs: [
+        app_date.formatDateForDb(from),
+        app_date.formatDateForDb(to),
+      ],
+      orderBy: 'date ASC, start_time ASC',
+    );
+    return rows.map(Event.fromMap).toList();
+  }
+
+  /// iOS カレンダー同期前のクリア用: source='calendar_sync' の予定を全削除。
+  Future<int> deleteSyncedEvents() async {
+    return db.delete('events', where: "source = 'calendar_sync'");
   }
 
   /// 推奨実行日を手動更新

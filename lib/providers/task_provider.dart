@@ -202,6 +202,20 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
     ref.invalidateSelf();
   }
 
+  /// #1: 推奨実行日を手動更新 + 実行日通知を再スケジュール (premium 限定で通知)。
+  Future<void> updateRecommendedDate(int taskId, DateTime newDate) async {
+    await _db.updateRecommendedDate(taskId, newDate);
+    final task = await _db.getTaskById(taskId);
+    if (task != null && _isPremium) {
+      final updated = task.copyWith(recommendedDate: newDate);
+      await _notify.scheduleExecutionDayNotification(
+        updated,
+        isPremium: _isPremium,
+      );
+    }
+    ref.invalidateSelf();
+  }
+
   /// 完了済みタスクを未完了に戻す。 XP は減算せず、 通知だけ再スケジュール。
   /// 「未完了に戻す」ボタン専用 (toggle ではない)。
   Future<void> uncompleteTask(Task task) async {
