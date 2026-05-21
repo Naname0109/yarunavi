@@ -2151,4 +2151,33 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get aiReminderToggleDesc => '未完了が溜まったら夕方に通知 (1 日 1 回)';
+
+  @override
+  String get aiPurchaseSheetTitle => 'AI 整理を続けるには';
+
+  @override
+  String get aiPurchaseSheetBody => '今日の無料枠を使い切りました。 次のいずれかを選んでください。';
+
+  @override
+  String get aiPurchasePremiumTitle => 'プレミアムプラン ¥580/月';
+
+  @override
+  String get aiPurchasePremiumSubtitle => 'AI 整理 月 30 回 + 全機能解放';
+
+  @override
+  String get aiPurchaseTicketTitle => 'AI 整理チケット ¥120';
+
+  @override
+  String aiPurchaseTicketSubtitle(int remaining, int max) {
+    return '1 回分を追加 (残り $remaining/$max 回購入可能)';
+  }
+
+  @override
+  String get aiPurchaseTicketDisabled => 'チケット購入は上限に達しています';
+
+  @override
+  String get aiPurchaseRewardedTitle => '動画を視聴 (1 日 1 回)';
+
+  @override
+  String get aiPurchaseRewardedSubtitle => '短い動画を見て今日 1 回 AI 整理';
 }

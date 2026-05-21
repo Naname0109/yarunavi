@@ -535,6 +535,120 @@ class DatabaseService {
     return ((rows.first['cnt'] as int?) ?? 0) > 0;
   }
 
+  // ====== 隠しバッジ判定用 query (#5 hidden badges) ======
+
+  /// 当日に task_complete reason で記録された件数。
+  Future<int> getTodayTaskCompleteCount() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day).toIso8601String();
+    final rows = await db.rawQuery(
+      "SELECT COUNT(*) AS cnt FROM xp_history "
+      "WHERE reason = 'task_complete' AND earned_at >= ?",
+      [today],
+    );
+    return (rows.first['cnt'] as int?) ?? 0;
+  }
+
+  /// 当月の task_complete 件数。
+  Future<int> getThisMonthTaskCompleteCount() async {
+    final now = DateTime.now();
+    final monthStart = DateTime(now.year, now.month, 1).toIso8601String();
+    final rows = await db.rawQuery(
+      "SELECT COUNT(*) AS cnt FROM xp_history "
+      "WHERE reason = 'task_complete' AND earned_at >= ?",
+      [monthStart],
+    );
+    return (rows.first['cnt'] as int?) ?? 0;
+  }
+
+  /// 今このタスクを除いた最後の completed_at (back_from_hibernation 用)。
+  Future<DateTime?> getLastCompletedAt({int? excludingTaskId}) async {
+    final rows = await db.query(
+      'tasks',
+      columns: ['completed_at'],
+      where: excludingTaskId != null
+          ? 'is_completed = 1 AND completed_at IS NOT NULL AND id != ?'
+          : 'is_completed = 1 AND completed_at IS NOT NULL',
+      whereArgs: excludingTaskId != null ? [excludingTaskId] : null,
+      orderBy: 'completed_at DESC',
+      limit: 1,
+    );
+    if (rows.isEmpty) return null;
+    final v = rows.first['completed_at'] as String?;
+    return v == null ? null : DateTime.parse(v);
+  }
+
+  /// 完了済みタスクが属するユニークなカテゴリ数 (multi_tasker 用)。
+  Future<int> getCompletedDistinctCategoryCount() async {
+    final rows = await db.rawQuery(
+      'SELECT COUNT(DISTINCT category_id) AS cnt FROM tasks '
+      'WHERE is_completed = 1 AND category_id IS NOT NULL',
+    );
+    return (rows.first['cnt'] as int?) ?? 0;
+  }
+
+  /// 未完了で期限切れのタスク数 (zero_overdue 用)。
+  Future<int> getOverdueIncompleteCount({DateTime? now}) async {
+    final n = now ?? DateTime.now();
+    final today = DateTime(n.year, n.month, n.day).toIso8601String();
+    final rows = await db.rawQuery(
+      'SELECT COUNT(*) AS cnt FROM tasks '
+      'WHERE is_completed = 0 AND due_date < ?',
+      [today],
+    );
+    return (rows.first['cnt'] as int?) ?? 0;
+  }
+
+  /// 直近 7 日のうち、 task_complete が 1 件以上あった日数 (perfect_week 用)。
+  Future<int> getDistinctTaskCompleteDaysLast7Days() async {
+    final now = DateTime.now();
+    final since =
+        DateTime(now.year, now.month, now.day - 6).toIso8601String();
+    final rows = await db.rawQuery(
+      "SELECT COUNT(DISTINCT substr(earned_at, 1, 10)) AS cnt "
+      "FROM xp_history WHERE reason = 'task_complete' AND earned_at >= ?",
+      [since],
+    );
+    return (rows.first['cnt'] as int?) ?? 0;
+  }
+
+  /// 直近 7 日の土日に completed (xp_history task_complete) があった件数の合計
+  /// (weekend_warrior 用)。
+  Future<int> getWeekendTaskCompleteCountLast7Days() async {
+    final now = DateTime.now();
+    final since =
+        DateTime(now.year, now.month, now.day - 6).toIso8601String();
+    final rows = await db.rawQuery(
+      "SELECT earned_at FROM xp_history "
+      "WHERE reason = 'task_complete' AND earned_at >= ?",
+      [since],
+    );
+    var weekend = 0;
+    for (final r in rows) {
+      final iso = r['earned_at'] as String?;
+      if (iso == null) continue;
+      final dt = DateTime.parse(iso);
+      if (dt.weekday == DateTime.saturday || dt.weekday == DateTime.sunday) {
+        weekend++;
+      }
+    }
+    return weekend;
+  }
+
+  /// カテゴリ総数 (category_master_5 用)。
+  Future<int> getCategoryCount() async {
+    final rows = await db.rawQuery('SELECT COUNT(*) AS cnt FROM categories');
+    return (rows.first['cnt'] as int?) ?? 0;
+  }
+
+  /// 定期タスク (recurrence_type が NULL でない) 件数 (habit_demon 用)。
+  Future<int> getRecurringTaskCount() async {
+    final rows = await db.rawQuery(
+      'SELECT COUNT(*) AS cnt FROM tasks WHERE recurrence_type IS NOT NULL',
+    );
+    return (rows.first['cnt'] as int?) ?? 0;
+  }
+
   // --- Tasks CRUD ---
 
   Future<int> insertTask(Task task) async {

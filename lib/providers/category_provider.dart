@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/category.dart';
+import 'gamification_provider.dart';
 import 'task_provider.dart';
 
 /// カテゴリ一覧Provider
@@ -20,6 +21,8 @@ class CategoryActions {
     final db = _ref.read(databaseServiceProvider);
     await db.addCategory(category);
     _ref.invalidate(categoriesProvider);
+    // #5 隠しバッジ category_master: 5 個以上で獲得
+    await _ref.read(gamificationServiceProvider).checkCategoryMaster();
   }
 
   Future<void> update(Category category) async {

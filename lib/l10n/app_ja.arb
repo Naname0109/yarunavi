@@ -1633,5 +1633,29 @@
   "aiReminderToggle": "整理リマインド",
   "@aiReminderToggle": {},
   "aiReminderToggleDesc": "未完了が溜まったら夕方に通知 (1 日 1 回)",
-  "@aiReminderToggleDesc": {}
+  "@aiReminderToggleDesc": {},
+
+  "aiPurchaseSheetTitle": "AI 整理を続けるには",
+  "@aiPurchaseSheetTitle": {},
+  "aiPurchaseSheetBody": "今日の無料枠を使い切りました。 次のいずれかを選んでください。",
+  "@aiPurchaseSheetBody": {},
+  "aiPurchasePremiumTitle": "プレミアムプラン ¥580/月",
+  "@aiPurchasePremiumTitle": {},
+  "aiPurchasePremiumSubtitle": "AI 整理 月 30 回 + 全機能解放",
+  "@aiPurchasePremiumSubtitle": {},
+  "aiPurchaseTicketTitle": "AI 整理チケット ¥120",
+  "@aiPurchaseTicketTitle": {},
+  "aiPurchaseTicketSubtitle": "1 回分を追加 (残り {remaining}/{max} 回購入可能)",
+  "@aiPurchaseTicketSubtitle": {
+    "placeholders": {
+      "remaining": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "aiPurchaseTicketDisabled": "チケット購入は上限に達しています",
+  "@aiPurchaseTicketDisabled": {},
+  "aiPurchaseRewardedTitle": "動画を視聴 (1 日 1 回)",
+  "@aiPurchaseRewardedTitle": {},
+  "aiPurchaseRewardedSubtitle": "短い動画を見て今日 1 回 AI 整理",
+  "@aiPurchaseRewardedSubtitle": {}
 }

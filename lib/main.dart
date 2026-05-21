@@ -142,10 +142,17 @@ void main() async {
 
   // セキュアストレージ (AI使用回数の永続化用)
   final secureStorage = SecureStorageService();
-  // #8: AI 整理チケット購入時に Keychain を更新
+  // #8: AI 整理チケット購入時に Keychain を更新 + 隠しバッジ ticket_buyer
   purchaseService.onAiTicketPurchased = () async {
     await secureStorage.recordAiTicketPurchase();
     debugPrint('[INIT] AI ticket purchased -> SecureStorage updated');
+    try {
+      final gam =
+          services.GamificationService(dbService, secureStorage: secureStorage);
+      await gam.checkTicketBuyer();
+    } catch (e) {
+      debugPrint('[INIT] ticket_buyer check skipped: $e');
+    }
   };
   try {
     await secureStorage.getInstallDate();
@@ -211,6 +218,8 @@ void main() async {
     final gam =
         services.GamificationService(dbService, secureStorage: secureStorage);
     await gam.reconcileTotalXpBackup();
+    // #5 隠しバッジ long_time_no_see: 30 日以上ぶりの起動を touchActivity 前に判定
+    await gam.checkLongTimeNoSee();
     await gam.touchActivity();
     debugPrint('[INIT] XP backup reconciled + streak touched');
   } catch (e) {

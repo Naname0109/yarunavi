@@ -158,6 +158,13 @@ class GamificationService {
       }
     }
 
+    // #5 隠しバッジ: タスク完了時に走る判定
+    final hiddenEvents = await _checkHiddenBadgesOnTaskCompleted(task);
+    for (final e in hiddenEvents) {
+      xpEvents.add(e);
+      earned.addAll(e.newlyEarnedBadges);
+    }
+
     final finalStats = await getStats();
     return TaskCompleteResult(
       xpEvents: xpEvents,
@@ -336,6 +343,132 @@ class GamificationService {
       newLevel: newLevel,
       newlyEarnedBadges: earned,
     );
+  }
+
+  // ====== #5 隠しバッジ判定 ======
+
+  /// 共通: バッジ ID を獲得済みにマークし、 成功したら XP ボーナス + イベント返却。
+  Future<XpAwardResult?> _tryEarnBadge(String badgeId) async {
+    if (!await _db.markBadgeEarned(badgeId)) return null;
+    final xp = DatabaseService.kBadgeXpReward[badgeId] ?? 0;
+    final result = await _award(amount: xp, reason: 'badge_$badgeId');
+    result.newlyEarnedBadges.add(UserBadge(
+      id: badgeId,
+      isEarned: true,
+      isHidden: DatabaseService.kHiddenBadgeIds.contains(badgeId),
+      earnedAt: DateTime.now(),
+    ));
+    return result;
+  }
+
+  /// タスク完了時に走る隠しバッジ判定 (early_bird / night_owl / busy_day / ...)。
+  Future<List<XpAwardResult>> _checkHiddenBadgesOnTaskCompleted(Task task) async {
+    final out = <XpAwardResult>[];
+    final now = DateTime.now();
+
+    // 時間帯
+    if (now.hour < 6) {
+      final r = await _tryEarnBadge('early_bird');
+      if (r != null) out.add(r);
+    }
+    if (now.hour >= 0 && now.hour < 3) {
+      final r = await _tryEarnBadge('night_owl');
+      if (r != null) out.add(r);
+    }
+
+    // 同日件数 (busy_day_5 / busy_day_10)
+    final todayCount = await _db.getTodayTaskCompleteCount();
+    if (todayCount >= 5) {
+      final r = await _tryEarnBadge('busy_day_5');
+      if (r != null) out.add(r);
+    }
+    if (todayCount >= 10) {
+      final r = await _tryEarnBadge('busy_day_10');
+      if (r != null) out.add(r);
+    }
+
+    // 月間件数 (busy_month_30)
+    final monthCount = await _db.getThisMonthTaskCompleteCount();
+    if (monthCount >= 30) {
+      final r = await _tryEarnBadge('busy_month_30');
+      if (r != null) out.add(r);
+    }
+
+    // 復帰 (back_from_hibernation): 今のタスクを除く最後の完了から 60 日以上
+    final last = await _db.getLastCompletedAt(excludingTaskId: task.id);
+    if (last != null && now.difference(last).inDays >= 60) {
+      final r = await _tryEarnBadge('back_from_hibernation');
+      if (r != null) out.add(r);
+    }
+
+    // multi_tasker: 3 つ以上のカテゴリで完了済み
+    final distinctCats = await _db.getCompletedDistinctCategoryCount();
+    if (distinctCats >= 3) {
+      final r = await _tryEarnBadge('multi_tasker');
+      if (r != null) out.add(r);
+    }
+
+    // zero_overdue: 期限切れ未完了 0 件
+    final overdue = await _db.getOverdueIncompleteCount();
+    if (overdue == 0) {
+      final r = await _tryEarnBadge('zero_overdue');
+      if (r != null) out.add(r);
+    }
+
+    // weekend_warrior: 直近 7 日の土日合計 5+
+    final weekend = await _db.getWeekendTaskCompleteCountLast7Days();
+    if (weekend >= 5) {
+      final r = await _tryEarnBadge('weekend_warrior');
+      if (r != null) out.add(r);
+    }
+
+    // perfect_week: 直近 7 日すべての日で 1 件以上完了
+    final daysWithCompletion = await _db.getDistinctTaskCompleteDaysLast7Days();
+    if (daysWithCompletion >= 7) {
+      final r = await _tryEarnBadge('perfect_week');
+      if (r != null) out.add(r);
+    }
+
+    return out;
+  }
+
+  /// アプリ起動時に走る判定 (long_time_no_see: 30 日以上ぶり)。
+  /// streak_last_date を比較。 touchActivity の **前** に呼ぶ。
+  Future<List<XpAwardResult>> checkLongTimeNoSee() async {
+    final out = <XpAwardResult>[];
+    final stats = await getStats();
+    final last = stats.streakLastDate;
+    if (last == null) return out;
+    final days = DateTime.now().difference(last).inDays;
+    if (days >= 30) {
+      final r = await _tryEarnBadge('long_time_no_see');
+      if (r != null) out.add(r);
+    }
+    return out;
+  }
+
+  /// カテゴリ作成時に呼ぶ (category_master: 5 個以上)。
+  Future<XpAwardResult?> checkCategoryMaster() async {
+    final count = await _db.getCategoryCount();
+    if (count >= 5) return _tryEarnBadge('category_master');
+    return null;
+  }
+
+  /// 定期タスク追加時に呼ぶ (habit_demon: 5 件以上)。
+  Future<XpAwardResult?> checkRecurringHabitMaster() async {
+    final count = await _db.getRecurringTaskCount();
+    if (count >= 5) return _tryEarnBadge('habit_demon');
+    return null;
+  }
+
+  /// 曜日空き設定がデフォルトから変更された時に呼ぶ (schedule_master)。
+  Future<XpAwardResult?> checkScheduleMaster() async {
+    return _tryEarnBadge('schedule_master');
+  }
+
+  /// AI 整理チケットを購入した時に呼ぶ (ticket_buyer)。
+  Future<XpAwardResult?> checkTicketBuyer() async {
+    return _tryEarnBadge('ticket_buyer');
   }
 
   /// ストリーク達成バッジ (3/7/14/30/60/100 日) → バッジ獲得時に XP ボーナス

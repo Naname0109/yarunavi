@@ -93,6 +93,10 @@ class TasksNotifier extends AsyncNotifier<List<Task>> {
     await _notify.resetAllExpiredFlag();
     // ストリーク維持 (XPは付与しない)
     await ref.read(userStatsProvider.notifier).touchActivity();
+    // #5 隠しバッジ habit_demon: 定期タスク 5 件以上
+    if (task.recurrenceType != null) {
+      await ref.read(gamificationServiceProvider).checkRecurringHabitMaster();
+    }
     ref.invalidateSelf();
     return calResult;
   }

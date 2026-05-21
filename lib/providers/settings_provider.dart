@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'gamification_provider.dart';
 import 'task_provider.dart' show databaseServiceProvider;
 
 const _localeKey = 'app_locale';
@@ -16,6 +17,14 @@ const _aiReminderEnabledKey = 'ai_sort_reminder_enabled'; // #6-2
 typedef WeekdayBusyness = List<int>;
 
 const WeekdayBusyness defaultWeekdayBusyness = [3, 3, 3, 3, 3, 3, 3];
+
+bool _listEquals(List<int> a, List<int> b) {
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
+}
 
 /// 起動時の初期設定値（main.dartでoverrideされる）
 final initialLocaleProvider = Provider<Locale>((ref) => const Locale('ja'));
@@ -148,6 +157,13 @@ class WeekdayBusynessNotifier extends AsyncNotifier<WeekdayBusyness> {
     state = AsyncValue.data(next);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_weekdayBusynessKey, next.join(','));
+
+    // #5 隠しバッジ schedule_master: デフォルト値 (3,3,3,3,3,3,3) から
+    // 変更されている場合に獲得 (初回のみ markBadgeEarned が true を返す)
+    final isDefault = _listEquals(next, defaultWeekdayBusyness);
+    if (!isDefault) {
+      ref.read(gamificationServiceProvider).checkScheduleMaster();
+    }
   }
 }
 

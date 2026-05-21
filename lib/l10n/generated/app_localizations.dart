@@ -4195,6 +4195,60 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'未完了が溜まったら夕方に通知 (1 日 1 回)'**
   String get aiReminderToggleDesc;
+
+  /// No description provided for @aiPurchaseSheetTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI 整理を続けるには'**
+  String get aiPurchaseSheetTitle;
+
+  /// No description provided for @aiPurchaseSheetBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日の無料枠を使い切りました。 次のいずれかを選んでください。'**
+  String get aiPurchaseSheetBody;
+
+  /// No description provided for @aiPurchasePremiumTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアムプラン ¥580/月'**
+  String get aiPurchasePremiumTitle;
+
+  /// No description provided for @aiPurchasePremiumSubtitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI 整理 月 30 回 + 全機能解放'**
+  String get aiPurchasePremiumSubtitle;
+
+  /// No description provided for @aiPurchaseTicketTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI 整理チケット ¥120'**
+  String get aiPurchaseTicketTitle;
+
+  /// No description provided for @aiPurchaseTicketSubtitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'1 回分を追加 (残り {remaining}/{max} 回購入可能)'**
+  String aiPurchaseTicketSubtitle(int remaining, int max);
+
+  /// No description provided for @aiPurchaseTicketDisabled.
+  ///
+  /// In ja, this message translates to:
+  /// **'チケット購入は上限に達しています'**
+  String get aiPurchaseTicketDisabled;
+
+  /// No description provided for @aiPurchaseRewardedTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'動画を視聴 (1 日 1 回)'**
+  String get aiPurchaseRewardedTitle;
+
+  /// No description provided for @aiPurchaseRewardedSubtitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'短い動画を見て今日 1 回 AI 整理'**
+  String get aiPurchaseRewardedSubtitle;
 }
 
 class _AppLocalizationsDelegate

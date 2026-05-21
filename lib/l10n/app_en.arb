@@ -851,5 +851,15 @@
   "badgeHiddenLabel": "Hidden",
 
   "aiReminderToggle": "Sort reminders",
-  "aiReminderToggleDesc": "Evening nudge when tasks pile up (once a day)"
+  "aiReminderToggleDesc": "Evening nudge when tasks pile up (once a day)",
+
+  "aiPurchaseSheetTitle": "Keep AI sorting",
+  "aiPurchaseSheetBody": "You're out of free runs today. Pick how to continue.",
+  "aiPurchasePremiumTitle": "Premium ¥580/mo",
+  "aiPurchasePremiumSubtitle": "30 AI sorts/month + every feature unlocked",
+  "aiPurchaseTicketTitle": "AI sort ticket ¥120",
+  "aiPurchaseTicketSubtitle": "Add 1 run ({remaining} of {max} left to buy)",
+  "aiPurchaseTicketDisabled": "Ticket limit reached",
+  "aiPurchaseRewardedTitle": "Watch a video (1×/day)",
+  "aiPurchaseRewardedSubtitle": "See a short ad for today's run"
 }

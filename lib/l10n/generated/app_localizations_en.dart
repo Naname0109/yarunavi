@@ -2195,4 +2195,35 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aiReminderToggleDesc =>
       'Evening nudge when tasks pile up (once a day)';
+
+  @override
+  String get aiPurchaseSheetTitle => 'Keep AI sorting';
+
+  @override
+  String get aiPurchaseSheetBody =>
+      'You\'re out of free runs today. Pick how to continue.';
+
+  @override
+  String get aiPurchasePremiumTitle => 'Premium ¥580/mo';
+
+  @override
+  String get aiPurchasePremiumSubtitle =>
+      '30 AI sorts/month + every feature unlocked';
+
+  @override
+  String get aiPurchaseTicketTitle => 'AI sort ticket ¥120';
+
+  @override
+  String aiPurchaseTicketSubtitle(int remaining, int max) {
+    return 'Add 1 run ($remaining of $max left to buy)';
+  }
+
+  @override
+  String get aiPurchaseTicketDisabled => 'Ticket limit reached';
+
+  @override
+  String get aiPurchaseRewardedTitle => 'Watch a video (1×/day)';
+
+  @override
+  String get aiPurchaseRewardedSubtitle => 'See a short ad for today\'s run';
 }

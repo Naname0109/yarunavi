@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../l10n/generated/app_localizations.dart';
+import '../services/secure_storage_service.dart';
+import 'ai_purchase_bottom_sheet.dart';
 import '../providers/gamification_provider.dart';
 import '../providers/purchase_provider.dart';
 import '../providers/secure_storage_provider.dart';
@@ -110,20 +112,59 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       devAiUnlimited: devAiUnlimited,
     );
 
+    // #8: AI 整理チケット在庫を先にチェック。 allowed でなくてもチケットがあれば消費。
+    final ticketsAvailable = await secure.getAiTicketsAvailable();
+    if (access != AiSortAccess.allowed && ticketsAvailable > 0) {
+      await secure.consumeAiTicket();
+      if (!mounted) return;
+      final confirmed = await _showAiSortSheet(l10n);
+      if (confirmed == true) await _executeAiSort(l10n, locale);
+      return;
+    }
+
     switch (access) {
       case AiSortAccess.allowed:
         if (!mounted) return;
         final confirmed = await _showAiSortSheet(l10n);
         if (confirmed == true) await _executeAiSort(l10n, locale);
       case AiSortAccess.rewardedAdRequired:
+        // 「rewarded を見るかどうか」を購入案内シートで提示 (#8 統合)
         if (!mounted) return;
-        await _showRewardedAdDialog(l10n, locale);
+        await _showPurchaseSheet(l10n, locale,
+            rewardedAvailable: true, secure: secure);
       case AiSortAccess.rewardedAdUsedToday:
+        // 当日 rewarded 使用済み → 購入案内 (premium / チケット のみ)
         if (!mounted) return;
-        await _showTodayLimitDialog(l10n);
+        await _showPurchaseSheet(l10n, locale,
+            rewardedAvailable: false, secure: secure);
       case AiSortAccess.premiumMonthlyLimitReached:
         if (!mounted) return;
         await _showPremiumLimitDialog(l10n);
+    }
+  }
+
+  /// #8: 無料回数なし & チケットなし時の購入案内 BottomSheet。
+  Future<void> _showPurchaseSheet(
+    AppLocalizations l10n,
+    String locale, {
+    required bool rewardedAvailable,
+    required SecureStorageService secure,
+  }) async {
+    final lifetime = await secure.getAiTicketLifetimePurchases();
+    if (!mounted) return;
+    final choice = await AiPurchaseBottomSheet.show(
+      context,
+      rewardedAvailable: rewardedAvailable,
+      ticketLifetime: lifetime,
+    );
+    if (!mounted || choice == null) return;
+    switch (choice) {
+      case AiPurchaseChoice.premium:
+        context.push('/store');
+      case AiPurchaseChoice.ticket:
+        await ref.read(purchaseServiceProvider).purchaseAiTicket();
+      case AiPurchaseChoice.rewarded:
+        await _showRewardedAdDialog(l10n, locale);
     }
   }
 
