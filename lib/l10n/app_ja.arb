@@ -1628,5 +1628,10 @@
   "badgeHidden": "???",
   "@badgeHidden": {},
   "badgeHiddenLabel": "Hidden",
-  "@badgeHiddenLabel": {}
+  "@badgeHiddenLabel": {},
+
+  "aiReminderToggle": "整理リマインド",
+  "@aiReminderToggle": {},
+  "aiReminderToggleDesc": "未完了が溜まったら夕方に通知 (1 日 1 回)",
+  "@aiReminderToggleDesc": {}
 }

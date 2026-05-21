@@ -848,5 +848,8 @@
   "badgeDesc_level_100": "Reach Lv.100",
 
   "badgeHidden": "???",
-  "badgeHiddenLabel": "Hidden"
+  "badgeHiddenLabel": "Hidden",
+
+  "aiReminderToggle": "Sort reminders",
+  "aiReminderToggleDesc": "Evening nudge when tasks pile up (once a day)"
 }

@@ -9,6 +9,7 @@ const _themeModeKey = 'app_theme_mode';
 const _executionTimingKey = 'execution_timing_factor';
 const _soundEnabledKey = 'sound_enabled';
 const _weekdayBusynessKey = 'weekday_busyness'; // #3-1: 1=暇〜5=忙しい × 7曜日
+const _aiReminderEnabledKey = 'ai_sort_reminder_enabled'; // #6-2
 
 /// 曜日ごとの「忙しさ」。 月=0 〜 日=6 のリスト、 値は 1〜5。
 /// AI 整理時に「忙しい曜日にはタスクを集中させない」 ヒントとして渡す。
@@ -179,4 +180,24 @@ class BlockedDatesNotifier extends AsyncNotifier<List<DateTime>> {
 final blockedDatesProvider =
     AsyncNotifierProvider<BlockedDatesNotifier, List<DateTime>>(
   BlockedDatesNotifier.new,
+);
+
+/// #6-2: タスク整理リマインド ON/OFF (デフォルト ON)。
+class AiReminderEnabledNotifier extends AsyncNotifier<bool> {
+  @override
+  Future<bool> build() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_aiReminderEnabledKey) ?? true;
+  }
+
+  Future<void> setEnabled(bool value) async {
+    state = AsyncValue.data(value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_aiReminderEnabledKey, value);
+  }
+}
+
+final aiReminderEnabledProvider =
+    AsyncNotifierProvider<AiReminderEnabledNotifier, bool>(
+  AiReminderEnabledNotifier.new,
 );

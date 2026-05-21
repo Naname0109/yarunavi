@@ -2188,4 +2188,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get badgeHiddenLabel => 'Hidden';
+
+  @override
+  String get aiReminderToggle => 'Sort reminders';
+
+  @override
+  String get aiReminderToggleDesc =>
+      'Evening nudge when tasks pile up (once a day)';
 }

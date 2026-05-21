@@ -4183,6 +4183,18 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'Hidden'**
   String get badgeHiddenLabel;
+
+  /// No description provided for @aiReminderToggle.
+  ///
+  /// In ja, this message translates to:
+  /// **'整理リマインド'**
+  String get aiReminderToggle;
+
+  /// No description provided for @aiReminderToggleDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'未完了が溜まったら夕方に通知 (1 日 1 回)'**
+  String get aiReminderToggleDesc;
 }
 
 class _AppLocalizationsDelegate

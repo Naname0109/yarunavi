@@ -344,7 +344,6 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       if (isPremium) {
         for (final r in response.tasks) {
           final notifyDate = r.notifyDate;
-          if (notifyDate == null || notifyDate.isEmpty) continue;
           final task =
               incompleteTasks.where((t) => t.id == r.taskId).firstOrNull;
           if (task == null) continue;
@@ -352,6 +351,20 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
           // 手動設定済み (ai_auto以外で非null) はスキップ
           final hasManual = task.notifySettings != null &&
               !isAiAutoNotify(task.notifySettings);
+
+          // #6-1: 実行日 (recommended_date) の朝 9 時に通知
+          // ai_sort 後の最新 recommended_date を反映するため、 finalUpdates から取得
+          final newRec = finalUpdates[r.taskId]?.recommendedDate;
+          final taskForExec = newRec != null
+              ? task.copyWith(recommendedDate: newRec)
+              : task;
+          await notifyService.scheduleExecutionDayNotification(
+            taskForExec,
+            isPremium: true,
+            locale: locale,
+          );
+
+          if (notifyDate == null || notifyDate.isEmpty) continue;
           if (hasManual) continue;
 
           await notifyService.scheduleNotificationsForDates(

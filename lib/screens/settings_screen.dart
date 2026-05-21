@@ -211,6 +211,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _buildSectionHeader(context, l10n.scheduleSection),
                   _WeekdayBusynessTile(),
                   _BlockedDatesTile(),
+                  _AiReminderToggle(),
                   const Divider(),
 
                   // --- データ管理 ---
@@ -831,5 +832,24 @@ class _BlockedDatesTile extends ConsumerWidget {
     );
     if (picked == null) return;
     await ref.read(blockedDatesProvider.notifier).add(picked);
+  }
+}
+
+/// #6-2: タスク整理リマインド ON/OFF トグル。
+class _AiReminderToggle extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final asyncEnabled = ref.watch(aiReminderEnabledProvider);
+    final enabled = asyncEnabled.valueOrNull ?? true;
+    return SwitchListTile(
+      secondary: const Icon(Icons.notifications_active_outlined),
+      title: Text(l10n.aiReminderToggle),
+      subtitle: Text(l10n.aiReminderToggleDesc),
+      value: enabled,
+      onChanged: (v) {
+        ref.read(aiReminderEnabledProvider.notifier).setEnabled(v);
+      },
+    );
   }
 }

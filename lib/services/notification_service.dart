@@ -189,6 +189,105 @@ class NotificationService {
     }
   }
 
+  /// #6-1: タスクの実行日 (recommended_date) の朝 9 時に通知をスケジュール。
+  /// recommendedDate が null またはすでに過ぎていれば何もしない。
+  Future<void> scheduleExecutionDayNotification(
+    Task task, {
+    required bool isPremium,
+    String locale = 'ja',
+  }) async {
+    if (!isSupported) return;
+    if (!isPremium && !kDebugMode) return;
+    if (task.id == null || task.isCompleted) return;
+    final rec = task.recommendedDate;
+    if (rec == null) return;
+
+    await requestPermission();
+
+    final scheduled = tz.TZDateTime(
+      tz.local,
+      rec.year,
+      rec.month,
+      rec.day,
+      9, // #6: 朝 9 時
+    );
+    if (scheduled.isBefore(tz.TZDateTime.now(tz.local))) return;
+
+    final id = task.id! * 10 + 9; // 9 = execution day offset
+    final body = locale == 'ja'
+        ? '今日のタスク: ${task.title}'
+        : "Today's task: ${task.title}";
+
+    await _plugin.zonedSchedule(
+      id,
+      AppConstants.appName,
+      body,
+      scheduled,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          AppConstants.notificationChannelId,
+          AppConstants.notificationChannelName,
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      payload: task.id.toString(),
+    );
+  }
+
+  /// #6-2: タスク整理リマインド。 同日中に 1 度しか発火しない (id 固定)。
+  /// アプリ起動時の check_and_schedule で呼ぶ想定。
+  Future<void> scheduleAiSortReminder({
+    required bool enabled,
+    String locale = 'ja',
+  }) async {
+    const reminderId = 9999;
+    if (!isSupported) return;
+    if (!enabled) {
+      await _plugin.cancel(reminderId);
+      return;
+    }
+    // 既存予定があれば一旦キャンセル (置き換え)
+    await _plugin.cancel(reminderId);
+
+    final now = tz.TZDateTime.now(tz.local);
+    // 18 時に通知 (夕方に「整理しませんか?」)
+    var target = tz.TZDateTime(
+        tz.local, now.year, now.month, now.day, 18);
+    if (target.isBefore(now)) {
+      target = target.add(const Duration(days: 1));
+    }
+    final title = locale == 'ja'
+        ? 'やることが溜まっていませんか?'
+        : 'Tasks piling up?';
+    final body = locale == 'ja'
+        ? 'AIで整理しましょう'
+        : 'Let AI sort them for you';
+
+    await _plugin.zonedSchedule(
+      reminderId,
+      title,
+      body,
+      target,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          AppConstants.notificationChannelId,
+          AppConstants.notificationChannelName,
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
   /// AI推奨日付でタスクの通知をスケジュール
   Future<void> scheduleNotificationsForDates(
     Task task, {

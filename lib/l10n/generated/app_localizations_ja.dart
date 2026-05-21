@@ -2145,4 +2145,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get badgeHiddenLabel => 'Hidden';
+
+  @override
+  String get aiReminderToggle => '整理リマインド';
+
+  @override
+  String get aiReminderToggleDesc => '未完了が溜まったら夕方に通知 (1 日 1 回)';
 }
