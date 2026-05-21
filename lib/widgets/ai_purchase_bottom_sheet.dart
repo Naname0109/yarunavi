@@ -74,22 +74,32 @@ class AiPurchaseBottomSheet extends ConsumerWidget {
                 ),
               ),
             ),
-            Text(
-              l10n.aiPurchaseSheetTitle,
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w800,
-                color: yaru.inkPrimary,
+            // #5: タイトル + 説明を構造化 (左寄せ、 行が長くて折り返す現象を回避)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.aiPurchaseSheetTitle,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: yaru.inkPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.aiPurchaseSheetBody,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: yaru.inkSecondary,
+                    ),
+                  ),
+                ],
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 6),
-            Text(
-              l10n.aiPurchaseSheetBody,
-              style: TextStyle(fontSize: 12.5, color: yaru.inkSecondary),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             _OptionTile(
               icon: Icons.workspace_premium_rounded,
               iconColor: yaru.accent,

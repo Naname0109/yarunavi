@@ -1,6 +1,6 @@
 {
   "@@locale": "ja",
-  "appTitle": "YaruNavi",
+  "appTitle": "やるナビ",
   "@appTitle": {
     "description": "アプリ名"
   },
@@ -194,7 +194,7 @@
   "@aiErrorRateLimit": {},
   "aiSorting": "整理中…",
   "@aiSorting": {},
-  "notificationTitle": "YaruNavi",
+  "notificationTitle": "やるナビ",
   "@notificationTitle": {},
   "notifyDueToday": "{taskName} の期限は今日です",
   "@notifyDueToday": {
@@ -1635,9 +1635,9 @@
   "aiReminderToggleDesc": "未完了が溜まったら夕方に通知 (1 日 1 回)",
   "@aiReminderToggleDesc": {},
 
-  "aiPurchaseSheetTitle": "AI 整理を続けるには",
+  "aiPurchaseSheetTitle": "AI 整理の回数が不足しています",
   "@aiPurchaseSheetTitle": {},
-  "aiPurchaseSheetBody": "今日の無料枠を使い切りました。 次のいずれかを選んでください。",
+  "aiPurchaseSheetBody": "以下のいずれかの方法で AI 整理を利用できます。",
   "@aiPurchaseSheetBody": {},
   "aiPurchasePremiumTitle": "プレミアムプラン ¥580/月",
   "@aiPurchasePremiumTitle": {},

@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// アプリ名
   ///
   /// In ja, this message translates to:
-  /// **'YaruNavi'**
+  /// **'やるナビ'**
   String get appTitle;
 
   /// No description provided for @home.
@@ -605,7 +605,7 @@ abstract class AppLocalizations {
   /// No description provided for @notificationTitle.
   ///
   /// In ja, this message translates to:
-  /// **'YaruNavi'**
+  /// **'やるナビ'**
   String get notificationTitle;
 
   /// No description provided for @notifyDueToday.
@@ -4199,13 +4199,13 @@ abstract class AppLocalizations {
   /// No description provided for @aiPurchaseSheetTitle.
   ///
   /// In ja, this message translates to:
-  /// **'AI 整理を続けるには'**
+  /// **'AI 整理の回数が不足しています'**
   String get aiPurchaseSheetTitle;
 
   /// No description provided for @aiPurchaseSheetBody.
   ///
   /// In ja, this message translates to:
-  /// **'今日の無料枠を使い切りました。 次のいずれかを選んでください。'**
+  /// **'以下のいずれかの方法で AI 整理を利用できます。'**
   String get aiPurchaseSheetBody;
 
   /// No description provided for @aiPurchasePremiumTitle.

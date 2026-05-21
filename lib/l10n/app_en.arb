@@ -853,8 +853,8 @@
   "aiReminderToggle": "Sort reminders",
   "aiReminderToggleDesc": "Evening nudge when tasks pile up (once a day)",
 
-  "aiPurchaseSheetTitle": "Keep AI sorting",
-  "aiPurchaseSheetBody": "You're out of free runs today. Pick how to continue.",
+  "aiPurchaseSheetTitle": "Not enough AI sorts left",
+  "aiPurchaseSheetBody": "Pick any of the options below to keep going.",
   "aiPurchasePremiumTitle": "Premium ¥580/mo",
   "aiPurchasePremiumLabel": "Premium",
   "aiPurchaseTicketLabel": "AI sort ticket",

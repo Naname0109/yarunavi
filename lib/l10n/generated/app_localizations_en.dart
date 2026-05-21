@@ -2197,11 +2197,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Evening nudge when tasks pile up (once a day)';
 
   @override
-  String get aiPurchaseSheetTitle => 'Keep AI sorting';
+  String get aiPurchaseSheetTitle => 'Not enough AI sorts left';
 
   @override
   String get aiPurchaseSheetBody =>
-      'You\'re out of free runs today. Pick how to continue.';
+      'Pick any of the options below to keep going.';
 
   @override
   String get aiPurchasePremiumTitle => 'Premium ¥580/mo';

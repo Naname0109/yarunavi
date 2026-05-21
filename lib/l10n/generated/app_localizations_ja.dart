@@ -9,7 +9,7 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
-  String get appTitle => 'YaruNavi';
+  String get appTitle => 'やるナビ';
 
   @override
   String get home => 'ホーム';
@@ -273,7 +273,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiSorting => '整理中…';
 
   @override
-  String get notificationTitle => 'YaruNavi';
+  String get notificationTitle => 'やるナビ';
 
   @override
   String notifyDueToday(String taskName) {
@@ -2153,10 +2153,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiReminderToggleDesc => '未完了が溜まったら夕方に通知 (1 日 1 回)';
 
   @override
-  String get aiPurchaseSheetTitle => 'AI 整理を続けるには';
+  String get aiPurchaseSheetTitle => 'AI 整理の回数が不足しています';
 
   @override
-  String get aiPurchaseSheetBody => '今日の無料枠を使い切りました。 次のいずれかを選んでください。';
+  String get aiPurchaseSheetBody => '以下のいずれかの方法で AI 整理を利用できます。';
 
   @override
   String get aiPurchasePremiumTitle => 'プレミアムプラン ¥580/月';
