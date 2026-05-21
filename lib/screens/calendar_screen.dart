@@ -14,6 +14,7 @@ import '../providers/event_provider.dart';
 import '../providers/task_provider.dart';
 import '../theme/colors.dart';
 import '../providers/dev_mode_provider.dart';
+import '../services/event_sync_service.dart';
 import '../widgets/event_form_sheet.dart';
 import '../widgets/task_card.dart';
 import '../widgets/task_form_sheet.dart';
@@ -173,6 +174,26 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
 
         return Column(
           children: [
+            // #2-A: カレンダー画面ヘッダー (タイトル + 同期ボタン)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 8, 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.navCalendar,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => _confirmAndSyncCalendar(l10n),
+                    icon: const Icon(Icons.sync_rounded),
+                    tooltip: l10n.fabSyncCalendar,
+                  ),
+                ],
+              ),
+            ),
             // --- 表示モード切替 (AIのおすすめ日 / 期限の日) ---
             // ?アイコンを廃止し、 初回コーチマーク + tooltip 長押しで学習させる (B-11)
             Padding(
@@ -607,6 +628,44 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
   /// #2: 予定編集 (calendar_sync 由来は read-only ガード)
   void _editEvent(BuildContext context, Event e) {
     EventFormSheet.show(context, editTarget: e);
+  }
+
+  /// #2-A: カレンダー同期 (確認ダイアログ → syncNext60Days → SnackBar)
+  Future<void> _confirmAndSyncCalendar(AppLocalizations l10n) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: const Icon(Icons.sync_rounded, size: 36),
+        title: Text(l10n.calendarSyncConfirmTitle),
+        content: Text(l10n.calendarSyncConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.fabSyncCalendar),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final db = ref.read(databaseServiceProvider);
+    final svc = EventSyncService(db);
+    final count = await svc.syncNext60Days();
+    ref.invalidate(eventsProvider);
+    if (!mounted) return;
+    if (count < 0) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.calendarPermissionDenied)),
+      );
+    } else {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.calendarSyncDone(count))),
+      );
+    }
   }
 
   /// #2-4: 予定削除 (確認なし + SnackBar 取り消し)

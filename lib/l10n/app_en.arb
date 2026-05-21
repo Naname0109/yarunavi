@@ -893,6 +893,8 @@
   "labelLater": "LATER",
   "labelNormal": "NORMAL",
 
+  "statsTitleHeader": "Your achievements",
+  "statsUsageDays": "Day {days} with YaruNavi",
   "statsBadgesEarnedCount": "{earned} / {total} earned",
   "statsValueTasks": "{count} tasks",
   "statsValueDays": "{count} days",
@@ -923,6 +925,8 @@
   "eventDeleted": "Event deleted",
   "calendarSyncDone": "Imported {count} events",
   "calendarSyncFailed": "Calendar import failed",
+  "calendarSyncConfirmTitle": "Import events?",
+  "calendarSyncConfirmBody": "Pull events from your iOS calendar for the next 60 days.",
 
   "eventAdd": "Add event",
   "eventEdit": "Edit event",

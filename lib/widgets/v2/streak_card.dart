@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../../models/user_stats.dart';
@@ -184,7 +185,15 @@ class StreakCard extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 6),
-        _miniBars(days: days, isDark: isDark, textColor: textColor),
+        Builder(builder: (ctx) {
+          final locale = Localizations.localeOf(ctx).languageCode;
+          return _miniBars(
+            days: days,
+            isDark: isDark,
+            textColor: textColor,
+            locale: locale,
+          );
+        }),
         const SizedBox(height: 12),
         // #5: 次の目標 (次のストリークバッジまで)
         Builder(builder: (context) {
@@ -224,13 +233,15 @@ class StreakCard extends ConsumerWidget {
     required List<int> days,
     required bool isDark,
     required Color textColor,
+    required String locale,
   }) {
     final maxV = days.fold<int>(0, (a, b) => a > b ? a : b);
     final now = DateTime.now();
-    final locale = const ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    // #1-B: ロケールに応じた曜日 (日/月/火... または Sun/Mon...)
+    final formatter = DateFormat.E(locale);
     final weekLabels = List<String>.generate(7, (i) {
       final d = DateTime(now.year, now.month, now.day - 6 + i);
-      return locale[d.weekday % 7];
+      return formatter.format(d);
     });
     return Column(
       children: [

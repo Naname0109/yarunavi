@@ -1730,6 +1730,16 @@
   "labelNormal": "通常",
   "@labelNormal": {},
 
+  "statsTitleHeader": "あなたの実績",
+  "@statsTitleHeader": {
+    "description": "実績画面の上部見出し"
+  },
+  "statsUsageDays": "やるナビを使い始めて {days}日目",
+  "@statsUsageDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
   "statsBadgesEarnedCount": "{earned} / {total} 達成",
   "@statsBadgesEarnedCount": {
     "placeholders": {
@@ -1837,6 +1847,12 @@
   "@calendarSyncFailed": {
     "description": "device_calendar 同期失敗時のスナックバー"
   },
+  "calendarSyncConfirmTitle": "予定を取り込みますか?",
+  "@calendarSyncConfirmTitle": {
+    "description": "カレンダー画面の同期ボタン押下時の確認ダイアログタイトル"
+  },
+  "calendarSyncConfirmBody": "iOS カレンダーから今日〜60日先までの予定を取り込みます。",
+  "@calendarSyncConfirmBody": {},
 
   "eventAdd": "予定を追加",
   "@eventAdd": {},

@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/user_badge.dart';
 import '../../models/user_stats.dart';
 import '../../providers/gamification_provider.dart';
+import '../../providers/settings_provider.dart' show daysSinceFirstLaunchProvider;
 import '../../providers/task_provider.dart' show completedTaskCountProvider;
 import '../../services/database_service.dart';
 import '../../services/gamification_service.dart';
@@ -236,7 +237,7 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'PROFILE · LV.${stats.currentLevel}',
+                  l10n.statsTitleHeader,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
@@ -254,6 +255,21 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
                     letterSpacing: -0.5,
                   ),
                 ),
+                const SizedBox(height: 4),
+                // #1-A: 「やるナビを使い始めて N 日目」
+                Consumer(builder: (_, ref, __) {
+                  final daysAsync = ref.watch(daysSinceFirstLaunchProvider);
+                  final days = daysAsync.valueOrNull;
+                  if (days == null) return const SizedBox.shrink();
+                  return Text(
+                    l10n.statsUsageDays(days),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: yaru.inkSecondary,
+                    ),
+                  );
+                }),
               ],
             ),
           ),
@@ -718,11 +734,12 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
   }
 
   Widget _badgeGridChunk(List<UserBadge> items) {
+    // #1-C: 未獲得バッジには条件テキスト 2 行が入るため少し縦長に
     return GridView.count(
       crossAxisCount: 3,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 1.0,
+      childAspectRatio: 0.88,
       mainAxisSpacing: 8,
       crossAxisSpacing: 8,
       children:
@@ -789,8 +806,12 @@ class _BadgeTile extends ConsumerWidget {
     // 隠しバッジ未獲得時は名前・条件を「???」 で伏せる (#5)
     final concealed = badge.isHidden && !earned;
     final displayIcon = concealed ? Icons.help_outline_rounded : badge.icon;
-    final displayName =
-        concealed ? l10n.badgeHidden : _localizedBadgeName(l10n, badge.id);
+    // #1-C: 獲得済み=名前、 未獲得 (表)=達成条件、 隠し=???
+    final displayName = concealed
+        ? l10n.badgeHidden
+        : (earned
+            ? _localizedBadgeName(l10n, badge.id)
+            : _localizedBadgeCondition(l10n, badge.id));
 
     return Material(
       color: Colors.transparent,
@@ -828,11 +849,13 @@ class _BadgeTile extends ConsumerWidget {
                         displayName,
                         style: TextStyle(
                           fontSize: 9.5,
-                          fontWeight: FontWeight.w800,
+                          // 獲得済みは太字、 未獲得は通常字
+                          fontWeight: earned ? FontWeight.w800 : FontWeight.w600,
                           color: earned ? yaru.inkSecondary : yaru.inkQuaternary,
+                          height: 1.2,
                         ),
                         textAlign: TextAlign.center,
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],

@@ -114,6 +114,21 @@ void main() async {
     debugPrint('[INIT] DB failed: $e');
   }
 
+  // #1-A: 初回起動日 (firstLaunchDate) を記録。 実績画面で「使い始めて N 日目」 表示に利用。
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('first_launch_date') == null) {
+      final now = DateTime.now();
+      final iso = '${now.year.toString().padLeft(4, '0')}-'
+          '${now.month.toString().padLeft(2, '0')}-'
+          '${now.day.toString().padLeft(2, '0')}';
+      await prefs.setString('first_launch_date', iso);
+      debugPrint('[INIT] first launch date set: $iso');
+    }
+  } catch (e) {
+    debugPrint('[INIT] first_launch_date failed: $e');
+  }
+
   // 課金サービス
   final purchaseService = PurchaseService.instance;
   try {

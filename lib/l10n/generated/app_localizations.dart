@@ -4424,6 +4424,18 @@ abstract class AppLocalizations {
   /// **'通常'**
   String get labelNormal;
 
+  /// 実績画面の上部見出し
+  ///
+  /// In ja, this message translates to:
+  /// **'あなたの実績'**
+  String get statsTitleHeader;
+
+  /// No description provided for @statsUsageDays.
+  ///
+  /// In ja, this message translates to:
+  /// **'やるナビを使い始めて {days}日目'**
+  String statsUsageDays(int days);
+
   /// No description provided for @statsBadgesEarnedCount.
   ///
   /// In ja, this message translates to:
@@ -4591,6 +4603,18 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'カレンダーの取り込みに失敗しました'**
   String get calendarSyncFailed;
+
+  /// カレンダー画面の同期ボタン押下時の確認ダイアログタイトル
+  ///
+  /// In ja, this message translates to:
+  /// **'予定を取り込みますか?'**
+  String get calendarSyncConfirmTitle;
+
+  /// No description provided for @calendarSyncConfirmBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'iOS カレンダーから今日〜60日先までの予定を取り込みます。'**
+  String get calendarSyncConfirmBody;
 
   /// No description provided for @eventAdd.
   ///

@@ -2317,6 +2317,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get labelNormal => 'NORMAL';
 
   @override
+  String get statsTitleHeader => 'Your achievements';
+
+  @override
+  String statsUsageDays(int days) {
+    return 'Day $days with YaruNavi';
+  }
+
+  @override
   String statsBadgesEarnedCount(int earned, int total) {
     return '$earned / $total earned';
   }
@@ -2419,6 +2427,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarSyncFailed => 'Calendar import failed';
+
+  @override
+  String get calendarSyncConfirmTitle => 'Import events?';
+
+  @override
+  String get calendarSyncConfirmBody =>
+      'Pull events from your iOS calendar for the next 60 days.';
 
   @override
   String get eventAdd => 'Add event';

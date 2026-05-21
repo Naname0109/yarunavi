@@ -337,3 +337,18 @@ final notifyTimingProvider =
     AsyncNotifierProvider<NotifyTimingNotifier, NotifyTimingPrefs>(
   NotifyTimingNotifier.new,
 );
+
+/// #1-A: アプリ初回起動からの経過日数 (1 始まり)。
+/// main.dart で `first_launch_date` を保存していなければ今日とみなして 1 日目。
+final daysSinceFirstLaunchProvider = FutureProvider<int>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  final iso = prefs.getString('first_launch_date');
+  if (iso == null) return 1;
+  final first = DateTime.tryParse(iso);
+  if (first == null) return 1;
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final start = DateTime(first.year, first.month, first.day);
+  final diff = today.difference(start).inDays;
+  return diff < 0 ? 1 : diff + 1;
+});

@@ -2272,6 +2272,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String get labelNormal => '通常';
 
   @override
+  String get statsTitleHeader => 'あなたの実績';
+
+  @override
+  String statsUsageDays(int days) {
+    return 'やるナビを使い始めて $days日目';
+  }
+
+  @override
   String statsBadgesEarnedCount(int earned, int total) {
     return '$earned / $total 達成';
   }
@@ -2374,6 +2382,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get calendarSyncFailed => 'カレンダーの取り込みに失敗しました';
+
+  @override
+  String get calendarSyncConfirmTitle => '予定を取り込みますか?';
+
+  @override
+  String get calendarSyncConfirmBody => 'iOS カレンダーから今日〜60日先までの予定を取り込みます。';
 
   @override
   String get eventAdd => '予定を追加';
