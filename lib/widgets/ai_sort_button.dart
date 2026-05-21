@@ -449,19 +449,14 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
       final isPremium = ref.read(isPremiumProvider);
       final notifyService = ref.read(notificationServiceProvider);
       if (isPremium) {
-        for (final r in response.tasks) {
-          final notifyDate = r.notifyDate;
+        // #6-1 実行日通知: finalUpdates 全件 (= AI response 取りこぼし含む)
+        // で recommended_date 朝 9 時の通知を再スケジュール。
+        for (final entry in finalUpdates.entries) {
+          final taskId = entry.key;
+          final newRec = entry.value.recommendedDate;
           final task =
-              incompleteTasks.where((t) => t.id == r.taskId).firstOrNull;
+              incompleteTasks.where((t) => t.id == taskId).firstOrNull;
           if (task == null) continue;
-
-          // 手動設定済み (ai_auto以外で非null) はスキップ
-          final hasManual = task.notifySettings != null &&
-              !isAiAutoNotify(task.notifySettings);
-
-          // #6-1: 実行日 (recommended_date) の朝 9 時に通知
-          // ai_sort 後の最新 recommended_date を反映するため、 finalUpdates から取得
-          final newRec = finalUpdates[r.taskId]?.recommendedDate;
           final taskForExec = newRec != null
               ? task.copyWith(recommendedDate: newRec)
               : task;
@@ -470,8 +465,18 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
             isPremium: true,
             locale: locale,
           );
+        }
 
+        // AI 推奨 notify_date による事前通知 (AI return 分のみ)
+        for (final r in response.tasks) {
+          final notifyDate = r.notifyDate;
           if (notifyDate == null || notifyDate.isEmpty) continue;
+          final task =
+              incompleteTasks.where((t) => t.id == r.taskId).firstOrNull;
+          if (task == null) continue;
+          // 手動設定済み (ai_auto以外で非null) はスキップ
+          final hasManual = task.notifySettings != null &&
+              !isAiAutoNotify(task.notifySettings);
           if (hasManual) continue;
 
           await notifyService.scheduleNotificationsForDates(
