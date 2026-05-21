@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../../models/category.dart' as model;
 import '../../models/task.dart';
 import '../../theme/yaru_colors.dart';
 import '../../theme/yaru_theme.dart';
+import '../../utils/date_utils.dart' show formatDateWithWeekday;
 
 /// V2TaskCard の表示モード。
 /// - active: 通常のタスク (priority色バー + 期日テキスト + ⚡)
@@ -239,7 +239,7 @@ class V2TaskCard extends StatelessWidget {
       BuildContext context, AppLocalizations l10n, String locale) {
     if (_isArchivedView) {
       final completedAt = task.completedAt ?? task.updatedAt;
-      return l10n.taskCompletedOn(DateFormat.MMMd(locale).format(completedAt));
+      return l10n.taskCompletedOn(formatDateWithWeekday(completedAt, locale));
     }
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -247,11 +247,11 @@ class V2TaskCard extends StatelessWidget {
     final diff = due.difference(today).inDays;
     if (diff == 0) return l10n.today;
     if (diff == 1) {
-      // 明日表示 (今のところ l10n に "tomorrow" が無いので日付フォーマット)
-      return DateFormat.MMMd(locale).format(task.dueDate);
+      // #3: 明日表示も曜日付きに統一
+      return formatDateWithWeekday(task.dueDate, locale);
     }
     if (diff < 0) return l10n.overdue;
-    return DateFormat.MMMd(locale).format(task.dueDate);
+    return formatDateWithWeekday(task.dueDate, locale);
   }
 }
 
@@ -327,7 +327,7 @@ class _RecommendedDateRow extends StatelessWidget {
         Icon(Icons.flag_outlined, size: 12, color: yaru.inkTertiary),
         const SizedBox(width: 4),
         Text(
-          '${l10n.labelExecutionDay} ${DateFormat.MMMd(locale).format(date)}',
+          '${l10n.labelExecutionDay} ${formatDateWithWeekday(date, locale)}',
           style: TextStyle(
             fontSize: 11.5,
             fontWeight: FontWeight.w700,

@@ -136,8 +136,18 @@
   "@recurrenceInterval": {},
   "notifySettings": "通知設定",
   "@notifySettings": {},
-  "notifyOnDue": "期限日",
+  "notifyOnDue": "期限日の朝に通知",
   "@notifyOnDue": {},
+  "notifyTimingHeader": "通知タイミング",
+  "@notifyTimingHeader": {
+    "description": "通知設定セクション内のサブヘッダー"
+  },
+  "notifyOnRecommended": "実行日の朝に通知",
+  "@notifyOnRecommended": {},
+  "notifyOnOverdue": "期限超過時に通知",
+  "@notifyOnOverdue": {},
+  "notifyTimeLabel": "通知時刻",
+  "@notifyTimeLabel": {},
   "notifyOneDayBefore": "1日前",
   "@notifyOneDayBefore": {},
   "notifyThreeDaysBefore": "3日前",
@@ -1184,6 +1194,10 @@
   "@aiQuestionsAnswerHint": {},
   "aiQuestionsRefineCta": "回答してさらに詳しく整理",
   "@aiQuestionsRefineCta": {},
+  "aiQuestionsCloseCta": "この質問を閉じる",
+  "@aiQuestionsCloseCta": {
+    "description": "AI 質問セクションを非表示にするテキストボタンのラベル"
+  },
   "aiRefining": "回答をもとに再整理中...",
   "@aiRefining": {},
   "aiQuestionsNoExtraCount": "※ 追加の AI 整理回数は消費しません",

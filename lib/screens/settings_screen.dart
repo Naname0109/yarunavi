@@ -252,6 +252,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _AiReminderToggle(),
                   const Divider(),
 
+                  // --- 通知 (#4) ---
+                  _buildSectionHeader(context, l10n.notification),
+                  const _NotifyTimingTile(),
+                  const Divider(),
+
                   // --- データ管理 ---
                   _buildSectionHeader(context, l10n.dataManagement),
                   ListTile(
@@ -1188,6 +1193,87 @@ class _ShakeWrapperState extends State<_ShakeWrapper>
         return Transform.translate(offset: Offset(dx, 0), child: child);
       },
       child: widget.child,
+    );
+  }
+}
+
+/// #4: 通知タイミング設定 (3 トグル + 時刻 TimePicker)。
+class _NotifyTimingTile extends ConsumerWidget {
+  const _NotifyTimingTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final asyncPrefs = ref.watch(notifyTimingProvider);
+    final prefs = asyncPrefs.valueOrNull;
+    if (prefs == null) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: SizedBox(
+          height: 24,
+          child: Center(
+            child: SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+        ),
+      );
+    }
+    final theme = Theme.of(context);
+    final notifier = ref.read(notifyTimingProvider.notifier);
+    final timeLabel =
+        '${prefs.hour.toString().padLeft(2, '0')}:${prefs.minute.toString().padLeft(2, '0')}';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+          child: Text(
+            l10n.notifyTimingHeader,
+            style: const TextStyle(
+                fontSize: 13, fontWeight: FontWeight.w700),
+          ),
+        ),
+        SwitchListTile(
+          dense: true,
+          value: prefs.onRecommended,
+          onChanged: (v) => notifier.setOnRecommended(v),
+          title: Text(l10n.notifyOnRecommended),
+        ),
+        SwitchListTile(
+          dense: true,
+          value: prefs.onDue,
+          onChanged: (v) => notifier.setOnDue(v),
+          title: Text(l10n.notifyOnDue),
+        ),
+        SwitchListTile(
+          dense: true,
+          value: prefs.onOverdue,
+          onChanged: (v) => notifier.setOnOverdue(v),
+          title: Text(l10n.notifyOnOverdue),
+        ),
+        ListTile(
+          dense: true,
+          leading: const Icon(Icons.schedule_rounded),
+          title: Text(l10n.notifyTimeLabel),
+          subtitle: Text(timeLabel,
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: theme.colorScheme.primary)),
+          onTap: () async {
+            final picked = await showTimePicker(
+              context: context,
+              initialTime: TimeOfDay(hour: prefs.hour, minute: prefs.minute),
+            );
+            if (picked == null) return;
+            await notifier.setTime(picked.hour, picked.minute);
+          },
+        ),
+      ],
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -1011,6 +1012,13 @@ class _CompletedSectionState extends ConsumerState<_CompletedSection> {
   List<Task> nextWeek,
   List<Task> later,
 }) _splitTasks(List<Task> tasks) {
+  // #5: 分類ロジックを厳格化。
+  // - 今日: recommended_date が今日 (なければ due_date が今日) または期限切れ
+  // - 今週: 明日〜今週日曜まで (today を除外)
+  // - 来週: 翌週月曜〜翌週日曜
+  // - 来週以降 (laterList): 再来週以降
+  // priority だけで「今日」 扱いする旧ロジックは廃止 (5/23 のタスクが今日に
+  // 混ざる問題の元凶)。
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
   final daysUntilSunday =
@@ -1031,22 +1039,39 @@ class _CompletedSectionState extends ConsumerState<_CompletedSection> {
         ? DateTime(t.recommendedDate!.year, t.recommendedDate!.month,
             t.recommendedDate!.day)
         : null;
-    final effectiveDay = recDay ?? dueDay;
+    final targetDay = recDay ?? dueDay;
     final isOverdue = dueDay.isBefore(today);
-    final isDueToday = dueDay == today;
-    final isPriority1 = t.priority == 1;
-    final isRecToday = recDay != null && recDay == today;
+
     if (isOverdue) {
+      // 期限切れは常に「今日」 + overdue リストにも入れる (バッジ集計用)
       overdueList.add(t);
-      todayList.add(t); // 期限切れも今日扱い
-    } else if (isDueToday || isPriority1 || isRecToday) {
       todayList.add(t);
-    } else if (!effectiveDay.isAfter(endOfWeek)) {
+    } else if (targetDay == today) {
+      todayList.add(t);
+    } else if (targetDay.isAfter(today) && !targetDay.isAfter(endOfWeek)) {
       thisWeekList.add(t);
-    } else if (!effectiveDay.isAfter(endOfNextWeek)) {
+    } else if (targetDay.isAfter(endOfWeek) &&
+        !targetDay.isAfter(endOfNextWeek)) {
       nextWeekList.add(t);
     } else {
       laterList.add(t);
+    }
+
+    if (kDebugMode) {
+      String section;
+      if (isOverdue) {
+        section = '今日(overdue)';
+      } else if (targetDay == today) {
+        section = '今日';
+      } else if (!targetDay.isAfter(endOfWeek)) {
+        section = '今週';
+      } else if (!targetDay.isAfter(endOfNextWeek)) {
+        section = '来週';
+      } else {
+        section = '来週以降';
+      }
+      debugPrint(
+          '[SECTION] ${t.title}: rec=${t.recommendedDate} due=${t.dueDate} → $section');
     }
   }
   todayList.sort((a, b) => a.priority.compareTo(b.priority));

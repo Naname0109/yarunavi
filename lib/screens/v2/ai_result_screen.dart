@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../../models/task.dart';
@@ -11,6 +10,7 @@ import '../../providers/task_provider.dart';
 import '../../services/ai_service.dart';
 import '../../theme/yaru_colors.dart';
 import '../../theme/yaru_theme.dart';
+import '../../utils/date_utils.dart' as app_date;
 import '../../widgets/ai_sort_button.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/neon_button.dart';
@@ -455,7 +455,7 @@ class V2AiResultScreen extends ConsumerWidget {
                         final rec = task.recommendedDate;
                         if (rec == null) return const SizedBox.shrink();
                         final l10n = AppLocalizations.of(ctx)!;
-                        final fmt = DateFormat.MMMd(locale).format(rec);
+                        final fmt = app_date.formatDateWithWeekday(rec, locale);
                         return Padding(
                           padding: const EdgeInsets.only(top: 6),
                           child: Row(
@@ -647,14 +647,37 @@ class _AiQuestionsSection extends ConsumerStatefulWidget {
 }
 
 class _AiQuestionsSectionState
-    extends ConsumerState<_AiQuestionsSection> {
+    extends ConsumerState<_AiQuestionsSection> with WidgetsBindingObserver {
   final _controller = TextEditingController();
   bool _submitting = false;
+  /// #1: ユーザーが「この質問を閉じる」 を押したら true。
+  /// 質問セクション全体を AnimatedCrossFade で非表示にし、 AI 結果は維持する。
+  bool _dismissed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // #2: バックグラウンド遷移を観測 (API call は継続するが、 ログだけ残す)
+    WidgetsBinding.instance.addObserver(this);
+  }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_submitting) {
+      debugPrint('[AI-REFINE] lifecycle: $state (refine in flight)');
+    }
+  }
+
+  void _close() {
+    FocusScope.of(context).unfocus();
+    setState(() => _dismissed = true);
   }
 
   Future<void> _submit() async {
@@ -667,12 +690,45 @@ class _AiQuestionsSectionState
     }
     final answer = _controller.text.trim();
     if (answer.isEmpty) return;
+    final locale = Localizations.localeOf(context).languageCode;
+    FocusScope.of(context).unfocus();
     setState(() => _submitting = true);
+
+    // #2: 初回 AI 整理と同じ進捗モーダルを表示。 Tips も自動表示される。
+    final db = ref.read(databaseServiceProvider);
+    final allTasks = await db.getAllTasks();
+    final incompleteTasks =
+        allTasks.where((t) => !t.isCompleted).toList();
+    final progress = AiSortProgressController(
+      incompleteTasks.length,
+      isRefine: true,
+    );
+    bool dialogOpen = true;
+    if (mounted) {
+      // ignore: unawaited_futures
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AiLoadingDialog(
+          l10n: l10n,
+          controller: progress,
+          onBackground: () {
+            if (dialogOpen) {
+              dialogOpen = false;
+              Navigator.of(ctx).pop();
+            }
+          },
+        ),
+      );
+    }
+    progress.setPhase(AiSortPhase.sending);
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (progress.phase == AiSortPhase.sending) {
+        progress.setPhase(AiSortPhase.awaiting);
+      }
+    });
+
     try {
-      final db = ref.read(databaseServiceProvider);
-      final allTasks = await db.getAllTasks();
-      final incompleteTasks =
-          allTasks.where((t) => !t.isCompleted).toList();
       final categories = await db.getAllCategories();
       final categoryNames = <int, String>{};
       for (final c in categories) {
@@ -684,7 +740,13 @@ class _AiQuestionsSectionState
         userAnswer: answer,
         categoryNames: categoryNames,
       );
-      if (!mounted) return;
+      progress.setPhase(AiSortPhase.receiving);
+      if (!mounted) {
+        if (dialogOpen) {
+          dialogOpen = false;
+        }
+        return;
+      }
       ref.read(aiSortResponseProvider.notifier).state = refined;
       // DB 反映 (追加カウントは消費しない)
       final updates = <int,
@@ -694,7 +756,6 @@ class _AiQuestionsSectionState
         if (r.recommendedDate != null) {
           rec = DateTime.tryParse(r.recommendedDate!);
         }
-        final locale = Localizations.localeOf(context).languageCode;
         final comment =
             locale == 'ja' ? r.commentJa : (r.commentEn ?? r.commentJa);
         updates[r.taskId] = (
@@ -707,17 +768,34 @@ class _AiQuestionsSectionState
         await db.updateTaskPriorities(updates);
         ref.invalidate(tasksProvider);
       }
+      progress.setPhase(AiSortPhase.finalizing);
+      await Future.delayed(const Duration(milliseconds: 400));
+      progress.setPhase(AiSortPhase.complete);
+      await Future.delayed(const Duration(milliseconds: 800));
+      if (dialogOpen && mounted) {
+        dialogOpen = false;
+        Navigator.of(context, rootNavigator: true).pop();
+      }
       if (!mounted) return;
+      // 質問セクションを閉じる (再質問は出ない仕様)
+      setState(() => _dismissed = true);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.aiRefineDone)),
       );
     } on AiServiceException catch (e) {
+      progress.setPhase(AiSortPhase.error);
+      await Future.delayed(const Duration(milliseconds: 600));
+      if (dialogOpen && mounted) {
+        dialogOpen = false;
+        Navigator.of(context, rootNavigator: true).pop();
+      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${l10n.aiRefineFailed}: ${e.message}')),
       );
     } finally {
       if (mounted) setState(() => _submitting = false);
+      progress.dispose();
     }
   }
 
@@ -758,94 +836,118 @@ class _AiQuestionsSectionState
     final yaru = context.yaru;
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: yaru.paperEmph,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: yaru.line, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.help_outline_rounded,
-                  size: 18, color: theme.colorScheme.primary),
-              const SizedBox(width: 6),
-              Text(
-                l10n.aiQuestionsHeader,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: theme.colorScheme.primary,
-                  letterSpacing: 0.4,
+    return AnimatedCrossFade(
+      duration: const Duration(milliseconds: 300),
+      sizeCurve: Curves.easeOut,
+      firstCurve: Curves.easeOut,
+      secondCurve: Curves.easeIn,
+      crossFadeState:
+          _dismissed ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+      firstChild: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: yaru.paperEmph,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: yaru.line, width: 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.help_outline_rounded,
+                    size: 18, color: theme.colorScheme.primary),
+                const SizedBox(width: 6),
+                Text(
+                  l10n.aiQuestionsHeader,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: theme.colorScheme.primary,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.aiQuestionsLeadIn,
+              style: TextStyle(
+                fontSize: 12,
+                color: yaru.inkSecondary,
+              ),
+            ),
+            const SizedBox(height: 10),
+            for (var i = 0; i < questions.length; i++) ...[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  '${i + 1}. ${questions[i]}',
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.5,
+                    color: yaru.inkPrimary,
+                  ),
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.aiQuestionsLeadIn,
-            style: TextStyle(
-              fontSize: 12,
-              color: yaru.inkSecondary,
+            const SizedBox(height: 10),
+            TextField(
+              controller: _controller,
+              maxLines: 3,
+              enabled: !_submitting,
+              decoration: InputDecoration(
+                hintText: l10n.aiQuestionsAnswerHint,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
-          for (var i = 0; i < questions.length; i++) ...[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(
-                '${i + 1}. ${questions[i]}',
-                style: TextStyle(
-                  fontSize: 13,
-                  height: 1.5,
-                  color: yaru.inkPrimary,
+            const SizedBox(height: 10),
+            FilledButton.icon(
+              onPressed: _submitting ? null : _submit,
+              icon: _submitting
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.auto_awesome_rounded, size: 18),
+              label: Text(
+                _submitting ? l10n.aiRefining : l10n.aiQuestionsRefineCta,
+              ),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(46),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l10n.aiQuestionsNoExtraCount,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                color: yaru.inkTertiary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            // #1: 質問セクションを閉じるテキストボタン
+            Center(
+              child: TextButton(
+                onPressed: _submitting ? null : _close,
+                child: Text(
+                  l10n.aiQuestionsCloseCta,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: yaru.inkSecondary,
+                  ),
                 ),
               ),
             ),
           ],
-          const SizedBox(height: 10),
-          TextField(
-            controller: _controller,
-            maxLines: 3,
-            enabled: !_submitting,
-            decoration: InputDecoration(
-              hintText: l10n.aiQuestionsAnswerHint,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          FilledButton.icon(
-            onPressed: _submitting ? null : _submit,
-            icon: _submitting
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.auto_awesome_rounded, size: 18),
-            label: Text(
-              _submitting ? l10n.aiRefining : l10n.aiQuestionsRefineCta,
-            ),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(46),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            l10n.aiQuestionsNoExtraCount,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12,
-              color: yaru.inkTertiary,
-            ),
-          ),
-        ],
+        ),
       ),
+      secondChild: const SizedBox.shrink(),
     );
   }
 }

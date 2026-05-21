@@ -873,16 +873,23 @@ enum AiSortPhase {
 /// AI整理進捗のコントローラー
 /// 外部からフェーズを更新するためのChangeNotifier
 class AiSortProgressController extends ChangeNotifier {
-  AiSortProgressController(this.taskCount);
+  AiSortProgressController(this.taskCount, {this.isRefine = false});
 
   final int taskCount;
+
+  /// #2: 再整理 (refineWithAnswers) は初回より所要時間が短いので速めに進める。
+  final bool isRefine;
   AiSortPhase _phase = AiSortPhase.sending;
 
   AiSortPhase get phase => _phase;
 
   /// awaiting フェーズの3段階の所要時間 (ms)。
   /// stage1: 5% → 30%、stage2: 30% → 60% (stage1の1.5倍)、stage3: 60% → 75% (stage1の2倍)。
+  /// 再整理時は固定で短め (合計 約 5 秒) にする。
   ({int stage1Ms, int stage2Ms, int stage3Ms}) get awaitingStageMs {
+    if (isRefine) {
+      return (stage1Ms: 1500, stage2Ms: 1800, stage3Ms: 2200);
+    }
     final s1 = taskCount <= 5
         ? 8000
         : (taskCount <= 10 ? 12000 : 18000);

@@ -11,6 +11,7 @@ import '../../models/task.dart';
 import '../../providers/task_provider.dart';
 import '../../theme/yaru_colors.dart';
 import '../../theme/yaru_theme.dart';
+import '../../utils/date_utils.dart' as app_date;
 import '../../widgets/glass_card.dart';
 import '../../widgets/neon_button.dart';
 import '../../widgets/responsive_wrapper.dart';
@@ -479,7 +480,7 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
           _row(
             icon: Icons.event_rounded,
             label: l10n.labelDue,
-            value: DateFormat.yMMMd(locale).add_Hm().format(task.dueDate),
+            value: app_date.formatDateWithWeekday(task.dueDate, locale),
             yaru: yaru,
           ),
           if (task.recommendedDate != null) ...[
@@ -490,7 +491,8 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
               child: _row(
                 icon: Icons.flag_outlined,
                 label: l10n.labelExecutionDay,
-                value: DateFormat.yMMMd(locale).format(task.recommendedDate!),
+                value: app_date.formatDateWithWeekday(
+                    task.recommendedDate!, locale),
                 yaru: yaru,
                 trailing: Icon(Icons.edit, size: 16, color: yaru.inkSecondary),
               ),

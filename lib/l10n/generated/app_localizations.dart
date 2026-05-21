@@ -467,8 +467,32 @@ abstract class AppLocalizations {
   /// No description provided for @notifyOnDue.
   ///
   /// In ja, this message translates to:
-  /// **'期限日'**
+  /// **'期限日の朝に通知'**
   String get notifyOnDue;
+
+  /// 通知設定セクション内のサブヘッダー
+  ///
+  /// In ja, this message translates to:
+  /// **'通知タイミング'**
+  String get notifyTimingHeader;
+
+  /// No description provided for @notifyOnRecommended.
+  ///
+  /// In ja, this message translates to:
+  /// **'実行日の朝に通知'**
+  String get notifyOnRecommended;
+
+  /// No description provided for @notifyOnOverdue.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限超過時に通知'**
+  String get notifyOnOverdue;
+
+  /// No description provided for @notifyTimeLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'通知時刻'**
+  String get notifyTimeLabel;
 
   /// No description provided for @notifyOneDayBefore.
   ///
@@ -3217,6 +3241,12 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'回答してさらに詳しく整理'**
   String get aiQuestionsRefineCta;
+
+  /// AI 質問セクションを非表示にするテキストボタンのラベル
+  ///
+  /// In ja, this message translates to:
+  /// **'この質問を閉じる'**
+  String get aiQuestionsCloseCta;
 
   /// No description provided for @aiRefining.
   ///

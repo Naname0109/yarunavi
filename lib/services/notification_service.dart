@@ -189,8 +189,12 @@ class NotificationService {
     }
   }
 
-  /// #6-1: タスクの実行日 (recommended_date) の朝 9 時に通知をスケジュール。
-  /// recommendedDate が null またはすでに過ぎていれば何もしない。
+  /// #6-1 / #4: タスク通知の 3 段スケジュール。
+  /// SharedPreferences の 3 トグル + カスタム時刻 (hour/minute) を読んで:
+  /// - 実行日朝   (recommended_date のあるタスクのみ)
+  /// - 期限日朝   (実行日と異なる場合のみ)
+  /// - 期限超過翌日朝
+  /// 既存呼び出しシグネチャを維持。
   Future<void> scheduleExecutionDayNotification(
     Task task, {
     required bool isPremium,
@@ -199,44 +203,92 @@ class NotificationService {
     if (!isSupported) return;
     if (!isPremium && !kDebugMode) return;
     if (task.id == null || task.isCompleted) return;
-    final rec = task.recommendedDate;
-    if (rec == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final onRec = prefs.getBool('notify_on_recommended_date') ?? true;
+    final onDue = prefs.getBool('notify_on_due_date') ?? true;
+    final onOverdue = prefs.getBool('notify_on_overdue') ?? true;
+    final hour = prefs.getInt('notify_time_hour') ?? 9;
+    final minute = prefs.getInt('notify_time_minute') ?? 0;
 
     await requestPermission();
+    final now = tz.TZDateTime.now(tz.local);
+    final taskId = task.id!;
+    final rec = task.recommendedDate;
+    final due = task.dueDate;
+    final recDay = rec == null
+        ? null
+        : DateTime(rec.year, rec.month, rec.day);
+    final dueDay = DateTime(due.year, due.month, due.day);
 
-    final scheduled = tz.TZDateTime(
-      tz.local,
-      rec.year,
-      rec.month,
-      rec.day,
-      9, // #6: 朝 9 時
-    );
-    if (scheduled.isBefore(tz.TZDateTime.now(tz.local))) return;
+    // 既存の 3 段通知を一度キャンセル (置き換え)
+    await _plugin.cancel(taskId * 10 + 1);
+    await _plugin.cancel(taskId * 10 + 2);
+    await _plugin.cancel(taskId * 10 + 3);
 
-    final id = task.id! * 10 + 9; // 9 = execution day offset
-    final body = locale == 'ja'
-        ? '今日のタスク: ${task.title}'
-        : "Today's task: ${task.title}";
-
-    await _plugin.zonedSchedule(
-      id,
-      AppConstants.appName,
-      body,
-      scheduled,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          AppConstants.notificationChannelId,
-          AppConstants.notificationChannelName,
-          importance: Importance.high,
-          priority: Priority.high,
+    Future<void> schedule({
+      required int id,
+      required tz.TZDateTime when,
+      required String body,
+    }) async {
+      if (when.isBefore(now)) return;
+      await _plugin.zonedSchedule(
+        id,
+        AppConstants.appName,
+        body,
+        when,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            AppConstants.notificationChannelId,
+            AppConstants.notificationChannelName,
+            importance: Importance.high,
+            priority: Priority.high,
+          ),
+          iOS: DarwinNotificationDetails(),
         ),
-        iOS: DarwinNotificationDetails(),
-      ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      payload: task.id.toString(),
-    );
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: taskId.toString(),
+      );
+    }
+
+    // #4-1 (a) 実行日朝
+    if (onRec && recDay != null) {
+      await schedule(
+        id: taskId * 10 + 1,
+        when: tz.TZDateTime(
+            tz.local, recDay.year, recDay.month, recDay.day, hour, minute),
+        body: locale == 'ja'
+            ? '今日のタスク: ${task.title}'
+            : "Today's task: ${task.title}",
+      );
+    }
+
+    // #4-1 (b) 期限日朝 (rec と異なる場合のみ)
+    if (onDue && (recDay == null || recDay != dueDay)) {
+      await schedule(
+        id: taskId * 10 + 2,
+        when: tz.TZDateTime(
+            tz.local, dueDay.year, dueDay.month, dueDay.day, hour, minute),
+        body: locale == 'ja'
+            ? '本日が期限です: ${task.title}'
+            : '${task.title} is due today',
+      );
+    }
+
+    // #4-1 (c) 期限超過翌日朝
+    if (onOverdue) {
+      final over = dueDay.add(const Duration(days: 1));
+      await schedule(
+        id: taskId * 10 + 3,
+        when: tz.TZDateTime(
+            tz.local, over.year, over.month, over.day, hour, minute),
+        body: locale == 'ja'
+            ? '期限を過ぎています: ${task.title} 早めに対応しましょう'
+            : 'Overdue: ${task.title} — please address soon',
+      );
+    }
   }
 
   /// #6-2: タスク整理リマインド。 同日中に 1 度しか発火しない (id 固定)。

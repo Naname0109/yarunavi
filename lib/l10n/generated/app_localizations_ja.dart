@@ -198,7 +198,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get notifySettings => '通知設定';
 
   @override
-  String get notifyOnDue => '期限日';
+  String get notifyOnDue => '期限日の朝に通知';
+
+  @override
+  String get notifyTimingHeader => '通知タイミング';
+
+  @override
+  String get notifyOnRecommended => '実行日の朝に通知';
+
+  @override
+  String get notifyOnOverdue => '期限超過時に通知';
+
+  @override
+  String get notifyTimeLabel => '通知時刻';
 
   @override
   String get notifyOneDayBefore => '1日前';
@@ -1641,6 +1653,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get aiQuestionsRefineCta => '回答してさらに詳しく整理';
+
+  @override
+  String get aiQuestionsCloseCta => 'この質問を閉じる';
 
   @override
   String get aiRefining => '回答をもとに再整理中...';

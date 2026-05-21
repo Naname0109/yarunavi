@@ -247,3 +247,93 @@ final avoidEventDaysProvider =
     AsyncNotifierProvider<AvoidEventDaysNotifier, bool>(
   AvoidEventDaysNotifier.new,
 );
+
+/// #4: 通知タイミング設定。
+/// 3 トグル (実行日/期限日/期限超過) + 時刻 (hour/minute)。
+class NotifyTimingPrefs {
+  const NotifyTimingPrefs({
+    required this.onRecommended,
+    required this.onDue,
+    required this.onOverdue,
+    required this.hour,
+    required this.minute,
+  });
+  final bool onRecommended;
+  final bool onDue;
+  final bool onOverdue;
+  final int hour;
+  final int minute;
+
+  NotifyTimingPrefs copyWith({
+    bool? onRecommended,
+    bool? onDue,
+    bool? onOverdue,
+    int? hour,
+    int? minute,
+  }) =>
+      NotifyTimingPrefs(
+        onRecommended: onRecommended ?? this.onRecommended,
+        onDue: onDue ?? this.onDue,
+        onOverdue: onOverdue ?? this.onOverdue,
+        hour: hour ?? this.hour,
+        minute: minute ?? this.minute,
+      );
+}
+
+class NotifyTimingNotifier extends AsyncNotifier<NotifyTimingPrefs> {
+  static const _kOnRec = 'notify_on_recommended_date';
+  static const _kOnDue = 'notify_on_due_date';
+  static const _kOnOverdue = 'notify_on_overdue';
+  static const _kHour = 'notify_time_hour';
+  static const _kMinute = 'notify_time_minute';
+
+  @override
+  Future<NotifyTimingPrefs> build() async {
+    final prefs = await SharedPreferences.getInstance();
+    return NotifyTimingPrefs(
+      onRecommended: prefs.getBool(_kOnRec) ?? true,
+      onDue: prefs.getBool(_kOnDue) ?? true,
+      onOverdue: prefs.getBool(_kOnOverdue) ?? true,
+      hour: prefs.getInt(_kHour) ?? 9,
+      minute: prefs.getInt(_kMinute) ?? 0,
+    );
+  }
+
+  Future<void> setOnRecommended(bool v) async {
+    final cur = state.valueOrNull;
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(onRecommended: v));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kOnRec, v);
+  }
+
+  Future<void> setOnDue(bool v) async {
+    final cur = state.valueOrNull;
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(onDue: v));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kOnDue, v);
+  }
+
+  Future<void> setOnOverdue(bool v) async {
+    final cur = state.valueOrNull;
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(onOverdue: v));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kOnOverdue, v);
+  }
+
+  Future<void> setTime(int hour, int minute) async {
+    final cur = state.valueOrNull;
+    if (cur == null) return;
+    state = AsyncValue.data(cur.copyWith(hour: hour, minute: minute));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_kHour, hour);
+    await prefs.setInt(_kMinute, minute);
+  }
+}
+
+final notifyTimingProvider =
+    AsyncNotifierProvider<NotifyTimingNotifier, NotifyTimingPrefs>(
+  NotifyTimingNotifier.new,
+);

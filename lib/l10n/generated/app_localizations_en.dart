@@ -199,7 +199,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifySettings => 'Notifications';
 
   @override
-  String get notifyOnDue => 'On due date';
+  String get notifyOnDue => 'Notify on due-date morning';
+
+  @override
+  String get notifyTimingHeader => 'Notification timing';
+
+  @override
+  String get notifyOnRecommended => 'Notify on execution-day morning';
+
+  @override
+  String get notifyOnOverdue => 'Notify when overdue';
+
+  @override
+  String get notifyTimeLabel => 'Notification time';
 
   @override
   String get notifyOneDayBefore => '1 day before';
@@ -1672,6 +1684,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiQuestionsRefineCta => 'Re-sort with your answer';
+
+  @override
+  String get aiQuestionsCloseCta => 'Close these questions';
 
   @override
   String get aiRefining => 'Re-sorting based on your answer...';
