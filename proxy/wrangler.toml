@@ -15,4 +15,4 @@ id = "2bf17148c82146c599ccaab241539c63"
 #   wrangler kv:key put --binding=VIP_CONFIG code_version "1"
 [[kv_namespaces]]
 binding = "VIP_CONFIG"
-id = "REPLACE_WITH_VIP_CONFIG_KV_ID"
+id = "46e110e2e9bb4688bdebb3c40d479bdb"
