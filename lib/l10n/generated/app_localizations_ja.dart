@@ -1631,6 +1631,37 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiResultRetryCta => 'もう一度';
 
   @override
+  String get aiQuestionsHeader => 'AI からの確認事項';
+
+  @override
+  String get aiQuestionsLeadIn => 'より正確な日程を組むためにいくつか教えてください:';
+
+  @override
+  String get aiQuestionsAnswerHint => 'ここに回答を入力...';
+
+  @override
+  String get aiQuestionsRefineCta => '回答してさらに詳しく整理';
+
+  @override
+  String get aiRefining => '回答をもとに再整理中...';
+
+  @override
+  String get aiQuestionsNoExtraCount => '※ 追加の AI 整理回数は消費しません';
+
+  @override
+  String get aiRefineDone => '回答をもとに再整理しました';
+
+  @override
+  String get aiRefineFailed => '再整理に失敗しました';
+
+  @override
+  String get aiRefinePremiumOnlyTitle => 'プレミアム機能';
+
+  @override
+  String get aiRefinePremiumOnlyBody =>
+      'この機能はプレミアムプランで利用できます。\n※ 現在の整理結果はそのままお使いいただけます。';
+
+  @override
   String get aiResultNowLabel => '今日';
 
   @override
@@ -2144,6 +2175,31 @@ class AppLocalizationsJa extends AppLocalizations {
   String get badgeHidden => '???';
 
   @override
+  String get badgeHiddenCondition => '???\n条件は秘密です。 色々試してみてください!';
+
+  @override
+  String get badgeDetailCondition => '達成条件';
+
+  @override
+  String get badgeDetailEarnedAt => '獲得日';
+
+  @override
+  String get badgeDetailProgress => '進捗';
+
+  @override
+  String badgeDetailProgressValue(int current, int target) {
+    return '$current/$target';
+  }
+
+  @override
+  String get badgeDetailXp => '獲得XP';
+
+  @override
+  String badgeDetailXpValue(int xp) {
+    return '+$xp XP';
+  }
+
+  @override
   String get badgeHiddenLabel => 'Hidden';
 
   @override
@@ -2203,6 +2259,54 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String statsBadgesEarnedCount(int earned, int total) {
     return '$earned / $total 達成';
+  }
+
+  @override
+  String statsValueTasks(int count) {
+    return '$count件';
+  }
+
+  @override
+  String statsValueDays(int count) {
+    return '$count日';
+  }
+
+  @override
+  String get statsSubTasks => 'タスク';
+
+  @override
+  String get statsSubStreak => 'ストリーク';
+
+  @override
+  String statsNextLevelLabel(int level, String name) {
+    return '次のレベル: Lv.$level $name';
+  }
+
+  @override
+  String statsNextLevelXp(int xp) {
+    return 'あと $xp XP';
+  }
+
+  @override
+  String get statsBadgesEarnedSection => '獲得済み';
+
+  @override
+  String get statsBadgesLockedSection => '未獲得';
+
+  @override
+  String statsBadgesHiddenSection(int count) {
+    return '隠しバッジ (残り $count個)';
+  }
+
+  @override
+  String get streakKickoffPrompt => '今日からストリークを始めよう!';
+
+  @override
+  String get streakLast7DaysLabel => '過去 7 日の活動';
+
+  @override
+  String streakNextGoal(int target, int remain) {
+    return '次の目標: $target日連続まであと $remain日';
   }
 
   @override
@@ -2299,6 +2403,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get fabSyncCalendar => 'カレンダーから取り込む';
 
   @override
+  String get blockedDatesPickerHint =>
+      'タスクを入れない日付をタップして選択し、「保存」 で反映します。 過去の日付は自動的に削除されます。';
+
+  @override
+  String blockedDatesSelectedCount(int count) {
+    return '$count日を選択中';
+  }
+
+  @override
+  String get blockedDatesSaved => 'タスクを入れない日を更新しました';
+
+  @override
   String get avoidEventDaysToggle => '予定がある日のタスク割り当て';
 
   @override
@@ -2308,61 +2424,121 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tipsHeader => 'Tips';
 
   @override
+  String get tip0Title => 'Tips: スケジュール設定';
+
+  @override
   String get tip0 => '曜日ごとの空き具合を設定すると、AI がもっと賢く実行日を提案します。';
+
+  @override
+  String get tip1Title => 'Tips: 実行不可日';
 
   @override
   String get tip1 => 'タスク実行不可の日を設定すると、その日にはタスクが割り当てられません。';
 
   @override
+  String get tip2Title => 'Tips: カレンダー同期';
+
+  @override
   String get tip2 => 'カレンダーから予定を取り込むと、予定のある日を避けてタスクを配置できます。';
+
+  @override
+  String get tip3Title => 'Tips: 実行日の変更';
 
   @override
   String get tip3 => 'AI が提案した実行日は、自分で変更することもできます。';
 
   @override
+  String get tip4Title => 'Tips: 定期タスク';
+
+  @override
   String get tip4 => '定期的に発生するタスクは、定期タスクに設定すると毎月自動で作成されます。';
+
+  @override
+  String get tip5Title => 'Tips: 完了履歴';
 
   @override
   String get tip5 => '完了したタスクは履歴として保存されます。 いつでも確認できます。';
 
   @override
+  String get tip6Title => 'Tips: リワード動画';
+
+  @override
   String get tip6 => 'AI 整理の回数が足りない時は、リワード動画を視聴すると 1 回分追加されます。';
+
+  @override
+  String get tip7Title => 'Tips: カテゴリ';
 
   @override
   String get tip7 => 'カテゴリを設定すると、タスクの分類がわかりやすくなります。';
 
   @override
+  String get tip8Title => 'Tips: カレンダー表示';
+
+  @override
   String get tip8 => 'カレンダーは「AI のおすすめ日」 と「期限の日」 を切り替えて確認できます。';
+
+  @override
+  String get tip9Title => 'Tips: カウントダウン';
 
   @override
   String get tip9 => 'タスク詳細画面では、期限までのカウントダウンがリアルタイム表示されます。';
 
   @override
+  String get tip10Title => 'Tips: レベルアップ';
+
+  @override
   String get tip10 => 'タスクを完了すると XP が貯まり、レベルアップできます。';
+
+  @override
+  String get tip11Title => 'Tips: ストリーク';
 
   @override
   String get tip11 => 'アプリを毎日開くだけでストリーク (連続記録) が伸びていきます。';
 
   @override
+  String get tip12Title => 'Tips: 隠しバッジ';
+
+  @override
   String get tip12 => '隠しバッジが複数あります。 どんな条件で獲得できるかはお楽しみ!';
+
+  @override
+  String get tip13Title => 'Tips: 最高レベル';
 
   @override
   String get tip13 => 'レベルは 100 まで。 最高レベルに到達するには約 10 年かかります。';
 
   @override
+  String get tip14Title => 'Tips: シークレット';
+
+  @override
   String get tip14 => '早朝や深夜にタスクを完了すると、特別なバッジがもらえるかも?';
+
+  @override
+  String get tip15Title => 'Tips: 自動検出';
 
   @override
   String get tip15 => 'タスク名に「振込」 「家賃」 などを含めると、定期タスク化がおすすめされます。';
 
   @override
+  String get tip16Title => 'Tips: 大量完了';
+
+  @override
   String get tip16 => '1 日に 5 件以上タスクを完了すると… 何かが起きるかも?';
+
+  @override
+  String get tip17Title => 'Tips: まとめて整理';
 
   @override
   String get tip17 => 'AI 整理は一度に多くのタスクを登録してから実行すると、より効果的です。';
 
   @override
+  String get tip18Title => 'Tips: 期限切れゼロ';
+
+  @override
   String get tip18 => '期限切れのタスクをゼロにすると、実績が解除されます。';
+
+  @override
+  String get tip19Title => 'Tips: 週末派';
 
   @override
   String get tip19 => '週末にまとめてタスクを片付ける派ですか? それも実績になるかもしれません。';
@@ -2415,4 +2591,121 @@ class AppLocalizationsJa extends AppLocalizations {
   String taskCardCollapsedSemantics(String title) {
     return '$title、折りたたみ。 タップで展開します';
   }
+
+  @override
+  String get badgeCond_first_step => '初めてタスクを完了する';
+
+  @override
+  String get badgeCond_task_10 => '10 件のタスクを完了';
+
+  @override
+  String get badgeCond_task_25 => '25 件のタスクを完了';
+
+  @override
+  String get badgeCond_task_50 => '50 件のタスクを完了';
+
+  @override
+  String get badgeCond_task_100 => '100 件のタスクを完了';
+
+  @override
+  String get badgeCond_task_250 => '250 件のタスクを完了';
+
+  @override
+  String get badgeCond_task_500 => '500 件のタスクを完了';
+
+  @override
+  String get badgeCond_task_1000 => '1000 件のタスクを完了';
+
+  @override
+  String get badgeCond_streak_3 => 'アプリを 3 日連続で起動';
+
+  @override
+  String get badgeCond_streak_7 => 'アプリを 7 日連続で起動';
+
+  @override
+  String get badgeCond_streak_14 => 'アプリを 14 日連続で起動';
+
+  @override
+  String get badgeCond_streak_30 => 'アプリを 30 日連続で起動';
+
+  @override
+  String get badgeCond_streak_60 => 'アプリを 60 日連続で起動';
+
+  @override
+  String get badgeCond_streak_100 => 'アプリを 100 日連続で起動';
+
+  @override
+  String get badgeCond_ai_first => 'AI 整理を初めて使う';
+
+  @override
+  String get badgeCond_ai_10 => 'AI 整理を 10 回使う';
+
+  @override
+  String get badgeCond_ai_50 => 'AI 整理を 50 回使う';
+
+  @override
+  String get badgeCond_level_5 => 'レベル 5 に到達';
+
+  @override
+  String get badgeCond_level_10 => 'レベル 10 に到達';
+
+  @override
+  String get badgeCond_level_20 => 'レベル 20 に到達';
+
+  @override
+  String get badgeCond_level_30 => 'レベル 30 に到達';
+
+  @override
+  String get badgeCond_early_bird => '早朝 (5-8 時) にタスクを完了する';
+
+  @override
+  String get badgeCond_night_owl => '深夜 (23-2 時) にタスクを完了する';
+
+  @override
+  String get badgeCond_busy_day_5 => '1 日に 5 件のタスクを完了';
+
+  @override
+  String get badgeCond_busy_day_10 => '1 日に 10 件のタスクを完了';
+
+  @override
+  String get badgeCond_busy_month_30 => '1 ヶ月に 30 件のタスクを完了';
+
+  @override
+  String get badgeCond_back_from_hibernation => '1 週間以上空けてアプリに復帰する';
+
+  @override
+  String get badgeCond_long_time_no_see => '1 ヶ月以上空けてアプリに復帰する';
+
+  @override
+  String get badgeCond_category_master => '全てのカテゴリで 1 件以上タスクを完了';
+
+  @override
+  String get badgeCond_habit_demon => '同じ定期タスクを 4 回完了';
+
+  @override
+  String get badgeCond_schedule_master => 'スケジュール設定 (曜日ごとの空き具合) を保存';
+
+  @override
+  String get badgeCond_zero_overdue => '期限切れタスクを 0 にする';
+
+  @override
+  String get badgeCond_multi_tasker => '5 つ以上の異なるカテゴリでタスクを完了';
+
+  @override
+  String get badgeCond_ticket_buyer => 'AI 整理チケットを購入する';
+
+  @override
+  String get badgeCond_weekend_warrior => '土日のみで合計 5 件以上タスクを完了';
+
+  @override
+  String get badgeCond_perfect_week => '1 週間 (7 日) 毎日タスクを完了';
+
+  @override
+  String get badgeCond_level_50 => 'レベル 50 に到達';
+
+  @override
+  String get badgeCond_level_70 => 'レベル 70 に到達';
+
+  @override
+  String get badgeCond_level_100 => 'レベル 100 に到達';
 }

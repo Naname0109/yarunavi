@@ -920,12 +920,13 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
             context,
           ).showSnackBar(SnackBar(content: Text(l10n.calendarAddFailed)));
         }
-        Navigator.of(context).pop();
-
-        // 新規追加時のみ、定期タスク化ガイドを判定
-        if (!_isEditing && insertedTask != null) {
+        // 新規追加時のみ、 定期タスク化ガイドを判定。
+        // pop の前に表示しないと sheet の context が unmounted になり、
+        // 80ms 待機後の rootContext.mounted が false になってガイドが出ない。
+        if (!_isEditing && insertedTask != null && mounted) {
           await _maybeShowRecurringGuide(insertedTask, l10n);
         }
+        if (mounted) Navigator.of(context).pop();
       }
     } catch (e) {
       debugPrint('Task save error: $e');
@@ -935,8 +936,9 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
     }
   }
 
-  /// 月次キーワード入りタスクなら定期タスク化を促すボトムシートを表示
-  /// シートからの戻り値で、true なら DB のタスクを monthly recurring に更新
+  /// 月次キーワード入りタスクなら定期タスク化を促すボトムシートを表示。
+  /// 呼び出しタイミングは TaskFormSheet pop の前 (sheet の context がまだ
+  /// mounted な間に showModalBottomSheet を積み上げる)。
   Future<void> _maybeShowRecurringGuide(
       Task savedTask, AppLocalizations l10n) async {
     final keyword = await RecurringKeywordGuide.shouldShow(
@@ -944,15 +946,10 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
       recurrenceType: savedTask.recurrenceType,
     );
     if (keyword == null) return;
-    // pop直後はナビゲーション系の最終フレームを待つ
-    await Future.delayed(const Duration(milliseconds: 80));
-
-    // 親(HomeScreen)のNavigatorコンテキストでシートを開きたい
-    final rootContext = ref.context;
-    if (!rootContext.mounted) return;
+    if (!mounted) return;
 
     final accepted = await RecurringKeywordGuide.show(
-      context: rootContext,
+      context: context,
       keyword: keyword,
       taskTitle: savedTask.title,
       l10n: l10n,
@@ -983,8 +980,8 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
     await db.updateTask(updated);
     ref.invalidate(tasksProvider);
 
-    if (rootContext.mounted) {
-      ScaffoldMessenger.of(rootContext).showSnackBar(
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.recurringGuideApplied)),
       );
     }

@@ -487,6 +487,30 @@ class DatabaseService {
     await db.delete('blocked_dates', where: 'date = ?', whereArgs: [iso]);
   }
 
+  /// 起動時クリーンアップ: 今日より前の blocked_dates を削除する。
+  /// 過去日が無限に残ると UI と AI 整理ロジックの両方が肥大化するため。
+  Future<int> cleanupExpiredBlockedDates() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day).toIso8601String();
+    return db.delete('blocked_dates', where: 'date < ?', whereArgs: [today]);
+  }
+
+  /// 一括置換 (#1 bulk save): 既存全削除 → 渡された dates を挿入。
+  /// トランザクション内で実行し、 途中失敗時は元の状態を保つ。
+  Future<void> replaceAllBlockedDates(List<DateTime> dates) async {
+    await db.transaction((txn) async {
+      await txn.delete('blocked_dates');
+      for (final d in dates) {
+        final iso = DateTime(d.year, d.month, d.day).toIso8601String();
+        await txn.insert(
+          'blocked_dates',
+          {'date': iso},
+          conflictAlgorithm: ConflictAlgorithm.ignore,
+        );
+      }
+    });
+  }
+
   // ====== Gamification: user_stats / badges / xp_history ======
 
   /// 単一のユーザーステータス行（id=1）を取得。

@@ -1174,6 +1174,28 @@
   "@aiResultStartCta": {},
   "aiResultRetryCta": "もう一度",
   "@aiResultRetryCta": {},
+  "aiQuestionsHeader": "AI からの確認事項",
+  "@aiQuestionsHeader": {
+    "description": "AI 結果画面の確認事項セクション見出し"
+  },
+  "aiQuestionsLeadIn": "より正確な日程を組むためにいくつか教えてください:",
+  "@aiQuestionsLeadIn": {},
+  "aiQuestionsAnswerHint": "ここに回答を入力...",
+  "@aiQuestionsAnswerHint": {},
+  "aiQuestionsRefineCta": "回答してさらに詳しく整理",
+  "@aiQuestionsRefineCta": {},
+  "aiRefining": "回答をもとに再整理中...",
+  "@aiRefining": {},
+  "aiQuestionsNoExtraCount": "※ 追加の AI 整理回数は消費しません",
+  "@aiQuestionsNoExtraCount": {},
+  "aiRefineDone": "回答をもとに再整理しました",
+  "@aiRefineDone": {},
+  "aiRefineFailed": "再整理に失敗しました",
+  "@aiRefineFailed": {},
+  "aiRefinePremiumOnlyTitle": "プレミアム機能",
+  "@aiRefinePremiumOnlyTitle": {},
+  "aiRefinePremiumOnlyBody": "この機能はプレミアムプランで利用できます。\n※ 現在の整理結果はそのままお使いいただけます。",
+  "@aiRefinePremiumOnlyBody": {},
   "aiResultNowLabel": "今日",
   "@aiResultNowLabel": {},
   "aiResultWeekLabel": "今週",
@@ -1627,6 +1649,31 @@
 
   "badgeHidden": "???",
   "@badgeHidden": {},
+  "badgeHiddenCondition": "???\n条件は秘密です。 色々試してみてください!",
+  "@badgeHiddenCondition": {
+    "description": "未獲得の隠しバッジ詳細ダイアログの条件文"
+  },
+  "badgeDetailCondition": "達成条件",
+  "@badgeDetailCondition": {},
+  "badgeDetailEarnedAt": "獲得日",
+  "@badgeDetailEarnedAt": {},
+  "badgeDetailProgress": "進捗",
+  "@badgeDetailProgress": {},
+  "badgeDetailProgressValue": "{current}/{target}",
+  "@badgeDetailProgressValue": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "target": { "type": "int" }
+    }
+  },
+  "badgeDetailXp": "獲得XP",
+  "@badgeDetailXp": {},
+  "badgeDetailXpValue": "+{xp} XP",
+  "@badgeDetailXpValue": {
+    "placeholders": {
+      "xp": { "type": "int" }
+    }
+  },
   "badgeHiddenLabel": "Hidden",
   "@badgeHiddenLabel": {},
 
@@ -1674,6 +1721,56 @@
     "placeholders": {
       "earned": { "type": "int" },
       "total": { "type": "int" }
+    }
+  },
+  "statsValueTasks": "{count}件",
+  "@statsValueTasks": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "statsValueDays": "{count}日",
+  "@statsValueDays": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "statsSubTasks": "タスク",
+  "@statsSubTasks": {},
+  "statsSubStreak": "ストリーク",
+  "@statsSubStreak": {},
+  "statsNextLevelLabel": "次のレベル: Lv.{level} {name}",
+  "@statsNextLevelLabel": {
+    "placeholders": {
+      "level": { "type": "int" },
+      "name": { "type": "String" }
+    }
+  },
+  "statsNextLevelXp": "あと {xp} XP",
+  "@statsNextLevelXp": {
+    "placeholders": {
+      "xp": { "type": "int" }
+    }
+  },
+  "statsBadgesEarnedSection": "獲得済み",
+  "@statsBadgesEarnedSection": {},
+  "statsBadgesLockedSection": "未獲得",
+  "@statsBadgesLockedSection": {},
+  "statsBadgesHiddenSection": "隠しバッジ (残り {count}個)",
+  "@statsBadgesHiddenSection": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "streakKickoffPrompt": "今日からストリークを始めよう!",
+  "@streakKickoffPrompt": {},
+  "streakLast7DaysLabel": "過去 7 日の活動",
+  "@streakLast7DaysLabel": {},
+  "streakNextGoal": "次の目標: {target}日連続まであと {remain}日",
+  "@streakNextGoal": {
+    "placeholders": {
+      "target": { "type": "int" },
+      "remain": { "type": "int" }
     }
   },
   "statsTutorialTitle": "実績をアンロックしよう!",
@@ -1755,8 +1852,21 @@
   "@fabAddEvent": {},
   "fabSyncCalendar": "カレンダーから取り込む",
   "@fabSyncCalendar": {},
-  "save": "保存",
-  "@save": {},
+  "blockedDatesPickerHint": "タスクを入れない日付をタップして選択し、「保存」 で反映します。 過去の日付は自動的に削除されます。",
+  "@blockedDatesPickerHint": {
+    "description": "blocked_dates カレンダーグリッドの説明文"
+  },
+  "blockedDatesSelectedCount": "{count}日を選択中",
+  "@blockedDatesSelectedCount": {
+    "description": "blocked_dates 選択中の件数表示",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "blockedDatesSaved": "タスクを入れない日を更新しました",
+  "@blockedDatesSaved": {
+    "description": "blocked_dates 保存完了のスナックバー"
+  },
   "avoidEventDaysToggle": "予定がある日のタスク割り当て",
   "@avoidEventDaysToggle": {
     "description": "設定: 予定がある日を避けるトグルのラベル"
@@ -1768,44 +1878,84 @@
 
   "tipsHeader": "Tips",
   "@tipsHeader": {},
+  "tip0Title": "Tips: スケジュール設定",
+  "@tip0Title": {},
   "tip0": "曜日ごとの空き具合を設定すると、AI がもっと賢く実行日を提案します。",
   "@tip0": {},
+  "tip1Title": "Tips: 実行不可日",
+  "@tip1Title": {},
   "tip1": "タスク実行不可の日を設定すると、その日にはタスクが割り当てられません。",
   "@tip1": {},
+  "tip2Title": "Tips: カレンダー同期",
+  "@tip2Title": {},
   "tip2": "カレンダーから予定を取り込むと、予定のある日を避けてタスクを配置できます。",
   "@tip2": {},
+  "tip3Title": "Tips: 実行日の変更",
+  "@tip3Title": {},
   "tip3": "AI が提案した実行日は、自分で変更することもできます。",
   "@tip3": {},
+  "tip4Title": "Tips: 定期タスク",
+  "@tip4Title": {},
   "tip4": "定期的に発生するタスクは、定期タスクに設定すると毎月自動で作成されます。",
   "@tip4": {},
+  "tip5Title": "Tips: 完了履歴",
+  "@tip5Title": {},
   "tip5": "完了したタスクは履歴として保存されます。 いつでも確認できます。",
   "@tip5": {},
+  "tip6Title": "Tips: リワード動画",
+  "@tip6Title": {},
   "tip6": "AI 整理の回数が足りない時は、リワード動画を視聴すると 1 回分追加されます。",
   "@tip6": {},
+  "tip7Title": "Tips: カテゴリ",
+  "@tip7Title": {},
   "tip7": "カテゴリを設定すると、タスクの分類がわかりやすくなります。",
   "@tip7": {},
+  "tip8Title": "Tips: カレンダー表示",
+  "@tip8Title": {},
   "tip8": "カレンダーは「AI のおすすめ日」 と「期限の日」 を切り替えて確認できます。",
   "@tip8": {},
+  "tip9Title": "Tips: カウントダウン",
+  "@tip9Title": {},
   "tip9": "タスク詳細画面では、期限までのカウントダウンがリアルタイム表示されます。",
   "@tip9": {},
+  "tip10Title": "Tips: レベルアップ",
+  "@tip10Title": {},
   "tip10": "タスクを完了すると XP が貯まり、レベルアップできます。",
   "@tip10": {},
+  "tip11Title": "Tips: ストリーク",
+  "@tip11Title": {},
   "tip11": "アプリを毎日開くだけでストリーク (連続記録) が伸びていきます。",
   "@tip11": {},
+  "tip12Title": "Tips: 隠しバッジ",
+  "@tip12Title": {},
   "tip12": "隠しバッジが複数あります。 どんな条件で獲得できるかはお楽しみ!",
   "@tip12": {},
+  "tip13Title": "Tips: 最高レベル",
+  "@tip13Title": {},
   "tip13": "レベルは 100 まで。 最高レベルに到達するには約 10 年かかります。",
   "@tip13": {},
+  "tip14Title": "Tips: シークレット",
+  "@tip14Title": {},
   "tip14": "早朝や深夜にタスクを完了すると、特別なバッジがもらえるかも?",
   "@tip14": {},
+  "tip15Title": "Tips: 自動検出",
+  "@tip15Title": {},
   "tip15": "タスク名に「振込」 「家賃」 などを含めると、定期タスク化がおすすめされます。",
   "@tip15": {},
+  "tip16Title": "Tips: 大量完了",
+  "@tip16Title": {},
   "tip16": "1 日に 5 件以上タスクを完了すると… 何かが起きるかも?",
   "@tip16": {},
+  "tip17Title": "Tips: まとめて整理",
+  "@tip17Title": {},
   "tip17": "AI 整理は一度に多くのタスクを登録してから実行すると、より効果的です。",
   "@tip17": {},
+  "tip18Title": "Tips: 期限切れゼロ",
+  "@tip18Title": {},
   "tip18": "期限切れのタスクをゼロにすると、実績が解除されます。",
   "@tip18": {},
+  "tip19Title": "Tips: 週末派",
+  "@tip19Title": {},
   "tip19": "週末にまとめてタスクを片付ける派ですか? それも実績になるかもしれません。",
   "@tip19": {},
   "aiPurchasePremiumSubtitle": "AI 整理 月 30 回 + 全機能解放",
@@ -1865,5 +2015,83 @@
     "placeholders": {
       "title": { "type": "String" }
     }
-  }
+  },
+  "badgeCond_first_step": "初めてタスクを完了する",
+  "@badgeCond_first_step": {},
+  "badgeCond_task_10": "10 件のタスクを完了",
+  "@badgeCond_task_10": {},
+  "badgeCond_task_25": "25 件のタスクを完了",
+  "@badgeCond_task_25": {},
+  "badgeCond_task_50": "50 件のタスクを完了",
+  "@badgeCond_task_50": {},
+  "badgeCond_task_100": "100 件のタスクを完了",
+  "@badgeCond_task_100": {},
+  "badgeCond_task_250": "250 件のタスクを完了",
+  "@badgeCond_task_250": {},
+  "badgeCond_task_500": "500 件のタスクを完了",
+  "@badgeCond_task_500": {},
+  "badgeCond_task_1000": "1000 件のタスクを完了",
+  "@badgeCond_task_1000": {},
+  "badgeCond_streak_3": "アプリを 3 日連続で起動",
+  "@badgeCond_streak_3": {},
+  "badgeCond_streak_7": "アプリを 7 日連続で起動",
+  "@badgeCond_streak_7": {},
+  "badgeCond_streak_14": "アプリを 14 日連続で起動",
+  "@badgeCond_streak_14": {},
+  "badgeCond_streak_30": "アプリを 30 日連続で起動",
+  "@badgeCond_streak_30": {},
+  "badgeCond_streak_60": "アプリを 60 日連続で起動",
+  "@badgeCond_streak_60": {},
+  "badgeCond_streak_100": "アプリを 100 日連続で起動",
+  "@badgeCond_streak_100": {},
+  "badgeCond_ai_first": "AI 整理を初めて使う",
+  "@badgeCond_ai_first": {},
+  "badgeCond_ai_10": "AI 整理を 10 回使う",
+  "@badgeCond_ai_10": {},
+  "badgeCond_ai_50": "AI 整理を 50 回使う",
+  "@badgeCond_ai_50": {},
+  "badgeCond_level_5": "レベル 5 に到達",
+  "@badgeCond_level_5": {},
+  "badgeCond_level_10": "レベル 10 に到達",
+  "@badgeCond_level_10": {},
+  "badgeCond_level_20": "レベル 20 に到達",
+  "@badgeCond_level_20": {},
+  "badgeCond_level_30": "レベル 30 に到達",
+  "@badgeCond_level_30": {},
+  "badgeCond_early_bird": "早朝 (5-8 時) にタスクを完了する",
+  "@badgeCond_early_bird": {},
+  "badgeCond_night_owl": "深夜 (23-2 時) にタスクを完了する",
+  "@badgeCond_night_owl": {},
+  "badgeCond_busy_day_5": "1 日に 5 件のタスクを完了",
+  "@badgeCond_busy_day_5": {},
+  "badgeCond_busy_day_10": "1 日に 10 件のタスクを完了",
+  "@badgeCond_busy_day_10": {},
+  "badgeCond_busy_month_30": "1 ヶ月に 30 件のタスクを完了",
+  "@badgeCond_busy_month_30": {},
+  "badgeCond_back_from_hibernation": "1 週間以上空けてアプリに復帰する",
+  "@badgeCond_back_from_hibernation": {},
+  "badgeCond_long_time_no_see": "1 ヶ月以上空けてアプリに復帰する",
+  "@badgeCond_long_time_no_see": {},
+  "badgeCond_category_master": "全てのカテゴリで 1 件以上タスクを完了",
+  "@badgeCond_category_master": {},
+  "badgeCond_habit_demon": "同じ定期タスクを 4 回完了",
+  "@badgeCond_habit_demon": {},
+  "badgeCond_schedule_master": "スケジュール設定 (曜日ごとの空き具合) を保存",
+  "@badgeCond_schedule_master": {},
+  "badgeCond_zero_overdue": "期限切れタスクを 0 にする",
+  "@badgeCond_zero_overdue": {},
+  "badgeCond_multi_tasker": "5 つ以上の異なるカテゴリでタスクを完了",
+  "@badgeCond_multi_tasker": {},
+  "badgeCond_ticket_buyer": "AI 整理チケットを購入する",
+  "@badgeCond_ticket_buyer": {},
+  "badgeCond_weekend_warrior": "土日のみで合計 5 件以上タスクを完了",
+  "@badgeCond_weekend_warrior": {},
+  "badgeCond_perfect_week": "1 週間 (7 日) 毎日タスクを完了",
+  "@badgeCond_perfect_week": {},
+  "badgeCond_level_50": "レベル 50 に到達",
+  "@badgeCond_level_50": {},
+  "badgeCond_level_70": "レベル 70 に到達",
+  "@badgeCond_level_70": {},
+  "badgeCond_level_100": "レベル 100 に到達",
+  "@badgeCond_level_100": {}
 }

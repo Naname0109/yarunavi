@@ -430,6 +430,76 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
         }
       }
 
+      // ========== SAFETY NET (#6): DB 保存直前の最終防衛線 ==========
+      // 上記ループで対処したつもりでも、 タイミングや AI 応答の揺れで
+      // rec==due / rec==null が残る可能性に備える。 ここで blocked_dates 回避も
+      // 含めて最終調整し、 確実に rec < due になることを保証する。
+      // 手動指定された taskId はそのまま (skipManualDateIds で守る)。
+      final blockedDateSet =
+          (await db.getBlockedDates()).map((d) => d.toIso8601String().substring(0, 10)).toSet();
+      final safetyKeys = finalUpdates.keys.toList(growable: false);
+      for (final taskId in safetyKeys) {
+        if (skipManualDateIds.contains(taskId)) continue;
+        final update = finalUpdates[taskId]!;
+        final taskMatch = incompleteTasks.where((t) => t.id == taskId);
+        if (taskMatch.isEmpty) continue;
+        final task = taskMatch.first;
+        final rec = update.recommendedDate;
+        final due = task.dueDate;
+
+        bool needsFix = false;
+        if (rec == null) {
+          needsFix = true;
+          if (kDebugMode) debugPrint('[SAFETY] ${task.title}: rec is NULL');
+        } else if (rec.year == due.year &&
+            rec.month == due.month &&
+            rec.day == due.day) {
+          needsFix = true;
+          if (kDebugMode) debugPrint('[SAFETY] ${task.title}: rec == due ($rec)');
+        }
+        if (!needsFix) continue;
+
+        final daysLeft = due.difference(today2).inDays;
+        int daysBack;
+        if (daysLeft <= 0) {
+          daysBack = 0;
+        } else if (daysLeft == 1) {
+          daysBack = 0;
+        } else if (daysLeft <= 3) {
+          daysBack = 1;
+        } else if (daysLeft <= 7) {
+          daysBack = 2;
+        } else if (daysLeft <= 14) {
+          daysBack = 4;
+        } else {
+          daysBack = 7;
+        }
+        var newRec = due.subtract(Duration(days: daysBack));
+        if (newRec.isBefore(today2)) newRec = today2;
+        // blocked_dates 回避 (最大 30 日まで遡って空き日を探す)
+        var retry = 30;
+        while (blockedDateSet
+                .contains(newRec.toIso8601String().substring(0, 10)) &&
+            retry > 0) {
+          newRec = newRec.subtract(const Duration(days: 1));
+          if (newRec.isBefore(today2)) {
+            newRec = today2;
+            break;
+          }
+          retry--;
+        }
+        finalUpdates[taskId] = (
+          priority: update.priority,
+          aiComment: update.aiComment,
+          recommendedDate: newRec,
+        );
+        if (kDebugMode) {
+          debugPrint(
+              '[SAFETY] ${task.title}: FIXED rec=$newRec (due=$due, daysLeft=$daysLeft)');
+        }
+      }
+      // ========== END SAFETY NET ==========
+
       // 最終検証ログ: DB保存直前に全タスクのrec vs dueを出力
       if (kDebugMode) {
         debugPrint('[DB-SAVE] ===== DB保存直前の最終状態 =====');
@@ -445,10 +515,7 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
               : 'NULL';
           final same = recStr == dueStr;
           final commentPreview = data.aiComment != null ? data.aiComment!.substring(0, data.aiComment!.length.clamp(0, 20)) : 'null';
-          debugPrint('[DB-SAVE] ${t.title}: rec=$recStr due=$dueStr same=$same comment=$commentPreview');
-          if (same) {
-            debugPrint('[DB-SAVE] ★★★ ERROR: recommended_date == due_date が検出されました！ ★★★');
-          }
+          debugPrint('[FINAL-CHECK] ${t.title}: rec=$recStr due=$dueStr ${same ? "⚠️SAME" : "✅OK"} comment=$commentPreview');
         }
         debugPrint('[DB-SAVE] ===================================');
       }

@@ -238,9 +238,16 @@ priority別の基準:
 - 分割不要なタスクは空配列[]
 - 全タスクの2割以下に抑える
 
-## 質問ルール
-- 情報不足で判断が困難な場合のみ、最大3件まで
-- 質問不要なら空配列[]
+## 質問ルール (questions_ja / questions_en)
+タスクの実行日を「より正確に」 提案するために追加情報があると有用な場合のみ、
+2〜3 件の質問を含める。 観点:
+- タスクの所要時間が不明な場合 (「企画書作成は何時間かかる?」 など)
+- 他の人が関わるかどうか (相手の都合に合わせる必要があるか)
+- タスクを分割できるかどうか (大きなタスクを小さく分けられるか)
+- 優先度の判断に迷う場合 (どちらを先にやるべきか)
+
+質問は具体的に、 ユーザーが短いテキスト (1-2 文) で答えられる形にする。
+質問不要なら空配列 []。 最大 3 件まで。
 
 ## 全体サマリルール
 summary_ja/summary_enに今日のアクションプランを1-2文で具体的にまとめる。
@@ -493,6 +500,147 @@ summary_ja/summary_enに今日のアクションプランを1-2文で具体的�
     // ここには到達しないはずだが念のため
     throw const AiServiceException(
         AiErrorType.network, 'Retry exhausted');
+  }
+
+/// #3: 初回 AI 整理結果 + ユーザー回答をもとに再調整する。
+  /// - 追加の AI 整理回数は消費しない (呼び出し側で incrementUsage しないこと)
+  /// - 元の整理結果と questions、 ユーザーの自由記述回答を渡す
+  /// - 戻り値の AiSortResponse は questions を空配列にした再調整結果
+  static Future<AiSortResponse> refineWithAnswers(
+    List<Task> tasks, {
+    required AiSortResponse previous,
+    required String userAnswer,
+    Map<int, String> categoryNames = const {},
+    double executionTimingFactor = 0.5,
+    List<int>? weekdayBusyness,
+    List<DateTime>? blockedDates,
+  }) async {
+    if (AppConstants.aiProxyUrl.isEmpty &&
+        (!kDebugMode || AppConstants.anthropicApiKey.isEmpty)) {
+      // 設定なし: 元の結果をそのまま返す (フォールバック)
+      return AiSortResponse(
+        summaryJa: previous.summaryJa,
+        summaryEn: previous.summaryEn,
+        tasks: previous.tasks,
+        questionsJa: const [],
+        questionsEn: const [],
+        isFallback: previous.isFallback,
+      );
+    }
+
+    final now = DateTime.now();
+    final todayStr = app_date.formatDateForDb(now);
+    final weekdays = ['月', '火', '水', '木', '金', '土', '日'];
+    final dayOfWeek = weekdays[now.weekday - 1];
+
+    final tasksJson = tasks.map((t) {
+      final dueDow = weekdays[t.dueDate.weekday - 1];
+      final daysLeft = DateTime(t.dueDate.year, t.dueDate.month, t.dueDate.day)
+          .difference(DateTime(now.year, now.month, now.day))
+          .inDays;
+      return {
+        'id': t.id,
+        'title': t.title,
+        'due_date': app_date.formatDateForDb(t.dueDate),
+        'due_day_of_week': dueDow,
+        'days_left': daysLeft,
+        'memo': t.memo,
+        'estimated_time': t.estimatedTime,
+        'importance': t.importance,
+        'category_name': t.categoryId != null
+            ? categoryNames[t.categoryId] ?? ''
+            : '',
+        'recurrence_type': t.recurrenceType,
+        'is_completed': t.isCompleted,
+      };
+    }).toList();
+
+    final priorJson = jsonEncode(previous.toJson());
+    final questions = previous.questionsJa.isNotEmpty
+        ? previous.questionsJa
+        : previous.questionsEn;
+
+    var userPrompt = '今日の日付: $todayStr\n曜日: $dayOfWeek\n\n'
+        '先ほどのタスク整理について、 ユーザーから追加情報をもらいました。 '
+        'この情報をもとに、 各タスクの実行日 (recommended_date) と '
+        'コメント (comment_ja / comment_en) を再調整してください。\n\n'
+        '元のタスク一覧:\n${jsonEncode(tasksJson)}\n\n'
+        '元の整理結果:\n$priorJson\n\n'
+        'あなたが投げた質問:\n${jsonEncode(questions)}\n\n'
+        'ユーザーの回答:\n$userAnswer\n\n'
+        '同じ JSON 形式で再調整結果を返してください。 '
+        'questions_ja / questions_en は **必ず空配列** にしてください '
+        '(再度の質問はしない)。';
+    userPrompt +=
+        '\n\nユーザーの実行日傾向: ${executionTimingFactor.toStringAsFixed(1)}'
+        '(0.0=期限直前、 0.5=バランス、 1.0=かなり早め)。';
+    if (weekdayBusyness != null && weekdayBusyness.length == 7) {
+      final lines = <String>[];
+      for (var i = 0; i < 7; i++) {
+        lines.add('${weekdays[i]}: ${weekdayBusyness[i]}/5');
+      }
+      userPrompt +=
+          '\n\nユーザーの曜日ごとの忙しさ:\n${lines.join(', ')}';
+    }
+    if (blockedDates != null && blockedDates.isNotEmpty) {
+      final iso = blockedDates
+          .map((d) => app_date.formatDateForDb(d))
+          .toList()
+          .join(', ');
+      userPrompt += '\n\nタスク実行不可日:\n$iso';
+    }
+
+    final requestBody = jsonEncode({
+      'model': AppConstants.anthropicModel,
+      'max_tokens': 4096,
+      'temperature': 0.2,
+      'system': [
+        {
+          'type': 'text',
+          'text': _systemPrompt,
+          'cache_control': {'type': 'ephemeral'},
+        }
+      ],
+      'messages': [
+        {'role': 'user', 'content': userPrompt}
+      ],
+    });
+
+    debugPrint('[AI-REFINE] リクエスト送信: ${tasks.length}件 / answer len=${userAnswer.length}');
+    try {
+      final response = await _callAiApi(requestBody)
+          .timeout(const Duration(seconds: 60));
+      if (response.statusCode == 429) {
+        throw const AiServiceException(
+            AiErrorType.rateLimit, 'Rate limited');
+      }
+      if (response.statusCode != 200) {
+        throw AiServiceException(
+            AiErrorType.parse, 'API error: ${response.statusCode}');
+      }
+      final decodedBody =
+          utf8.decode(response.bodyBytes, allowMalformed: true);
+      final result =
+          _tryParseResponse(decodedBody, tasks, executionTimingFactor);
+      // 念のため questions は空に上書き
+      return AiSortResponse(
+        summaryJa: result.summaryJa,
+        summaryEn: result.summaryEn,
+        tasks: result.tasks,
+        questionsJa: const [],
+        questionsEn: const [],
+        isFallback: result.isFallback,
+      );
+    } on TimeoutException {
+      throw const AiServiceException(AiErrorType.network, 'Timeout');
+    } on SocketException {
+      throw const AiServiceException(AiErrorType.network, 'Network error');
+    } on AiServiceException {
+      rethrow;
+    } catch (e) {
+      debugPrint('[AI-REFINE] 予期しないエラー: $e');
+      throw const AiServiceException(AiErrorType.parse, 'Unexpected error');
+    }
   }
 
   /// _parseResponseのラッパー: 失敗時はAiServiceExceptionを投げる

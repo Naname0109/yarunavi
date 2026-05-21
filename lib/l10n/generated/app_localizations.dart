@@ -3194,6 +3194,66 @@ abstract class AppLocalizations {
   /// **'もう一度'**
   String get aiResultRetryCta;
 
+  /// AI 結果画面の確認事項セクション見出し
+  ///
+  /// In ja, this message translates to:
+  /// **'AI からの確認事項'**
+  String get aiQuestionsHeader;
+
+  /// No description provided for @aiQuestionsLeadIn.
+  ///
+  /// In ja, this message translates to:
+  /// **'より正確な日程を組むためにいくつか教えてください:'**
+  String get aiQuestionsLeadIn;
+
+  /// No description provided for @aiQuestionsAnswerHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'ここに回答を入力...'**
+  String get aiQuestionsAnswerHint;
+
+  /// No description provided for @aiQuestionsRefineCta.
+  ///
+  /// In ja, this message translates to:
+  /// **'回答してさらに詳しく整理'**
+  String get aiQuestionsRefineCta;
+
+  /// No description provided for @aiRefining.
+  ///
+  /// In ja, this message translates to:
+  /// **'回答をもとに再整理中...'**
+  String get aiRefining;
+
+  /// No description provided for @aiQuestionsNoExtraCount.
+  ///
+  /// In ja, this message translates to:
+  /// **'※ 追加の AI 整理回数は消費しません'**
+  String get aiQuestionsNoExtraCount;
+
+  /// No description provided for @aiRefineDone.
+  ///
+  /// In ja, this message translates to:
+  /// **'回答をもとに再整理しました'**
+  String get aiRefineDone;
+
+  /// No description provided for @aiRefineFailed.
+  ///
+  /// In ja, this message translates to:
+  /// **'再整理に失敗しました'**
+  String get aiRefineFailed;
+
+  /// No description provided for @aiRefinePremiumOnlyTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'プレミアム機能'**
+  String get aiRefinePremiumOnlyTitle;
+
+  /// No description provided for @aiRefinePremiumOnlyBody.
+  ///
+  /// In ja, this message translates to:
+  /// **'この機能はプレミアムプランで利用できます。\n※ 現在の整理結果はそのままお使いいただけます。'**
+  String get aiRefinePremiumOnlyBody;
+
   /// No description provided for @aiResultNowLabel.
   ///
   /// In ja, this message translates to:
@@ -4178,6 +4238,48 @@ abstract class AppLocalizations {
   /// **'???'**
   String get badgeHidden;
 
+  /// 未獲得の隠しバッジ詳細ダイアログの条件文
+  ///
+  /// In ja, this message translates to:
+  /// **'???\n条件は秘密です。 色々試してみてください!'**
+  String get badgeHiddenCondition;
+
+  /// No description provided for @badgeDetailCondition.
+  ///
+  /// In ja, this message translates to:
+  /// **'達成条件'**
+  String get badgeDetailCondition;
+
+  /// No description provided for @badgeDetailEarnedAt.
+  ///
+  /// In ja, this message translates to:
+  /// **'獲得日'**
+  String get badgeDetailEarnedAt;
+
+  /// No description provided for @badgeDetailProgress.
+  ///
+  /// In ja, this message translates to:
+  /// **'進捗'**
+  String get badgeDetailProgress;
+
+  /// No description provided for @badgeDetailProgressValue.
+  ///
+  /// In ja, this message translates to:
+  /// **'{current}/{target}'**
+  String badgeDetailProgressValue(int current, int target);
+
+  /// No description provided for @badgeDetailXp.
+  ///
+  /// In ja, this message translates to:
+  /// **'獲得XP'**
+  String get badgeDetailXp;
+
+  /// No description provided for @badgeDetailXpValue.
+  ///
+  /// In ja, this message translates to:
+  /// **'+{xp} XP'**
+  String badgeDetailXpValue(int xp);
+
   /// No description provided for @badgeHiddenLabel.
   ///
   /// In ja, this message translates to:
@@ -4297,6 +4399,78 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'{earned} / {total} 達成'**
   String statsBadgesEarnedCount(int earned, int total);
+
+  /// No description provided for @statsValueTasks.
+  ///
+  /// In ja, this message translates to:
+  /// **'{count}件'**
+  String statsValueTasks(int count);
+
+  /// No description provided for @statsValueDays.
+  ///
+  /// In ja, this message translates to:
+  /// **'{count}日'**
+  String statsValueDays(int count);
+
+  /// No description provided for @statsSubTasks.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスク'**
+  String get statsSubTasks;
+
+  /// No description provided for @statsSubStreak.
+  ///
+  /// In ja, this message translates to:
+  /// **'ストリーク'**
+  String get statsSubStreak;
+
+  /// No description provided for @statsNextLevelLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'次のレベル: Lv.{level} {name}'**
+  String statsNextLevelLabel(int level, String name);
+
+  /// No description provided for @statsNextLevelXp.
+  ///
+  /// In ja, this message translates to:
+  /// **'あと {xp} XP'**
+  String statsNextLevelXp(int xp);
+
+  /// No description provided for @statsBadgesEarnedSection.
+  ///
+  /// In ja, this message translates to:
+  /// **'獲得済み'**
+  String get statsBadgesEarnedSection;
+
+  /// No description provided for @statsBadgesLockedSection.
+  ///
+  /// In ja, this message translates to:
+  /// **'未獲得'**
+  String get statsBadgesLockedSection;
+
+  /// No description provided for @statsBadgesHiddenSection.
+  ///
+  /// In ja, this message translates to:
+  /// **'隠しバッジ (残り {count}個)'**
+  String statsBadgesHiddenSection(int count);
+
+  /// No description provided for @streakKickoffPrompt.
+  ///
+  /// In ja, this message translates to:
+  /// **'今日からストリークを始めよう!'**
+  String get streakKickoffPrompt;
+
+  /// No description provided for @streakLast7DaysLabel.
+  ///
+  /// In ja, this message translates to:
+  /// **'過去 7 日の活動'**
+  String get streakLast7DaysLabel;
+
+  /// No description provided for @streakNextGoal.
+  ///
+  /// In ja, this message translates to:
+  /// **'次の目標: {target}日連続まであと {remain}日'**
+  String streakNextGoal(int target, int remain);
 
   /// No description provided for @statsTutorialTitle.
   ///
@@ -4472,6 +4646,24 @@ abstract class AppLocalizations {
   /// **'カレンダーから取り込む'**
   String get fabSyncCalendar;
 
+  /// blocked_dates カレンダーグリッドの説明文
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクを入れない日付をタップして選択し、「保存」 で反映します。 過去の日付は自動的に削除されます。'**
+  String get blockedDatesPickerHint;
+
+  /// blocked_dates 選択中の件数表示
+  ///
+  /// In ja, this message translates to:
+  /// **'{count}日を選択中'**
+  String blockedDatesSelectedCount(int count);
+
+  /// blocked_dates 保存完了のスナックバー
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクを入れない日を更新しました'**
+  String get blockedDatesSaved;
+
   /// 設定: 予定がある日を避けるトグルのラベル
   ///
   /// In ja, this message translates to:
@@ -4490,11 +4682,23 @@ abstract class AppLocalizations {
   /// **'Tips'**
   String get tipsHeader;
 
+  /// No description provided for @tip0Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: スケジュール設定'**
+  String get tip0Title;
+
   /// No description provided for @tip0.
   ///
   /// In ja, this message translates to:
   /// **'曜日ごとの空き具合を設定すると、AI がもっと賢く実行日を提案します。'**
   String get tip0;
+
+  /// No description provided for @tip1Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: 実行不可日'**
+  String get tip1Title;
 
   /// No description provided for @tip1.
   ///
@@ -4502,11 +4706,23 @@ abstract class AppLocalizations {
   /// **'タスク実行不可の日を設定すると、その日にはタスクが割り当てられません。'**
   String get tip1;
 
+  /// No description provided for @tip2Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: カレンダー同期'**
+  String get tip2Title;
+
   /// No description provided for @tip2.
   ///
   /// In ja, this message translates to:
   /// **'カレンダーから予定を取り込むと、予定のある日を避けてタスクを配置できます。'**
   String get tip2;
+
+  /// No description provided for @tip3Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: 実行日の変更'**
+  String get tip3Title;
 
   /// No description provided for @tip3.
   ///
@@ -4514,11 +4730,23 @@ abstract class AppLocalizations {
   /// **'AI が提案した実行日は、自分で変更することもできます。'**
   String get tip3;
 
+  /// No description provided for @tip4Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: 定期タスク'**
+  String get tip4Title;
+
   /// No description provided for @tip4.
   ///
   /// In ja, this message translates to:
   /// **'定期的に発生するタスクは、定期タスクに設定すると毎月自動で作成されます。'**
   String get tip4;
+
+  /// No description provided for @tip5Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: 完了履歴'**
+  String get tip5Title;
 
   /// No description provided for @tip5.
   ///
@@ -4526,11 +4754,23 @@ abstract class AppLocalizations {
   /// **'完了したタスクは履歴として保存されます。 いつでも確認できます。'**
   String get tip5;
 
+  /// No description provided for @tip6Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: リワード動画'**
+  String get tip6Title;
+
   /// No description provided for @tip6.
   ///
   /// In ja, this message translates to:
   /// **'AI 整理の回数が足りない時は、リワード動画を視聴すると 1 回分追加されます。'**
   String get tip6;
+
+  /// No description provided for @tip7Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: カテゴリ'**
+  String get tip7Title;
 
   /// No description provided for @tip7.
   ///
@@ -4538,11 +4778,23 @@ abstract class AppLocalizations {
   /// **'カテゴリを設定すると、タスクの分類がわかりやすくなります。'**
   String get tip7;
 
+  /// No description provided for @tip8Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: カレンダー表示'**
+  String get tip8Title;
+
   /// No description provided for @tip8.
   ///
   /// In ja, this message translates to:
   /// **'カレンダーは「AI のおすすめ日」 と「期限の日」 を切り替えて確認できます。'**
   String get tip8;
+
+  /// No description provided for @tip9Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: カウントダウン'**
+  String get tip9Title;
 
   /// No description provided for @tip9.
   ///
@@ -4550,11 +4802,23 @@ abstract class AppLocalizations {
   /// **'タスク詳細画面では、期限までのカウントダウンがリアルタイム表示されます。'**
   String get tip9;
 
+  /// No description provided for @tip10Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: レベルアップ'**
+  String get tip10Title;
+
   /// No description provided for @tip10.
   ///
   /// In ja, this message translates to:
   /// **'タスクを完了すると XP が貯まり、レベルアップできます。'**
   String get tip10;
+
+  /// No description provided for @tip11Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: ストリーク'**
+  String get tip11Title;
 
   /// No description provided for @tip11.
   ///
@@ -4562,11 +4826,23 @@ abstract class AppLocalizations {
   /// **'アプリを毎日開くだけでストリーク (連続記録) が伸びていきます。'**
   String get tip11;
 
+  /// No description provided for @tip12Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: 隠しバッジ'**
+  String get tip12Title;
+
   /// No description provided for @tip12.
   ///
   /// In ja, this message translates to:
   /// **'隠しバッジが複数あります。 どんな条件で獲得できるかはお楽しみ!'**
   String get tip12;
+
+  /// No description provided for @tip13Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: 最高レベル'**
+  String get tip13Title;
 
   /// No description provided for @tip13.
   ///
@@ -4574,11 +4850,23 @@ abstract class AppLocalizations {
   /// **'レベルは 100 まで。 最高レベルに到達するには約 10 年かかります。'**
   String get tip13;
 
+  /// No description provided for @tip14Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: シークレット'**
+  String get tip14Title;
+
   /// No description provided for @tip14.
   ///
   /// In ja, this message translates to:
   /// **'早朝や深夜にタスクを完了すると、特別なバッジがもらえるかも?'**
   String get tip14;
+
+  /// No description provided for @tip15Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: 自動検出'**
+  String get tip15Title;
 
   /// No description provided for @tip15.
   ///
@@ -4586,11 +4874,23 @@ abstract class AppLocalizations {
   /// **'タスク名に「振込」 「家賃」 などを含めると、定期タスク化がおすすめされます。'**
   String get tip15;
 
+  /// No description provided for @tip16Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: 大量完了'**
+  String get tip16Title;
+
   /// No description provided for @tip16.
   ///
   /// In ja, this message translates to:
   /// **'1 日に 5 件以上タスクを完了すると… 何かが起きるかも?'**
   String get tip16;
+
+  /// No description provided for @tip17Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: まとめて整理'**
+  String get tip17Title;
 
   /// No description provided for @tip17.
   ///
@@ -4598,11 +4898,23 @@ abstract class AppLocalizations {
   /// **'AI 整理は一度に多くのタスクを登録してから実行すると、より効果的です。'**
   String get tip17;
 
+  /// No description provided for @tip18Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: 期限切れゼロ'**
+  String get tip18Title;
+
   /// No description provided for @tip18.
   ///
   /// In ja, this message translates to:
   /// **'期限切れのタスクをゼロにすると、実績が解除されます。'**
   String get tip18;
+
+  /// No description provided for @tip19Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: 週末派'**
+  String get tip19Title;
 
   /// No description provided for @tip19.
   ///
@@ -4687,6 +4999,240 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'{title}、折りたたみ。 タップで展開します'**
   String taskCardCollapsedSemantics(String title);
+
+  /// No description provided for @badgeCond_first_step.
+  ///
+  /// In ja, this message translates to:
+  /// **'初めてタスクを完了する'**
+  String get badgeCond_first_step;
+
+  /// No description provided for @badgeCond_task_10.
+  ///
+  /// In ja, this message translates to:
+  /// **'10 件のタスクを完了'**
+  String get badgeCond_task_10;
+
+  /// No description provided for @badgeCond_task_25.
+  ///
+  /// In ja, this message translates to:
+  /// **'25 件のタスクを完了'**
+  String get badgeCond_task_25;
+
+  /// No description provided for @badgeCond_task_50.
+  ///
+  /// In ja, this message translates to:
+  /// **'50 件のタスクを完了'**
+  String get badgeCond_task_50;
+
+  /// No description provided for @badgeCond_task_100.
+  ///
+  /// In ja, this message translates to:
+  /// **'100 件のタスクを完了'**
+  String get badgeCond_task_100;
+
+  /// No description provided for @badgeCond_task_250.
+  ///
+  /// In ja, this message translates to:
+  /// **'250 件のタスクを完了'**
+  String get badgeCond_task_250;
+
+  /// No description provided for @badgeCond_task_500.
+  ///
+  /// In ja, this message translates to:
+  /// **'500 件のタスクを完了'**
+  String get badgeCond_task_500;
+
+  /// No description provided for @badgeCond_task_1000.
+  ///
+  /// In ja, this message translates to:
+  /// **'1000 件のタスクを完了'**
+  String get badgeCond_task_1000;
+
+  /// No description provided for @badgeCond_streak_3.
+  ///
+  /// In ja, this message translates to:
+  /// **'アプリを 3 日連続で起動'**
+  String get badgeCond_streak_3;
+
+  /// No description provided for @badgeCond_streak_7.
+  ///
+  /// In ja, this message translates to:
+  /// **'アプリを 7 日連続で起動'**
+  String get badgeCond_streak_7;
+
+  /// No description provided for @badgeCond_streak_14.
+  ///
+  /// In ja, this message translates to:
+  /// **'アプリを 14 日連続で起動'**
+  String get badgeCond_streak_14;
+
+  /// No description provided for @badgeCond_streak_30.
+  ///
+  /// In ja, this message translates to:
+  /// **'アプリを 30 日連続で起動'**
+  String get badgeCond_streak_30;
+
+  /// No description provided for @badgeCond_streak_60.
+  ///
+  /// In ja, this message translates to:
+  /// **'アプリを 60 日連続で起動'**
+  String get badgeCond_streak_60;
+
+  /// No description provided for @badgeCond_streak_100.
+  ///
+  /// In ja, this message translates to:
+  /// **'アプリを 100 日連続で起動'**
+  String get badgeCond_streak_100;
+
+  /// No description provided for @badgeCond_ai_first.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI 整理を初めて使う'**
+  String get badgeCond_ai_first;
+
+  /// No description provided for @badgeCond_ai_10.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI 整理を 10 回使う'**
+  String get badgeCond_ai_10;
+
+  /// No description provided for @badgeCond_ai_50.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI 整理を 50 回使う'**
+  String get badgeCond_ai_50;
+
+  /// No description provided for @badgeCond_level_5.
+  ///
+  /// In ja, this message translates to:
+  /// **'レベル 5 に到達'**
+  String get badgeCond_level_5;
+
+  /// No description provided for @badgeCond_level_10.
+  ///
+  /// In ja, this message translates to:
+  /// **'レベル 10 に到達'**
+  String get badgeCond_level_10;
+
+  /// No description provided for @badgeCond_level_20.
+  ///
+  /// In ja, this message translates to:
+  /// **'レベル 20 に到達'**
+  String get badgeCond_level_20;
+
+  /// No description provided for @badgeCond_level_30.
+  ///
+  /// In ja, this message translates to:
+  /// **'レベル 30 に到達'**
+  String get badgeCond_level_30;
+
+  /// No description provided for @badgeCond_early_bird.
+  ///
+  /// In ja, this message translates to:
+  /// **'早朝 (5-8 時) にタスクを完了する'**
+  String get badgeCond_early_bird;
+
+  /// No description provided for @badgeCond_night_owl.
+  ///
+  /// In ja, this message translates to:
+  /// **'深夜 (23-2 時) にタスクを完了する'**
+  String get badgeCond_night_owl;
+
+  /// No description provided for @badgeCond_busy_day_5.
+  ///
+  /// In ja, this message translates to:
+  /// **'1 日に 5 件のタスクを完了'**
+  String get badgeCond_busy_day_5;
+
+  /// No description provided for @badgeCond_busy_day_10.
+  ///
+  /// In ja, this message translates to:
+  /// **'1 日に 10 件のタスクを完了'**
+  String get badgeCond_busy_day_10;
+
+  /// No description provided for @badgeCond_busy_month_30.
+  ///
+  /// In ja, this message translates to:
+  /// **'1 ヶ月に 30 件のタスクを完了'**
+  String get badgeCond_busy_month_30;
+
+  /// No description provided for @badgeCond_back_from_hibernation.
+  ///
+  /// In ja, this message translates to:
+  /// **'1 週間以上空けてアプリに復帰する'**
+  String get badgeCond_back_from_hibernation;
+
+  /// No description provided for @badgeCond_long_time_no_see.
+  ///
+  /// In ja, this message translates to:
+  /// **'1 ヶ月以上空けてアプリに復帰する'**
+  String get badgeCond_long_time_no_see;
+
+  /// No description provided for @badgeCond_category_master.
+  ///
+  /// In ja, this message translates to:
+  /// **'全てのカテゴリで 1 件以上タスクを完了'**
+  String get badgeCond_category_master;
+
+  /// No description provided for @badgeCond_habit_demon.
+  ///
+  /// In ja, this message translates to:
+  /// **'同じ定期タスクを 4 回完了'**
+  String get badgeCond_habit_demon;
+
+  /// No description provided for @badgeCond_schedule_master.
+  ///
+  /// In ja, this message translates to:
+  /// **'スケジュール設定 (曜日ごとの空き具合) を保存'**
+  String get badgeCond_schedule_master;
+
+  /// No description provided for @badgeCond_zero_overdue.
+  ///
+  /// In ja, this message translates to:
+  /// **'期限切れタスクを 0 にする'**
+  String get badgeCond_zero_overdue;
+
+  /// No description provided for @badgeCond_multi_tasker.
+  ///
+  /// In ja, this message translates to:
+  /// **'5 つ以上の異なるカテゴリでタスクを完了'**
+  String get badgeCond_multi_tasker;
+
+  /// No description provided for @badgeCond_ticket_buyer.
+  ///
+  /// In ja, this message translates to:
+  /// **'AI 整理チケットを購入する'**
+  String get badgeCond_ticket_buyer;
+
+  /// No description provided for @badgeCond_weekend_warrior.
+  ///
+  /// In ja, this message translates to:
+  /// **'土日のみで合計 5 件以上タスクを完了'**
+  String get badgeCond_weekend_warrior;
+
+  /// No description provided for @badgeCond_perfect_week.
+  ///
+  /// In ja, this message translates to:
+  /// **'1 週間 (7 日) 毎日タスクを完了'**
+  String get badgeCond_perfect_week;
+
+  /// No description provided for @badgeCond_level_50.
+  ///
+  /// In ja, this message translates to:
+  /// **'レベル 50 に到達'**
+  String get badgeCond_level_50;
+
+  /// No description provided for @badgeCond_level_70.
+  ///
+  /// In ja, this message translates to:
+  /// **'レベル 70 に到達'**
+  String get badgeCond_level_70;
+
+  /// No description provided for @badgeCond_level_100.
+  ///
+  /// In ja, this message translates to:
+  /// **'レベル 100 に到達'**
+  String get badgeCond_level_100;
 }
 
 class _AppLocalizationsDelegate

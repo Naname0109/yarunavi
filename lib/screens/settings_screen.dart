@@ -837,17 +837,73 @@ class _WeekdayBusynessTile extends ConsumerWidget {
   }
 }
 
-/// #3-2: タスク実行不可日。
-class _BlockedDatesTile extends ConsumerWidget {
+/// #3-2 / #1: タスク実行不可日 (カレンダーグリッド一括選択)。
+class _BlockedDatesTile extends ConsumerStatefulWidget {
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_BlockedDatesTile> createState() => _BlockedDatesTileState();
+}
+
+class _BlockedDatesTileState extends ConsumerState<_BlockedDatesTile> {
+  /// 表示中の月 (1日固定)
+  late DateTime _viewMonth;
+
+  /// 編集中の選択日セット (yyyy-MM-dd ローカル)。
+  /// build 中に blockedDatesProvider と同期し、 保存ボタンで一括反映。
+  Set<String> _selected = <String>{};
+  bool _dirty = false;
+  bool _hydrated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _viewMonth = DateTime(now.year, now.month, 1);
+  }
+
+  String _key(DateTime d) {
+    final dd = DateTime(d.year, d.month, d.day);
+    return dd.toIso8601String().substring(0, 10);
+  }
+
+  void _toggle(DateTime d) {
+    final k = _key(d);
+    setState(() {
+      if (_selected.contains(k)) {
+        _selected.remove(k);
+      } else {
+        _selected.add(k);
+      }
+      _dirty = true;
+    });
+  }
+
+  Future<void> _save() async {
+    final dates = _selected
+        .map((k) => DateTime.parse(k))
+        .toList()
+      ..sort();
+    await ref.read(blockedDatesProvider.notifier).setAll(dates);
+    if (!mounted) return;
+    setState(() => _dirty = false);
     final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.blockedDatesSaved)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     final asyncDates = ref.watch(blockedDatesProvider);
-    final dates = asyncDates.valueOrNull ?? const <DateTime>[];
-    final fmt = DateFormat.yMd(
-        Localizations.localeOf(context).toLanguageTag());
+    final stored = asyncDates.valueOrNull ?? const <DateTime>[];
+    // 初回 (または編集前) はサーバ状態を取り込み
+    if (!_hydrated && asyncDates.hasValue) {
+      _selected = stored.map(_key).toSet();
+      _hydrated = true;
+    }
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -858,50 +914,186 @@ class _BlockedDatesTile extends ConsumerWidget {
                     style: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w700)),
               ),
-              TextButton.icon(
-                onPressed: () => _addDate(context, ref),
-                icon: const Icon(Icons.add, size: 18),
-                label: Text(l10n.blockedDatesAdd),
+              IconButton(
+                icon: const Icon(Icons.chevron_left, size: 22),
+                onPressed: () => setState(() {
+                  _viewMonth =
+                      DateTime(_viewMonth.year, _viewMonth.month - 1, 1);
+                }),
+              ),
+              Text(
+                DateFormat.yMMM(
+                        Localizations.localeOf(context).toLanguageTag())
+                    .format(_viewMonth),
+                style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w700),
+              ),
+              IconButton(
+                icon: const Icon(Icons.chevron_right, size: 22),
+                onPressed: () => setState(() {
+                  _viewMonth =
+                      DateTime(_viewMonth.year, _viewMonth.month + 1, 1);
+                }),
               ),
             ],
           ),
-          if (dates.isEmpty)
-            Padding(
-              padding: const EdgeInsets.only(left: 4, bottom: 8),
-              child: Text(
-                l10n.blockedDatesEmpty,
+          const SizedBox(height: 4),
+          Text(
+            l10n.blockedDatesPickerHint,
+            style: TextStyle(
+                fontSize: 11.5, color: theme.colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 8),
+          _MonthGrid(
+            month: _viewMonth,
+            selected: _selected,
+            onTap: _toggle,
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Text(
+                l10n.blockedDatesSelectedCount(_selected.length),
                 style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).hintColor),
+                  fontSize: 12,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
-            ),
-          for (final d in dates)
-            ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.block, size: 18),
-              title: Text(fmt.format(d)),
-              trailing: IconButton(
-                icon: const Icon(Icons.close, size: 18),
-                onPressed: () =>
-                    ref.read(blockedDatesProvider.notifier).remove(d),
+              const Spacer(),
+              FilledButton.icon(
+                onPressed: _dirty ? _save : null,
+                icon: const Icon(Icons.save_outlined, size: 18),
+                label: Text(l10n.save),
               ),
-            ),
+            ],
+          ),
         ],
       ),
     );
   }
+}
 
-  Future<void> _addDate(BuildContext context, WidgetRef ref) async {
+/// 単月カレンダーグリッド (7列, 日曜始まり)。
+/// 過去日はグレーアウトし tap 不可。 選択は accent 色で塗り。
+class _MonthGrid extends StatelessWidget {
+  const _MonthGrid({
+    required this.month,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final DateTime month;
+  final Set<String> selected;
+  final ValueChanged<DateTime> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: now,
-      firstDate: DateTime(now.year, now.month - 1, 1),
-      lastDate: DateTime(now.year + 1, 12, 31),
+    final today = DateTime(now.year, now.month, now.day);
+    final first = DateTime(month.year, month.month, 1);
+    final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
+    final leading = first.weekday % 7; // Sunday=0
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final weekdays = List<String>.generate(7, (i) {
+      // i=0 Sunday
+      final ref = DateTime(2024, 1, 7 + i); // 2024-01-07 = Sun
+      return DateFormat.E(locale).format(ref);
+    });
+
+    final cells = <Widget>[];
+    for (final w in weekdays) {
+      cells.add(Center(
+        child: Text(w,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onSurfaceVariant,
+            )),
+      ));
+    }
+    for (var i = 0; i < leading; i++) {
+      cells.add(const SizedBox.shrink());
+    }
+    for (var day = 1; day <= daysInMonth; day++) {
+      final d = DateTime(month.year, month.month, day);
+      final isPast = d.isBefore(today);
+      final key = d.toIso8601String().substring(0, 10);
+      final isSelected = selected.contains(key);
+      cells.add(_GridDayCell(
+        day: day,
+        isPast: isPast,
+        isSelected: isSelected,
+        isToday: d == today,
+        onTap: isPast ? null : () => onTap(d),
+      ));
+    }
+    return GridView.count(
+      crossAxisCount: 7,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      childAspectRatio: 1.1,
+      mainAxisSpacing: 2,
+      crossAxisSpacing: 2,
+      children: cells,
     );
-    if (picked == null) return;
-    await ref.read(blockedDatesProvider.notifier).add(picked);
+  }
+}
+
+class _GridDayCell extends StatelessWidget {
+  const _GridDayCell({
+    required this.day,
+    required this.isPast,
+    required this.isSelected,
+    required this.isToday,
+    required this.onTap,
+  });
+
+  final int day;
+  final bool isPast;
+  final bool isSelected;
+  final bool isToday;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    Color bg;
+    Color fg;
+    if (isSelected) {
+      bg = cs.primary;
+      fg = cs.onPrimary;
+    } else if (isPast) {
+      bg = Colors.transparent;
+      fg = cs.onSurface.withValues(alpha: 0.3);
+    } else {
+      bg = cs.surfaceContainerHighest.withValues(alpha: 0.6);
+      fg = cs.onSurface;
+    }
+    return Material(
+      color: bg,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: isToday && !isSelected
+            ? BorderSide(color: cs.primary, width: 1.5)
+            : BorderSide.none,
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Center(
+          child: Text(
+            '$day',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: isToday ? FontWeight.w800 : FontWeight.w600,
+              color: fg,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

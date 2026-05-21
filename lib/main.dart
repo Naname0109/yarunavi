@@ -105,6 +105,11 @@ void main() async {
   try {
     await dbService.initialize();
     debugPrint('[INIT] DB OK');
+    // #1 過去の blocked_dates を自動削除 (今日より前の日付)
+    final removed = await dbService.cleanupExpiredBlockedDates();
+    if (removed > 0) {
+      debugPrint('[INIT] cleaned $removed expired blocked_dates');
+    }
   } catch (e) {
     debugPrint('[INIT] DB failed: $e');
   }

@@ -166,33 +166,109 @@ class StreakCard extends ConsumerWidget {
         }),
         const SizedBox(height: 6),
         Text(
-          '${l10n.statsLongest}: ${stats.longestStreak}',
+          stats.streakDays == 0
+              ? l10n.streakKickoffPrompt
+              : '${l10n.statsLongest}: ${stats.longestStreak}',
           style: TextStyle(
             fontSize: 12,
             color: textColor.withValues(alpha: 0.85),
           ),
         ),
         const SizedBox(height: 14),
-        _miniBars(days: days, isDark: isDark),
+        Text(
+          l10n.streakLast7DaysLabel,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: textColor.withValues(alpha: 0.7),
+          ),
+        ),
+        const SizedBox(height: 6),
+        _miniBars(days: days, isDark: isDark, textColor: textColor),
+        const SizedBox(height: 12),
+        // #5: 次の目標 (次のストリークバッジまで)
+        Builder(builder: (context) {
+          final next = _nextStreakMilestone(stats.streakDays);
+          if (next == null) return const SizedBox.shrink();
+          return Row(
+            children: [
+              Icon(Icons.flag_rounded,
+                  size: 14, color: textColor.withValues(alpha: 0.8)),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  l10n.streakNextGoal(next, next - stats.streakDays),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: textColor.withValues(alpha: 0.9),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
       ],
     );
   }
 
-  Widget _miniBars({required List<int> days, required bool isDark}) {
+  int? _nextStreakMilestone(int current) {
+    const milestones = [3, 7, 14, 30, 60, 100];
+    for (final m in milestones) {
+      if (current < m) return m;
+    }
+    return null;
+  }
+
+  Widget _miniBars({
+    required List<int> days,
+    required bool isDark,
+    required Color textColor,
+  }) {
     final maxV = days.fold<int>(0, (a, b) => a > b ? a : b);
-    return SizedBox(
-      height: 28,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          for (final v in days) ...[
-            Expanded(
-              child: _bar(v: v, max: maxV, isDark: isDark),
-            ),
-            const SizedBox(width: 4),
-          ],
-        ]..removeLast(),
-      ),
+    final now = DateTime.now();
+    final locale = const ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    final weekLabels = List<String>.generate(7, (i) {
+      final d = DateTime(now.year, now.month, now.day - 6 + i);
+      return locale[d.weekday % 7];
+    });
+    return Column(
+      children: [
+        SizedBox(
+          height: 28,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              for (final v in days) ...[
+                Expanded(
+                  child: _bar(v: v, max: maxV, isDark: isDark),
+                ),
+                const SizedBox(width: 4),
+              ],
+            ]..removeLast(),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            for (final w in weekLabels) ...[
+              Expanded(
+                child: Center(
+                  child: Text(
+                    w,
+                    style: TextStyle(
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w700,
+                      color: textColor.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+            ],
+          ]..removeLast(),
+        ),
+      ],
     );
   }
 

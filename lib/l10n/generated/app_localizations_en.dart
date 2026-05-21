@@ -1662,6 +1662,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiResultRetryCta => 'Re-run';
 
   @override
+  String get aiQuestionsHeader => 'AI follow-up questions';
+
+  @override
+  String get aiQuestionsLeadIn => 'Help AI tune the schedule further:';
+
+  @override
+  String get aiQuestionsAnswerHint => 'Type your answer here...';
+
+  @override
+  String get aiQuestionsRefineCta => 'Re-sort with your answer';
+
+  @override
+  String get aiRefining => 'Re-sorting based on your answer...';
+
+  @override
+  String get aiQuestionsNoExtraCount => '* No additional AI runs are counted';
+
+  @override
+  String get aiRefineDone => 'Tasks were re-sorted with your input';
+
+  @override
+  String get aiRefineFailed => 'Re-sort failed';
+
+  @override
+  String get aiRefinePremiumOnlyTitle => 'Premium feature';
+
+  @override
+  String get aiRefinePremiumOnlyBody =>
+      'This feature is available on Premium.\nYou can keep using the current sort results.';
+
+  @override
   String get aiResultNowLabel => 'Today';
 
   @override
@@ -2187,6 +2218,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get badgeHidden => '???';
 
   @override
+  String get badgeHiddenCondition => '???\nIt\'s a secret — keep exploring!';
+
+  @override
+  String get badgeDetailCondition => 'How to earn';
+
+  @override
+  String get badgeDetailEarnedAt => 'Earned on';
+
+  @override
+  String get badgeDetailProgress => 'Progress';
+
+  @override
+  String badgeDetailProgressValue(int current, int target) {
+    return '$current/$target';
+  }
+
+  @override
+  String get badgeDetailXp => 'XP reward';
+
+  @override
+  String badgeDetailXpValue(int xp) {
+    return '+$xp XP';
+  }
+
+  @override
   String get badgeHiddenLabel => 'Hidden';
 
   @override
@@ -2248,6 +2304,54 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String statsBadgesEarnedCount(int earned, int total) {
     return '$earned / $total earned';
+  }
+
+  @override
+  String statsValueTasks(int count) {
+    return '$count tasks';
+  }
+
+  @override
+  String statsValueDays(int count) {
+    return '$count days';
+  }
+
+  @override
+  String get statsSubTasks => 'Tasks';
+
+  @override
+  String get statsSubStreak => 'Streak';
+
+  @override
+  String statsNextLevelLabel(int level, String name) {
+    return 'Next: Lv.$level $name';
+  }
+
+  @override
+  String statsNextLevelXp(int xp) {
+    return '$xp XP to go';
+  }
+
+  @override
+  String get statsBadgesEarnedSection => 'Earned';
+
+  @override
+  String get statsBadgesLockedSection => 'Locked';
+
+  @override
+  String statsBadgesHiddenSection(int count) {
+    return 'Hidden ($count left)';
+  }
+
+  @override
+  String get streakKickoffPrompt => 'Start your streak today!';
+
+  @override
+  String get streakLast7DaysLabel => 'Last 7 days';
+
+  @override
+  String streakNextGoal(int target, int remain) {
+    return 'Next goal: $remain more days to a $target-day streak';
   }
 
   @override
@@ -2344,6 +2448,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fabSyncCalendar => 'Sync from Calendar';
 
   @override
+  String get blockedDatesPickerHint =>
+      'Tap days to mark as blocked, then press Save. Past dates are removed automatically.';
+
+  @override
+  String blockedDatesSelectedCount(int count) {
+    return '$count days selected';
+  }
+
+  @override
+  String get blockedDatesSaved => 'Blocked days updated';
+
+  @override
   String get avoidEventDaysToggle => 'Avoid task on days with events';
 
   @override
@@ -2354,74 +2470,134 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tipsHeader => 'Tips';
 
   @override
+  String get tip0Title => 'Tips: Schedule setup';
+
+  @override
   String get tip0 =>
       'Set how busy each weekday is so AI can propose smarter execution days.';
 
   @override
+  String get tip1Title => 'Tips: Blocked days';
+
+  @override
   String get tip1 => 'Mark unavailable days and AI will skip them.';
+
+  @override
+  String get tip2Title => 'Tips: Calendar sync';
 
   @override
   String get tip2 =>
       'Import calendar events so AI avoids days that are already taken.';
 
   @override
+  String get tip3Title => 'Tips: Change execution day';
+
+  @override
   String get tip3 => 'You can manually override the execution day AI suggests.';
+
+  @override
+  String get tip4Title => 'Tips: Recurring tasks';
 
   @override
   String get tip4 =>
       'Mark recurring tasks once and YaruNavi creates them every cycle.';
 
   @override
+  String get tip5Title => 'Tips: Completion history';
+
+  @override
   String get tip5 =>
       'Completed tasks stay in the history — review them anytime.';
+
+  @override
+  String get tip6Title => 'Tips: Rewarded videos';
 
   @override
   String get tip6 =>
       'Out of AI sorts? Watch a rewarded video for one more run.';
 
   @override
+  String get tip7Title => 'Tips: Categories';
+
+  @override
   String get tip7 => 'Categories make your task list easier to scan.';
+
+  @override
+  String get tip8Title => 'Tips: Calendar view';
 
   @override
   String get tip8 =>
       'Calendar lets you toggle between “AI suggested” and “Due date” views.';
 
   @override
+  String get tip9Title => 'Tips: Countdown';
+
+  @override
   String get tip9 => 'Task detail shows a live countdown to the deadline.';
 
   @override
+  String get tip10Title => 'Tips: Level up';
+
+  @override
   String get tip10 => 'Completing tasks earns XP and levels you up.';
+
+  @override
+  String get tip11Title => 'Tips: Streak';
 
   @override
   String get tip11 =>
       'Opening the app daily extends your streak — even with zero tasks done.';
 
   @override
+  String get tip12Title => 'Tips: Hidden badges';
+
+  @override
   String get tip12 =>
       'There are many hidden badges. Their unlock conditions are a surprise!';
+
+  @override
+  String get tip13Title => 'Tips: Top level';
 
   @override
   String get tip13 =>
       'The level cap is 100 — reaching it takes about 10 years.';
 
   @override
+  String get tip14Title => 'Tips: Secret';
+
+  @override
   String get tip14 =>
       'Finish a task before dawn or after midnight to unlock something special.';
+
+  @override
+  String get tip15Title => 'Tips: Auto detect';
 
   @override
   String get tip15 =>
       'Task names like “rent” or “transfer” trigger recurring-task suggestions.';
 
   @override
+  String get tip16Title => 'Tips: Volume completion';
+
+  @override
   String get tip16 =>
       'Complete 5+ tasks in a single day and… something might happen.';
+
+  @override
+  String get tip17Title => 'Tips: Batch sort';
 
   @override
   String get tip17 =>
       'AI sort works best when you batch many tasks before running it.';
 
   @override
+  String get tip18Title => 'Tips: Zero overdue';
+
+  @override
   String get tip18 => 'Bring overdue tasks to zero to unlock an achievement.';
+
+  @override
+  String get tip19Title => 'Tips: Weekend warrior';
 
   @override
   String get tip19 =>
@@ -2477,4 +2653,128 @@ class AppLocalizationsEn extends AppLocalizations {
   String taskCardCollapsedSemantics(String title) {
     return '$title, collapsed. Tap to expand.';
   }
+
+  @override
+  String get badgeCond_first_step => 'Complete your first task';
+
+  @override
+  String get badgeCond_task_10 => 'Complete 10 tasks';
+
+  @override
+  String get badgeCond_task_25 => 'Complete 25 tasks';
+
+  @override
+  String get badgeCond_task_50 => 'Complete 50 tasks';
+
+  @override
+  String get badgeCond_task_100 => 'Complete 100 tasks';
+
+  @override
+  String get badgeCond_task_250 => 'Complete 250 tasks';
+
+  @override
+  String get badgeCond_task_500 => 'Complete 500 tasks';
+
+  @override
+  String get badgeCond_task_1000 => 'Complete 1000 tasks';
+
+  @override
+  String get badgeCond_streak_3 => 'Open the app 3 days in a row';
+
+  @override
+  String get badgeCond_streak_7 => 'Open the app 7 days in a row';
+
+  @override
+  String get badgeCond_streak_14 => 'Open the app 14 days in a row';
+
+  @override
+  String get badgeCond_streak_30 => 'Open the app 30 days in a row';
+
+  @override
+  String get badgeCond_streak_60 => 'Open the app 60 days in a row';
+
+  @override
+  String get badgeCond_streak_100 => 'Open the app 100 days in a row';
+
+  @override
+  String get badgeCond_ai_first => 'Use AI sort for the first time';
+
+  @override
+  String get badgeCond_ai_10 => 'Use AI sort 10 times';
+
+  @override
+  String get badgeCond_ai_50 => 'Use AI sort 50 times';
+
+  @override
+  String get badgeCond_level_5 => 'Reach Level 5';
+
+  @override
+  String get badgeCond_level_10 => 'Reach Level 10';
+
+  @override
+  String get badgeCond_level_20 => 'Reach Level 20';
+
+  @override
+  String get badgeCond_level_30 => 'Reach Level 30';
+
+  @override
+  String get badgeCond_early_bird =>
+      'Complete a task in the early morning (5-8 AM)';
+
+  @override
+  String get badgeCond_night_owl =>
+      'Complete a task late at night (11 PM - 2 AM)';
+
+  @override
+  String get badgeCond_busy_day_5 => 'Complete 5 tasks in a single day';
+
+  @override
+  String get badgeCond_busy_day_10 => 'Complete 10 tasks in a single day';
+
+  @override
+  String get badgeCond_busy_month_30 => 'Complete 30 tasks in a single month';
+
+  @override
+  String get badgeCond_back_from_hibernation =>
+      'Return after a week-long break';
+
+  @override
+  String get badgeCond_long_time_no_see => 'Return after a month-long break';
+
+  @override
+  String get badgeCond_category_master =>
+      'Complete at least one task in every category';
+
+  @override
+  String get badgeCond_habit_demon =>
+      'Complete the same recurring task 4 times';
+
+  @override
+  String get badgeCond_schedule_master => 'Save your weekday busyness schedule';
+
+  @override
+  String get badgeCond_zero_overdue => 'Bring overdue tasks down to zero';
+
+  @override
+  String get badgeCond_multi_tasker =>
+      'Complete tasks across 5 or more categories';
+
+  @override
+  String get badgeCond_ticket_buyer => 'Purchase an AI sort ticket';
+
+  @override
+  String get badgeCond_weekend_warrior => 'Complete 5+ tasks across weekends';
+
+  @override
+  String get badgeCond_perfect_week =>
+      'Complete a task every day for a full week';
+
+  @override
+  String get badgeCond_level_50 => 'Reach Level 50';
+
+  @override
+  String get badgeCond_level_70 => 'Reach Level 70';
+
+  @override
+  String get badgeCond_level_100 => 'Reach Level 100';
 }

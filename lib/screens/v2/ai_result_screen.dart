@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../../models/task.dart';
+import '../../providers/purchase_provider.dart';
 import '../../providers/task_provider.dart';
 import '../../services/ai_service.dart';
 import '../../theme/yaru_colors.dart';
@@ -65,6 +66,13 @@ class V2AiResultScreen extends ConsumerWidget {
                 ),
               SliverToBoxAdapter(
                 child: _buckets(context, yaru, l10n, response),
+              ),
+              // #3: AI からの確認事項 (questions が空でなければ表示)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  child: _AiQuestionsSection(response: response),
+                ),
               ),
               SliverToBoxAdapter(
                 child: Padding(
@@ -498,27 +506,11 @@ class V2AiResultScreen extends ConsumerWidget {
   }
 
   Widget _ctaRow(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 1,
-          child: NeonButtonSecondary(
-            label: l10n.aiResultRetryCta,
-            height: 50,
-            onPressed: () => context.pop(),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          flex: 2,
-          child: NeonButton(
-            label: l10n.aiResultStartCta,
-            icon: Icons.bolt_rounded,
-            height: 50,
-            onPressed: () => _startWithTopTask(context, ref),
-          ),
-        ),
-      ],
+    return NeonButton(
+      label: l10n.aiResultStartCta,
+      icon: Icons.bolt_rounded,
+      height: 50,
+      onPressed: () => _startWithTopTask(context, ref),
     );
   }
 
@@ -632,6 +624,224 @@ class _OrbBadge extends StatelessWidget {
                   color: isDark ? Colors.white : yaru.sparkle,
                 ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// #3: AI からの確認事項セクション。
+/// - response.questions が空なら表示しない
+/// - 質問リスト + 自由入力 + 「回答してさらに詳しく整理」 (プレミアム限定)
+/// - 注記「※ 追加の AI 整理回数は消費しません」 を直下に表示
+/// - 回答送信後、 refineWithAnswers を呼び結果を更新 (questions 空に上書き)
+class _AiQuestionsSection extends ConsumerStatefulWidget {
+  const _AiQuestionsSection({required this.response});
+  final AiSortResponse response;
+
+  @override
+  ConsumerState<_AiQuestionsSection> createState() =>
+      _AiQuestionsSectionState();
+}
+
+class _AiQuestionsSectionState
+    extends ConsumerState<_AiQuestionsSection> {
+  final _controller = TextEditingController();
+  bool _submitting = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context)!;
+    final isPremium = ref.read(isPremiumProvider);
+    final isVip = ref.read(isVipProvider);
+    if (!isPremium && !isVip) {
+      await _showPremiumDialog(l10n);
+      return;
+    }
+    final answer = _controller.text.trim();
+    if (answer.isEmpty) return;
+    setState(() => _submitting = true);
+    try {
+      final db = ref.read(databaseServiceProvider);
+      final allTasks = await db.getAllTasks();
+      final incompleteTasks =
+          allTasks.where((t) => !t.isCompleted).toList();
+      final categories = await db.getAllCategories();
+      final categoryNames = <int, String>{};
+      for (final c in categories) {
+        if (c.id != null) categoryNames[c.id!] = c.name;
+      }
+      final refined = await AiService.refineWithAnswers(
+        incompleteTasks,
+        previous: widget.response,
+        userAnswer: answer,
+        categoryNames: categoryNames,
+      );
+      if (!mounted) return;
+      ref.read(aiSortResponseProvider.notifier).state = refined;
+      // DB 反映 (追加カウントは消費しない)
+      final updates = <int,
+          ({int priority, String? aiComment, DateTime? recommendedDate})>{};
+      for (final r in refined.tasks) {
+        DateTime? rec;
+        if (r.recommendedDate != null) {
+          rec = DateTime.tryParse(r.recommendedDate!);
+        }
+        final locale = Localizations.localeOf(context).languageCode;
+        final comment =
+            locale == 'ja' ? r.commentJa : (r.commentEn ?? r.commentJa);
+        updates[r.taskId] = (
+          priority: r.priority,
+          aiComment: comment,
+          recommendedDate: rec,
+        );
+      }
+      if (updates.isNotEmpty) {
+        await db.updateTaskPriorities(updates);
+        ref.invalidate(tasksProvider);
+      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.aiRefineDone)),
+      );
+    } on AiServiceException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${l10n.aiRefineFailed}: ${e.message}')),
+      );
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  Future<void> _showPremiumDialog(AppLocalizations l10n) async {
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: Icon(Icons.workspace_premium_rounded,
+            size: 36, color: Theme.of(ctx).colorScheme.primary),
+        title: Text(l10n.aiRefinePremiumOnlyTitle),
+        content: Text(l10n.aiRefinePremiumOnlyBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              context.push('/store');
+            },
+            child: Text(l10n.aiSortUpgradeToPremium),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    final questions = locale == 'ja'
+        ? widget.response.questionsJa
+        : (widget.response.questionsEn.isNotEmpty
+            ? widget.response.questionsEn
+            : widget.response.questionsJa);
+    if (questions.isEmpty) return const SizedBox.shrink();
+    final yaru = context.yaru;
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: yaru.paperEmph,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: yaru.line, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.help_outline_rounded,
+                  size: 18, color: theme.colorScheme.primary),
+              const SizedBox(width: 6),
+              Text(
+                l10n.aiQuestionsHeader,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: theme.colorScheme.primary,
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.aiQuestionsLeadIn,
+            style: TextStyle(
+              fontSize: 12,
+              color: yaru.inkSecondary,
+            ),
+          ),
+          const SizedBox(height: 10),
+          for (var i = 0; i < questions.length; i++) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                '${i + 1}. ${questions[i]}',
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.5,
+                  color: yaru.inkPrimary,
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 10),
+          TextField(
+            controller: _controller,
+            maxLines: 3,
+            enabled: !_submitting,
+            decoration: InputDecoration(
+              hintText: l10n.aiQuestionsAnswerHint,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          FilledButton.icon(
+            onPressed: _submitting ? null : _submit,
+            icon: _submitting
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.auto_awesome_rounded, size: 18),
+            label: Text(
+              _submitting ? l10n.aiRefining : l10n.aiQuestionsRefineCta,
+            ),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(46),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l10n.aiQuestionsNoExtraCount,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              color: yaru.inkTertiary,
             ),
           ),
         ],

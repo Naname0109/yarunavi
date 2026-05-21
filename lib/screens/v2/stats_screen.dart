@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +9,7 @@ import '../../models/user_badge.dart';
 import '../../models/user_stats.dart';
 import '../../providers/gamification_provider.dart';
 import '../../providers/task_provider.dart' show completedTaskCountProvider;
+import '../../services/database_service.dart';
 import '../../services/gamification_service.dart';
 import '../../theme/yaru_colors.dart';
 import '../../theme/yaru_theme.dart';
@@ -21,7 +23,13 @@ import '../../widgets/v2/streak_card.dart';
 ///
 /// ストリーク炎カード + 統計タイル (Done/Week/Best) + 14日ヒートマップ + Lv/XP + バッジ
 class V2StatsScreen extends ConsumerStatefulWidget {
-  const V2StatsScreen({super.key});
+  const V2StatsScreen({super.key, this.isActive = true});
+
+  /// 親が `IndexedStack` で全タブを mount するため、 タブが実際に
+  /// 見えているかを受け取り、 初回チュートリアルダイアログをここで制御する。
+  /// 見えていない (= 他タブ表示中) ときに表示してしまうと、 オンボーディング
+  /// 完了直後の TaskFormSheet 等と重なる不具合になる。
+  final bool isActive;
 
   @override
   ConsumerState<V2StatsScreen> createState() => _V2StatsScreenState();
@@ -29,11 +37,24 @@ class V2StatsScreen extends ConsumerStatefulWidget {
 
 class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
   static const _kTutorialShownKey = 'stats_tutorial_shown';
+  bool _tutorialChecked = false;
 
   @override
   void initState() {
     super.initState();
-    // #8: 初回のみチュートリアル overlay
+    if (widget.isActive) _maybeShowTutorial();
+  }
+
+  @override
+  void didUpdateWidget(V2StatsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 他タブ → 統計タブへ切替時にチュートリアルを表示
+    if (!oldWidget.isActive && widget.isActive) _maybeShowTutorial();
+  }
+
+  Future<void> _maybeShowTutorial() async {
+    if (_tutorialChecked) return;
+    _tutorialChecked = true;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final prefs = await SharedPreferences.getInstance();
       if (prefs.getBool(_kTutorialShownKey) ?? false) return;
@@ -387,7 +408,8 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
         Expanded(
           child: _statTile(
             label: l10n.statsDone,
-            value: '$completed',
+            value: l10n.statsValueTasks(completed),
+            sub: l10n.statsSubTasks,
             color: YaruColors.cyan,
           ),
         ),
@@ -395,7 +417,8 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
         Expanded(
           child: _statTile(
             label: l10n.statsWeek,
-            value: '$thisWeek',
+            value: l10n.statsValueTasks(thisWeek),
+            sub: l10n.statsSubTasks,
             color: YaruColors.lime,
           ),
         ),
@@ -403,7 +426,8 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
         Expanded(
           child: _statTile(
             label: l10n.statsLongest,
-            value: '${stats.longestStreak}',
+            value: l10n.statsValueDays(stats.longestStreak),
+            sub: l10n.statsSubStreak,
             color: YaruColors.amber,
           ),
         ),
@@ -414,6 +438,7 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
   Widget _statTile({
     required String label,
     required String value,
+    required String sub,
     required Color color,
   }) {
     return Builder(builder: (context) {
@@ -429,21 +454,30 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 12,
                     fontWeight: FontWeight.w800,
                     color: color,
-                    letterSpacing: 1.2,
+                    letterSpacing: 0.4,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: yaru.inkPrimary,
-                    height: 1,
+                    height: 1.1,
                     fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  sub,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    color: yaru.inkTertiary,
                   ),
                 ),
               ],
@@ -558,6 +592,31 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
+                const SizedBox(height: 6),
+                // #5: 次レベル名 + 残 XP
+                Text(
+                  l10n.statsNextLevelLabel(
+                    stats.currentLevel + 1,
+                    _localizedLevelName(l10n, stats.currentLevel + 1),
+                  ),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: yaru.inkSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  l10n.statsNextLevelXp(nextXp - stats.totalXp),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: yaru.accent,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
               ],
             ),
           ),
@@ -572,16 +631,19 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
     AppLocalizations l10n,
     List<UserBadge> badges,
   ) {
-    // #8: 獲得率 + 並び替え (獲得済み → 未獲得 (表) → 隠し未獲得)
-    final earned = badges.where((b) => b.isEarned).length;
+    final earned = badges.where((b) => b.isEarned).toList()
+      ..sort((a, b) => a.id.compareTo(b.id));
+    final unearnedVisible = badges
+        .where((b) => !b.isEarned && !b.isHidden)
+        .toList()
+      ..sort((a, b) => a.id.compareTo(b.id));
+    final unearnedHidden = badges
+        .where((b) => !b.isEarned && b.isHidden)
+        .toList()
+      ..sort((a, b) => a.id.compareTo(b.id));
+    final earnedCount = earned.length;
     final total = badges.length;
-    final pct = total == 0 ? 0 : ((earned / total) * 100).round();
-    final sorted = [...badges]
-      ..sort((a, b) {
-        if (a.isEarned != b.isEarned) return a.isEarned ? -1 : 1;
-        if (a.isHidden != b.isHidden) return a.isHidden ? 1 : -1;
-        return a.id.compareTo(b.id);
-      });
+    final pct = total == 0 ? 0 : ((earnedCount / total) * 100).round();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -596,7 +658,7 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
                     size: 16, color: yaru.inkSecondary),
                 const SizedBox(width: 6),
                 Text(
-                  l10n.statsBadgesEarnedCount(earned, total),
+                  l10n.statsBadgesEarnedCount(earnedCount, total),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -623,24 +685,89 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
-                value: total == 0 ? 0 : earned / total,
+                value: total == 0 ? 0 : earnedCount / total,
                 minHeight: 6,
                 backgroundColor: yaru.line,
                 valueColor: AlwaysStoppedAnimation(yaru.accent),
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          GridView.count(
-            crossAxisCount: 3,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: 1.0,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            children: sorted
-                .map((b) => _BadgeTile(badge: b))
-                .toList(growable: false),
+          if (earned.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _BadgeSectionHeader(label: l10n.statsBadgesEarnedSection),
+            const SizedBox(height: 8),
+            _badgeGridChunk(earned),
+          ],
+          if (unearnedVisible.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _BadgeSectionHeader(label: l10n.statsBadgesLockedSection),
+            const SizedBox(height: 8),
+            _badgeGridChunk(unearnedVisible),
+          ],
+          if (unearnedHidden.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _BadgeSectionHeader(
+              label: l10n.statsBadgesHiddenSection(unearnedHidden.length),
+            ),
+            const SizedBox(height: 8),
+            _badgeGridChunk(unearnedHidden),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _badgeGridChunk(List<UserBadge> items) {
+    return GridView.count(
+      crossAxisCount: 3,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      childAspectRatio: 1.0,
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
+      children:
+          items.map((b) => _BadgeTile(badge: b)).toList(growable: false),
+    );
+  }
+}
+
+/// #5: バッジセクション区切り (獲得済み / 未獲得 / 隠し)
+class _BadgeSectionHeader extends StatelessWidget {
+  const _BadgeSectionHeader({required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 14,
+            decoration: BoxDecoration(
+              color: cs.primary,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: cs.onSurfaceVariant,
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Container(
+              height: 1,
+              color: cs.outlineVariant.withValues(alpha: 0.4),
+            ),
           ),
         ],
       ),
@@ -648,12 +775,12 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
   }
 }
 
-class _BadgeTile extends StatelessWidget {
+class _BadgeTile extends ConsumerWidget {
   const _BadgeTile({required this.badge});
   final UserBadge badge;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final yaru = context.yaru;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
@@ -665,62 +792,267 @@ class _BadgeTile extends StatelessWidget {
     final displayName =
         concealed ? l10n.badgeHidden : _localizedBadgeName(l10n, badge.id);
 
-    return GlassCard(
-      borderRadius: 14,
-      padding: const EdgeInsets.all(10),
-      child: Stack(
-        children: [
-          Center(
-            child: Opacity(
-              opacity: earned ? 1 : 0.35,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    displayIcon,
-                    size: 32,
-                    color: earned
-                        ? Theme.of(context).colorScheme.primary
-                        : yaru.inkTertiary,
-                    shadows: earned && isDark
-                        ? [
-                            Shadow(
-                              color: yaru.accent.withValues(alpha: 0.6),
-                              blurRadius: 8,
-                            ),
-                          ]
-                        : null,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => _showBadgeDetail(context, ref, badge),
+        child: GlassCard(
+          borderRadius: 14,
+          padding: const EdgeInsets.all(10),
+          child: Stack(
+            children: [
+              Center(
+                child: Opacity(
+                  opacity: earned ? 1 : 0.35,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        displayIcon,
+                        size: 32,
+                        color: earned
+                            ? Theme.of(context).colorScheme.primary
+                            : yaru.inkTertiary,
+                        shadows: earned && isDark
+                            ? [
+                                Shadow(
+                                  color: yaru.accent.withValues(alpha: 0.6),
+                                  blurRadius: 8,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        displayName,
+                        style: TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w800,
+                          color: earned ? yaru.inkSecondary : yaru.inkQuaternary,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    displayName,
-                    style: TextStyle(
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.w800,
-                      color: earned ? yaru.inkSecondary : yaru.inkQuaternary,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                ),
               ),
-            ),
+              if (!earned)
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: Icon(
+                    concealed
+                        ? Icons.visibility_off_rounded
+                        : Icons.lock_rounded,
+                    size: 12,
+                    color: yaru.inkQuaternary,
+                  ),
+                ),
+            ],
           ),
-          if (!earned)
-            Positioned(
-              top: 4,
-              right: 4,
-              child: Icon(
-                concealed ? Icons.visibility_off_rounded : Icons.lock_rounded,
-                size: 12,
-                color: yaru.inkQuaternary,
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }
+}
+
+/// #4: バッジ詳細ダイアログ。 獲得済み/未獲得/隠しバッジで内容を切り替え。
+Future<void> _showBadgeDetail(
+    BuildContext context, WidgetRef ref, UserBadge badge) async {
+  final l10n = AppLocalizations.of(context)!;
+  final concealed = badge.isHidden && !badge.isEarned;
+  final stats = ref.read(userStatsProvider).valueOrNull;
+  final progress = concealed ? null : _badgeProgress(badge.id, stats);
+  final xpReward = DatabaseService.kBadgeXpReward[badge.id] ?? 0;
+  await showDialog<void>(
+    context: context,
+    builder: (ctx) {
+      final theme = Theme.of(ctx);
+      final cs = theme.colorScheme;
+      final name = concealed
+          ? l10n.badgeHidden
+          : _localizedBadgeName(l10n, badge.id);
+      final cond = concealed
+          ? l10n.badgeHiddenCondition
+          : _localizedBadgeCondition(l10n, badge.id);
+      return AlertDialog(
+        icon: Icon(
+          concealed ? Icons.help_outline_rounded : badge.icon,
+          size: 44,
+          color: badge.isEarned ? cs.primary : cs.onSurfaceVariant,
+        ),
+        title: Text(
+          name,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontWeight: FontWeight.w800),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _DetailRow(
+              label: l10n.badgeDetailCondition,
+              value: cond,
+            ),
+            if (badge.isEarned && badge.earnedAt != null) ...[
+              const SizedBox(height: 8),
+              _DetailRow(
+                label: l10n.badgeDetailEarnedAt,
+                value: DateFormat.yMd(
+                        Localizations.localeOf(ctx).toLanguageTag())
+                    .format(badge.earnedAt!),
+              ),
+            ],
+            if (!badge.isEarned && progress != null) ...[
+              const SizedBox(height: 8),
+              _DetailRow(
+                label: l10n.badgeDetailProgress,
+                value: l10n.badgeDetailProgressValue(
+                    progress.$1, progress.$2),
+              ),
+              const SizedBox(height: 6),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: (progress.$1 / progress.$2).clamp(0.0, 1.0),
+                  minHeight: 6,
+                  backgroundColor: cs.surfaceContainerHighest,
+                  valueColor: AlwaysStoppedAnimation(cs.primary),
+                ),
+              ),
+            ],
+            if (xpReward > 0) ...[
+              const SizedBox(height: 8),
+              _DetailRow(
+                label: l10n.badgeDetailXp,
+                value: l10n.badgeDetailXpValue(xpReward),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.cancel),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 80,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 未獲得 (表) バッジで current/target を返す。 計算不能なら null。
+(int, int)? _badgeProgress(String id, dynamic stats) {
+  if (stats == null) return null;
+  return switch (id) {
+    'first_step' => (stats.totalTasksCompleted.clamp(0, 1) as int, 1),
+    'task_10' => (stats.totalTasksCompleted as int, 10),
+    'task_25' => (stats.totalTasksCompleted as int, 25),
+    'task_50' => (stats.totalTasksCompleted as int, 50),
+    'task_100' => (stats.totalTasksCompleted as int, 100),
+    'task_250' => (stats.totalTasksCompleted as int, 250),
+    'task_500' => (stats.totalTasksCompleted as int, 500),
+    'task_1000' => (stats.totalTasksCompleted as int, 1000),
+    'streak_3' => (stats.streakDays as int, 3),
+    'streak_7' => (stats.streakDays as int, 7),
+    'streak_14' => (stats.streakDays as int, 14),
+    'streak_30' => (stats.streakDays as int, 30),
+    'streak_60' => (stats.streakDays as int, 60),
+    'streak_100' => (stats.streakDays as int, 100),
+    'ai_first' => (stats.totalAiSorts.clamp(0, 1) as int, 1),
+    'ai_10' => (stats.totalAiSorts as int, 10),
+    'ai_50' => (stats.totalAiSorts as int, 50),
+    'level_5' => (stats.currentLevel as int, 5),
+    'level_10' => (stats.currentLevel as int, 10),
+    'level_20' => (stats.currentLevel as int, 20),
+    'level_30' => (stats.currentLevel as int, 30),
+    _ => null,
+  };
+}
+
+String _localizedBadgeCondition(AppLocalizations l10n, String id) {
+  return switch (id) {
+    'first_step' => l10n.badgeCond_first_step,
+    'task_10' => l10n.badgeCond_task_10,
+    'task_25' => l10n.badgeCond_task_25,
+    'task_50' => l10n.badgeCond_task_50,
+    'task_100' => l10n.badgeCond_task_100,
+    'task_250' => l10n.badgeCond_task_250,
+    'task_500' => l10n.badgeCond_task_500,
+    'task_1000' => l10n.badgeCond_task_1000,
+    'streak_3' => l10n.badgeCond_streak_3,
+    'streak_7' => l10n.badgeCond_streak_7,
+    'streak_14' => l10n.badgeCond_streak_14,
+    'streak_30' => l10n.badgeCond_streak_30,
+    'streak_60' => l10n.badgeCond_streak_60,
+    'streak_100' => l10n.badgeCond_streak_100,
+    'ai_first' => l10n.badgeCond_ai_first,
+    'ai_10' => l10n.badgeCond_ai_10,
+    'ai_50' => l10n.badgeCond_ai_50,
+    'level_5' => l10n.badgeCond_level_5,
+    'level_10' => l10n.badgeCond_level_10,
+    'level_20' => l10n.badgeCond_level_20,
+    'level_30' => l10n.badgeCond_level_30,
+    'early_bird' => l10n.badgeCond_early_bird,
+    'night_owl' => l10n.badgeCond_night_owl,
+    'busy_day_5' => l10n.badgeCond_busy_day_5,
+    'busy_day_10' => l10n.badgeCond_busy_day_10,
+    'busy_month_30' => l10n.badgeCond_busy_month_30,
+    'back_from_hibernation' => l10n.badgeCond_back_from_hibernation,
+    'long_time_no_see' => l10n.badgeCond_long_time_no_see,
+    'category_master' => l10n.badgeCond_category_master,
+    'habit_demon' => l10n.badgeCond_habit_demon,
+    'schedule_master' => l10n.badgeCond_schedule_master,
+    'zero_overdue' => l10n.badgeCond_zero_overdue,
+    'multi_tasker' => l10n.badgeCond_multi_tasker,
+    'ticket_buyer' => l10n.badgeCond_ticket_buyer,
+    'weekend_warrior' => l10n.badgeCond_weekend_warrior,
+    'perfect_week' => l10n.badgeCond_perfect_week,
+    'level_50' => l10n.badgeCond_level_50,
+    'level_70' => l10n.badgeCond_level_70,
+    'level_100' => l10n.badgeCond_level_100,
+    _ => id,
+  };
 }
 
 String _localizedLevelName(AppLocalizations l10n, int level) {

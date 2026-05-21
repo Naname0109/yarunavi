@@ -188,11 +188,14 @@ class _V2HomeShellState extends ConsumerState<V2HomeShell> {
         key: _floatingHostKey,
         child: IndexedStack(
           index: _index,
-          children: const [
-            _V2HomeTab(),
-            V2CalendarScreen(),
-            V2StatsScreen(),
-            SettingsScreen(),
+          children: [
+            const _V2HomeTab(),
+            const V2CalendarScreen(),
+            // IndexedStack は全タブを mount するため、 統計タブの
+            // 初回チュートリアルがホームタブ上で表示されてしまわないよう
+            // isActive を渡す。
+            V2StatsScreen(isActive: _index == 2),
+            const SettingsScreen(),
           ],
         ),
       ),

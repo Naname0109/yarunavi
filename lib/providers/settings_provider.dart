@@ -194,6 +194,13 @@ class BlockedDatesNotifier extends AsyncNotifier<List<DateTime>> {
     await db.removeBlockedDate(date);
     ref.invalidateSelf();
   }
+
+  /// #1 一括保存: 設定画面のカレンダーグリッドからまとめて反映する。
+  Future<void> setAll(List<DateTime> dates) async {
+    final db = ref.read(databaseServiceProvider);
+    await db.replaceAllBlockedDates(dates);
+    ref.invalidateSelf();
+  }
 }
 
 final blockedDatesProvider =
