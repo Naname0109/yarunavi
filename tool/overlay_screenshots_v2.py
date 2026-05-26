@@ -730,6 +730,25 @@ def render_single_frame(
     return canvas
 
 
+def _build_split_screen_raw(
+    raw_left_path: Path, raw_right_path: Path, out_path: Path,
+) -> Path:
+    """ヒーロー用に「左半=ホーム、 右半=AI結果」 の合成 raw 画像を作る。
+    両 raw は同サイズ前提 (1320x2868)。 中央で半分ずつクロップして連結。
+    """
+    a = Image.open(raw_left_path).convert("RGBA")
+    b = Image.open(raw_right_path).convert("RGBA")
+    if a.size != b.size:
+        b = b.resize(a.size, Image.LANCZOS)
+    w, h = a.size
+    half = w // 2
+    out = Image.new("RGBA", (w, h), (0, 0, 0, 255))
+    out.paste(a.crop((0, 0, half, h)), (0, 0))
+    out.paste(b.crop((half, 0, w, h)), (half, 0))
+    out.convert("RGB").save(out_path, "PNG", optimize=True)
+    return out_path
+
+
 def _build_hero_shared_background(
     full_w: int, frame_h: int,
 ) -> Image.Image:
@@ -748,6 +767,104 @@ def _build_hero_shared_background(
     return canvas
 
 
+def render_hero_combined(
+    texts: dict, raw_dir: Path,
+    *, frame_w: int, frame_h: int,
+    phone_w: int, phone_h: int,
+    title_size: int,
+    eyebrow_font_size: int,
+    sub_font_size: int,
+    shared_bg: Image.Image,
+) -> tuple[Image.Image, Image.Image]:
+    """連結ヒーロー: フル幅 (2*frame_w) キャンバスに iPhone 1 台を中央配置し、
+    左右テキストを描いてから 2 枚に分割して返す。"""
+    h = texts["hero"]
+    safe = SafeArea()
+    full_w = frame_w * 2
+    canvas = shared_bg.copy()
+
+    # --- 共有 iPhone (raw 中央に「左=ホーム / 右=AI結果」 の合成画像) ---
+    prefix = "ipad_" if raw_dir.name.startswith("ipad") else "raw_"
+    raw_home = raw_dir / f"{prefix}01_home.png"
+    raw_ai = raw_dir / f"{prefix}02_ai_result.png"
+    py = frame_h - phone_h + int(-50 * (frame_h / 2796))
+    phone_cx = full_w // 2
+    px = phone_cx - phone_w // 2
+    if raw_home.exists() and raw_ai.exists():
+        tmp_split = raw_dir.parent / "_hero_split_screen_tmp.png"
+        _build_split_screen_raw(raw_home, raw_ai, tmp_split)
+        frame, _ = make_phone_frame(tmp_split, phone_w, phone_h,
+                                     glow_color=(125, 245, 237))
+        # 端末を境界中心にペースト
+        paste_phone_with_glow(canvas, frame, px, py,
+                              glow_color=(125, 245, 237))
+        try:
+            tmp_split.unlink()
+        except OSError:
+            pass
+
+    # --- 左半分: アイブロウ + タイトル + サブ + ステップ1 ---
+    cx_left = frame_w // 2
+    eyebrow_y = safe.top + 20
+    draw_eyebrow_badge(canvas, h["eyebrow_text"], cx_left, eyebrow_y,
+                       (125, 245, 237), icon=h["eyebrow_icon"],
+                       font_size=eyebrow_font_size)
+    title_y = eyebrow_y + 90
+    text_max = safe.text_width(frame_w)
+    font_l, _ = fit_text_in_width(
+        h["title_l1"], FONT_HEAVY, text_max, title_size, min_size=80)
+    w1, _ = measure(h["title_l1"], font_l)
+    d = ImageDraw.Draw(canvas)
+    d.text((cx_left - w1 // 2, title_y), h["title_l1"],
+           font=font_l, fill=(255, 255, 255, 255))
+    sub_y = title_y + int(font_l.size * 1.18) + 20
+    sub_font, _ = fit_text_in_width(
+        h["sub_left"], FONT_SEMI, text_max, sub_font_size, min_size=22)
+    draw_sub(canvas, h["sub_left"], cx_left, sub_y,
+             color=(255, 255, 255, 165), size=sub_font.size)
+    _draw_step_badge(canvas, h["step1_text"], h["step1_caption"],
+                     px + 30, py - 100, (125, 245, 237))
+
+    # --- 右半分: タイトル (AI accent) + サブ + ステップ2 ---
+    cx_right = frame_w + frame_w // 2
+    headline_y = safe.top + 90
+    l2_pre = h["title_l2_pre"]
+    l2_acc = h["title_l2_accent"]
+    l2_post = h["title_l2_post"]
+    full_text = f"{l2_pre}{l2_acc}{l2_post}"
+    font_r, _ = fit_text_in_width(
+        full_text, FONT_HEAVY, text_max, title_size, min_size=80)
+    w_pre = measure(l2_pre, font_r)[0] if l2_pre else 0
+    w_acc = measure(l2_acc, font_r)[0]
+    w_post = measure(l2_post, font_r)[0]
+    total = w_pre + w_acc + w_post
+    x = cx_right - total // 2
+    title_y_r = headline_y
+    if l2_pre:
+        d.text((x, title_y_r), l2_pre, font=font_r,
+               fill=(255, 255, 255, 255))
+        x += w_pre
+    _draw_gradient_text(canvas, l2_acc, font_r, (x, title_y_r),
+                        ((125, 245, 237), (180, 140, 255)))
+    x += w_acc
+    d.text((x, title_y_r), l2_post, font=font_r, fill=(255, 255, 255, 255))
+    sub_y_r = title_y_r + int(font_r.size * 1.18) + 20
+    sub_font_r, _ = fit_text_in_width(
+        h["sub_right"], FONT_SEMI, text_max, sub_font_size, min_size=22)
+    draw_sub(canvas, h["sub_right"], cx_right, sub_y_r,
+             color=(255, 255, 255, 165), size=sub_font_r.size)
+    _draw_step_badge(canvas, h["step2_text"], h["step2_caption"],
+                     px + phone_w - 30, py - 100, (180, 140, 255),
+                     align="right")
+
+    # --- 2 枚に分割して返す ---
+    left = canvas.crop((0, 0, frame_w, frame_h))
+    right = canvas.crop((frame_w, 0, full_w, frame_h))
+    validate_frame(left, frame_w, frame_h, name="hero_left")
+    validate_frame(right, frame_w, frame_h, name="hero_right")
+    return left, right
+
+
 def render_hero_left(
     texts: dict, raw_dir: Path,
     *, frame_w: int, frame_h: int,
@@ -756,8 +873,9 @@ def render_hero_left(
     eyebrow_font_size: int,
     sub_font_size: int,
     shared_bg_left: Image.Image,
+    shared_phone_frame: Image.Image | None = None,
 ) -> Image.Image:
-    """連結ヒーロー左半分 (1290x2796)。 テキスト/端末は frame 内で完結。"""
+    """[非推奨] 旧シングルフレーム描画。 render_hero_combined を使う。"""
     h = texts["hero"]
     safe = SafeArea()
     canvas = shared_bg_left.copy()
@@ -769,7 +887,7 @@ def render_hero_left(
                        (125, 245, 237), icon=h["eyebrow_icon"],
                        font_size=eyebrow_font_size)
 
-    # タイトル: 「登録するだけ。」 (フレーム内で fit)
+    # タイトル: 「登録するだけ。」
     title_y = eyebrow_y + 90
     text_max = safe.text_width(frame_w)
     font, _ = fit_text_in_width(
@@ -786,25 +904,18 @@ def render_hero_left(
     draw_sub(canvas, h["sub_left"], cx, sub_y,
              color=(255, 255, 255, 165), size=sub_font.size)
 
-    # 端末 (ホーム画面)
-    prefix = "ipad_" if raw_dir.name.startswith("ipad") else "raw_"
-    raw1 = raw_dir / f"{prefix}01_home.png"
+    # 共有端末: フレーム境界 (右端) に中心が来るよう配置。
+    # 左フレームから見ると phone の左半分だけが見える。
     py = frame_h - phone_h + int(-50 * (frame_h / 2796))
-    px = cx - phone_w // 2 - int(40 * (frame_w / 1290))  # 中央より少し左
-    if raw1.exists():
-        f1, _ = make_phone_frame(raw1, phone_w, phone_h,
-                                  glow_color=(125, 245, 237))
-        paste_phone_with_glow(canvas, f1, px, py, glow_color=(125, 245, 237))
+    global_phone_cx = frame_w  # 連結時の中心
+    px_local = global_phone_cx - phone_w // 2  # 左フレーム内の paste 位置
+    if shared_phone_frame is not None:
+        paste_phone_with_glow(canvas, shared_phone_frame, px_local, py,
+                              glow_color=(125, 245, 237))
 
-    # ステップバッジ (端末上左寄せ)
+    # ステップバッジ (見える半分の左寄せ)
     _draw_step_badge(canvas, h["step1_text"], h["step1_caption"],
-                     px + 30, py - 100, (125, 245, 237))
-
-    # 矢印の左半分 (右端のフレーム境界ぴったりに半円)
-    cn_size = int(120 * (frame_h / 2796))
-    _draw_arrow_half(canvas, frame_w, py + int(phone_h * 0.50),
-                     cn_size,
-                     grad=((125, 245, 237), (180, 140, 255)))
+                     px_local + 30, py - 100, (125, 245, 237))
 
     validate_frame(canvas, frame_w, frame_h, name="hero_left")
     return canvas
@@ -818,15 +929,16 @@ def render_hero_right(
     eyebrow_font_size: int,
     sub_font_size: int,
     shared_bg_right: Image.Image,
+    shared_phone_frame: Image.Image | None = None,
 ) -> Image.Image:
-    """連結ヒーロー右半分 (1290x2796)。 テキスト/端末は frame 内で完結。"""
+    """連結ヒーロー右半分。 共有 iPhone の右半分が見える形に変更。"""
     h = texts["hero"]
     safe = SafeArea()
     canvas = shared_bg_right.copy()
     cx = frame_w // 2
 
-    # タイトル: pre + AI accent + post を frame 内で fit
-    headline_y = safe.top + 90  # 左フレームの eyebrow 高さに揃える
+    # タイトル: pre + AI accent + post
+    headline_y = safe.top + 90
     l2_pre = h["title_l2_pre"]
     l2_acc = h["title_l2_accent"]
     l2_post = h["title_l2_post"]
@@ -856,26 +968,18 @@ def render_hero_right(
     draw_sub(canvas, h["sub_right"], cx, sub_y,
              color=(255, 255, 255, 165), size=sub_font.size)
 
-    # 端末 (AI 結果画面)
-    prefix = "ipad_" if raw_dir.name.startswith("ipad") else "raw_"
-    raw2 = raw_dir / f"{prefix}02_ai_result.png"
+    # 共有端末: 連結時のフレーム境界 (左端) に中心が来る。
+    # 右フレームの座標系では phone 中心が x=0、 左半分は画面外。
     py = frame_h - phone_h + int(-50 * (frame_h / 2796))
-    px = cx - phone_w // 2 + int(40 * (frame_w / 1290))  # 中央より少し右
-    if raw2.exists():
-        f2, _ = make_phone_frame(raw2, phone_w, phone_h,
-                                  glow_color=(180, 140, 255))
-        paste_phone_with_glow(canvas, f2, px, py, glow_color=(180, 140, 255))
+    px_local = -(phone_w // 2)
+    if shared_phone_frame is not None:
+        paste_phone_with_glow(canvas, shared_phone_frame, px_local, py,
+                              glow_color=(180, 140, 255))
 
-    # ステップバッジ (端末上右寄せ)
+    # ステップバッジ (見える半分の右寄せ)
     _draw_step_badge(canvas, h["step2_text"], h["step2_caption"],
-                     px + phone_w - 30, py - 100, (180, 140, 255),
+                     px_local + phone_w - 30, py - 100, (180, 140, 255),
                      align="right")
-
-    # 矢印の右半分 (左端のフレーム境界ぴったりに半円)
-    cn_size = int(120 * (frame_h / 2796))
-    _draw_arrow_half(canvas, 0, py + int(phone_h * 0.50),
-                     cn_size,
-                     grad=((125, 245, 237), (180, 140, 255)))
 
     validate_frame(canvas, frame_w, frame_h, name="hero_right")
     return canvas
@@ -1008,31 +1112,18 @@ def render_all_for_device(
 
     print(f"\n=== {lang} / {device} ({frame_w}x{frame_h}) ===")
 
-    # 連結ヒーロー: 共有背景を 2 倍幅で生成 → 左右に crop → 各フレーム独立 render
-    # → テキストが境界を跨ぐ問題を構造的に解消。
+    # 連結ヒーロー (新仕様): フル幅で 1 つの iPhone を境界に置き、 2 枚に分割。
     full_w = frame_w * 2
     shared_bg = _build_hero_shared_background(full_w, frame_h)
-    bg_left = shared_bg.crop((0, 0, frame_w, frame_h))
-    bg_right = shared_bg.crop((frame_w, 0, full_w, frame_h))
-    # iPhone は title 120-130px、 iPad は少し大きめ
     hero_title_size = 120 if device == "iphone" else 156
-    left = render_hero_left(
+    left, right = render_hero_combined(
         texts, raw_dir_use,
         frame_w=frame_w, frame_h=frame_h,
         phone_w=hero_phone_w, phone_h=hero_phone_h,
         title_size=hero_title_size,
         eyebrow_font_size=eyebrow_font,
         sub_font_size=sub_font,
-        shared_bg_left=bg_left,
-    )
-    right = render_hero_right(
-        texts, raw_dir_use,
-        frame_w=frame_w, frame_h=frame_h,
-        phone_w=hero_phone_w, phone_h=hero_phone_h,
-        title_size=hero_title_size,
-        eyebrow_font_size=eyebrow_font,
-        sub_font_size=sub_font,
-        shared_bg_right=bg_right,
+        shared_bg=shared_bg,
     )
     left.convert("RGB").save(out_dir / "01_hero_left.png", "PNG", optimize=True)
     right.convert("RGB").save(out_dir / "02_hero_right.png", "PNG", optimize=True)

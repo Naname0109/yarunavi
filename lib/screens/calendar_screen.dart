@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/generated/app_localizations.dart';
 import '../models/task.dart';
@@ -205,7 +206,7 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
                     ),
                   ),
                   TextButton.icon(
-                    onPressed: () => _confirmAndSyncCalendar(l10n),
+                    onPressed: () => _syncCalendar(l10n),
                     icon: const Icon(Icons.sync_rounded, size: 18),
                     label: Text(l10n.calendarSyncShort),
                     style: TextButton.styleFrom(
@@ -651,41 +652,47 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
     EventFormSheet.show(context, editTarget: e);
   }
 
-  /// #2-A: カレンダー同期 (確認ダイアログ → syncNext60Days → SnackBar)
-  Future<void> _confirmAndSyncCalendar(AppLocalizations l10n) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.sync_rounded, size: 36),
-        title: Text(l10n.calendarSyncConfirmTitle),
-        content: Text(l10n.calendarSyncConfirmBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(l10n.fabSyncCalendar),
-          ),
-        ],
-      ),
-    );
-    if (ok != true || !mounted) return;
+  /// #2-A: カレンダー同期。
+  /// Apple Guideline 5.1.1(iv) 準拠のため、システム権限ダイアログの前に
+  /// カスタム確認ダイアログを挟まない。「取込」タップで直接同期を実行し、
+  /// 権限取得は EventSyncService 内の OS 標準ダイアログに委ねる。
+  /// 権限が無い場合 (初回は OS ダイアログ提示、過去に拒否済みなら即 -1) は
+  /// 設定アプリへの導線のみ SnackBar で提示する。
+  Future<void> _syncCalendar(AppLocalizations l10n) async {
     final messenger = ScaffoldMessenger.of(context);
     final db = ref.read(databaseServiceProvider);
     final svc = EventSyncService(db);
+    // 初回はここで OS の権限ダイアログが表示される (事前ダイアログなし)。
     final count = await svc.syncNext60Days();
     ref.invalidate(eventsProvider);
     if (!mounted) return;
     if (count < 0) {
       messenger.showSnackBar(
-        SnackBar(content: Text(l10n.calendarPermissionDenied)),
+        SnackBar(
+          content: Text(l10n.calendarPermissionDenied),
+          action: SnackBarAction(
+            label: l10n.calendarOpenSettings,
+            onPressed: _openAppSettings,
+          ),
+        ),
       );
     } else {
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.calendarSyncDone(count))),
       );
+    }
+  }
+
+  /// iOS「設定」アプリの当アプリのページを開く (権限拒否後の再許可導線)。
+  /// 他の launchUrl 呼び出しと同様 externalApplication で確実に外部遷移させる。
+  Future<void> _openAppSettings() async {
+    try {
+      await launchUrl(
+        Uri.parse('app-settings:'),
+        mode: LaunchMode.externalApplication,
+      );
+    } catch (_) {
+      // 設定アプリを開けない端末では何もしない。
     }
   }
 

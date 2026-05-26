@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../../models/category.dart' as model;
@@ -109,6 +110,9 @@ class _V2HomeShellState extends ConsumerState<V2HomeShell> {
     );
   }
 
+  /// FAB メニューからのカレンダー同期。
+  /// 事前確認ダイアログは挟まず、権限取得は OS 標準ダイアログに委ねる
+  /// (Apple Guideline 5.1.1(iv) 準拠)。拒否時のみ設定導線を提示。
   Future<void> _syncCalendarEvents() async {
     final l10n = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
@@ -119,7 +123,18 @@ class _V2HomeShellState extends ConsumerState<V2HomeShell> {
     if (!mounted) return;
     if (count < 0) {
       messenger.showSnackBar(
-        SnackBar(content: Text(l10n.calendarPermissionDenied)),
+        SnackBar(
+          content: Text(l10n.calendarPermissionDenied),
+          action: SnackBarAction(
+            label: l10n.calendarOpenSettings,
+            onPressed: () {
+              launchUrl(
+                Uri.parse('app-settings:'),
+                mode: LaunchMode.externalApplication,
+              ).ignore();
+            },
+          ),
+        ),
       );
     } else {
       messenger.showSnackBar(

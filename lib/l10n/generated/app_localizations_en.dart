@@ -311,6 +311,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarPermissionDenied => 'Please allow calendar access';
 
   @override
+  String get calendarOpenSettings => 'Open Settings';
+
+  @override
   String get calendarAddFailed => 'Failed to add to calendar';
 
   @override
@@ -2427,13 +2430,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarSyncFailed => 'Calendar import failed';
-
-  @override
-  String get calendarSyncConfirmTitle => 'Import events?';
-
-  @override
-  String get calendarSyncConfirmBody =>
-      'Pull events from your iOS calendar for the next 60 days.';
 
   @override
   String get eventAdd => 'Add event';

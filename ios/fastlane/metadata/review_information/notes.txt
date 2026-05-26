@@ -1,14 +1,64 @@
-This app uses AI to organize task priorities and suggest optimal execution dates.
+=== YaruNavi - App Review Notes ===
 
-No sign-in required. All data is stored locally on the device.
-AI feature requires internet connection (proxied through Cloudflare Worker to Anthropic API).
+No sign-in or account is required; all task data is stored locally. The AI
+feature needs an internet connection (requests go through a Cloudflare Worker
+proxy to the Anthropic API). The app's default language is Japanese; key
+on-screen labels are quoted below with an English translation in parentheses.
 
-Free users: 2 lifetime AI sorts + rewarded ad for 1 additional sort per day.
-Premium: 30 AI sorts/month, auto notifications, calendar sync, ad-free.
+----------------------------------------------------------------
+1) ADD TASKS (needed before AI Sort)
+----------------------------------------------------------------
+1. Launch the app to reach the Home screen.
+2. Tap the round "+" button in the center of the bottom bar; a menu appears.
+3. Tap the first item "タスクを追加" (Add task), enter a title and a due
+   date, then save.
+4. Add 3-5 tasks with different due dates.
 
-To test AI sorting:
-1. Add several tasks with different due dates
-2. Tap "AIで整理" (AI Sort) button on home screen
-3. View results with recommended execution dates
+----------------------------------------------------------------
+2) RUN AI SORT (the main feature)
+----------------------------------------------------------------
+The large card at the top of the Home screen is the AI Sort card; its button
+reads "今日のタスクをAIで整理" (Sort today's tasks with AI). Tap it (internet
+required). The AI proposes an execution date and a priority for each task,
+then opens the result screen.
 
-Gamification (XP/Level/Streak) is cosmetic only and does not affect app functionality.
+----------------------------------------------------------------
+3) IN-APP PURCHASES
+----------------------------------------------------------------
+Free users get 2 AI Sorts total (lifetime). On the 3rd attempt, a purchase
+sheet titled "AI 整理の回数が不足しています" (Not enough AI sorts left) opens
+with three options:
+  - "プレミアムプラン ¥580/月" (Premium - 580 yen/month; 4,200 yen/year is
+    also offered on the store screen).
+    Products: yarunavi_premium_monthly / yarunavi_premium_yearly.
+  - "AI 整理チケット ¥120" (AI Sort Ticket - 120 yen consumable, up to 3).
+    Product: yarunavi_ai_ticket.
+  - "動画を視聴" (Watch a video - free rewarded ad, up to 2 times total).
+
+Quick path: run AI Sort twice to use the free quota; on the 3rd attempt the
+sheet opens automatically. Tapping the ticket starts the StoreKit purchase;
+tapping Premium opens the subscription store screen.
+
+----------------------------------------------------------------
+4) PREMIUM FROM SETTINGS
+----------------------------------------------------------------
+Open the "設定" (Settings) tab (rightmost icon) and tap "プレミアムに登録"
+(Upgrade to Premium) to open the store screen. It shows the monthly (580 yen)
+and yearly (4,200 yen) plans, the auto-renewal notice, a Restore Purchases
+button, and Terms / Privacy links. Premium includes 30 AI Sorts per month,
+automatic notification scheduling, calendar sync, and an ad-free experience.
+
+----------------------------------------------------------------
+5) CALENDAR SYNC
+----------------------------------------------------------------
+Open the "カレンダー" (Calendar) tab (2nd icon from the left) and tap "取込"
+(Import) at the top-right. This directly presents the iOS system calendar-
+permission dialog (no custom pre-prompt). After you allow access, events for
+the next 60 days are imported.
+
+----------------------------------------------------------------
+NOTES
+----------------------------------------------------------------
+- All data is stored locally; there is no sign-in and no account.
+- Gamification (XP / Level / Streak) is cosmetic only and does not affect
+  app functionality.

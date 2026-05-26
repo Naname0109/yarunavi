@@ -94,6 +94,7 @@
   "notifyRecurring": "It's time for {taskName}",
   "addToCalendar": "Add to Calendar",
   "calendarPermissionDenied": "Please allow calendar access",
+  "calendarOpenSettings": "Open Settings",
   "calendarAddFailed": "Failed to add to calendar",
 
   "storePremiumTitle": "Premium Plan",
@@ -925,8 +926,6 @@
   "eventDeleted": "Event deleted",
   "calendarSyncDone": "Imported {count} events",
   "calendarSyncFailed": "Calendar import failed",
-  "calendarSyncConfirmTitle": "Import events?",
-  "calendarSyncConfirmBody": "Pull events from your iOS calendar for the next 60 days.",
 
   "eventAdd": "Add event",
   "eventEdit": "Edit event",

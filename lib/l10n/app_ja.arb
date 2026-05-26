@@ -225,6 +225,8 @@
   "@addToCalendar": {},
   "calendarPermissionDenied": "カレンダーへのアクセスを許可してください",
   "@calendarPermissionDenied": {},
+  "calendarOpenSettings": "設定を開く",
+  "@calendarOpenSettings": {},
   "calendarAddFailed": "カレンダーへの追加に失敗しました",
   "@calendarAddFailed": {},
 
@@ -1847,13 +1849,6 @@
   "@calendarSyncFailed": {
     "description": "device_calendar 同期失敗時のスナックバー"
   },
-  "calendarSyncConfirmTitle": "予定を取り込みますか?",
-  "@calendarSyncConfirmTitle": {
-    "description": "カレンダー画面の同期ボタン押下時の確認ダイアログタイトル"
-  },
-  "calendarSyncConfirmBody": "iOS カレンダーから今日〜60日先までの予定を取り込みます。",
-  "@calendarSyncConfirmBody": {},
-
   "eventAdd": "予定を追加",
   "@eventAdd": {},
   "eventEdit": "予定を編集",

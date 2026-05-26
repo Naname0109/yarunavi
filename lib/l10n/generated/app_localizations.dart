@@ -662,6 +662,12 @@ abstract class AppLocalizations {
   /// **'カレンダーへのアクセスを許可してください'**
   String get calendarPermissionDenied;
 
+  /// No description provided for @calendarOpenSettings.
+  ///
+  /// In ja, this message translates to:
+  /// **'設定を開く'**
+  String get calendarOpenSettings;
+
   /// No description provided for @calendarAddFailed.
   ///
   /// In ja, this message translates to:
@@ -4603,18 +4609,6 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'カレンダーの取り込みに失敗しました'**
   String get calendarSyncFailed;
-
-  /// カレンダー画面の同期ボタン押下時の確認ダイアログタイトル
-  ///
-  /// In ja, this message translates to:
-  /// **'予定を取り込みますか?'**
-  String get calendarSyncConfirmTitle;
-
-  /// No description provided for @calendarSyncConfirmBody.
-  ///
-  /// In ja, this message translates to:
-  /// **'iOS カレンダーから今日〜60日先までの予定を取り込みます。'**
-  String get calendarSyncConfirmBody;
 
   /// No description provided for @eventAdd.
   ///
