@@ -482,7 +482,7 @@
   "devModeUseNewUi": "Enable redesigned UI",
   "devModeUseNewUiDesc": "Use the new design preview (home screen and more)",
   "heroTodayMission": "Today's progress",
-  "aiSortHeroCta": "Sort today with AI",
+  "aiSortHeroCta": "Sort tasks with AI",
   "statsTitle": "Stats",
   "statsStreakActive": "Streak",
   "statsStreakDays": "{n} days",

@@ -2777,7 +2777,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiSortHeroCta.
   ///
   /// In ja, this message translates to:
-  /// **'今日のタスクをAIで整理'**
+  /// **'タスクをAIで整理'**
   String get aiSortHeroCta;
 
   /// No description provided for @statsTitle.

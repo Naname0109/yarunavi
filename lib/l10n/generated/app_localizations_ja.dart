@@ -1405,7 +1405,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get heroTodayMission => '今日の進捗';
 
   @override
-  String get aiSortHeroCta => '今日のタスクをAIで整理';
+  String get aiSortHeroCta => 'タスクをAIで整理';
 
   @override
   String get statsTitle => '実績';

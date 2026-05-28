@@ -292,6 +292,11 @@ class _V2HomeTabState extends ConsumerState<_V2HomeTab> {
             data: (tasks) {
               final split = _splitTasks(tasks);
               final (done, total) = _todayDoneTotal(tasks);
+              // App Store 審査リジェクト (2026-05-28) 対応:
+              // HeroAiCard の AI整理 CTA を「今日のタスク0でも未完了タスクが
+              // あれば表示」させるため、未完了タスク総数を別途渡す。
+              final totalIncomplete =
+                  tasks.where((t) => !t.isCompleted).length;
               final completedTasks =
                   tasks.where((t) => t.isCompleted).toList()
                     ..sort((a, b) => (b.completedAt ?? b.updatedAt)
@@ -324,6 +329,7 @@ class _V2HomeTabState extends ConsumerState<_V2HomeTab> {
                       child: HeroAiCard(
                         todayDone: done,
                         todayTotal: total,
+                        totalIncomplete: totalIncomplete,
                         onAddTask: () {
                           HapticFeedback.mediumImpact();
                           TaskFormSheet.show(context);
