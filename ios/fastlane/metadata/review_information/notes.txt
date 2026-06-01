@@ -46,7 +46,7 @@ STEP 4: Reach the In-App Purchase sheet
   "AI 整理の回数が不足しています" (Not enough AI sorts left) opens with
   three options:
     - Premium Plan: 580 JPY / month or 4,200 JPY / year
-      Products: yarunavi_premium_monthly / yarunavi_premium_yearly
+      Products: yarunavi_premium_monthly / yarunavi_premium_yearly_v2
     - AI Sort Ticket: 120 JPY consumable (up to 3 lifetime purchases)
       Product: yarunavi_ai_ticket
     - "動画を視聴" Watch rewarded video (free, up to 2 lifetime uses)

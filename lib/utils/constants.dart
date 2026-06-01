@@ -6,7 +6,7 @@ class AppConstants {
 
   // IAP Product IDs
   static const String monthlyProductId = 'yarunavi_premium_monthly';
-  static const String yearlyProductId = 'yarunavi_premium_yearly';
+  static const String yearlyProductId = 'yarunavi_premium_yearly_v2';
   // #8: AI 整理チケット (消費型 IAP, ¥120, 1 ユーザー 3 回まで)
   static const String aiTicketProductId = 'yarunavi_ai_ticket';
   static const int kAiTicketMaxLifetimePurchases = 3;
