@@ -5,10 +5,10 @@ class AppConstants {
   static const String bundleId = 'com.naname0109.yarunavi';
 
   // IAP Product IDs
-  static const String monthlyProductId = 'yarunavi_premium_monthly';
+  static const String monthlyProductId = 'yarunavi_premium_monthly_v2';
   static const String yearlyProductId = 'yarunavi_premium_yearly_v2';
   // #8: AI 整理チケット (消費型 IAP, ¥120, 1 ユーザー 3 回まで)
-  static const String aiTicketProductId = 'yarunavi_ai_ticket';
+  static const String aiTicketProductId = 'yarunavi_ai_ticket_v2';
   static const int kAiTicketMaxLifetimePurchases = 3;
   // #4: リワード動画による AI 回復の生涯上限 (1 日 1 回 → 生涯 2 回)
   static const int kRewardedAdMaxLifetime = 2;
