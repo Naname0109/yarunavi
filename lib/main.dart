@@ -10,7 +10,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import 'app.dart';
 import 'models/task.dart';
-import 'providers/dev_mode_provider.dart';
+import 'providers/ui_mode_provider.dart';
 import 'providers/purchase_provider.dart' show purchaseServiceProvider, isVipProvider;
 import 'providers/secure_storage_provider.dart';
 import 'providers/settings_provider.dart';
@@ -160,7 +160,7 @@ void main() async {
 
   // 設定読み込み（フリッカー防止のため先に読む）
   final settings = await loadSettingsFromPrefs();
-  final devMode = await loadDevModePrefs();
+  final uiMode = await loadUiModePrefs();
   debugPrint('[INIT] settings OK');
 
   // セキュアストレージ (AI使用回数の永続化用)
@@ -279,9 +279,7 @@ void main() async {
         initialExecutionTimingProvider
             .overrideWithValue(settings.executionTiming),
         initialSoundEnabledProvider.overrideWithValue(settings.soundEnabled),
-        initialDevAiUnlimitedProvider.overrideWithValue(devMode.aiUnlimited),
-        initialDevPremiumProvider.overrideWithValue(devMode.premium),
-        initialUseNewUiProvider.overrideWithValue(devMode.useNewUi),
+        initialUseNewUiProvider.overrideWithValue(uiMode.useNewUi),
         isVipProvider.overrideWith((ref) => initialVipActive),
       ],
       child: const YaruNaviApp(),

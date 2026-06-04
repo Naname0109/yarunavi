@@ -13,18 +13,11 @@ import '../l10n/generated/app_localizations.dart';
 import '../providers/purchase_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/task_provider.dart';
-import '../providers/dev_mode_provider.dart';
 import '../utils/constants.dart';
-import '../utils/test_data.dart';
 import '../widgets/banner_ad_widget.dart';
 import '../widgets/coach_overlay.dart';
-import '../providers/secure_storage_provider.dart';
-import '../services/secure_storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/responsive_wrapper.dart';
-
-/// 開発者モード解放状態（バージョン7回タップで有効化）
-final _devModeEnabledProvider = StateProvider<bool>((ref) => false);
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -48,27 +41,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   void _onVersionTap() {
     _versionTapCount++;
-    final l10n = AppLocalizations.of(context)!;
-
-    // #1 VIP コード: 10 タップで無言で field 表示
+    // #1 VIP コード: 10 タップで無言で field 表示。1-9 では何もしない。
     if (_versionTapCount == 10) {
       setState(() => _showVipField = true);
-      return;
-    }
-
-    if (_versionTapCount >= 7) {
-      ref.read(_devModeEnabledProvider.notifier).state = true;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.devModeEnabled)),
-      );
-    } else if (_versionTapCount >= 4) {
-      final remaining = 7 - _versionTapCount;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.devModeRemaining(remaining)),
-          duration: const Duration(milliseconds: 800),
-        ),
-      );
     }
   }
 
@@ -101,7 +76,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final currentLocale = ref.watch(localeProvider);
     final currentTheme = ref.watch(themeModeProvider);
     final theme = Theme.of(context);
-    final devModeEnabled = ref.watch(_devModeEnabledProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -307,7 +281,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   const Divider(),
 
-                  // --- アプリ情報（7回タップで開発者モード解放、 10回タップで VIP 入力 #1） ---
+                  // --- アプリ情報（10 回タップで無言で VIP コード入力欄出現 #1） ---
                   Consumer(
                     builder: (context, ref, _) {
                       final vipActive = ref.watch(isVipProvider);
@@ -367,92 +341,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       applicationName: AppConstants.appName,
                     ),
                   ),
-                  // --- 開発者モード（7回タップで解放） ---
-                  if (devModeEnabled) ...[
-                    const Divider(),
-                    _buildSectionHeader(context, l10n.devModeSection),
-                    const _DevModeToggles(),
-                    ListTile(
-                      key: const Key('debug_animations_entry'),
-                      leading: const Icon(Icons.animation_outlined),
-                      title: Text(l10n.devModeAnimationsPreview),
-                      subtitle: Text(l10n.devModeAnimationsPreviewDesc),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => context.push('/debug-animations'),
-                    ),
-                    const Divider(),
-                    _buildSectionHeader(context, l10n.debugSection),
-                    ListTile(
-                      key: const Key('debug_simple_data'),
-                      leading: const Icon(Icons.looks_one_outlined),
-                      title: Text(l10n.debugSimpleData),
-                      subtitle: Text(l10n.debugSimpleDataDesc),
-                      onTap: () => _insertTestDataWithConfirm(
-                        context, ref, l10n,
-                        () => insertSimpleTestData(
-                            ref.read(databaseServiceProvider)),
-                      ),
-                    ),
-                    ListTile(
-                      key: const Key('debug_detailed_data'),
-                      leading: const Icon(Icons.looks_two_outlined),
-                      title: Text(l10n.debugDetailedData),
-                      subtitle: Text(l10n.debugDetailedDataDesc),
-                      onTap: () => _insertTestDataWithConfirm(
-                        context, ref, l10n,
-                        () => insertDetailedTestData(
-                            ref.read(databaseServiceProvider)),
-                      ),
-                    ),
-                    ListTile(
-                      key: const Key('debug_edge_case_data'),
-                      leading: const Icon(Icons.looks_3_outlined),
-                      title: Text(l10n.debugEdgeCaseData),
-                      subtitle: Text(l10n.debugEdgeCaseDataDesc),
-                      onTap: () => _insertTestDataWithConfirm(
-                        context, ref, l10n,
-                        () => insertEdgeCaseTestData(
-                            ref.read(databaseServiceProvider)),
-                      ),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.restart_alt),
-                      title: Text(l10n.devModeResetAiUsage),
-                      subtitle: Text(l10n.devModeResetAiUsageDesc),
-                      onTap: () => _resetAiUsage(context, ref, l10n),
-                    ),
-                    const Divider(),
-                    _buildSectionHeader(context, l10n.devModeReviewSection),
-                    ListTile(
-                      leading: const Icon(Icons.rate_review_outlined),
-                      title: Text(l10n.devModeTestReview),
-                      subtitle: Text(l10n.devModeTestReviewDesc),
-                      onTap: () {
-                        ref.read(reviewServiceProvider).requestReview();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text(l10n.devModeTestReviewTriggered)),
-                        );
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.restart_alt),
-                      title: Text(l10n.devModeResetReview),
-                      subtitle: Text(l10n.devModeResetReviewDesc),
-                      onTap: () async {
-                        await ref
-                            .read(reviewServiceProvider)
-                            .resetCounters();
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text(l10n.devModeResetReviewDone)),
-                          );
-                        }
-                      },
-                    ),
-                  ],
                   const SizedBox(height: 16),
                 ],
               ),
@@ -535,78 +423,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return value.replaceAll('"', '""').replaceAll('\n', ' ');
   }
 
-  Future<void> _insertTestDataWithConfirm(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations l10n,
-    Future<void> Function() insertFn,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.debugSection),
-        content: Text(l10n.debugConfirmInsert),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(l10n.debugConfirmInsertAction),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await insertFn();
-      ref.invalidate(tasksProvider);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.debugTestDataInserted)),
-        );
-      }
-    }
-  }
-
-  Future<void> _resetAiUsage(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations l10n,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.devModeResetAiUsage),
-        content: Text(l10n.devModeConfirmResetAiUsage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      final db = ref.read(databaseServiceProvider);
-      await db.resetCurrentMonthAiUsage();
-      final secure = ref.read(secureStorageServiceProvider);
-      await secure.resetAiUsage(
-        SecureStorageService.currentMonthKey(DateTime.now()),
-      );
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.devModeResetAiUsageDone)),
-        );
-      }
-    }
-  }
 
   Future<void> _showDeleteAllDialog(
     BuildContext context,
@@ -722,53 +538,6 @@ class _ExecutionTimingSlider extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// 開発者モードのトグルスイッチ群
-class _DevModeToggles extends ConsumerWidget {
-  const _DevModeToggles();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
-    final aiUnlimited = ref.watch(devModeAiUnlimitedProvider);
-    final premium = ref.watch(devModePremiumProvider);
-    final useNewUi = ref.watch(useNewUiProvider);
-
-    return Column(
-      children: [
-        SwitchListTile(
-          secondary: const Icon(Icons.all_inclusive),
-          title: Text(l10n.devModeAiUnlimited),
-          subtitle: Text(l10n.devModeAiUnlimitedDesc),
-          value: aiUnlimited,
-          onChanged: (value) {
-            ref.read(devModeAiUnlimitedProvider.notifier).toggle(value);
-          },
-        ),
-        SwitchListTile(
-          key: const Key('premium_mode_toggle'),
-          secondary: const Icon(Icons.workspace_premium),
-          title: Text(l10n.devModePremium),
-          subtitle: Text(l10n.devModePremiumDesc),
-          value: premium,
-          onChanged: (value) {
-            ref.read(devModePremiumProvider.notifier).toggle(value);
-          },
-        ),
-        SwitchListTile(
-          key: const Key('use_new_ui_toggle'),
-          secondary: const Icon(Icons.auto_awesome),
-          title: Text(l10n.devModeUseNewUi),
-          subtitle: Text(l10n.devModeUseNewUiDesc),
-          value: useNewUi,
-          onChanged: (value) {
-            ref.read(useNewUiProvider.notifier).toggle(value);
-          },
-        ),
-      ],
     );
   }
 }

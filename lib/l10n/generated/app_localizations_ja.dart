@@ -916,36 +916,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get listView => 'リスト';
 
   @override
-  String get debugSection => 'テストデータ';
-
-  @override
-  String get debugSimpleData => 'シンプルデータ投入';
-
-  @override
-  String get debugSimpleDataDesc => 'タスク名と期限のみ（5件）';
-
-  @override
-  String get debugDetailedData => '詳細データ投入';
-
-  @override
-  String get debugDetailedDataDesc => '全フィールド活用（10件）';
-
-  @override
-  String get debugEdgeCaseData => 'エッジケースデータ投入';
-
-  @override
-  String get debugEdgeCaseDataDesc => '境界値・特殊パターン（8件）';
-
-  @override
-  String get debugConfirmInsert => '既存のタスクを全て削除して、テストデータを投入しますか？';
-
-  @override
-  String get debugConfirmInsertAction => '投入する';
-
-  @override
-  String get debugTestDataInserted => 'テストデータを投入しました';
-
-  @override
   String get aiTodayPlan => '今日のプラン';
 
   @override
@@ -1063,62 +1033,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get categoryDeleteMessage => 'このカテゴリに割り当てられたタスクのカテゴリは未設定になります。削除しますか？';
-
-  @override
-  String get devModeSection => '開発者モード';
-
-  @override
-  String get devModeAiUnlimited => 'AI回数制限を無視';
-
-  @override
-  String get devModeAiUnlimitedDesc => 'ONでAI整理の回数制限をスキップ';
-
-  @override
-  String get devModePremium => 'プレミアム機能を解放';
-
-  @override
-  String get devModePremiumDesc => 'ONで全FeatureGateを解除';
-
-  @override
-  String get devModeResetAiUsage => 'AI使用回数リセット';
-
-  @override
-  String get devModeResetAiUsageDesc => '当月のAI使用回数をリセットします';
-
-  @override
-  String get devModeResetAiUsageDone => 'AI使用回数をリセットしました';
-
-  @override
-  String get devModeConfirmResetAiUsage => '当月のAI使用回数をリセットしますか？';
-
-  @override
-  String get devModeReviewSection => 'レビュー';
-
-  @override
-  String get devModeTestReview => 'レビューダイアログをテスト表示';
-
-  @override
-  String get devModeTestReviewDesc => '条件を無視してレビューダイアログを表示します';
-
-  @override
-  String get devModeTestReviewTriggered => 'レビューダイアログをリクエストしました';
-
-  @override
-  String get devModeResetReview => 'レビューカウンターリセット';
-
-  @override
-  String get devModeResetReviewDesc => 'レビュー関連の全カウンターをリセットします';
-
-  @override
-  String get devModeResetReviewDone => 'レビューカウンターをリセットしました';
-
-  @override
-  String get devModeEnabled => '開発者モードが有効になりました';
-
-  @override
-  String devModeRemaining(int count) {
-    return 'あと$count回タップで開発者モード';
-  }
 
   @override
   String get allCompleteTitle => 'すべて完了！お疲れさまでした';
@@ -1387,12 +1301,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get allCompleteNextPrompt => '次のやることを追加しませんか？';
 
   @override
-  String get devModeAnimationsPreview => '演出プレビュー';
-
-  @override
-  String get devModeAnimationsPreviewDesc => 'AI整理・全完了・バースト・紙吹雪を独立に再生';
-
-  @override
   String get calendarLegendUrgent => '緊急';
 
   @override
@@ -1403,12 +1311,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get calendarLegendUnsorted => '未整理';
-
-  @override
-  String get devModeUseNewUi => '新UI(リデザイン版)を有効化';
-
-  @override
-  String get devModeUseNewUiDesc => 'ホーム画面など新デザインのプレビューを使用';
 
   @override
   String get heroTodayMission => '今日の進捗';

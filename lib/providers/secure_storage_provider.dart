@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../services/secure_storage_service.dart';
 import '../utils/constants.dart';
-import 'dev_mode_provider.dart';
 import 'purchase_provider.dart' show isPremiumProvider, isVipProvider;
 import 'task_provider.dart';
 
@@ -16,7 +15,6 @@ final secureStorageServiceProvider = Provider<SecureStorageService>((ref) {
 ///   + ai_ticket_count を加算した合算残数
 /// - プレミアム: 残り = premiumAiSortMonthlyLimit (30) - 今月使用回数
 /// - VIP: 残り = -1 (無制限フラグ)、 total = 0
-/// - 開発者モード(無制限): premium=true, remaining = 999
 ///
 /// tasksProvider への変更 (AI整理完了時に invalidateSelf) で連動再取得。
 final aiSortQuotaProvider =
@@ -24,12 +22,8 @@ final aiSortQuotaProvider =
   ref.watch(tasksProvider);
   final secure = ref.read(secureStorageServiceProvider);
   final isPremium = ref.read(isPremiumProvider);
-  final devUnlimited = ref.read(devModeAiUnlimitedProvider);
   final isVip = ref.read(isVipProvider);
 
-  if (devUnlimited) {
-    return (remaining: 999, total: 999, isPremium: true);
-  }
   if (isVip) {
     // VIP は無制限のため remaining=-1 を「VIP 無制限」 マーカーとして扱う。
     // VIP がチケット (ai_ticket_count) を保有している場合でも UI には

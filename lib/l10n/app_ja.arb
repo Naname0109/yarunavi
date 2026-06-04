@@ -95,13 +95,17 @@
   "daysLater": "{count}日後",
   "@daysLater": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "daysAgo": "{count}日前",
   "@daysAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "markComplete": "完了",
@@ -129,7 +133,9 @@
   "recurrenceEveryNDays": "{count}日ごと",
   "@recurrenceEveryNDays": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "recurrenceInterval": "間隔（日数）",
@@ -159,7 +165,9 @@
   "recurringTaskCreated": "次回タスクを作成しました: {date}",
   "@recurringTaskCreated": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "aiResultTitle": "AIが整理しました",
@@ -167,7 +175,9 @@
   "aiResultSortedAt": "整理日時: {dateTime}",
   "@aiResultSortedAt": {
     "placeholders": {
-      "dateTime": { "type": "String" }
+      "dateTime": {
+        "type": "String"
+      }
     }
   },
   "aiPriorityUrgent": "今日やる",
@@ -183,7 +193,9 @@
   "aiSortRemaining": "残り{count}回",
   "@aiSortRemaining": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "aiSortLimitReached": "今月の無料分を使い切りました",
@@ -208,18 +220,30 @@
   "@notificationTitle": {},
   "notifyDueToday": "{taskName} の期限は今日です",
   "@notifyDueToday": {
-    "placeholders": { "taskName": { "type": "String" } }
+    "placeholders": {
+      "taskName": {
+        "type": "String"
+      }
+    }
   },
   "notifyDueInDays": "{taskName} の期限まであと{count}日です",
   "@notifyDueInDays": {
     "placeholders": {
-      "taskName": { "type": "String" },
-      "count": { "type": "int" }
+      "taskName": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "notifyRecurring": "{taskName} の時期です",
   "@notifyRecurring": {
-    "placeholders": { "taskName": { "type": "String" } }
+    "placeholders": {
+      "taskName": {
+        "type": "String"
+      }
+    }
   },
   "addToCalendar": "カレンダーに追加",
   "@addToCalendar": {},
@@ -229,7 +253,6 @@
   "@calendarOpenSettings": {},
   "calendarAddFailed": "カレンダーへの追加に失敗しました",
   "@calendarAddFailed": {},
-
   "storePremiumTitle": "プレミアムプラン",
   "@storePremiumTitle": {},
   "storeFeatureAiUnlimited": "AI整理 月30回（無料は2回）",
@@ -278,14 +301,12 @@
   "@storeAlreadyPremium": {},
   "storeStoreUnavailable": "ストアに接続できません",
   "@storeStoreUnavailable": {},
-
   "onboardingSkip": "スキップ",
   "@onboardingSkip": {},
   "onboardingNext": "次へ",
   "@onboardingNext": {},
   "onboardingStart": "はじめる",
   "@onboardingStart": {},
-
   "ob1Title": "やることを入れるだけ",
   "@ob1Title": {},
   "ob1Desc": "タスク名と期限を入れるだけ。\nメモも追加できます。",
@@ -300,7 +321,6 @@
   "@ob1Task3": {},
   "ob1Task4": "確定申告の書類準備...",
   "@ob1Task4": {},
-
   "ob2Title": "AIが整理してくれる",
   "@ob2Title": {},
   "ob2Desc": "AIが優先順位を判断し、具体的なアドバイス付きで整理",
@@ -357,7 +377,6 @@
   "@ob2AfterTask5": {},
   "ob2AfterComment5": "余裕あり。週末のリラックスタイムに",
   "@ob2AfterComment5": {},
-
   "ob3Title": "カレンダーで実行日が見える",
   "@ob3Title": {},
   "ob3Desc": "いつやるかが一目でわかる。\nAIが最適な実行日を提案します",
@@ -368,7 +387,6 @@
   "@ob3LegendWeek": {},
   "ob3LegendLater": "来週〜",
   "@ob3LegendLater": {},
-
   "ob4Title": "通知で忘れない",
   "@ob4Title": {},
   "ob4Desc": "AIが最適なタイミングで通知。\n必要な日だけお知らせ",
@@ -385,7 +403,6 @@
   "@ob4Time2": {},
   "ob4Notify2": "日用品買い出し — 買い物リストを確認",
   "@ob4Notify2": {},
-
   "ob5Title": "プレミアムでもっと便利に",
   "@ob5Title": {},
   "ob5Free": "無料",
@@ -432,12 +449,10 @@
   "@ob5TrialButton": {},
   "ob5FreeButton": "まずは無料で始める",
   "@ob5FreeButton": {},
-
   "ob6Title": "さあ、始めましょう",
   "@ob6Title": {},
   "ob6Desc": "タスクを追加して、AIに整理してもらおう",
   "@ob6Desc": {},
-
   "taskLoadError": "タスクの読み込みに失敗しました",
   "@taskLoadError": {},
   "aiFallbackNotice": "AI整理でエラーが発生しました。期限日ベースで整理しました",
@@ -461,18 +476,22 @@
   "aiRecommendedPeriod": "{period}に実行がおすすめ",
   "@aiRecommendedPeriod": {
     "placeholders": {
-      "period": { "type": "String" }
+      "period": {
+        "type": "String"
+      }
     }
   },
-
   "aiQuestionAnswer": "質問{number}の回答: {answer}",
   "@aiQuestionAnswer": {
     "placeholders": {
-      "number": { "type": "int" },
-      "answer": { "type": "String" }
+      "number": {
+        "type": "int"
+      },
+      "answer": {
+        "type": "String"
+      }
     }
   },
-
   "aiPremiumBannerTitle": "プレミアムならAIコメント・通知・カレンダーが使えます",
   "@aiPremiumBannerTitle": {},
   "aiPremiumBannerDesc": "AI整理 月30回、通知の自動設定、カレンダー連携、広告なし",
@@ -520,7 +539,13 @@
   "premiumGateLater": "あとで",
   "@premiumGateLater": {},
   "aiNotifyOn": "{date} に通知する",
-  "@aiNotifyOn": {"placeholders": {"date": {"type": "String"}}},
+  "@aiNotifyOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "aiCalendarAdd": "カレンダーに追加",
   "@aiCalendarAdd": {},
   "aiCalendarAdded": "カレンダーに追加しました",
@@ -538,7 +563,13 @@
   "aiCommentLockedHint": "AIコメントはプレミアム限定",
   "@aiCommentLockedHint": {},
   "recommendedDateHint": "{date} にやるのがおすすめ",
-  "@recommendedDateHint": {"placeholders": {"date": {"type": "String"}}},
+  "@recommendedDateHint": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "calendarSectionRecommended": "この日にやるべきタスク",
   "@calendarSectionRecommended": {},
   "calendarSectionDue": "この日が期限のタスク",
@@ -547,7 +578,6 @@
   "@taskCardEdit": {},
   "aiAutoNotifyHintFull": "プレミアムなら通知日もAIが自動設定",
   "@aiAutoNotifyHintFull": {},
-
   "settingsAccount": "アカウント",
   "@settingsAccount": {},
   "settingsPremiumStatus": "プレミアムステータス",
@@ -586,7 +616,6 @@
   "@settingsVersion": {},
   "settingsLicenses": "ライセンス",
   "@settingsLicenses": {},
-
   "advancedSettings": "詳細設定",
   "@advancedSettings": {},
   "estimatedTime": "所要時間",
@@ -631,7 +660,6 @@
   "@notifyAiAuto": {},
   "notifyManual": "自分で設定",
   "@notifyManual": {},
-
   "aiSubtaskSuggestion": "タスクを分割しますか?",
   "@aiSubtaskSuggestion": {},
   "aiSubtaskAdd": "この分割で追加",
@@ -642,46 +670,35 @@
   "@aiCompleteOriginal": {},
   "aiNotifyUpdated": "AIが通知日を設定しました",
   "@aiNotifyUpdated": {},
-
   "calendarView": "カレンダー",
   "@calendarView": {},
   "listView": "リスト",
   "@listView": {},
-
-  "debugSection": "テストデータ",
-  "@debugSection": {},
-  "debugSimpleData": "シンプルデータ投入",
-  "@debugSimpleData": {},
-  "debugSimpleDataDesc": "タスク名と期限のみ（5件）",
-  "@debugSimpleDataDesc": {},
-  "debugDetailedData": "詳細データ投入",
-  "@debugDetailedData": {},
-  "debugDetailedDataDesc": "全フィールド活用（10件）",
-  "@debugDetailedDataDesc": {},
-  "debugEdgeCaseData": "エッジケースデータ投入",
-  "@debugEdgeCaseData": {},
-  "debugEdgeCaseDataDesc": "境界値・特殊パターン（8件）",
-  "@debugEdgeCaseDataDesc": {},
-  "debugConfirmInsert": "既存のタスクを全て削除して、テストデータを投入しますか？",
-  "@debugConfirmInsert": {},
-  "debugConfirmInsertAction": "投入する",
-  "@debugConfirmInsertAction": {},
-  "debugTestDataInserted": "テストデータを投入しました",
-  "@debugTestDataInserted": {},
-
   "aiTodayPlan": "今日のプラン",
   "@aiTodayPlan": {},
   "aiTodayTasks": "今日やること: {count}件",
   "@aiTodayTasks": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "aiWeekTasks": "今週中: {count}件",
   "@aiWeekTasks": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "aiLaterTasks": "急がない: {count}件",
   "@aiLaterTasks": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "aiViewSchedule": "整理後のスケジュールを確認",
   "@aiViewSchedule": {},
@@ -693,7 +710,6 @@
   "@aiAnswerHint": {},
   "aiNotifySchedule": "通知予定",
   "@aiNotifySchedule": {},
-
   "aiLoadingAnalyze": "タスクを分析しています...",
   "@aiLoadingAnalyze": {},
   "aiLoadingPriority": "優先順位を判断しています...",
@@ -710,34 +726,32 @@
   "@aiCompleteNotify": {},
   "aiCompleteBanner": "AI整理完了 — タップで結果を見る",
   "@aiCompleteBanner": {},
-
   "aiHistory": "AI整理の履歴",
   "@aiHistory": {},
   "aiHistoryEmpty": "AI整理の履歴はありません",
   "@aiHistoryEmpty": {},
   "aiHistoryCount": "{count}件のタスクを整理",
   "@aiHistoryCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "storeRecommended": "おすすめ",
   "@storeRecommended": {},
-
   "calendarNoTasks": "この日のタスクはありません",
   "@calendarNoTasks": {},
   "calendarToday": "今日",
   "@calendarToday": {},
-
   "swipeComplete": "完了",
   "@swipeComplete": {},
   "swipeDelete": "削除",
   "@swipeDelete": {},
   "swipeUndo": "戻す",
   "@swipeUndo": {},
-
   "reorderHint": "長押しでドラッグして並び替え",
   "@reorderHint": {},
-
   "categoryManageTitle": "カテゴリ管理",
   "@categoryManageTitle": {},
   "categoryAdd": "カテゴリを追加",
@@ -758,48 +772,6 @@
   "@categoryDeleteTitle": {},
   "categoryDeleteMessage": "このカテゴリに割り当てられたタスクのカテゴリは未設定になります。削除しますか？",
   "@categoryDeleteMessage": {},
-
-  "devModeSection": "開発者モード",
-  "@devModeSection": {},
-  "devModeAiUnlimited": "AI回数制限を無視",
-  "@devModeAiUnlimited": {},
-  "devModeAiUnlimitedDesc": "ONでAI整理の回数制限をスキップ",
-  "@devModeAiUnlimitedDesc": {},
-  "devModePremium": "プレミアム機能を解放",
-  "@devModePremium": {},
-  "devModePremiumDesc": "ONで全FeatureGateを解除",
-  "@devModePremiumDesc": {},
-  "devModeResetAiUsage": "AI使用回数リセット",
-  "@devModeResetAiUsage": {},
-  "devModeResetAiUsageDesc": "当月のAI使用回数をリセットします",
-  "@devModeResetAiUsageDesc": {},
-  "devModeResetAiUsageDone": "AI使用回数をリセットしました",
-  "@devModeResetAiUsageDone": {},
-  "devModeConfirmResetAiUsage": "当月のAI使用回数をリセットしますか？",
-  "@devModeConfirmResetAiUsage": {},
-  "devModeReviewSection": "レビュー",
-  "@devModeReviewSection": {},
-  "devModeTestReview": "レビューダイアログをテスト表示",
-  "@devModeTestReview": {},
-  "devModeTestReviewDesc": "条件を無視してレビューダイアログを表示します",
-  "@devModeTestReviewDesc": {},
-  "devModeTestReviewTriggered": "レビューダイアログをリクエストしました",
-  "@devModeTestReviewTriggered": {},
-  "devModeResetReview": "レビューカウンターリセット",
-  "@devModeResetReview": {},
-  "devModeResetReviewDesc": "レビュー関連の全カウンターをリセットします",
-  "@devModeResetReviewDesc": {},
-  "devModeResetReviewDone": "レビューカウンターをリセットしました",
-  "@devModeResetReviewDone": {},
-  "devModeEnabled": "開発者モードが有効になりました",
-  "@devModeEnabled": {},
-  "devModeRemaining": "あと{count}回タップで開発者モード",
-  "@devModeRemaining": {
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
-
   "allCompleteTitle": "すべて完了！お疲れさまでした",
   "@allCompleteTitle": {},
   "allCompleteSubtitle": "次のタスクを追加しましょう",
@@ -810,7 +782,6 @@
   "@allCompleteAiSort": {},
   "allCompleteNoTaskForAi": "タスクを追加してから整理しましょう",
   "@allCompleteNoTaskForAi": {},
-
   "allExpiredBannerTitle": "すべてのタスクの期限が過ぎています",
   "@allExpiredBannerTitle": {},
   "allExpiredAddTask": "新しいタスクを追加",
@@ -819,7 +790,6 @@
   "@allExpiredUpdateDue": {},
   "allExpiredNotification": "すべてのタスクの期限が過ぎました。新しいやることを追加しませんか？",
   "@allExpiredNotification": {},
-
   "todaySection": "今日やること",
   "@todaySection": {},
   "todaySectionEmpty": "今日やることはありません",
@@ -832,27 +802,47 @@
   "@laterSection": {},
   "laterSectionCount": "来週以降 {count}件",
   "@laterSectionCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "overdueSection": "期限切れ",
   "@overdueSection": {},
   "overdueSectionCount": "期限切れ {count}件",
   "@overdueSectionCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "aiHistoryTooltip": "AI整理の履歴",
   "@aiHistoryTooltip": {},
   "executionDateLabel": "実行日: {date}",
   "@executionDateLabel": {
-    "placeholders": { "date": { "type": "String" } }
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "dueDateLabel": "期限: {date}",
   "@dueDateLabel": {
-    "placeholders": { "date": { "type": "String" } }
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "dueDateSub": "(期限: {date})",
   "@dueDateSub": {
-    "placeholders": { "date": { "type": "String" } }
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "calendarViewRecommended": "AIのおすすめ日",
   "@calendarViewRecommended": {},
@@ -864,11 +854,14 @@
   "@calendarViewDueTooltip": {},
   "taskCount": "全{count}件",
   "@taskCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "tabTodo": "やること",
   "@tabTodo": {},
-
   "aiAutoSettingsComplete": "通知・カレンダーを自動設定しました",
   "@aiAutoSettingsComplete": {},
   "aiAutoNotifyOnly": "通知を自動設定しました",
@@ -881,7 +874,6 @@
   "@aiPremiumAutoTrial": {},
   "aiChangeSettings": "設定を変更",
   "@aiChangeSettings": {},
-
   "ob1TitleNew": "タスク名と期限を入れるだけ",
   "@ob1TitleNew": {},
   "ob1SubNew": "それだけでOK。あとはAIにおまかせ",
@@ -896,7 +888,6 @@
   "@ob4TitleNew": {},
   "ob4FreeStart": "まずは無料で始める",
   "@ob4FreeStart": {},
-
   "settingsAiSection": "AI整理",
   "@settingsAiSection": {},
   "executionTimingLabel": "実行日の傾向",
@@ -915,9 +906,14 @@
   "@executionTimingDesc3": {},
   "executionTimingDesc4": "余裕を持って早めに",
   "@executionTimingDesc4": {},
-
   "recommendedDateEditHint": "{date} に実行がおすすめ",
-  "@recommendedDateEditHint": {"placeholders": {"date": {"type": "String"}}},
+  "@recommendedDateEditHint": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "recommendedDateManual": "推奨実行日（手動設定）",
   "@recommendedDateManual": {},
   "recommendedDateAiSet": "推奨実行日",
@@ -928,13 +924,16 @@
   "@manualDateOverwriteTitle": {},
   "manualDateOverwriteMessage": "手動設定した実行日があるタスクが{count}件あります。AIの提案で上書きしますか？",
   "@manualDateOverwriteMessage": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "manualDateOverwriteAll": "全て上書き",
   "@manualDateOverwriteAll": {},
   "manualDateKeep": "手動設定を維持",
   "@manualDateKeep": {},
-
   "weekTabThisWeek": "今週",
   "@weekTabThisWeek": {},
   "weekTabNextWeek": "来週",
@@ -944,23 +943,24 @@
   "weekTabCount": "{label} ({count})",
   "@weekTabCount": {
     "placeholders": {
-      "label": { "type": "String" },
-      "count": { "type": "int" }
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "noTasksNextWeek": "来週のタスクはありません",
   "@noTasksNextWeek": {},
   "noTasksLater": "再来週以降のタスクはありません",
   "@noTasksLater": {},
-
   "calendarHintBubble": "カレンダーで実行日を確認 →",
   "@calendarHintBubble": {},
-
   "aiSortExecute": "AIで整理する",
   "@aiSortExecute": {},
   "aiHistoryLabel": "AI履歴",
   "@aiHistoryLabel": {},
-
   "settingsSound": "サウンド",
   "@settingsSound": {},
   "settingsSoundDesc": "完了時の効果音を再生します",
@@ -984,7 +984,9 @@
   "recurringGuideMessage": "「{taskName}」は毎月のタスク?",
   "@recurringGuideMessage": {
     "placeholders": {
-      "taskName": { "type": "String" }
+      "taskName": {
+        "type": "String"
+      }
     }
   },
   "recurringGuideDescription": "定期タスクに設定すると、毎月自動的にタスクが作成されます。",
@@ -997,10 +999,6 @@
   "@recurringGuideApplied": {},
   "allCompleteNextPrompt": "次のやることを追加しませんか？",
   "@allCompleteNextPrompt": {},
-  "devModeAnimationsPreview": "演出プレビュー",
-  "@devModeAnimationsPreview": {},
-  "devModeAnimationsPreviewDesc": "AI整理・全完了・バースト・紙吹雪を独立に再生",
-  "@devModeAnimationsPreviewDesc": {},
   "calendarLegendUrgent": "緊急",
   "@calendarLegendUrgent": {},
   "calendarLegendWeek": "今週",
@@ -1009,10 +1007,6 @@
   "@calendarLegendLater": {},
   "calendarLegendUnsorted": "未整理",
   "@calendarLegendUnsorted": {},
-  "devModeUseNewUi": "新UI(リデザイン版)を有効化",
-  "@devModeUseNewUi": {},
-  "devModeUseNewUiDesc": "ホーム画面など新デザインのプレビューを使用",
-  "@devModeUseNewUiDesc": {},
   "heroTodayMission": "今日の進捗",
   "@heroTodayMission": {},
   "aiSortHeroCta": "タスクをAIで整理",
@@ -1024,7 +1018,9 @@
   "statsStreakDays": "{n}日",
   "@statsStreakDays": {
     "placeholders": {
-      "n": { "type": "int" }
+      "n": {
+        "type": "int"
+      }
     }
   },
   "statsLongest": "最長",
@@ -1038,8 +1034,12 @@
   "statsLevelXp": "{cur} / {next} XP",
   "@statsLevelXp": {
     "placeholders": {
-      "cur": { "type": "int" },
-      "next": { "type": "int" }
+      "cur": {
+        "type": "int"
+      },
+      "next": {
+        "type": "int"
+      }
     }
   },
   "statsBadges": "獲得バッジ",
@@ -1069,8 +1069,12 @@
   "statsNextLevelHint": "あと{xp} XPでLv.{level}",
   "@statsNextLevelHint": {
     "placeholders": {
-      "xp": { "type": "int" },
-      "level": { "type": "int" }
+      "xp": {
+        "type": "int"
+      },
+      "level": {
+        "type": "int"
+      }
     }
   },
   "levelName1": "はじめてのナビ",
@@ -1089,55 +1093,57 @@
   "@levelName7": {},
   "levelName8": "伝説のプランナー",
   "@levelName8": {},
-  "levelNameHigh": "達人 Lv.{level}",
+  "levelNameHigh": "Lv.{level}",
   "@levelNameHigh": {
     "placeholders": {
-      "level": { "type": "int" }
+      "level": {
+        "type": "int"
+      }
     }
   },
   "badgeName_first_step": "はじめの一歩",
   "@badgeName_first_step": {},
   "badgeDesc_first_step": "最初のタスクを完了",
   "@badgeDesc_first_step": {},
-  "badgeName_streak_3": "3日連続",
+  "badgeName_streak_3": "三日坊主とは言わせない",
   "@badgeName_streak_3": {},
-  "badgeDesc_streak_3": "3日連続で操作",
+  "badgeDesc_streak_3": "3日連続でアプリを起動",
   "@badgeDesc_streak_3": {},
-  "badgeName_streak_7": "7日連続",
+  "badgeName_streak_7": "一週間の習慣",
   "@badgeName_streak_7": {},
-  "badgeDesc_streak_7": "1週間続けた",
+  "badgeDesc_streak_7": "7日連続でアプリを起動",
   "@badgeDesc_streak_7": {},
-  "badgeName_streak_14": "14日連続",
+  "badgeName_streak_14": "フォートナイト達成",
   "@badgeName_streak_14": {},
-  "badgeDesc_streak_14": "2週間続けた",
+  "badgeDesc_streak_14": "14日連続でアプリを起動",
   "@badgeDesc_streak_14": {},
-  "badgeName_streak_30": "30日連続",
+  "badgeName_streak_30": "月間皆勤賞",
   "@badgeName_streak_30": {},
-  "badgeDesc_streak_30": "1ヶ月続けた",
+  "badgeDesc_streak_30": "30日連続でアプリを起動",
   "@badgeDesc_streak_30": {},
   "badgeName_ai_first": "AI初体験",
   "@badgeName_ai_first": {},
-  "badgeDesc_ai_first": "AI整理を初実行",
+  "badgeDesc_ai_first": "初めてAI整理を実行",
   "@badgeDesc_ai_first": {},
-  "badgeName_task_10": "10件達成",
+  "badgeName_task_10": "コツコツ職人",
   "@badgeName_task_10": {},
   "badgeDesc_task_10": "累計10件完了",
   "@badgeDesc_task_10": {},
-  "badgeName_task_50": "50件達成",
+  "badgeName_task_50": "半世紀の重み",
   "@badgeName_task_50": {},
   "badgeDesc_task_50": "累計50件完了",
   "@badgeDesc_task_50": {},
-  "badgeName_task_100": "100件達成",
+  "badgeName_task_100": "センチュリオン",
   "@badgeName_task_100": {},
   "badgeDesc_task_100": "累計100件完了",
   "@badgeDesc_task_100": {},
-  "badgeName_level_5": "Lv.5到達",
+  "badgeName_level_5": "駆け出しプランナー",
   "@badgeName_level_5": {},
-  "badgeDesc_level_5": "AIの右腕に進化",
+  "badgeDesc_level_5": "Lv.5到達",
   "@badgeDesc_level_5": {},
-  "badgeName_level_10": "Lv.10到達",
+  "badgeName_level_10": "一人前の整理人",
   "@badgeName_level_10": {},
-  "badgeDesc_level_10": "達人の領域",
+  "badgeDesc_level_10": "Lv.10到達",
   "@badgeDesc_level_10": {},
   "greetingMorning": "おはよう",
   "@greetingMorning": {},
@@ -1156,7 +1162,9 @@
   "xpEarned": "+{xp} XP",
   "@xpEarned": {
     "placeholders": {
-      "xp": { "type": "int" }
+      "xp": {
+        "type": "int"
+      }
     }
   },
   "levelUpTitle": "レベルアップ!",
@@ -1164,8 +1172,12 @@
   "levelUpMessage": "Lv.{level} {name}",
   "@levelUpMessage": {
     "placeholders": {
-      "level": { "type": "int" },
-      "name": { "type": "String" }
+      "level": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "badgeUnlocked": "新しいバッジ!",
@@ -1236,7 +1248,6 @@
   "@calendarExecutionDate": {},
   "calendarDueDate": "期限日",
   "@calendarDueDate": {},
-
   "onbV2WelcomeBadge": "AIナビゲーション",
   "@onbV2WelcomeBadge": {},
   "onbV2WelcomeTitlePart1": "今日、何から ",
@@ -1247,7 +1258,6 @@
   "@onbV2WelcomeTitlePart2": {},
   "onbV2WelcomeBody": "「やること」を入れるだけ。\nあとはAIナビが優先順位を整え、\nあなたの“次の一手”を教えます。",
   "@onbV2WelcomeBody": {},
-
   "onbV2BeforeAfterTitle": "頭の中の“やること”を、整理",
   "@onbV2BeforeAfterTitle": {},
   "onbV2BeforeAfterSub": "ただ並べ替えるだけじゃない。\n“今すぐやるべきこと”を選び抜きます",
@@ -1292,7 +1302,6 @@
   "@onbV2AfterComment2": {},
   "onbV2AfterComment3": "週末にまとめ買いが効率的",
   "@onbV2AfterComment3": {},
-
   "onbV2GameTitle": "続けるほど、好きになる",
   "@onbV2GameTitle": {},
   "onbV2GameSub": "達成感がそのまま“やる気”に変わる仕組み",
@@ -1311,14 +1320,12 @@
   "@onbV2GameLevelSub": {},
   "onbV2GameFooter": "完璧じゃなくていい。\n小さな一歩を、毎日刻んでいこう。",
   "@onbV2GameFooter": {},
-
   "onbV2CtaTitle": "さあ、最初の一歩を。",
   "@onbV2CtaTitle": {},
   "onbV2CtaBody": "気になっている“やること”を、\nひとつだけ入れてみてください。\nあとはナビにまかせて大丈夫。",
   "@onbV2CtaBody": {},
   "onbV2CtaButton": "やることを追加する",
   "@onbV2CtaButton": {},
-
   "homeQuickTotalLabel": "全タスク",
   "@homeQuickTotalLabel": {},
   "homeQuickTotalUnit": "件",
@@ -1326,8 +1333,12 @@
   "homeNextHint": "次は {date} に {count}件",
   "@homeNextHint": {
     "placeholders": {
-      "date": { "type": "String" },
-      "count": { "type": "int" }
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "homeNoUpcoming": "未完了タスクはありません",
@@ -1337,10 +1348,11 @@
   "homeOverdueChip": "期限切れ {count}",
   "@homeOverdueChip": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
-
   "calendarMonthListMode": "リスト",
   "@calendarMonthListMode": {},
   "calendarGridMode": "月",
@@ -1350,15 +1362,18 @@
   "calendarNoTasksNextHint": "予定なし。次は {date} に {count}件",
   "@calendarNoTasksNextHint": {
     "placeholders": {
-      "date": { "type": "String" },
-      "count": { "type": "int" }
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "calendarJumpToNext": "次の予定日を表示",
   "@calendarJumpToNext": {},
   "calendarMonthEmpty": "今月の予定はまだありません",
   "@calendarMonthEmpty": {},
-
   "aiResultOptimizedBadge": "AIで整理済み",
   "@aiResultOptimizedBadge": {},
   "aiNaviNoteLabel": "ナビからひとこと",
@@ -1367,26 +1382,34 @@
   "@aiNaviAdviceLabel": {},
   "aiNaviAdviceBadge": "AIアドバイス",
   "@aiNaviAdviceBadge": {},
-
   "aiSortQuotaFree": "無料 残り {remaining}/{total}回",
   "@aiSortQuotaFree": {
     "placeholders": {
-      "remaining": { "type": "int" },
-      "total": { "type": "int" }
+      "remaining": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "aiSortQuotaPremium": "今月 残り {remaining}/{total}回",
   "@aiSortQuotaPremium": {
     "placeholders": {
-      "remaining": { "type": "int" },
-      "total": { "type": "int" }
+      "remaining": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
-
   "archiveOpenButton": "過去のタスクを見る({count})",
   "@archiveOpenButton": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "archiveTitle": "過去の完了タスク",
@@ -1395,32 +1418,32 @@
   "@archiveEmpty": {},
   "archiveRecentLabel": "過去7日",
   "@archiveRecentLabel": {},
-
   "streakMilestoneTitle": "{days}日連続達成!",
   "@streakMilestoneTitle": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "streakMilestoneBody": "すごい!明日も小さな一歩を積み重ねよう。",
   "@streakMilestoneBody": {},
-
   "taskCompletedOn": "{date}に完了",
   "@taskCompletedOn": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "calendarLegendDone": "完了",
   "@calendarLegendDone": {},
-
   "executionTimingHint": "AIが着手日を提案するときの基準です。「ギリギリ」寄りなら期限近くに、「早めに」寄りなら余裕を持って提案します。",
   "@executionTimingHint": {},
   "archiveEmptyHint": "7日より前に完了したタスクがここにたまります",
   "@archiveEmptyHint": {},
   "archiveEmptyCta": "ホームに戻る",
   "@archiveEmptyCta": {},
-
   "uncompleteTask": "未完了に戻す",
   "@uncompleteTask": {},
   "taskUncompletedSnack": "タスクを未完了に戻しました",
@@ -1442,10 +1465,11 @@
   "historyDeletedSnack": "{count}件の履歴を削除しました",
   "@historyDeletedSnack": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
-
   "scheduleSection": "タスクのスケジュール",
   "@scheduleSection": {},
   "scheduleBusynessLabel": "曜日ごとの忙しさ (1=暇〜5=多忙)",
@@ -1470,23 +1494,6 @@
   "@weekdaySatShort": {},
   "weekdaySunShort": "日",
   "@weekdaySunShort": {},
-
-  "levelName1": "はじめてのナビ",
-  "@levelName1": {},
-  "levelName2": "見習いプランナー",
-  "@levelName2": {},
-  "levelName3": "段取り上手",
-  "@levelName3": {},
-  "levelName4": "タスクマスター",
-  "@levelName4": {},
-  "levelName5": "AIの右腕",
-  "@levelName5": {},
-  "levelName6": "整理の達人",
-  "@levelName6": {},
-  "levelName7": "時間の支配者",
-  "@levelName7": {},
-  "levelName8": "伝説のプランナー",
-  "@levelName8": {},
   "levelName9": "タスク仙人",
   "@levelName9": {},
   "levelName10": "究極のオーガナイザー",
@@ -1503,31 +1510,10 @@
   "@levelName70": {},
   "levelName100": "∞ 無限のプランナー",
   "@levelName100": {},
-  "levelNameHigh": "Lv.{level}",
-  "@levelNameHigh": {
-    "placeholders": { "level": { "type": "int" } }
-  },
-
-  "badgeName_first_step": "はじめの一歩",
-  "@badgeName_first_step": {},
-  "badgeDesc_first_step": "最初のタスクを完了",
-  "@badgeDesc_first_step": {},
-  "badgeName_task_10": "コツコツ職人",
-  "@badgeName_task_10": {},
-  "badgeDesc_task_10": "累計10件完了",
-  "@badgeDesc_task_10": {},
   "badgeName_task_25": "やりくり上手",
   "@badgeName_task_25": {},
   "badgeDesc_task_25": "累計25件完了",
   "@badgeDesc_task_25": {},
-  "badgeName_task_50": "半世紀の重み",
-  "@badgeName_task_50": {},
-  "badgeDesc_task_50": "累計50件完了",
-  "@badgeDesc_task_50": {},
-  "badgeName_task_100": "センチュリオン",
-  "@badgeName_task_100": {},
-  "badgeDesc_task_100": "累計100件完了",
-  "@badgeDesc_task_100": {},
   "badgeName_task_250": "タスクハンター",
   "@badgeName_task_250": {},
   "badgeDesc_task_250": "累計250件完了",
@@ -1540,23 +1526,6 @@
   "@badgeName_task_1000": {},
   "badgeDesc_task_1000": "累計1000件完了",
   "@badgeDesc_task_1000": {},
-
-  "badgeName_streak_3": "三日坊主とは言わせない",
-  "@badgeName_streak_3": {},
-  "badgeDesc_streak_3": "3日連続でアプリを起動",
-  "@badgeDesc_streak_3": {},
-  "badgeName_streak_7": "一週間の習慣",
-  "@badgeName_streak_7": {},
-  "badgeDesc_streak_7": "7日連続でアプリを起動",
-  "@badgeDesc_streak_7": {},
-  "badgeName_streak_14": "フォートナイト達成",
-  "@badgeName_streak_14": {},
-  "badgeDesc_streak_14": "14日連続でアプリを起動",
-  "@badgeDesc_streak_14": {},
-  "badgeName_streak_30": "月間皆勤賞",
-  "@badgeName_streak_30": {},
-  "badgeDesc_streak_30": "30日連続でアプリを起動",
-  "@badgeDesc_streak_30": {},
   "badgeName_streak_60": "鉄の意志",
   "@badgeName_streak_60": {},
   "badgeDesc_streak_60": "60日連続でアプリを起動",
@@ -1565,11 +1534,6 @@
   "@badgeName_streak_100": {},
   "badgeDesc_streak_100": "100日連続でアプリを起動",
   "@badgeDesc_streak_100": {},
-
-  "badgeName_ai_first": "AI初体験",
-  "@badgeName_ai_first": {},
-  "badgeDesc_ai_first": "初めてAI整理を実行",
-  "@badgeDesc_ai_first": {},
   "badgeName_ai_10": "AIの常連",
   "@badgeName_ai_10": {},
   "badgeDesc_ai_10": "AI整理10回",
@@ -1578,15 +1542,6 @@
   "@badgeName_ai_50": {},
   "badgeDesc_ai_50": "AI整理50回",
   "@badgeDesc_ai_50": {},
-
-  "badgeName_level_5": "駆け出しプランナー",
-  "@badgeName_level_5": {},
-  "badgeDesc_level_5": "Lv.5到達",
-  "@badgeDesc_level_5": {},
-  "badgeName_level_10": "一人前の整理人",
-  "@badgeName_level_10": {},
-  "badgeDesc_level_10": "Lv.10到達",
-  "@badgeDesc_level_10": {},
   "badgeName_level_20": "効率化の求道者",
   "@badgeName_level_20": {},
   "badgeDesc_level_20": "Lv.20到達",
@@ -1595,7 +1550,6 @@
   "@badgeName_level_30": {},
   "badgeDesc_level_30": "Lv.30到達",
   "@badgeDesc_level_30": {},
-
   "badgeName_early_bird": "早起きは三文の徳",
   "@badgeName_early_bird": {},
   "badgeDesc_early_bird": "朝6時前にタスクを完了",
@@ -1668,7 +1622,6 @@
   "@badgeName_level_100": {},
   "badgeDesc_level_100": "Lv.100到達",
   "@badgeDesc_level_100": {},
-
   "badgeHidden": "???",
   "@badgeHidden": {},
   "badgeHiddenCondition": "???\n条件は秘密です。 色々試してみてください!",
@@ -1684,8 +1637,12 @@
   "badgeDetailProgressValue": "{current}/{target}",
   "@badgeDetailProgressValue": {
     "placeholders": {
-      "current": { "type": "int" },
-      "target": { "type": "int" }
+      "current": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
     }
   },
   "badgeDetailXp": "獲得XP",
@@ -1693,17 +1650,17 @@
   "badgeDetailXpValue": "+{xp} XP",
   "@badgeDetailXpValue": {
     "placeholders": {
-      "xp": { "type": "int" }
+      "xp": {
+        "type": "int"
+      }
     }
   },
   "badgeHiddenLabel": "Hidden",
   "@badgeHiddenLabel": {},
-
   "aiReminderToggle": "整理リマインド",
   "@aiReminderToggle": {},
   "aiReminderToggleDesc": "未完了が溜まったら夕方に通知 (1 日 1 回)",
   "@aiReminderToggleDesc": {},
-
   "aiPurchaseSheetTitle": "AI 整理の回数が不足しています",
   "@aiPurchaseSheetTitle": {},
   "aiPurchaseSheetBody": "以下のいずれかの方法で AI 整理を利用できます。",
@@ -1714,7 +1671,6 @@
   "@aiPurchasePremiumLabel": {},
   "aiPurchaseTicketLabel": "AI 整理チケット",
   "@aiPurchaseTicketLabel": {},
-
   "labelOverdue": "期限切れ",
   "@labelOverdue": {},
   "labelDue": "期限",
@@ -1737,7 +1693,6 @@
   "@labelLater": {},
   "labelNormal": "通常",
   "@labelNormal": {},
-
   "statsTitleHeader": "あなたの実績",
   "@statsTitleHeader": {
     "description": "実績画面の上部見出し"
@@ -1745,26 +1700,36 @@
   "statsUsageDays": "やるナビを使い始めて {days}日目",
   "@statsUsageDays": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "statsBadgesEarnedCount": "{earned} / {total} 達成",
   "@statsBadgesEarnedCount": {
     "placeholders": {
-      "earned": { "type": "int" },
-      "total": { "type": "int" }
+      "earned": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "statsValueTasks": "{count}件",
   "@statsValueTasks": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "statsValueDays": "{count}日",
   "@statsValueDays": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "statsSubTasks": "タスク",
@@ -1774,14 +1739,20 @@
   "statsNextLevelLabel": "次のレベル: Lv.{level} {name}",
   "@statsNextLevelLabel": {
     "placeholders": {
-      "level": { "type": "int" },
-      "name": { "type": "String" }
+      "level": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "statsNextLevelXp": "あと {xp} XP",
   "@statsNextLevelXp": {
     "placeholders": {
-      "xp": { "type": "int" }
+      "xp": {
+        "type": "int"
+      }
     }
   },
   "statsBadgesEarnedSection": "獲得済み",
@@ -1791,7 +1762,9 @@
   "statsBadgesHiddenSection": "隠しバッジ (残り {count}個)",
   "@statsBadgesHiddenSection": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "streakKickoffPrompt": "今日からストリークを始めよう!",
@@ -1801,8 +1774,12 @@
   "streakNextGoal": "次の目標: {target}日連続まであと {remain}日",
   "@streakNextGoal": {
     "placeholders": {
-      "target": { "type": "int" },
-      "remain": { "type": "int" }
+      "target": {
+        "type": "int"
+      },
+      "remain": {
+        "type": "int"
+      }
     }
   },
   "statsTutorialTitle": "実績をアンロックしよう!",
@@ -1811,18 +1788,18 @@
   "@statsTutorialBody": {},
   "statsTutorialCta": "さっそく始める",
   "@statsTutorialCta": {},
-
   "naviHintTitle": "ナビからのひとこと",
   "@naviHintTitle": {},
   "naviHintLastSort": "最終整理: {timestamp}",
   "@naviHintLastSort": {
     "placeholders": {
-      "timestamp": { "type": "String" }
+      "timestamp": {
+        "type": "String"
+      }
     }
   },
   "naviHintDetail": "詳細",
   "@naviHintDetail": {},
-
   "labelExecutionDay": "実行日",
   "@labelExecutionDay": {},
   "pickExecutionDayTooltip": "実行日を選択 (手動で変更した実行日は、次回 AI 整理で再提案される場合があります)",
@@ -1848,7 +1825,9 @@
   "calendarSyncDone": "{count}件の予定を取り込みました",
   "@calendarSyncDone": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "calendarSyncFailed": "カレンダーの取り込みに失敗しました",
@@ -1895,7 +1874,9 @@
   "@blockedDatesSelectedCount": {
     "description": "blocked_dates 選択中の件数表示",
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "blockedDatesSaved": "タスクを入れない日を更新しました",
@@ -1910,7 +1891,6 @@
   "@avoidEventDaysDesc": {
     "description": "設定: 予定がある日を避けるトグルの説明文"
   },
-
   "tipsHeader": "Tips",
   "@tipsHeader": {},
   "tip0Title": "Tips: スケジュール設定",
@@ -2000,8 +1980,12 @@
   "aiPurchaseTicketSubtitle": "1 回分を追加 (残り {remaining}/{max} 回購入可能)",
   "@aiPurchaseTicketSubtitle": {
     "placeholders": {
-      "remaining": { "type": "int" },
-      "max": { "type": "int" }
+      "remaining": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
     }
   },
   "aiPurchaseTicketDisabled": "チケット購入は上限に達しています",
@@ -2011,8 +1995,12 @@
   "aiRewardedRemaining": "残り {remaining}/{max} 回利用可能",
   "@aiRewardedRemaining": {
     "placeholders": {
-      "remaining": { "type": "int" },
-      "max": { "type": "int" }
+      "remaining": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
     }
   },
   "aiRewardedExhausted": "動画での回復は上限に達しました",
@@ -2030,7 +2018,9 @@
   "aiSortQuotaFreeShort": "残り {remaining}回",
   "@aiSortQuotaFreeShort": {
     "placeholders": {
-      "remaining": { "type": "int" }
+      "remaining": {
+        "type": "int"
+      }
     }
   },
   "viewDetails": "詳細",
@@ -2041,14 +2031,18 @@
   "@taskCardExpandedSemantics": {
     "description": "展開中タスクカードの VoiceOver 用ラベル",
     "placeholders": {
-      "title": { "type": "String" }
+      "title": {
+        "type": "String"
+      }
     }
   },
   "taskCardCollapsedSemantics": "{title}、折りたたみ。 タップで展開します",
   "@taskCardCollapsedSemantics": {
     "description": "折りたたみ中タスクカードの VoiceOver 用ラベル",
     "placeholders": {
-      "title": { "type": "String" }
+      "title": {
+        "type": "String"
+      }
     }
   },
   "badgeCond_first_step": "初めてタスクを完了する",

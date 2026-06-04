@@ -16,7 +16,6 @@ import 'package:yarunavi/services/calendar_service.dart';
 import 'package:yarunavi/services/secure_storage_service.dart';
 import 'package:yarunavi/providers/purchase_provider.dart';
 import 'package:yarunavi/providers/secure_storage_provider.dart';
-import 'package:yarunavi/providers/dev_mode_provider.dart';
 import 'package:yarunavi/utils/constants.dart';
 import 'package:yarunavi/utils/test_data.dart';
 
@@ -54,8 +53,6 @@ void main() {
                 .overrideWithValue(SecureStorageService()),
             initialLocaleProvider.overrideWithValue(const Locale('ja')),
             initialThemeModeProvider.overrideWithValue(ThemeMode.light),
-            initialDevAiUnlimitedProvider.overrideWithValue(false),
-            initialDevPremiumProvider.overrideWithValue(false),
           ],
           child: const YaruNaviApp(),
         ),

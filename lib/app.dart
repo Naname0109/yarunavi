@@ -4,13 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
-import 'providers/dev_mode_provider.dart';
+import 'providers/ui_mode_provider.dart';
 import 'providers/settings_provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/ai_history_screen.dart';
 import 'screens/ai_result_screen.dart';
 import 'screens/category_manage_screen.dart';
-import 'screens/debug_animations_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/settings_screen.dart';
@@ -159,14 +158,6 @@ final _router = GoRouter(
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
         child: const CategoryManageScreen(),
-        transitionsBuilder: _slideFromRight,
-      ),
-    ),
-    GoRoute(
-      path: '/debug-animations',
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const DebugAnimationsScreen(),
         transitionsBuilder: _slideFromRight,
       ),
     ),

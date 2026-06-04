@@ -22,7 +22,6 @@ import '../services/rewarded_ad_service.dart';
 import '../services/sound_service.dart';
 import '../utils/category_helper.dart';
 import '../utils/constants.dart';
-import '../providers/dev_mode_provider.dart';
 import '../providers/settings_provider.dart';
 import '../utils/feature_gate.dart';
 import '../utils/notification_utils.dart';
@@ -105,12 +104,10 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
     final secure = ref.read(secureStorageServiceProvider);
     final isPremium = ref.read(isPremiumProvider);
     final locale = Localizations.localeOf(context).languageCode;
-    final devAiUnlimited = ref.read(devModeAiUnlimitedProvider);
 
     final access = await FeatureGate.checkAiSortAccess(
       secure,
       isPremium,
-      devAiUnlimited: devAiUnlimited,
     );
 
     // #8: AI 整理チケット在庫を先にチェック。 allowed でなくてもチケットがあれば消費。

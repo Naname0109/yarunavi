@@ -19,11 +19,8 @@ class FeatureGate {
   /// AI整理の利用可否を判定
   static Future<AiSortAccess> checkAiSortAccess(
     SecureStorageService secure,
-    bool isPremium, {
-    bool devAiUnlimited = false,
-  }) async {
-    if (devAiUnlimited) return AiSortAccess.allowed;
-
+    bool isPremium,
+  ) async {
     if (isPremium) {
       final monthKey = SecureStorageService.currentMonthKey(DateTime.now());
       final monthlyCount = await secure.getMonthlyAiUsage(monthKey);
@@ -52,10 +49,8 @@ class FeatureGate {
 
   /// AI整理の残り無料回数を取得
   static Future<int> getRemainingFreeCount(
-    SecureStorageService secure, {
-    bool devAiUnlimited = false,
-  }) async {
-    if (devAiUnlimited) return 999;
+    SecureStorageService secure,
+  ) async {
     final used = await secure.getLifetimeFreeUsage();
     final remaining = AppConstants.freeAiSortLifetimeLimit - used;
     return remaining < 0 ? 0 : remaining;
