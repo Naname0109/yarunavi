@@ -357,6 +357,7 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
   Widget _buildEstimatedTimeField(AppLocalizations l10n) {
     final options = <(String?, String)>[
       (null, l10n.estimatedTimeNone),
+      ('under_15min', l10n.estimatedTimeUnder15min),
       ('15min', l10n.estimatedTime15min),
       ('30min', l10n.estimatedTime30min),
       ('1hour', l10n.estimatedTime1hour),

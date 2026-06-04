@@ -1310,6 +1310,18 @@ abstract class AppLocalizations {
   /// **'広告の準備ができていません。しばらく待ってからお試しください'**
   String get aiRewardedAdNotReady;
 
+  /// No description provided for @aiRewardedAdLoading.
+  ///
+  /// In ja, this message translates to:
+  /// **'広告を読み込んでいます…'**
+  String get aiRewardedAdLoading;
+
+  /// No description provided for @aiRewardedAdLoadFailed.
+  ///
+  /// In ja, this message translates to:
+  /// **'広告の読み込みに失敗しました。ネットワーク接続を確認してください。'**
+  String get aiRewardedAdLoadFailed;
+
   /// No description provided for @aiRewardedAdUsedToday.
   ///
   /// In ja, this message translates to:
@@ -1687,6 +1699,12 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'未設定'**
   String get estimatedTimeNone;
+
+  /// No description provided for @estimatedTimeUnder15min.
+  ///
+  /// In ja, this message translates to:
+  /// **'15分未満'**
+  String get estimatedTimeUnder15min;
 
   /// No description provided for @estimatedTime15min.
   ///

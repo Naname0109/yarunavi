@@ -633,6 +633,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiRewardedAdNotReady => '広告の準備ができていません。しばらく待ってからお試しください';
 
   @override
+  String get aiRewardedAdLoading => '広告を読み込んでいます…';
+
+  @override
+  String get aiRewardedAdLoadFailed => '広告の読み込みに失敗しました。ネットワーク接続を確認してください。';
+
+  @override
   String get aiRewardedAdUsedToday => '今日の動画視聴によるAI整理は使用済みです';
 
   @override
@@ -830,6 +836,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get estimatedTimeNone => '未設定';
+
+  @override
+  String get estimatedTimeUnder15min => '15分未満';
 
   @override
   String get estimatedTime15min => '15分';

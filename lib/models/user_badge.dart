@@ -30,6 +30,35 @@ class UserBadge with _$UserBadge {
             : null,
       );
 
+  /// 表示順 (カテゴリ別 → 条件小→大)。
+  /// 未獲得バッジセクションで使用。獲得済みは earnedAt の古い順で並べる。
+  static const List<String> displayOrder = [
+    // タスク完了系 (1 → 1000)
+    'first_step',
+    'task_10', 'task_25', 'task_50', 'task_100',
+    'task_250', 'task_500', 'task_1000',
+    // ストリーク系 (3 → 100)
+    'streak_3', 'streak_7', 'streak_14', 'streak_30', 'streak_60', 'streak_100',
+    // AI整理系 (1 → 50)
+    'ai_first', 'ai_10', 'ai_50',
+    // レベル系 (5 → 100)
+    'level_5', 'level_10', 'level_20', 'level_30',
+    'level_50', 'level_70', 'level_100',
+    // その他 (隠しバッジ含む)
+    'early_bird', 'night_owl',
+    'busy_day_5', 'busy_day_10', 'busy_month_30',
+    'back_from_hibernation', 'long_time_no_see',
+    'category_master', 'habit_demon', 'schedule_master',
+    'zero_overdue', 'multi_tasker',
+    'ticket_buyer', 'weekend_warrior', 'perfect_week',
+  ];
+
+  /// displayOrder 内での index。未登録 ID は末尾扱い (大きい値)。
+  int get displayIndex {
+    final idx = displayOrder.indexOf(id);
+    return idx < 0 ? 9999 : idx;
+  }
+
   /// 名称i18nキー
   String get nameKey => 'badgeName_$id';
 

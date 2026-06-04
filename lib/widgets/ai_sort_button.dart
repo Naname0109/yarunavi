@@ -819,16 +819,46 @@ class _AiSortButtonState extends ConsumerState<AiSortButton> {
 
     if (confirmed != true || !mounted) return;
 
-    // 広告準備
+    // 広告準備: 未ロードならローディングダイアログ表示 + 最大10秒待機 + リトライ
     if (!_rewardedAdService.isReady) {
-      await _rewardedAdService.preload();
-      await Future.delayed(const Duration(seconds: 2));
+      // ローディングダイアログを表示
+      bool dialogPopped = false;
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogCtx) => AlertDialog(
+          content: Row(
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 16),
+              Expanded(child: Text(l10n.aiRewardedAdLoading)),
+            ],
+          ),
+        ),
+      ).then((_) => dialogPopped = true);
+
+      // プリロード開始 + 最大10秒待機 (500ms × 20回)
+      // ignore: unawaited_futures
+      _rewardedAdService.preload();
+      for (var i = 0; i < 20; i++) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (_rewardedAdService.isReady) break;
+        if (!mounted) return;
+      }
+
+      // ローディングダイアログを閉じる
+      if (!dialogPopped && mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
     }
 
     if (!_rewardedAdService.isReady) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.aiRewardedAdNotReady)),
+        SnackBar(
+          content: Text(l10n.aiRewardedAdLoadFailed),
+          duration: const Duration(seconds: 4),
+        ),
       );
       return;
     }

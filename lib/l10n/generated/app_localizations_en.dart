@@ -643,6 +643,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Ad not ready yet. Please try again shortly';
 
   @override
+  String get aiRewardedAdLoading => 'Loading ad…';
+
+  @override
+  String get aiRewardedAdLoadFailed =>
+      'Failed to load ad. Please check your network connection.';
+
+  @override
   String get aiRewardedAdUsedToday =>
       'You\'ve already used today\'s video AI sort';
 
@@ -846,6 +853,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get estimatedTimeNone => 'Not set';
+
+  @override
+  String get estimatedTimeUnder15min => 'Under 15 min';
 
   @override
   String get estimatedTime15min => '15 min';
