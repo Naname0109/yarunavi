@@ -186,37 +186,61 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   const Divider(),
 
-                  // --- テーマ ---
+                  // --- 表示 (テーマ + 週の開始曜日) ---
                   _buildSectionHeader(context, l10n.settingsTheme),
-                  RadioListTile<ThemeMode>(
-                    title: Text(l10n.lightTheme),
-                    value: ThemeMode.light,
-                    groupValue: currentTheme,
-                    onChanged: (value) {
-                      ref
-                          .read(themeModeProvider.notifier)
-                          .setThemeMode(ThemeMode.light);
-                    },
+                  ListTile(
+                    leading: const Icon(Icons.brightness_6_outlined),
+                    title: Text(l10n.displayMode),
+                    trailing: DropdownButton<ThemeMode>(
+                      value: currentTheme,
+                      underline: const SizedBox.shrink(),
+                      items: [
+                        DropdownMenuItem(
+                          value: ThemeMode.system,
+                          child: Text(l10n.themeModeAuto),
+                        ),
+                        DropdownMenuItem(
+                          value: ThemeMode.light,
+                          child: Text(l10n.themeModeLight),
+                        ),
+                        DropdownMenuItem(
+                          value: ThemeMode.dark,
+                          child: Text(l10n.themeModeDark),
+                        ),
+                      ],
+                      onChanged: (mode) {
+                        if (mode == null) return;
+                        ref
+                            .read(themeModeProvider.notifier)
+                            .setThemeMode(mode);
+                      },
+                    ),
                   ),
-                  RadioListTile<ThemeMode>(
-                    title: Text(l10n.darkTheme),
-                    value: ThemeMode.dark,
-                    groupValue: currentTheme,
-                    onChanged: (value) {
-                      ref
-                          .read(themeModeProvider.notifier)
-                          .setThemeMode(ThemeMode.dark);
-                    },
-                  ),
-                  RadioListTile<ThemeMode>(
-                    title: Text(l10n.systemTheme),
-                    value: ThemeMode.system,
-                    groupValue: currentTheme,
-                    onChanged: (value) {
-                      ref
-                          .read(themeModeProvider.notifier)
-                          .setThemeMode(ThemeMode.system);
-                    },
+                  ListTile(
+                    leading: const Icon(Icons.view_week_outlined),
+                    title: Text(l10n.weekStartDay),
+                    trailing: DropdownButton<int>(
+                      value: ref.watch(startOfWeekProvider),
+                      underline: const SizedBox.shrink(),
+                      items: [
+                        DropdownMenuItem(
+                          value: 1,
+                          child: Text(l10n.weekStartMonday),
+                        ),
+                        DropdownMenuItem(
+                          value: 7,
+                          child: Text(l10n.weekStartSunday),
+                        ),
+                        DropdownMenuItem(
+                          value: 6,
+                          child: Text(l10n.weekStartSaturday),
+                        ),
+                      ],
+                      onChanged: (day) {
+                        if (day == null) return;
+                        ref.read(startOfWeekProvider.notifier).setDay(day);
+                      },
+                    ),
                   ),
                   const Divider(),
 
@@ -718,6 +742,7 @@ class _BlockedDatesTileState extends ConsumerState<_BlockedDatesTile> {
           _MonthGrid(
             month: _viewMonth,
             selected: _selected,
+            startOfWeek: ref.watch(startOfWeekProvider),
             onTap: _toggle,
           ),
           const SizedBox(height: 10),
@@ -744,17 +769,21 @@ class _BlockedDatesTileState extends ConsumerState<_BlockedDatesTile> {
   }
 }
 
-/// 単月カレンダーグリッド (7列, 日曜始まり)。
+/// 単月カレンダーグリッド (7列、 週の開始曜日は [startOfWeek] で指定)。
 /// 過去日はグレーアウトし tap 不可。 選択は accent 色で塗り。
 class _MonthGrid extends StatelessWidget {
   const _MonthGrid({
     required this.month,
     required this.selected,
+    required this.startOfWeek,
     required this.onTap,
   });
 
   final DateTime month;
   final Set<String> selected;
+
+  /// ISO weekday: 1=月 / 6=土 / 7=日
+  final int startOfWeek;
   final ValueChanged<DateTime> onTap;
 
   @override
@@ -764,11 +793,11 @@ class _MonthGrid extends StatelessWidget {
     final today = DateTime(now.year, now.month, now.day);
     final first = DateTime(month.year, month.month, 1);
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
-    final leading = first.weekday % 7; // Sunday=0
+    final leading = (first.weekday - startOfWeek + 7) % 7;
     final locale = Localizations.localeOf(context).toLanguageTag();
+    // 2024-01-01 は月曜 → 開始曜日に合わせて 7 個生成
     final weekdays = List<String>.generate(7, (i) {
-      // i=0 Sunday
-      final ref = DateTime(2024, 1, 7 + i); // 2024-01-07 = Sun
+      final ref = DateTime(2024, 1, 1 + ((startOfWeek - 1 + i) % 7));
       return DateFormat.E(locale).format(ref);
     });
 

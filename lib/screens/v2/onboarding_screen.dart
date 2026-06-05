@@ -82,6 +82,7 @@ class _V2OnboardingScreenState extends State<V2OnboardingScreen> {
                     _WelcomePage(yaru: yaru, l10n: l10n),
                     _BeforeAfterPage(yaru: yaru, l10n: l10n),
                     _GamificationPage(yaru: yaru, l10n: l10n),
+                    _StylePage(yaru: yaru, l10n: l10n),
                     _CtaPage(
                       yaru: yaru,
                       l10n: l10n,
@@ -99,14 +100,14 @@ class _V2OnboardingScreenState extends State<V2OnboardingScreen> {
   }
 
   Widget _bottomBar(YaruTheme yaru, AppLocalizations l10n) {
-    final isLast = _page == 3;
+    final isLast = _page == 4;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(4, (i) {
+            children: List.generate(5, (i) {
               final active = i == _page;
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
@@ -578,6 +579,202 @@ class _GamificationPage extends StatelessWidget {
                       TextStyle(fontSize: 11.5, color: yaru.inkTertiary)),
             ],
           ),
+        ),
+      ],
+    );
+  }
+}
+
+/// #4-1: ライト/ダーク両モード紹介ページ。
+/// アセット画像 (onboarding_light/dark) が無い場合は Material 風モックで表現。
+class _StylePage extends StatelessWidget {
+  const _StylePage({required this.yaru, required this.l10n});
+  final YaruTheme yaru;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 28),
+      child: Column(
+        children: [
+          const SizedBox(height: 24),
+          Text(
+            l10n.onboardingStyleTitle,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: yaru.inkPrimary,
+              letterSpacing: -0.4,
+              height: 1.25,
+            ),
+          ),
+          const SizedBox(height: 28),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: _StyleCard(
+                  isDark: false,
+                  label: l10n.onboardingStyleLight,
+                  primary: const Color(0xFF1F1F23),
+                  secondary: const Color(0xFF6B6B70),
+                  bg: const Color(0xFFFAFAFA),
+                  card: Colors.white,
+                  accent: yaru.accent,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _StyleCard(
+                  isDark: true,
+                  label: l10n.onboardingStyleDark,
+                  primary: Colors.white,
+                  secondary: const Color(0xFFA0A0A8),
+                  bg: const Color(0xFF0F1014),
+                  card: const Color(0xFF1A1C22),
+                  accent: yaru.accent,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 28),
+          Text(
+            l10n.onboardingStyleSub,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: yaru.inkSecondary,
+              height: 1.6,
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+}
+
+/// ライト/ダーク両モードのホーム画面を簡略表現したモックカード。
+class _StyleCard extends StatelessWidget {
+  const _StyleCard({
+    required this.isDark,
+    required this.label,
+    required this.primary,
+    required this.secondary,
+    required this.bg,
+    required this.card,
+    required this.accent,
+  });
+
+  final bool isDark;
+  final String label;
+  final Color primary;
+  final Color secondary;
+  final Color bg;
+  final Color card;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        AspectRatio(
+          aspectRatio: 9 / 16,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              decoration: BoxDecoration(
+                color: bg,
+                border: Border.all(
+                  color: secondary.withValues(alpha: 0.25),
+                ),
+              ),
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ヘッダー帯 (タイトル + ストリーク)
+                  Container(
+                    height: 18,
+                    decoration: BoxDecoration(
+                      color: card,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: Row(
+                      children: [
+                        Icon(Icons.local_fire_department,
+                            size: 10, color: accent),
+                        const SizedBox(width: 3),
+                        Container(
+                          width: 18,
+                          height: 4,
+                          color: primary.withValues(alpha: 0.6),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  // タスクリスト
+                  for (final w in [0.85, 0.7, 0.6, 0.78, 0.55])
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Container(
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: card,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 5,
+                              height: 5,
+                              decoration: BoxDecoration(
+                                color: accent,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: FractionallySizedBox(
+                                widthFactor: w,
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  height: 3,
+                                  color: primary.withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(isDark ? Icons.dark_mode : Icons.light_mode,
+                size: 14,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
         ),
       ],
     );

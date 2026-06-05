@@ -146,37 +146,63 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-                      // #4: 完了済みなら「未完了に戻す」、 未完了なら「完了にする」
-                      child: NeonButton(
-                        label: task.isCompleted
-                            ? l10n.uncompleteTask
-                            : l10n.taskCompleteAction,
-                        icon: task.isCompleted
-                            ? Icons.undo_rounded
-                            : Icons.check_rounded,
-                        height: 54,
-                        onPressed: () async {
-                          if (task!.isCompleted) {
-                            await ref
-                                .read(tasksProvider.notifier)
-                                .uncompleteTask(task);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(l10n.taskUncompletedSnack),
-                                  duration: const Duration(seconds: 4),
-                                ),
-                              );
-                              context.pop();
-                            }
-                          } else {
-                            await ref
-                                .read(tasksProvider.notifier)
-                                .completeTask(task);
-                            if (context.mounted) context.pop();
-                          }
-                        },
+                      child: Column(
+                        children: [
+                          // #1: 削除ボタンを完了ボタンの上に控えめに配置 (赤、opacity 0.7)
+                          TextButton.icon(
+                            onPressed: () =>
+                                _confirmDeleteTask(context, l10n, task!),
+                            icon: Icon(
+                              Icons.delete_outline,
+                              size: 18,
+                              color:
+                                  Colors.red.withValues(alpha: 0.7),
+                            ),
+                            label: Text(
+                              l10n.taskDeleteThis,
+                              style: TextStyle(
+                                color:
+                                    Colors.red.withValues(alpha: 0.7),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          // #4: 完了済みなら「未完了に戻す」、 未完了なら「完了にする」
+                          NeonButton(
+                            label: task.isCompleted
+                                ? l10n.uncompleteTask
+                                : l10n.taskCompleteAction,
+                            icon: task.isCompleted
+                                ? Icons.undo_rounded
+                                : Icons.check_rounded,
+                            height: 54,
+                            onPressed: () async {
+                              if (task!.isCompleted) {
+                                await ref
+                                    .read(tasksProvider.notifier)
+                                    .uncompleteTask(task);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context)
+                                      .clearSnackBars();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text(l10n.taskUncompletedSnack),
+                                      duration: const Duration(seconds: 4),
+                                    ),
+                                  );
+                                  context.pop();
+                                }
+                              } else {
+                                await ref
+                                    .read(tasksProvider.notifier)
+                                    .completeTask(task);
+                                if (context.mounted) context.pop();
+                              }
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -187,6 +213,46 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
         );
       },
     );
+  }
+
+  /// #1: タスク削除の確認 → DB 削除 → 前画面に戻る + SnackBar。
+  Future<void> _confirmDeleteTask(
+    BuildContext context,
+    AppLocalizations l10n,
+    Task task,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.taskDeleteConfirmTitle),
+        content: Text(l10n.taskDeleteConfirmMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    // 親 State の mounted を確認後に messenger を取り出し、 await 後でも安全に使う
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+    if (task.id != null) {
+      await ref.read(tasksProvider.notifier).deleteTask(task.id!);
+    }
+    if (!mounted) return;
+    router.pop();
+    messenger
+      ..clearSnackBars()
+      ..showSnackBar(SnackBar(content: Text(l10n.taskDeletedSnack)));
   }
 
   Widget _topBar(BuildContext context, YaruTheme yaru, Task task) {
