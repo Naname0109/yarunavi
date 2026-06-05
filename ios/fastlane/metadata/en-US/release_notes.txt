@@ -1,8 +1,11 @@
-v1.0.1 update:
+v1.0.2 update:
 
-- Category screen: "Add Category" button now displays the full label.
-- Default badge contrast improved for both light and dark modes.
-- Achievement badges reordered by category and threshold.
-- Added "Under 15 min" option for task estimated time.
-- Reward video: loading dialog + retry on slow load.
-- Internal quality improvements.
+- Added delete buttons to the task detail and event edit screens
+- You can now choose the start day of week (Mon / Sun / Sat).
+  Calendar view and the "task-free days" picker now share the same weekday order.
+- First-time swipe hint when adding a task
+- Dark mode awareness improvements:
+  - Onboarding now introduces both light and dark modes
+  - AI Sort tips include a "Display mode" hint
+  - Display setting is now a 3-way picker (Auto / Light / Dark)
+- Minor quality improvements

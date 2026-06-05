@@ -1,7 +1,7 @@
 name: yarunavi
 description: "AIタスク優先順位整理アプリ"
 publish_to: 'none'
-version: 1.0.1+1
+version: 1.0.2+1
 
 environment:
   sdk: ^3.10.4
