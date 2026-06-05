@@ -14,6 +14,7 @@ const _soundEnabledKey = 'sound_enabled';
 const _weekdayBusynessKey = 'weekday_busyness'; // #3-1: 1=暇〜5=忙しい × 7曜日
 const _aiReminderEnabledKey = 'ai_sort_reminder_enabled'; // #6-2
 const _avoidEventDaysKey = 'avoid_event_days'; // #2 続: 予定日に AI 整理を割り振らない
+const _startOfWeekKey = 'start_of_week'; // ISO weekday: 1=月, 6=土, 7=日 (デフォルト 1)
 
 /// 曜日ごとの「忙しさ」。 月=0 〜 日=6 のリスト、 値は 1〜5。
 /// AI 整理時に「忙しい曜日にはタスクを集中させない」 ヒントとして渡す。
@@ -34,6 +35,7 @@ final initialLocaleProvider = Provider<Locale>((ref) => const Locale('ja'));
 final initialThemeModeProvider = Provider<ThemeMode>((ref) => ThemeMode.system);
 final initialExecutionTimingProvider = Provider<double>((ref) => 0.5);
 final initialSoundEnabledProvider = Provider<bool>((ref) => true);
+final initialStartOfWeekProvider = Provider<int>((ref) => 1); // 月曜デフォルト
 
 /// 起動時にSharedPreferencesから初期値を読み込む
 Future<
@@ -42,6 +44,7 @@ Future<
       ThemeMode themeMode,
       double executionTiming,
       bool soundEnabled,
+      int startOfWeek,
     })> loadSettingsFromPrefs() async {
   final prefs = await SharedPreferences.getInstance();
 
@@ -58,12 +61,16 @@ Future<
 
   final executionTiming = prefs.getDouble(_executionTimingKey) ?? 0.5;
   final soundEnabled = prefs.getBool(_soundEnabledKey) ?? true;
+  final rawStart = prefs.getInt(_startOfWeekKey) ?? 1;
+  // 1=月 / 6=土 / 7=日 のみ許容
+  final startOfWeek = const {1, 6, 7}.contains(rawStart) ? rawStart : 1;
 
   return (
     locale: locale,
     themeMode: themeMode,
     executionTiming: executionTiming,
     soundEnabled: soundEnabled,
+    startOfWeek: startOfWeek,
   );
 }
 
@@ -138,6 +145,23 @@ class SoundEnabledNotifier extends Notifier<bool> {
 
 final soundEnabledProvider =
     NotifierProvider<SoundEnabledNotifier, bool>(SoundEnabledNotifier.new);
+
+/// 週の開始曜日設定 (ISO weekday: 1=月 / 6=土 / 7=日)。
+/// `table_calendar` の `StartingDayOfWeek` enum とは別管理し、UI 側で変換する。
+class StartOfWeekNotifier extends Notifier<int> {
+  @override
+  int build() => ref.read(initialStartOfWeekProvider);
+
+  Future<void> setDay(int day) async {
+    if (!const {1, 6, 7}.contains(day)) return;
+    state = day;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_startOfWeekKey, day);
+  }
+}
+
+final startOfWeekProvider =
+    NotifierProvider<StartOfWeekNotifier, int>(StartOfWeekNotifier.new);
 
 /// 曜日ごとの忙しさ設定 (#3-1)。 SharedPreferences に「3,3,3,3,3,3,3」形式で保存。
 class WeekdayBusynessNotifier extends AsyncNotifier<WeekdayBusyness> {

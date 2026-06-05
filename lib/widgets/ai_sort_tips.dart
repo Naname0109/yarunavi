@@ -27,7 +27,7 @@ class _AiSortTipsCardState extends State<AiSortTipsCard> {
   @override
   void initState() {
     super.initState();
-    final ids = List.generate(20, (i) => i);
+    final ids = List.generate(21, (i) => i);
     ids.shuffle(Random());
     _shuffledIds = ids;
     _timer = Timer.periodic(const Duration(seconds: 6), (_) {
@@ -67,6 +67,7 @@ class _AiSortTipsCardState extends State<AiSortTipsCard> {
       17 => l10n.tip17,
       18 => l10n.tip18,
       19 => l10n.tip19,
+      20 => l10n.tip20,
       _ => l10n.tip0,
     };
   }
@@ -94,6 +95,7 @@ class _AiSortTipsCardState extends State<AiSortTipsCard> {
       17 => l10n.tip17Title,
       18 => l10n.tip18Title,
       19 => l10n.tip19Title,
+      20 => l10n.tip20Title,
       _ => l10n.tip0Title,
     };
   }

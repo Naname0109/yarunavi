@@ -5113,6 +5113,150 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'レベル 100 に到達'**
   String get badgeCond_level_100;
+
+  /// No description provided for @taskDeleteThis.
+  ///
+  /// In ja, this message translates to:
+  /// **'このタスクを削除'**
+  String get taskDeleteThis;
+
+  /// No description provided for @taskDeleteConfirmTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクを削除'**
+  String get taskDeleteConfirmTitle;
+
+  /// No description provided for @taskDeleteConfirmMessage.
+  ///
+  /// In ja, this message translates to:
+  /// **'このタスクを削除しますか？'**
+  String get taskDeleteConfirmMessage;
+
+  /// No description provided for @taskDeletedSnack.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクを削除しました'**
+  String get taskDeletedSnack;
+
+  /// No description provided for @eventDeleteThis.
+  ///
+  /// In ja, this message translates to:
+  /// **'この予定を削除'**
+  String get eventDeleteThis;
+
+  /// No description provided for @eventDeleteThisSync.
+  ///
+  /// In ja, this message translates to:
+  /// **'この予定を削除（同期元には影響しません）'**
+  String get eventDeleteThisSync;
+
+  /// No description provided for @eventDeleteConfirmTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'予定を削除'**
+  String get eventDeleteConfirmTitle;
+
+  /// No description provided for @eventDeleteConfirmMessage.
+  ///
+  /// In ja, this message translates to:
+  /// **'この予定を削除しますか？'**
+  String get eventDeleteConfirmMessage;
+
+  /// No description provided for @eventDeletedSnack.
+  ///
+  /// In ja, this message translates to:
+  /// **'予定を削除しました'**
+  String get eventDeletedSnack;
+
+  /// No description provided for @displayMode.
+  ///
+  /// In ja, this message translates to:
+  /// **'表示モード'**
+  String get displayMode;
+
+  /// No description provided for @themeModeAuto.
+  ///
+  /// In ja, this message translates to:
+  /// **'自動（端末設定に合わせる）'**
+  String get themeModeAuto;
+
+  /// No description provided for @themeModeLight.
+  ///
+  /// In ja, this message translates to:
+  /// **'ライトモード'**
+  String get themeModeLight;
+
+  /// No description provided for @themeModeDark.
+  ///
+  /// In ja, this message translates to:
+  /// **'ダークモード'**
+  String get themeModeDark;
+
+  /// No description provided for @weekStartDay.
+  ///
+  /// In ja, this message translates to:
+  /// **'週の開始曜日'**
+  String get weekStartDay;
+
+  /// No description provided for @weekStartMonday.
+  ///
+  /// In ja, this message translates to:
+  /// **'月曜日'**
+  String get weekStartMonday;
+
+  /// No description provided for @weekStartSunday.
+  ///
+  /// In ja, this message translates to:
+  /// **'日曜日'**
+  String get weekStartSunday;
+
+  /// No description provided for @weekStartSaturday.
+  ///
+  /// In ja, this message translates to:
+  /// **'土曜日'**
+  String get weekStartSaturday;
+
+  /// No description provided for @swipeHintText.
+  ///
+  /// In ja, this message translates to:
+  /// **'タスクは右スワイプで完了、左スワイプで削除できます'**
+  String get swipeHintText;
+
+  /// No description provided for @onboardingStyleTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'好みのスタイルで使えます'**
+  String get onboardingStyleTitle;
+
+  /// No description provided for @onboardingStyleSub.
+  ///
+  /// In ja, this message translates to:
+  /// **'設定 → 表示 からいつでも切り替えられます'**
+  String get onboardingStyleSub;
+
+  /// No description provided for @onboardingStyleLight.
+  ///
+  /// In ja, this message translates to:
+  /// **'ライトモード'**
+  String get onboardingStyleLight;
+
+  /// No description provided for @onboardingStyleDark.
+  ///
+  /// In ja, this message translates to:
+  /// **'ダークモード'**
+  String get onboardingStyleDark;
+
+  /// No description provided for @tip20.
+  ///
+  /// In ja, this message translates to:
+  /// **'ダークモードとライトモードを切り替えられます。\n目に優しいダークモードもおすすめです。'**
+  String get tip20;
+
+  /// No description provided for @tip20Title.
+  ///
+  /// In ja, this message translates to:
+  /// **'Tips: 表示モード'**
+  String get tip20Title;
 }
 
 class _AppLocalizationsDelegate

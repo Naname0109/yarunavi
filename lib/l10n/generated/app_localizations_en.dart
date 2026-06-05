@@ -2713,4 +2713,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get badgeCond_level_100 => 'Reach Level 100';
+
+  @override
+  String get taskDeleteThis => 'Delete this task';
+
+  @override
+  String get taskDeleteConfirmTitle => 'Delete task';
+
+  @override
+  String get taskDeleteConfirmMessage => 'Delete this task?';
+
+  @override
+  String get taskDeletedSnack => 'Task deleted';
+
+  @override
+  String get eventDeleteThis => 'Delete this event';
+
+  @override
+  String get eventDeleteThisSync => 'Delete this event (sync source unchanged)';
+
+  @override
+  String get eventDeleteConfirmTitle => 'Delete event';
+
+  @override
+  String get eventDeleteConfirmMessage => 'Delete this event?';
+
+  @override
+  String get eventDeletedSnack => 'Event deleted';
+
+  @override
+  String get displayMode => 'Display mode';
+
+  @override
+  String get themeModeAuto => 'Auto (follow system)';
+
+  @override
+  String get themeModeLight => 'Light mode';
+
+  @override
+  String get themeModeDark => 'Dark mode';
+
+  @override
+  String get weekStartDay => 'Start of week';
+
+  @override
+  String get weekStartMonday => 'Monday';
+
+  @override
+  String get weekStartSunday => 'Sunday';
+
+  @override
+  String get weekStartSaturday => 'Saturday';
+
+  @override
+  String get swipeHintText => 'Swipe right to complete, swipe left to delete';
+
+  @override
+  String get onboardingStyleTitle => 'Choose your style';
+
+  @override
+  String get onboardingStyleSub => 'Switch anytime in Settings → Display';
+
+  @override
+  String get onboardingStyleLight => 'Light mode';
+
+  @override
+  String get onboardingStyleDark => 'Dark mode';
+
+  @override
+  String get tip20 =>
+      'You can switch between dark and light modes. Easy on the eyes too.';
+
+  @override
+  String get tip20Title => 'Tips: Display mode';
 }

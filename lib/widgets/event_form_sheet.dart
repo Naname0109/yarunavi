@@ -246,9 +246,70 @@ class _EventFormSheetState extends ConsumerState<EventFormSheet> {
               onPressed: isFromSync ? null : _save,
               child: Text(l10n.save),
             ),
+            // #1: 編集モード時のみ「この予定を削除」ボタン (控えめ)。
+            // ライト/ダーク両対応のため colorScheme.error を使用。
+            // カレンダー同期予定は「同期元には影響しません」を明示。
+            if (widget.editTarget != null) ...[
+              const SizedBox(height: 6),
+              Builder(builder: (ctx) {
+                final err = Theme.of(ctx).colorScheme.error;
+                return TextButton.icon(
+                  onPressed: _confirmDelete,
+                  icon: Icon(Icons.delete_outline,
+                      size: 18, color: err.withValues(alpha: 0.85)),
+                  label: Text(
+                    isFromSync
+                        ? l10n.eventDeleteThisSync
+                        : l10n.eventDeleteThis,
+                    style: TextStyle(
+                      color: err.withValues(alpha: 0.85),
+                      fontSize: 13,
+                    ),
+                  ),
+                );
+              }),
+            ],
           ],
         ),
       ),
+    );
+  }
+
+  /// #1: 予定削除の確認 → DB 削除 → BottomSheet 閉じ + SnackBar。
+  Future<void> _confirmDelete() async {
+    final l10n = AppLocalizations.of(context)!;
+    final target = widget.editTarget;
+    if (target?.id == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.eventDeleteConfirmTitle),
+        content: Text(l10n.eventDeleteConfirmMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    // 親 State の mounted を確認後に messenger / navigator を取り出し、
+    // await 後でも安全に使う (task_detail_screen と統一)
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    await ref.read(eventsProvider.notifier).delete(target!.id!);
+    if (!mounted) return;
+    navigator.pop();
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.eventDeletedSnack)),
     );
   }
 }

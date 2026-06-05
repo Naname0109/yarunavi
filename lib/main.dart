@@ -279,6 +279,7 @@ void main() async {
         initialExecutionTimingProvider
             .overrideWithValue(settings.executionTiming),
         initialSoundEnabledProvider.overrideWithValue(settings.soundEnabled),
+        initialStartOfWeekProvider.overrideWithValue(settings.startOfWeek),
         initialUseNewUiProvider.overrideWithValue(uiMode.useNewUi),
         isVipProvider.overrideWith((ref) => initialVipActive),
       ],

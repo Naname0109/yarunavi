@@ -12,6 +12,7 @@ import '../models/event.dart';
 import '../models/category.dart' as model;
 import '../providers/category_provider.dart';
 import '../providers/event_provider.dart';
+import '../providers/settings_provider.dart' show startOfWeekProvider;
 import '../providers/task_provider.dart';
 import '../theme/colors.dart';
 import '../providers/ui_mode_provider.dart';
@@ -251,7 +252,11 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
               focusedDay: _focusedDay,
               calendarFormat: CalendarFormat.month,
               availableCalendarFormats: const {CalendarFormat.month: 'Month'},
-              startingDayOfWeek: StartingDayOfWeek.monday,
+              startingDayOfWeek: switch (ref.watch(startOfWeekProvider)) {
+                7 => StartingDayOfWeek.sunday,
+                6 => StartingDayOfWeek.saturday,
+                _ => StartingDayOfWeek.monday,
+              },
               locale: locale,
               rowHeight: 56,
               daysOfWeekHeight: 24,

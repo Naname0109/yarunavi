@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/generated/app_localizations.dart';
 import '../models/task.dart';
@@ -911,6 +912,20 @@ class _TaskFormSheetState extends ConsumerState<TaskFormSheet> {
             .read(tasksProvider.notifier)
             .addTask(task, addToCalendar: _addToCalendar);
         insertedTask = task;
+
+        // #3: 初回タスク追加時のみスワイプ操作ヒントを SnackBar で表示。
+        final prefs = await SharedPreferences.getInstance();
+        if (!(prefs.getBool('swipe_hint_shown') ?? false)) {
+          await prefs.setBool('swipe_hint_shown', true);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(l10n.swipeHintText),
+                duration: const Duration(seconds: 5),
+              ),
+            );
+          }
+        }
       }
 
       if (mounted) {

@@ -2648,4 +2648,76 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get badgeCond_level_100 => 'レベル 100 に到達';
+
+  @override
+  String get taskDeleteThis => 'このタスクを削除';
+
+  @override
+  String get taskDeleteConfirmTitle => 'タスクを削除';
+
+  @override
+  String get taskDeleteConfirmMessage => 'このタスクを削除しますか？';
+
+  @override
+  String get taskDeletedSnack => 'タスクを削除しました';
+
+  @override
+  String get eventDeleteThis => 'この予定を削除';
+
+  @override
+  String get eventDeleteThisSync => 'この予定を削除（同期元には影響しません）';
+
+  @override
+  String get eventDeleteConfirmTitle => '予定を削除';
+
+  @override
+  String get eventDeleteConfirmMessage => 'この予定を削除しますか？';
+
+  @override
+  String get eventDeletedSnack => '予定を削除しました';
+
+  @override
+  String get displayMode => '表示モード';
+
+  @override
+  String get themeModeAuto => '自動（端末設定に合わせる）';
+
+  @override
+  String get themeModeLight => 'ライトモード';
+
+  @override
+  String get themeModeDark => 'ダークモード';
+
+  @override
+  String get weekStartDay => '週の開始曜日';
+
+  @override
+  String get weekStartMonday => '月曜日';
+
+  @override
+  String get weekStartSunday => '日曜日';
+
+  @override
+  String get weekStartSaturday => '土曜日';
+
+  @override
+  String get swipeHintText => 'タスクは右スワイプで完了、左スワイプで削除できます';
+
+  @override
+  String get onboardingStyleTitle => '好みのスタイルで使えます';
+
+  @override
+  String get onboardingStyleSub => '設定 → 表示 からいつでも切り替えられます';
+
+  @override
+  String get onboardingStyleLight => 'ライトモード';
+
+  @override
+  String get onboardingStyleDark => 'ダークモード';
+
+  @override
+  String get tip20 => 'ダークモードとライトモードを切り替えられます。\n目に優しいダークモードもおすすめです。';
+
+  @override
+  String get tip20Title => 'Tips: 表示モード';
 }
