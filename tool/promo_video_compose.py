@@ -98,10 +98,15 @@ def build_drawtext_chain(font: str) -> str:
     return ','.join(parts)
 
 
-def build_filter_complex(font: str, has_bgm: bool) -> str:
-    # シミュレータ画面を 9:16 にフィット (高さ 1840 で内側に置く + 上下 40px 黒帯)
+def build_filter_complex(
+    font: str,
+    has_bgm: bool,
+    bgm_start: float = 0.0,
+    bgm_volume: float = 0.55,
+) -> str:
+    # シミュレータ画面を 9:16 にフィット (高さ 1820 で内側に置く)
     # 元アスペクト ~ 9:19.5、 ターゲット 9:16 なので、高さ合わせると幅が余る
-    # → 高さ 1820 にフィット (上下マージン 50) + 中央 pad で 1080x1920
+    # → 高さ 1820 にフィット + 中央 pad で 1080x1920、 BG を neon ダークに
     base = (
         f"[0:v]scale=-2:1820,"
         f"pad={OUTPUT_W}:{OUTPUT_H}:(ow-iw)/2:(oh-ih)/2:color={BG_COLOR}"
@@ -111,12 +116,15 @@ def build_filter_complex(font: str, has_bgm: bool) -> str:
     video_chain = f"{base},{drawtext},{fade}[v]"
 
     if has_bgm:
+        # 入力 BGM を bgm_start 秒から 15 秒切り出し → fade in/out → volume 調整
+        # サビ前ブレイクから動画 0:00 がスタートするように bgm_start を指定。
         audio_chain = (
             f"[1:a]aresample=44100,"
-            f"afade=t=in:st=0:d=0.5,"
+            f"atrim=start={bgm_start}:end={bgm_start + DURATION},"
+            f"asetpts=PTS-STARTPTS,"
+            f"afade=t=in:st=0:d=0.25,"
             f"afade=t=out:st={DURATION-1.0}:d=1.0,"
-            f"atrim=0:{DURATION},asetpts=PTS-STARTPTS,"
-            f"volume=0.55"
+            f"volume={bgm_volume}"
             f"[a]"
         )
         return f"{video_chain};{audio_chain}"
@@ -127,6 +135,8 @@ def compose(
     input_path: Path,
     output_path: Path,
     bgm: Path | None,
+    bgm_start: float = 0.0,
+    bgm_volume: float = 0.55,
 ):
     if not input_path.exists():
         print(f'ERROR: 入力動画が見つかりません: {input_path}', file=sys.stderr)
@@ -139,7 +149,10 @@ def compose(
     font = find_font()
     has_bgm = bgm is not None
 
-    filter_complex = build_filter_complex(font, has_bgm)
+    filter_complex = build_filter_complex(
+        font, has_bgm,
+        bgm_start=bgm_start, bgm_volume=bgm_volume,
+    )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -179,6 +192,10 @@ def main():
                     help='出力パス (default: yarunavi_promo_15s_ja[_silent].mp4)')
     ap.add_argument('--bgm', default=None,
                     help='BGM ファイル (mp3/wav)。省略すると無音版を出力')
+    ap.add_argument('--bgm-start', type=float, default=0.0,
+                    help='BGM の何秒目から 15 秒切り出すか (デフォルト 0)')
+    ap.add_argument('--bgm-volume', type=float, default=0.55,
+                    help='BGM 音量 (0.0-1.0、 デフォルト 0.55)')
     args = ap.parse_args()
 
     input_path = Path(args.input)
@@ -194,7 +211,8 @@ def main():
         output_path = DEFAULT_OUTPUT.with_name(
             f'yarunavi_promo_15s_ja{suffix}.mp4')
 
-    compose(input_path, output_path, bgm)
+    compose(input_path, output_path, bgm,
+            bgm_start=args.bgm_start, bgm_volume=args.bgm_volume)
 
 
 if __name__ == '__main__':

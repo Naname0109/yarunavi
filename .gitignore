@@ -1,6 +1,11 @@
 # Claude Code
 .claude/
 
+# Promo video raw recording and BGM (生成物・素材)
+screenshots/promo/*.mp4
+screenshots/promo/*.mov
+assets/promo/
+
 # Environment
 .env
 
