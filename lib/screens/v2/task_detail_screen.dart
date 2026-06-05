@@ -148,25 +148,25 @@ class _V2TaskDetailScreenState extends ConsumerState<V2TaskDetailScreen> {
                       padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
                       child: Column(
                         children: [
-                          // #1: 削除ボタンを完了ボタンの上に控えめに配置 (赤、opacity 0.7)
-                          TextButton.icon(
-                            onPressed: () =>
-                                _confirmDeleteTask(context, l10n, task!),
-                            icon: Icon(
-                              Icons.delete_outline,
-                              size: 18,
-                              color:
-                                  Colors.red.withValues(alpha: 0.7),
-                            ),
-                            label: Text(
-                              l10n.taskDeleteThis,
-                              style: TextStyle(
-                                color:
-                                    Colors.red.withValues(alpha: 0.7),
-                                fontSize: 14,
+                          // #1: 削除ボタンを完了ボタンの上に控えめに配置。
+                          // ライト/ダーク両対応のため colorScheme.error を使用。
+                          Builder(builder: (ctx) {
+                            final err = Theme.of(ctx).colorScheme.error;
+                            return TextButton.icon(
+                              onPressed: () =>
+                                  _confirmDeleteTask(ctx, l10n, task!),
+                              icon: Icon(Icons.delete_outline,
+                                  size: 18,
+                                  color: err.withValues(alpha: 0.85)),
+                              label: Text(
+                                l10n.taskDeleteThis,
+                                style: TextStyle(
+                                  color: err.withValues(alpha: 0.85),
+                                  fontSize: 14,
+                                ),
                               ),
-                            ),
-                          ),
+                            );
+                          }),
                           const SizedBox(height: 4),
                           // #4: 完了済みなら「未完了に戻す」、 未完了なら「完了にする」
                           NeonButton(
