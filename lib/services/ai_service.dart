@@ -150,7 +150,8 @@ priority分布の目安（15件の場合）:
 - 偏りすぎないように分布を意識すること
 
 追加ルール:
-- priority 1は最大3件に抑える。4件以上になる場合は重要度「低」や所要時間「5min」をpriority 2に下げる
+- priority 1は最大3件に抑える。4件以上になる場合は重要度「低」や所要時間「under_15min」「15min」をpriority 2に下げる
+- 所要時間「under_15min」は実質5-10分のスキマタスク。comment_ja/comment_enでは「すぐ片付くタスクなのでスキマ時間に」「Quick task, knock it out in a spare moment」等を促す
 - 定期タスク(recurrence_type非null)の今日期限分は必ずpriority 1
 - 1日のpriority 1タスクは現実的にこなせる量に（目安: 合計所要時間4時間以内）
 

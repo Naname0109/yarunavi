@@ -96,7 +96,6 @@
   "calendarPermissionDenied": "Please allow calendar access",
   "calendarOpenSettings": "Open Settings",
   "calendarAddFailed": "Failed to add to calendar",
-
   "storePremiumTitle": "Premium Plan",
   "storeFeatureAiUnlimited": "30 AI sorts / month (free: 2)",
   "storeFeatureTaskUnlimited": "Unlimited tasks",
@@ -121,11 +120,9 @@
   "storeRestoreNone": "No purchases to restore",
   "storeAlreadyPremium": "Premium Active",
   "storeStoreUnavailable": "Store is unavailable",
-
   "onboardingSkip": "Skip",
   "onboardingNext": "Next",
   "onboardingStart": "Get Started",
-
   "ob1Title": "Just add your tasks",
   "ob1Desc": "Enter a task name and due date.\nYou can add notes too.",
   "ob1Sub": "Get everything out of your head",
@@ -133,7 +130,6 @@
   "ob1Task2": "Renew license",
   "ob1Task3": "Buy groceries",
   "ob1Task4": "Tax filing prep...",
-
   "ob2Title": "AI organizes for you",
   "ob2Desc": "AI prioritizes and gives actionable advice",
   "ob2ArrowLabel": "AI Sort",
@@ -162,13 +158,11 @@
   "ob2AfterComment4": "Office is weekdays only. Go next week AM",
   "ob2AfterTask5": "Read a book",
   "ob2AfterComment5": "Plenty of time. Weekend relaxation",
-
   "ob3Title": "See it on the calendar",
   "ob3Desc": "See at a glance when to do what.\nAI suggests the best execution days",
   "ob3LegendUrgent": "Urgent",
   "ob3LegendWeek": "This week",
   "ob3LegendLater": "Later",
-
   "ob4Title": "Never forget",
   "ob4Desc": "AI notifies you at the right time.\nOnly on the days you need",
   "ob4Sub": "Quiet on days with nothing to do",
@@ -177,7 +171,6 @@
   "ob4Notify1": "Pay rent — Use online banking today",
   "ob4Time2": "Tomorrow 9:00",
   "ob4Notify2": "Buy groceries — Check your shopping list",
-
   "ob5Title": "Do more with Premium",
   "ob5Free": "Free",
   "ob5AiSort": "AI Sort",
@@ -201,22 +194,20 @@
   "ob5Price": "$4.99/mo or $39.99/yr (save 40%)",
   "ob5TrialButton": "Start 7-day free trial",
   "ob5FreeButton": "Start free",
-
   "ob6Title": "Let's get started",
   "ob6Desc": "Add your tasks and let AI organize them",
-
   "taskLoadError": "Failed to load tasks",
   "aiFallbackNotice": "AI sort encountered an error. Sorted by due date instead",
   "aiRewardedAdPrompt": "You've used all free AI sorts",
   "aiRewardedAdDesc": "Watch a video to unlock one AI sort today. Or go premium for unlimited access.",
   "aiWatchAdButton": "Watch & Sort",
   "aiRewardedAdNotReady": "Ad not ready yet. Please try again shortly",
+  "aiRewardedAdLoading": "Loading ad…",
+  "aiRewardedAdLoadFailed": "Failed to load ad. Please check your network connection.",
   "aiRewardedAdUsedToday": "You've already used today's video AI sort",
   "aiRewardedAdTomorrow": "Come back tomorrow for another free sort, or go premium for unlimited access.",
   "aiRecommendedPeriod": "Recommended: {period}",
-
   "aiQuestionAnswer": "Answer to Q{number}: {answer}",
-
   "aiPremiumBannerTitle": "Unlock AI comments, notifications & calendar with Premium",
   "aiPremiumBannerDesc": "30 AI sorts/month, auto-notifications, calendar sync, no ads",
   "aiPremiumBannerButton": "Start 7-day free trial →",
@@ -254,7 +245,6 @@
   "calendarSectionDue": "Due on this day",
   "taskCardEdit": "Edit",
   "aiAutoNotifyHintFull": "Premium auto-sets reminder days",
-
   "settingsAccount": "Account",
   "settingsPremiumStatus": "Premium Status",
   "settingsPremiumActive": "Premium Active",
@@ -274,10 +264,10 @@
   "settingsDeleteAllSuccess": "All data deleted",
   "settingsVersion": "Version",
   "settingsLicenses": "Licenses",
-
   "advancedSettings": "Advanced Settings",
   "estimatedTime": "Estimated Time",
   "estimatedTimeNone": "Not set",
+  "estimatedTimeUnder15min": "Under 15 min",
   "estimatedTime15min": "15 min",
   "estimatedTime30min": "30 min",
   "estimatedTime1hour": "1 hour",
@@ -296,27 +286,13 @@
   "memoHint": "Adding details improves AI sorting (e.g., city hall, weekdays only)",
   "notifyAiAuto": "AI Auto",
   "notifyManual": "Manual",
-
   "aiSubtaskSuggestion": "Break it down?",
   "aiSubtaskAdd": "Add these subtasks",
   "aiSubtaskAdded": "Subtasks added",
   "aiCompleteOriginal": "Mark the original task as complete?",
   "aiNotifyUpdated": "AI set notification dates",
-
   "calendarView": "Calendar",
   "listView": "List",
-
-  "debugSection": "Test Data",
-  "debugSimpleData": "Simple Data",
-  "debugSimpleDataDesc": "Title and due date only (5 tasks)",
-  "debugDetailedData": "Detailed Data",
-  "debugDetailedDataDesc": "All fields populated (10 tasks)",
-  "debugEdgeCaseData": "Edge Case Data",
-  "debugEdgeCaseDataDesc": "Boundary values & special patterns (8 tasks)",
-  "debugConfirmInsert": "Delete all existing tasks and insert test data?",
-  "debugConfirmInsertAction": "Insert",
-  "debugTestDataInserted": "Test data inserted",
-
   "aiTodayPlan": "Today's Plan",
   "aiTodayTasks": "Today: {count}",
   "aiWeekTasks": "This week: {count}",
@@ -326,7 +302,6 @@
   "aiAnswerAndResort": "Answer and re-sort",
   "aiAnswerHint": "Type your answer...",
   "aiNotifySchedule": "Notification schedule",
-
   "aiLoadingAnalyze": "Analyzing tasks...",
   "aiLoadingPriority": "Determining priorities...",
   "aiLoadingNotify": "Optimizing notifications...",
@@ -335,22 +310,16 @@
   "aiRunBackground": "Run in background",
   "aiCompleteNotify": "AI sorting is complete. Check the results!",
   "aiCompleteBanner": "AI sorting complete — tap to view",
-
   "aiHistory": "AI Sort History",
   "aiHistoryEmpty": "No AI sort history",
   "aiHistoryCount": "Sorted {count} tasks",
-
   "storeRecommended": "Recommended",
-
   "calendarNoTasks": "No tasks for this day",
   "calendarToday": "Today",
-
   "swipeComplete": "Done",
   "swipeDelete": "Delete",
   "swipeUndo": "Undo",
-
   "reorderHint": "Long press to drag and reorder",
-
   "categoryManageTitle": "Manage Categories",
   "categoryAdd": "Add Category",
   "categoryEdit": "Edit Category",
@@ -361,37 +330,15 @@
   "categoryIconLabel": "Choose Icon",
   "categoryDeleteTitle": "Delete Category",
   "categoryDeleteMessage": "Tasks assigned to this category will become uncategorized. Delete?",
-
-  "devModeSection": "Developer Mode",
-  "devModeAiUnlimited": "Ignore AI Limit",
-  "devModeAiUnlimitedDesc": "Skip AI sort usage limit",
-  "devModePremium": "Unlock Premium",
-  "devModePremiumDesc": "Unlock all FeatureGates",
-  "devModeResetAiUsage": "Reset AI Usage",
-  "devModeResetAiUsageDesc": "Reset current month AI usage count",
-  "devModeResetAiUsageDone": "AI usage count reset",
-  "devModeConfirmResetAiUsage": "Reset this month's AI usage count?",
-  "devModeReviewSection": "Review",
-  "devModeTestReview": "Test review dialog",
-  "devModeTestReviewDesc": "Show review dialog ignoring conditions",
-  "devModeTestReviewTriggered": "Review dialog requested",
-  "devModeResetReview": "Reset review counters",
-  "devModeResetReviewDesc": "Reset all review-related counters",
-  "devModeResetReviewDone": "Review counters reset",
-  "devModeEnabled": "Developer mode enabled",
-  "devModeRemaining": "{count} more taps for developer mode",
-
   "allCompleteTitle": "All done! Great job",
   "allCompleteSubtitle": "Add what's next",
   "allCompleteAddTask": "Add a Task",
   "allCompleteAiSort": "AI Sort",
   "allCompleteNoTaskForAi": "Add tasks first, then organize with AI",
-
   "allExpiredBannerTitle": "All task deadlines have passed",
   "allExpiredAddTask": "Add New Task",
   "allExpiredUpdateDue": "Update Deadline",
   "allExpiredNotification": "All task deadlines have passed. Add new tasks to stay organized!",
-
   "todaySection": "Today's Tasks",
   "todaySectionEmpty": "Nothing to do today",
   "otherTasks": "Other Tasks",
@@ -410,14 +357,12 @@
   "calendarViewDueTooltip": "Show tasks on their due dates",
   "taskCount": "{count} total",
   "tabTodo": "To Do",
-
   "aiAutoSettingsComplete": "Auto-configured notifications & calendar",
   "aiAutoNotifyOnly": "Auto-configured notifications",
   "aiAutoCalendarPermission": "Enable calendar sync in settings",
   "aiPremiumAutoPrompt": "Premium: notifications & calendar are auto too",
   "aiPremiumAutoTrial": "Start 7-day free trial",
   "aiChangeSettings": "Change settings",
-
   "ob1TitleNew": "Just enter a task name and due date",
   "ob1SubNew": "That's it. Leave the rest to AI",
   "ob2TitleNew": "AI does everything for you",
@@ -425,7 +370,6 @@
   "ob3TitleNew": "See when to do what at a glance",
   "ob4TitleNew": "Premium: auto notifications & calendar",
   "ob4FreeStart": "Start free",
-
   "settingsAiSection": "AI Sort",
   "executionTimingLabel": "Execution Timing",
   "executionTimingDeadline": "Last minute",
@@ -435,7 +379,6 @@
   "executionTimingDesc2": "Balanced",
   "executionTimingDesc3": "Slightly early",
   "executionTimingDesc4": "Well ahead of deadline",
-
   "recommendedDateEditHint": "Best on {date}",
   "recommendedDateManual": "Recommended date (manual)",
   "recommendedDateAiSet": "Recommended date",
@@ -444,19 +387,15 @@
   "manualDateOverwriteMessage": "{count} task(s) have manually set dates. Overwrite with AI suggestions?",
   "manualDateOverwriteAll": "Overwrite all",
   "manualDateKeep": "Keep manual",
-
   "weekTabThisWeek": "This Week",
   "weekTabNextWeek": "Next Week",
   "weekTabLater": "Later",
   "weekTabCount": "{label} ({count})",
   "noTasksNextWeek": "No tasks next week",
   "noTasksLater": "No tasks after next week",
-
   "calendarHintBubble": "Check execution dates on calendar →",
-
   "aiSortExecute": "Run AI Sort",
   "aiHistoryLabel": "AI History",
-
   "settingsSound": "Sound",
   "settingsSoundDesc": "Play a sound effect when tasks complete",
   "aiErrorNetworkTitle": "Couldn't connect",
@@ -473,22 +412,20 @@
   "recurringGuideDecline": "Just this once",
   "recurringGuideApplied": "Set as recurring task",
   "allCompleteNextPrompt": "Want to add what's next?",
-  "devModeAnimationsPreview": "Animation Preview",
-  "devModeAnimationsPreviewDesc": "Replay AI sort, all-complete, burst and confetti independently",
   "calendarLegendUrgent": "Urgent",
   "calendarLegendWeek": "This week",
   "calendarLegendLater": "Later",
   "calendarLegendUnsorted": "Unsorted",
-  "devModeUseNewUi": "Enable redesigned UI",
-  "devModeUseNewUiDesc": "Use the new design preview (home screen and more)",
   "heroTodayMission": "Today's progress",
-  "aiSortHeroCta": "Sort today with AI",
+  "aiSortHeroCta": "Sort tasks with AI",
   "statsTitle": "Stats",
   "statsStreakActive": "Streak",
   "statsStreakDays": "{n} days",
   "@statsStreakDays": {
     "placeholders": {
-      "n": { "type": "int" }
+      "n": {
+        "type": "int"
+      }
     }
   },
   "statsLongest": "Best",
@@ -498,8 +435,12 @@
   "statsLevelXp": "{cur} / {next} XP",
   "@statsLevelXp": {
     "placeholders": {
-      "cur": { "type": "int" },
-      "next": { "type": "int" }
+      "cur": {
+        "type": "int"
+      },
+      "next": {
+        "type": "int"
+      }
     }
   },
   "statsBadges": "Badges",
@@ -517,46 +458,52 @@
   "statsNextLevelHint": "{xp} XP to Lv.{level}",
   "@statsNextLevelHint": {
     "placeholders": {
-      "xp": { "type": "int" },
-      "level": { "type": "int" }
+      "xp": {
+        "type": "int"
+      },
+      "level": {
+        "type": "int"
+      }
     }
   },
-  "levelName1": "First Steps",
-  "levelName2": "Apprentice Planner",
-  "levelName3": "Smart Planner",
+  "levelName1": "First Step Navigator",
+  "levelName2": "Rookie Planner",
+  "levelName3": "Quick Organizer",
   "levelName4": "Task Master",
-  "levelName5": "AI Companion",
-  "levelName6": "Organizer Pro",
+  "levelName5": "AI's Right Hand",
+  "levelName6": "Pro Organizer",
   "levelName7": "Time Lord",
   "levelName8": "Legendary Planner",
-  "levelNameHigh": "Master Lv.{level}",
+  "levelNameHigh": "Lv.{level}",
   "@levelNameHigh": {
     "placeholders": {
-      "level": { "type": "int" }
+      "level": {
+        "type": "int"
+      }
     }
   },
   "badgeName_first_step": "First Step",
   "badgeDesc_first_step": "Complete your first task",
-  "badgeName_streak_3": "3-Day Streak",
-  "badgeDesc_streak_3": "Active 3 days in a row",
-  "badgeName_streak_7": "7-Day Streak",
-  "badgeDesc_streak_7": "A week of momentum",
-  "badgeName_streak_14": "14-Day Streak",
-  "badgeDesc_streak_14": "Two weeks strong",
-  "badgeName_streak_30": "30-Day Streak",
-  "badgeDesc_streak_30": "A full month",
-  "badgeName_ai_first": "AI Debut",
-  "badgeDesc_ai_first": "Run your first AI sort",
-  "badgeName_task_10": "10 Tasks",
-  "badgeDesc_task_10": "Completed 10 tasks",
-  "badgeName_task_50": "50 Tasks",
-  "badgeDesc_task_50": "Completed 50 tasks",
-  "badgeName_task_100": "100 Tasks",
-  "badgeDesc_task_100": "Completed 100 tasks",
-  "badgeName_level_5": "Reached Lv.5",
-  "badgeDesc_level_5": "Became AI Companion",
-  "badgeName_level_10": "Reached Lv.10",
-  "badgeDesc_level_10": "Master tier",
+  "badgeName_streak_3": "No More Quitting on Day Three",
+  "badgeDesc_streak_3": "Open the app 3 days in a row",
+  "badgeName_streak_7": "Week-long Habit",
+  "badgeDesc_streak_7": "Open the app 7 days in a row",
+  "badgeName_streak_14": "Fortnight Achieved",
+  "badgeDesc_streak_14": "Open the app 14 days in a row",
+  "badgeName_streak_30": "Monthly Perfect Attendance",
+  "badgeDesc_streak_30": "Open the app 30 days in a row",
+  "badgeName_ai_first": "First Brush with AI",
+  "badgeDesc_ai_first": "Run AI sort for the first time",
+  "badgeName_task_10": "Steady Hand",
+  "badgeDesc_task_10": "Complete 10 tasks total",
+  "badgeName_task_50": "Half Century",
+  "badgeDesc_task_50": "Complete 50 tasks total",
+  "badgeName_task_100": "Centurion",
+  "badgeDesc_task_100": "Complete 100 tasks total",
+  "badgeName_level_5": "Rookie Planner",
+  "badgeDesc_level_5": "Reach Lv.5",
+  "badgeName_level_10": "Full-fledged Organizer",
+  "badgeDesc_level_10": "Reach Lv.10",
   "greetingMorning": "Good morning",
   "greetingAfternoon": "Good afternoon",
   "greetingEvening": "Good evening",
@@ -567,15 +514,21 @@
   "xpEarned": "+{xp} XP",
   "@xpEarned": {
     "placeholders": {
-      "xp": { "type": "int" }
+      "xp": {
+        "type": "int"
+      }
     }
   },
   "levelUpTitle": "Level Up!",
   "levelUpMessage": "Lv.{level} {name}",
   "@levelUpMessage": {
     "placeholders": {
-      "level": { "type": "int" },
-      "name": { "type": "String" }
+      "level": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "badgeUnlocked": "Badge unlocked!",
@@ -610,13 +563,11 @@
   "premiumTrialCopy": "7-day free trial · cancel anytime",
   "calendarExecutionDate": "Plan date",
   "calendarDueDate": "Due date",
-
   "onbV2WelcomeBadge": "AI Navigator",
   "onbV2WelcomeTitlePart1": "What's the ",
   "onbV2WelcomeTitleAccent": "next move?",
   "onbV2WelcomeTitlePart2": "",
   "onbV2WelcomeBody": "Just drop in what's on your mind.\nNavi sorts it out and tells you\nthe one task to tackle next.",
-
   "onbV2BeforeAfterTitle": "Clear the mental clutter",
   "onbV2BeforeAfterSub": "Navi doesn't just list — it picks\nthe one thing you should do now.",
   "onbV2BeforeLabel": "Before",
@@ -639,7 +590,6 @@
   "onbV2AfterComment1": "Knock it out in the morning",
   "onbV2AfterComment2": "Use online banking by Friday",
   "onbV2AfterComment3": "Stock up on the weekend",
-
   "onbV2GameTitle": "The more you go, the more it gives back",
   "onbV2GameSub": "Tiny wins become real motivation",
   "onbV2GameXpTitle": "+10 XP for every task done",
@@ -649,18 +599,20 @@
   "onbV2GameLevelTitle": "Level up your title",
   "onbV2GameLevelSub": "From Navi Rookie to Legendary Planner",
   "onbV2GameFooter": "You don't have to be perfect —\njust stack one small win each day.",
-
   "onbV2CtaTitle": "Ready when you are.",
   "onbV2CtaBody": "Add the one thing nagging at you.\nFrom there, Navi takes the wheel.",
   "onbV2CtaButton": "Add my first task",
-
   "homeQuickTotalLabel": "All tasks",
   "homeQuickTotalUnit": "",
   "homeNextHint": "Next: {count} on {date}",
   "@homeNextHint": {
     "placeholders": {
-      "date": { "type": "String" },
-      "count": { "type": "int" }
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "homeNoUpcoming": "No open tasks",
@@ -668,73 +620,85 @@
   "homeOverdueChip": "{count} overdue",
   "@homeOverdueChip": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
-
   "calendarMonthListMode": "List",
   "calendarGridMode": "Month",
   "calendarMonthAllTasks": "This month",
   "calendarNoTasksNextHint": "Free day. Next is {count} on {date}",
   "@calendarNoTasksNextHint": {
     "placeholders": {
-      "date": { "type": "String" },
-      "count": { "type": "int" }
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "calendarJumpToNext": "Jump to next",
   "calendarMonthEmpty": "No tasks scheduled this month",
-
   "aiResultOptimizedBadge": "Sorted by AI",
   "aiNaviNoteLabel": "A note from Navi",
   "aiNaviAdviceLabel": "Navi's advice",
   "aiNaviAdviceBadge": "AI advice",
-
   "aiSortQuotaFree": "Free: {remaining}/{total} sorts left",
   "@aiSortQuotaFree": {
     "placeholders": {
-      "remaining": { "type": "int" },
-      "total": { "type": "int" }
+      "remaining": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "aiSortQuotaPremium": "This month: {remaining}/{total} left",
   "@aiSortQuotaPremium": {
     "placeholders": {
-      "remaining": { "type": "int" },
-      "total": { "type": "int" }
+      "remaining": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
-
   "archiveOpenButton": "See older ({count})",
   "@archiveOpenButton": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "archiveTitle": "Completed archive",
   "archiveEmpty": "No archived completions yet",
   "archiveRecentLabel": "Past 7 days",
-
   "streakMilestoneTitle": "{days}-day streak!",
   "@streakMilestoneTitle": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "streakMilestoneBody": "Awesome — keep stacking small wins.",
-
   "taskCompletedOn": "Done {date}",
   "@taskCompletedOn": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "calendarLegendDone": "Done",
-
   "executionTimingHint": "How AI picks the day to start each task. 'Deadline' keeps it close to the due date; 'Early' gives more buffer.",
   "archiveEmptyHint": "Tasks completed more than 7 days ago show up here",
   "archiveEmptyCta": "Back to home",
-
   "uncompleteTask": "Mark active",
   "taskUncompletedSnack": "Task moved back to active",
   "undo": "Undo",
@@ -745,7 +709,6 @@
   "deleteAllHistoryConfirmBody": "All completed task history will be removed. This cannot be undone.",
   "deleteAllAction": "Delete all",
   "historyDeletedSnack": "{count} entries deleted",
-
   "scheduleSection": "Task schedule",
   "scheduleBusynessLabel": "How busy each weekday is (1 = free, 5 = busy)",
   "blockedDatesLabel": "Days I can't work on tasks",
@@ -758,15 +721,6 @@
   "weekdayFriShort": "Fri",
   "weekdaySatShort": "Sat",
   "weekdaySunShort": "Sun",
-
-  "levelName1": "First Step Navigator",
-  "levelName2": "Rookie Planner",
-  "levelName3": "Quick Organizer",
-  "levelName4": "Task Master",
-  "levelName5": "AI's Right Hand",
-  "levelName6": "Pro Organizer",
-  "levelName7": "Time Lord",
-  "levelName8": "Legendary Planner",
   "levelName9": "Task Sage",
   "levelName10": "Ultimate Organizer",
   "levelName15": "Task Devotee",
@@ -775,57 +729,26 @@
   "levelName50": "A Living Legend of Tasks",
   "levelName70": "Transcender of Time",
   "levelName100": "∞ Infinite Planner",
-  "levelNameHigh": "Lv.{level}",
-  "@levelNameHigh": {
-    "placeholders": { "level": { "type": "int" } }
-  },
-
-  "badgeName_first_step": "First Step",
-  "badgeDesc_first_step": "Complete your first task",
-  "badgeName_task_10": "Steady Hand",
-  "badgeDesc_task_10": "Complete 10 tasks total",
   "badgeName_task_25": "Skilled Juggler",
   "badgeDesc_task_25": "Complete 25 tasks total",
-  "badgeName_task_50": "Half Century",
-  "badgeDesc_task_50": "Complete 50 tasks total",
-  "badgeName_task_100": "Centurion",
-  "badgeDesc_task_100": "Complete 100 tasks total",
   "badgeName_task_250": "Task Hunter",
   "badgeDesc_task_250": "Complete 250 tasks total",
   "badgeName_task_500": "Peak of 500",
   "badgeDesc_task_500": "Complete 500 tasks total",
   "badgeName_task_1000": "Mark of a Thousand",
   "badgeDesc_task_1000": "Complete 1000 tasks total",
-
-  "badgeName_streak_3": "No More Quitting on Day Three",
-  "badgeDesc_streak_3": "Open the app 3 days in a row",
-  "badgeName_streak_7": "Week-long Habit",
-  "badgeDesc_streak_7": "Open the app 7 days in a row",
-  "badgeName_streak_14": "Fortnight Achieved",
-  "badgeDesc_streak_14": "Open the app 14 days in a row",
-  "badgeName_streak_30": "Monthly Perfect Attendance",
-  "badgeDesc_streak_30": "Open the app 30 days in a row",
   "badgeName_streak_60": "Iron Will",
   "badgeDesc_streak_60": "Open the app 60 days in a row",
   "badgeName_streak_100": "It's a Lifestyle Now",
   "badgeDesc_streak_100": "Open the app 100 days in a row",
-
-  "badgeName_ai_first": "First Brush with AI",
-  "badgeDesc_ai_first": "Run AI sort for the first time",
   "badgeName_ai_10": "AI Regular",
   "badgeDesc_ai_10": "Run AI sort 10 times",
   "badgeName_ai_50": "AI Sort Aficionado",
   "badgeDesc_ai_50": "Run AI sort 50 times",
-
-  "badgeName_level_5": "Rookie Planner",
-  "badgeDesc_level_5": "Reach Lv.5",
-  "badgeName_level_10": "Full-fledged Organizer",
-  "badgeDesc_level_10": "Reach Lv.10",
   "badgeName_level_20": "Devotee of Efficiency",
   "badgeDesc_level_20": "Reach Lv.20",
   "badgeName_level_30": "Legendary Organizer",
   "badgeDesc_level_30": "Reach Lv.30",
-
   "badgeName_early_bird": "Early Bird Catches the Task",
   "badgeDesc_early_bird": "Complete a task before 6am",
   "badgeName_night_owl": "Midnight Task Runner",
@@ -862,7 +785,6 @@
   "badgeDesc_level_70": "Reach Lv.70",
   "badgeName_level_100": "∞ The Impossible Made Possible",
   "badgeDesc_level_100": "Reach Lv.100",
-
   "badgeHidden": "???",
   "badgeHiddenCondition": "???\nIt's a secret — keep exploring!",
   "badgeDetailCondition": "How to earn",
@@ -872,16 +794,13 @@
   "badgeDetailXp": "XP reward",
   "badgeDetailXpValue": "+{xp} XP",
   "badgeHiddenLabel": "Hidden",
-
   "aiReminderToggle": "Sort reminders",
   "aiReminderToggleDesc": "Evening nudge when tasks pile up (once a day)",
-
   "aiPurchaseSheetTitle": "Not enough AI sorts left",
   "aiPurchaseSheetBody": "Pick any of the options below to keep going.",
   "aiPurchasePremiumTitle": "Premium ¥580/mo",
   "aiPurchasePremiumLabel": "Premium",
   "aiPurchaseTicketLabel": "AI sort ticket",
-
   "labelOverdue": "OVERDUE",
   "labelDue": "DUE",
   "labelDueToday": "DUE TODAY",
@@ -893,7 +812,6 @@
   "labelThisWeek": "THIS WEEK",
   "labelLater": "LATER",
   "labelNormal": "NORMAL",
-
   "statsTitleHeader": "Your achievements",
   "statsUsageDays": "Day {days} with YaruNavi",
   "statsBadgesEarnedCount": "{earned} / {total} earned",
@@ -912,11 +830,9 @@
   "statsTutorialTitle": "Unlock achievements!",
   "statsTutorialBody": "Complete tasks to earn XP and level up. There are plenty of hidden badges — discover their conditions as you play!",
   "statsTutorialCta": "Get started",
-
   "naviHintTitle": "From your navigator",
   "naviHintLastSort": "Last sorted: {timestamp}",
   "naviHintDetail": "Details",
-
   "labelExecutionDay": "EXEC",
   "pickExecutionDayTooltip": "Pick execution day (manual changes may be re-suggested by next AI sort)",
   "executionDayUpdated": "Execution day updated",
@@ -926,7 +842,6 @@
   "eventDeleted": "Event deleted",
   "calendarSyncDone": "Imported {count} events",
   "calendarSyncFailed": "Calendar import failed",
-
   "eventAdd": "Add event",
   "eventEdit": "Edit event",
   "eventTitleLabel": "Title",
@@ -947,7 +862,6 @@
   "blockedDatesSaved": "Blocked days updated",
   "avoidEventDaysToggle": "Avoid task on days with events",
   "avoidEventDaysDesc": "AI sort won't place tasks on days that already have events",
-
   "tipsHeader": "Tips",
   "tip0Title": "Tips: Schedule setup",
   "tip0": "Set how busy each weekday is so AI can propose smarter execution days.",

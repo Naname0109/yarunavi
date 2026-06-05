@@ -677,16 +677,28 @@ class _V2StatsScreenState extends ConsumerState<V2StatsScreen> {
     AppLocalizations l10n,
     List<UserBadge> badges,
   ) {
+    // 獲得済み: 獲得日の古い順 (最初に獲得したものが左上)
+    // earnedAt 不明は末尾、同時刻は displayIndex の昇順
     final earned = badges.where((b) => b.isEarned).toList()
-      ..sort((a, b) => a.id.compareTo(b.id));
+      ..sort((a, b) {
+        final ae = a.earnedAt;
+        final be = b.earnedAt;
+        if (ae == null && be == null) return a.displayIndex.compareTo(b.displayIndex);
+        if (ae == null) return 1;
+        if (be == null) return -1;
+        final cmp = ae.compareTo(be);
+        return cmp != 0 ? cmp : a.displayIndex.compareTo(b.displayIndex);
+      });
+    // 未獲得 (可視): カテゴリ別 → 条件小→大 (displayOrder index)
     final unearnedVisible = badges
         .where((b) => !b.isEarned && !b.isHidden)
         .toList()
-      ..sort((a, b) => a.id.compareTo(b.id));
+      ..sort((a, b) => a.displayIndex.compareTo(b.displayIndex));
+    // 未獲得 (隠し): 同じく displayOrder 順 (表示は ??? なので順番は実用上不問)
     final unearnedHidden = badges
         .where((b) => !b.isEarned && b.isHidden)
         .toList()
-      ..sort((a, b) => a.id.compareTo(b.id));
+      ..sort((a, b) => a.displayIndex.compareTo(b.displayIndex));
     final earnedCount = earned.length;
     final total = badges.length;
     final pct = total == 0 ? 0 : ((earnedCount / total) * 100).round();

@@ -1,1 +1,8 @@
-Initial release
+v1.0.1 update:
+
+- Category screen: "Add Category" button now displays the full label.
+- Default badge contrast improved for both light and dark modes.
+- Achievement badges reordered by category and threshold.
+- Added "Under 15 min" option for task estimated time.
+- Reward video: loading dialog + retry on slow load.
+- Internal quality improvements.

@@ -22,17 +22,25 @@ class HeroAiCard extends ConsumerWidget {
     super.key,
     required this.todayDone,
     required this.todayTotal,
+    required this.totalIncomplete,
     this.onAddTask,
   });
 
   final int todayDone;
   final int todayTotal;
 
+  /// 未完了タスクの総数 (今日/今週/来週以降の合計)。
+  /// App Store 審査 (2026-05-28 リジェクト) で「AI Sort ボタンが見当たらない」
+  /// と指摘されたのを受け、未来日付のみのケースでも CTA を必ず露出させる
+  /// ために追加。
+  final int totalIncomplete;
+
   /// タスク0件時のCTA「タスクを追加」を押したときに呼ばれる。
   /// 通常は TaskFormSheet.show を渡す。
   final VoidCallback? onAddTask;
 
-  bool get _isEmpty => todayTotal == 0;
+  bool get _hasNoToday => todayTotal == 0;
+  bool get _hasNoTasks => totalIncomplete == 0;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,7 +50,7 @@ class HeroAiCard extends ConsumerWidget {
     final statsAsync = ref.watch(userStatsProvider);
     final quotaAsync = ref.watch(aiSortQuotaProvider);
 
-    final mission = _isEmpty ? 0.0 : todayDone / todayTotal;
+    final mission = _hasNoToday ? 0.0 : todayDone / todayTotal;
     final streak = statsAsync.maybeWhen(data: (s) => s.streakDays, orElse: () => 0);
     final level = statsAsync.maybeWhen(data: (s) => s.currentLevel, orElse: () => 1);
     final totalXp = statsAsync.maybeWhen(data: (s) => s.totalXp, orElse: () => 0);
@@ -122,7 +130,7 @@ class HeroAiCard extends ConsumerWidget {
           isDark: isDark,
         ),
         const SizedBox(height: 18),
-        if (_isEmpty)
+        if (_hasNoToday)
           _emptyRow(l10n: l10n, isDark: isDark)
         else
           _missionRow(
@@ -132,7 +140,7 @@ class HeroAiCard extends ConsumerWidget {
             mission: mission,
           ),
         const SizedBox(height: 14),
-        if (!_isEmpty) ...[
+        if (!_hasNoToday) ...[
           _missionBar(yaru: yaru, value: mission, isDark: isDark),
           const SizedBox(height: 16),
         ],
@@ -171,7 +179,7 @@ class HeroAiCard extends ConsumerWidget {
                 isDark: isDark,
               ),
               const SizedBox(height: 16),
-              if (_isEmpty)
+              if (_hasNoToday)
                 _emptyRow(l10n: l10n, isDark: isDark)
               else
                 _missionRow(
@@ -180,7 +188,7 @@ class HeroAiCard extends ConsumerWidget {
                   isDark: isDark,
                   mission: mission,
                 ),
-              if (!_isEmpty) ...[
+              if (!_hasNoToday) ...[
                 const SizedBox(height: 12),
                 _missionBar(yaru: yaru, value: mission, isDark: isDark),
               ],
@@ -202,7 +210,11 @@ class HeroAiCard extends ConsumerWidget {
     required bool isDark,
     required ({int remaining, int total, bool isPremium})? quota,
   }) {
-    if (_isEmpty) {
+    // App Store 審査 (2026-05-28) リジェクト対応:
+    // 「今日のタスクなし」だけで AI整理ボタンを消すと、未来日付タスクのみ
+    // 追加した審査員が AI Sort 機能に到達できない。 未完了タスクが 1 件でも
+    // あれば AI整理 CTA を必ず表示する (未完了ゼロのときだけ追加 CTA)。
+    if (_hasNoTasks) {
       return _addTaskCta(
         label: l10n.addTask,
         onTap: onAddTask,

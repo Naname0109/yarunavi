@@ -14,7 +14,7 @@ import '../providers/category_provider.dart';
 import '../providers/event_provider.dart';
 import '../providers/task_provider.dart';
 import '../theme/colors.dart';
-import '../providers/dev_mode_provider.dart';
+import '../providers/ui_mode_provider.dart';
 import '../services/event_sync_service.dart';
 import '../widgets/event_form_sheet.dart';
 import '../widgets/task_card.dart';

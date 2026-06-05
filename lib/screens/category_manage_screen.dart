@@ -27,7 +27,12 @@ class CategoryManageScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCategoryDialog(context, ref, l10n),
         icon: const Icon(Icons.add),
-        label: Text(l10n.categoryAdd),
+        label: Text(
+          l10n.categoryAdd,
+          overflow: TextOverflow.visible,
+          softWrap: false,
+        ),
+        extendedPadding: const EdgeInsets.symmetric(horizontal: 20),
       ),
       body: ResponsiveWrapper(
         child: categoriesAsync.when(
@@ -108,20 +113,31 @@ class _CategoryTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (category.isDefault) {
+      final isDark = theme.brightness == Brightness.dark;
+      // WCAG AA 4.5:1 を確保:
+      //   ダーク: surfaceContainerHighest + onSurfaceVariant
+      //   ライト: primaryContainer + onPrimaryContainer
+      final badgeBg = isDark
+          ? theme.colorScheme.surfaceContainerHighest
+          : theme.colorScheme.primaryContainer;
+      final badgeFg = isDark
+          ? theme.colorScheme.onSurfaceVariant
+          : theme.colorScheme.onPrimaryContainer;
       return ListTile(
         leading: Text(category.icon, style: const TextStyle(fontSize: 24)),
         title: Text(displayName),
         trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(4),
+            color: badgeBg,
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
             l10n.categoryDefault,
             style: TextStyle(
-              fontSize: 12,
-              color: theme.colorScheme.outline,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: badgeFg,
             ),
           ),
         ),

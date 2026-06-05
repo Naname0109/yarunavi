@@ -95,8 +95,20 @@ bundle exec fastlane release
 
 ## 重要な注意事項
 - Product IDは一度使うと再利用不可（削除しても）
+- ⚠️ **サブスク/IAP 本体の DELETE は ASC API で 204 で成功してしまう** が、productId が永久喪失するので絶対に行わない
 - IAPの「審査へ提出」ボタンは初回リリース時は絶対に押さない
 - App Store説明文末尾に利用規約・プライバシーポリシーURLを必ず記載
-- サブスクのローカリゼーションは日本語+英語の両方が必要
+- サブスクのローカリゼーションは日本語+英語の両方が必要 (description は 45文字以内)
+- 月額と年額は**必ず同じ subscription group** に (3.1.2(b) 違反防止)
+- アプリ UI に「7日間無料トライアル」表記がある場合、サブスク IAP に **必ず Introductory Offer (FREE_TRIAL, ONE_WEEK) を 175 territories 全部に設定**
 - iPadで審査されるのでResponsiveWrapper必須
 - 薄い色のテキストは使わない（コントラスト比注意）
+
+## IAP / サブスク peer review（提出前必須）
+
+App Store Connect への審査再提出 / 初回提出の **直前に必ず実行**。READY_TO_SUBMIT でない項目を全て列挙する。
+```bash
+python3 /Users/akebi/Documents/AppFactory/_tools/peer_review_iap.py \
+  --app-id 6762136137 --check-trial
+```
+すべて `✓` で `ALL CHECKS PASSED` が出るまで提出しない。詳細は `~/.claude/CLAUDE.md` の「IAP/サブスク登録 — リジェクト回避チェックリスト」参照。

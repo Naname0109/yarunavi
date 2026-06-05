@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../services/purchase_service.dart';
 import '../services/vip_service.dart';
-import 'dev_mode_provider.dart';
 import 'secure_storage_provider.dart';
 
 /// VipService の Provider (#1)。
@@ -20,7 +19,7 @@ final purchaseServiceProvider = Provider<PurchaseService>((ref) {
 });
 
 /// プレミアム状態を管理するNotifier。
-/// dev mode / 正規 IAP / VIP コード のいずれかが true ならプレミアム扱い。
+/// 正規 IAP / VIP コード のいずれかが true ならプレミアム扱い。
 class PremiumNotifier extends Notifier<bool> {
   @override
   bool build() {
@@ -28,17 +27,15 @@ class PremiumNotifier extends Notifier<bool> {
     purchaseService.onPremiumChanged = () {
       _updateState();
     };
-    final devPremium = ref.watch(devModePremiumProvider);
     final vipActive = ref.watch(isVipProvider);
-    if (devPremium || vipActive) return true;
+    if (vipActive) return true;
     return purchaseService.isPremium;
   }
 
   void _updateState() {
     final purchaseService = ref.read(purchaseServiceProvider);
-    final devPremium = ref.read(devModePremiumProvider);
     final vipActive = ref.read(isVipProvider);
-    state = devPremium || vipActive || purchaseService.isPremium;
+    state = vipActive || purchaseService.isPremium;
   }
 
   void refresh() {

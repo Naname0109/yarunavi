@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:yarunavi/app.dart';
-import 'package:yarunavi/providers/dev_mode_provider.dart';
 import 'package:yarunavi/providers/settings_provider.dart';
 import 'package:yarunavi/providers/task_provider.dart';
 import 'package:yarunavi/services/database_service.dart';
@@ -50,8 +49,6 @@ void main() {
         secureStorageServiceProvider.overrideWithValue(secure),
         initialLocaleProvider.overrideWithValue(const Locale('ja')),
         initialThemeModeProvider.overrideWithValue(themeMode),
-        initialDevAiUnlimitedProvider.overrideWithValue(false),
-        initialDevPremiumProvider.overrideWithValue(false),
       ],
       child: const YaruNaviApp(),
     );

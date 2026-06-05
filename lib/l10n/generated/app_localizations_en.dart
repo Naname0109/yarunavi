@@ -643,6 +643,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Ad not ready yet. Please try again shortly';
 
   @override
+  String get aiRewardedAdLoading => 'Loading ad…';
+
+  @override
+  String get aiRewardedAdLoadFailed =>
+      'Failed to load ad. Please check your network connection.';
+
+  @override
   String get aiRewardedAdUsedToday =>
       'You\'ve already used today\'s video AI sort';
 
@@ -848,6 +855,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get estimatedTimeNone => 'Not set';
 
   @override
+  String get estimatedTimeUnder15min => 'Under 15 min';
+
+  @override
   String get estimatedTime15min => '15 min';
 
   @override
@@ -922,38 +932,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get listView => 'List';
-
-  @override
-  String get debugSection => 'Test Data';
-
-  @override
-  String get debugSimpleData => 'Simple Data';
-
-  @override
-  String get debugSimpleDataDesc => 'Title and due date only (5 tasks)';
-
-  @override
-  String get debugDetailedData => 'Detailed Data';
-
-  @override
-  String get debugDetailedDataDesc => 'All fields populated (10 tasks)';
-
-  @override
-  String get debugEdgeCaseData => 'Edge Case Data';
-
-  @override
-  String get debugEdgeCaseDataDesc =>
-      'Boundary values & special patterns (8 tasks)';
-
-  @override
-  String get debugConfirmInsert =>
-      'Delete all existing tasks and insert test data?';
-
-  @override
-  String get debugConfirmInsertAction => 'Insert';
-
-  @override
-  String get debugTestDataInserted => 'Test data inserted';
 
   @override
   String get aiTodayPlan => 'Today\'s Plan';
@@ -1074,63 +1052,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get categoryDeleteMessage =>
       'Tasks assigned to this category will become uncategorized. Delete?';
-
-  @override
-  String get devModeSection => 'Developer Mode';
-
-  @override
-  String get devModeAiUnlimited => 'Ignore AI Limit';
-
-  @override
-  String get devModeAiUnlimitedDesc => 'Skip AI sort usage limit';
-
-  @override
-  String get devModePremium => 'Unlock Premium';
-
-  @override
-  String get devModePremiumDesc => 'Unlock all FeatureGates';
-
-  @override
-  String get devModeResetAiUsage => 'Reset AI Usage';
-
-  @override
-  String get devModeResetAiUsageDesc => 'Reset current month AI usage count';
-
-  @override
-  String get devModeResetAiUsageDone => 'AI usage count reset';
-
-  @override
-  String get devModeConfirmResetAiUsage =>
-      'Reset this month\'s AI usage count?';
-
-  @override
-  String get devModeReviewSection => 'Review';
-
-  @override
-  String get devModeTestReview => 'Test review dialog';
-
-  @override
-  String get devModeTestReviewDesc => 'Show review dialog ignoring conditions';
-
-  @override
-  String get devModeTestReviewTriggered => 'Review dialog requested';
-
-  @override
-  String get devModeResetReview => 'Reset review counters';
-
-  @override
-  String get devModeResetReviewDesc => 'Reset all review-related counters';
-
-  @override
-  String get devModeResetReviewDone => 'Review counters reset';
-
-  @override
-  String get devModeEnabled => 'Developer mode enabled';
-
-  @override
-  String devModeRemaining(int count) {
-    return '$count more taps for developer mode';
-  }
 
   @override
   String get allCompleteTitle => 'All done! Great job';
@@ -1406,13 +1327,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allCompleteNextPrompt => 'Want to add what\'s next?';
 
   @override
-  String get devModeAnimationsPreview => 'Animation Preview';
-
-  @override
-  String get devModeAnimationsPreviewDesc =>
-      'Replay AI sort, all-complete, burst and confetti independently';
-
-  @override
   String get calendarLegendUrgent => 'Urgent';
 
   @override
@@ -1425,17 +1339,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarLegendUnsorted => 'Unsorted';
 
   @override
-  String get devModeUseNewUi => 'Enable redesigned UI';
-
-  @override
-  String get devModeUseNewUiDesc =>
-      'Use the new design preview (home screen and more)';
-
-  @override
   String get heroTodayMission => 'Today\'s progress';
 
   @override
-  String get aiSortHeroCta => 'Sort today with AI';
+  String get aiSortHeroCta => 'Sort tasks with AI';
 
   @override
   String get statsTitle => 'Stats';

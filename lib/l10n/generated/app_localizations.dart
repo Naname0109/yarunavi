@@ -1310,6 +1310,18 @@ abstract class AppLocalizations {
   /// **'広告の準備ができていません。しばらく待ってからお試しください'**
   String get aiRewardedAdNotReady;
 
+  /// No description provided for @aiRewardedAdLoading.
+  ///
+  /// In ja, this message translates to:
+  /// **'広告を読み込んでいます…'**
+  String get aiRewardedAdLoading;
+
+  /// No description provided for @aiRewardedAdLoadFailed.
+  ///
+  /// In ja, this message translates to:
+  /// **'広告の読み込みに失敗しました。ネットワーク接続を確認してください。'**
+  String get aiRewardedAdLoadFailed;
+
   /// No description provided for @aiRewardedAdUsedToday.
   ///
   /// In ja, this message translates to:
@@ -1688,6 +1700,12 @@ abstract class AppLocalizations {
   /// **'未設定'**
   String get estimatedTimeNone;
 
+  /// No description provided for @estimatedTimeUnder15min.
+  ///
+  /// In ja, this message translates to:
+  /// **'15分未満'**
+  String get estimatedTimeUnder15min;
+
   /// No description provided for @estimatedTime15min.
   ///
   /// In ja, this message translates to:
@@ -1837,66 +1855,6 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'リスト'**
   String get listView;
-
-  /// No description provided for @debugSection.
-  ///
-  /// In ja, this message translates to:
-  /// **'テストデータ'**
-  String get debugSection;
-
-  /// No description provided for @debugSimpleData.
-  ///
-  /// In ja, this message translates to:
-  /// **'シンプルデータ投入'**
-  String get debugSimpleData;
-
-  /// No description provided for @debugSimpleDataDesc.
-  ///
-  /// In ja, this message translates to:
-  /// **'タスク名と期限のみ（5件）'**
-  String get debugSimpleDataDesc;
-
-  /// No description provided for @debugDetailedData.
-  ///
-  /// In ja, this message translates to:
-  /// **'詳細データ投入'**
-  String get debugDetailedData;
-
-  /// No description provided for @debugDetailedDataDesc.
-  ///
-  /// In ja, this message translates to:
-  /// **'全フィールド活用（10件）'**
-  String get debugDetailedDataDesc;
-
-  /// No description provided for @debugEdgeCaseData.
-  ///
-  /// In ja, this message translates to:
-  /// **'エッジケースデータ投入'**
-  String get debugEdgeCaseData;
-
-  /// No description provided for @debugEdgeCaseDataDesc.
-  ///
-  /// In ja, this message translates to:
-  /// **'境界値・特殊パターン（8件）'**
-  String get debugEdgeCaseDataDesc;
-
-  /// No description provided for @debugConfirmInsert.
-  ///
-  /// In ja, this message translates to:
-  /// **'既存のタスクを全て削除して、テストデータを投入しますか？'**
-  String get debugConfirmInsert;
-
-  /// No description provided for @debugConfirmInsertAction.
-  ///
-  /// In ja, this message translates to:
-  /// **'投入する'**
-  String get debugConfirmInsertAction;
-
-  /// No description provided for @debugTestDataInserted.
-  ///
-  /// In ja, this message translates to:
-  /// **'テストデータを投入しました'**
-  String get debugTestDataInserted;
 
   /// No description provided for @aiTodayPlan.
   ///
@@ -2119,114 +2077,6 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'このカテゴリに割り当てられたタスクのカテゴリは未設定になります。削除しますか？'**
   String get categoryDeleteMessage;
-
-  /// No description provided for @devModeSection.
-  ///
-  /// In ja, this message translates to:
-  /// **'開発者モード'**
-  String get devModeSection;
-
-  /// No description provided for @devModeAiUnlimited.
-  ///
-  /// In ja, this message translates to:
-  /// **'AI回数制限を無視'**
-  String get devModeAiUnlimited;
-
-  /// No description provided for @devModeAiUnlimitedDesc.
-  ///
-  /// In ja, this message translates to:
-  /// **'ONでAI整理の回数制限をスキップ'**
-  String get devModeAiUnlimitedDesc;
-
-  /// No description provided for @devModePremium.
-  ///
-  /// In ja, this message translates to:
-  /// **'プレミアム機能を解放'**
-  String get devModePremium;
-
-  /// No description provided for @devModePremiumDesc.
-  ///
-  /// In ja, this message translates to:
-  /// **'ONで全FeatureGateを解除'**
-  String get devModePremiumDesc;
-
-  /// No description provided for @devModeResetAiUsage.
-  ///
-  /// In ja, this message translates to:
-  /// **'AI使用回数リセット'**
-  String get devModeResetAiUsage;
-
-  /// No description provided for @devModeResetAiUsageDesc.
-  ///
-  /// In ja, this message translates to:
-  /// **'当月のAI使用回数をリセットします'**
-  String get devModeResetAiUsageDesc;
-
-  /// No description provided for @devModeResetAiUsageDone.
-  ///
-  /// In ja, this message translates to:
-  /// **'AI使用回数をリセットしました'**
-  String get devModeResetAiUsageDone;
-
-  /// No description provided for @devModeConfirmResetAiUsage.
-  ///
-  /// In ja, this message translates to:
-  /// **'当月のAI使用回数をリセットしますか？'**
-  String get devModeConfirmResetAiUsage;
-
-  /// No description provided for @devModeReviewSection.
-  ///
-  /// In ja, this message translates to:
-  /// **'レビュー'**
-  String get devModeReviewSection;
-
-  /// No description provided for @devModeTestReview.
-  ///
-  /// In ja, this message translates to:
-  /// **'レビューダイアログをテスト表示'**
-  String get devModeTestReview;
-
-  /// No description provided for @devModeTestReviewDesc.
-  ///
-  /// In ja, this message translates to:
-  /// **'条件を無視してレビューダイアログを表示します'**
-  String get devModeTestReviewDesc;
-
-  /// No description provided for @devModeTestReviewTriggered.
-  ///
-  /// In ja, this message translates to:
-  /// **'レビューダイアログをリクエストしました'**
-  String get devModeTestReviewTriggered;
-
-  /// No description provided for @devModeResetReview.
-  ///
-  /// In ja, this message translates to:
-  /// **'レビューカウンターリセット'**
-  String get devModeResetReview;
-
-  /// No description provided for @devModeResetReviewDesc.
-  ///
-  /// In ja, this message translates to:
-  /// **'レビュー関連の全カウンターをリセットします'**
-  String get devModeResetReviewDesc;
-
-  /// No description provided for @devModeResetReviewDone.
-  ///
-  /// In ja, this message translates to:
-  /// **'レビューカウンターをリセットしました'**
-  String get devModeResetReviewDone;
-
-  /// No description provided for @devModeEnabled.
-  ///
-  /// In ja, this message translates to:
-  /// **'開発者モードが有効になりました'**
-  String get devModeEnabled;
-
-  /// No description provided for @devModeRemaining.
-  ///
-  /// In ja, this message translates to:
-  /// **'あと{count}回タップで開発者モード'**
-  String devModeRemaining(int count);
 
   /// No description provided for @allCompleteTitle.
   ///
@@ -2720,18 +2570,6 @@ abstract class AppLocalizations {
   /// **'次のやることを追加しませんか？'**
   String get allCompleteNextPrompt;
 
-  /// No description provided for @devModeAnimationsPreview.
-  ///
-  /// In ja, this message translates to:
-  /// **'演出プレビュー'**
-  String get devModeAnimationsPreview;
-
-  /// No description provided for @devModeAnimationsPreviewDesc.
-  ///
-  /// In ja, this message translates to:
-  /// **'AI整理・全完了・バースト・紙吹雪を独立に再生'**
-  String get devModeAnimationsPreviewDesc;
-
   /// No description provided for @calendarLegendUrgent.
   ///
   /// In ja, this message translates to:
@@ -2756,18 +2594,6 @@ abstract class AppLocalizations {
   /// **'未整理'**
   String get calendarLegendUnsorted;
 
-  /// No description provided for @devModeUseNewUi.
-  ///
-  /// In ja, this message translates to:
-  /// **'新UI(リデザイン版)を有効化'**
-  String get devModeUseNewUi;
-
-  /// No description provided for @devModeUseNewUiDesc.
-  ///
-  /// In ja, this message translates to:
-  /// **'ホーム画面など新デザインのプレビューを使用'**
-  String get devModeUseNewUiDesc;
-
   /// No description provided for @heroTodayMission.
   ///
   /// In ja, this message translates to:
@@ -2777,7 +2603,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiSortHeroCta.
   ///
   /// In ja, this message translates to:
-  /// **'今日のタスクをAIで整理'**
+  /// **'タスクをAIで整理'**
   String get aiSortHeroCta;
 
   /// No description provided for @statsTitle.

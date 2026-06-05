@@ -1,64 +1,79 @@
 === YaruNavi - App Review Notes ===
 
-No sign-in or account is required; all task data is stored locally. The AI
-feature needs an internet connection (requests go through a Cloudflare Worker
-proxy to the Anthropic API). The app's default language is Japanese; key
-on-screen labels are quoted below with an English translation in parentheses.
+No sign-in or account is required; all task data is stored locally on the
+device. The AI Sort feature needs an internet connection (requests go
+through a Cloudflare Worker proxy to the Anthropic API). The app's
+default language is Japanese; on-screen labels are quoted below with an
+English translation in parentheses.
+
+The AI Sort button is ALWAYS visible inside the large card at the TOP of
+the Home screen as long as there is at least 1 task (any due date is
+fine; today / this week / future are all OK). It works the same on
+iPhone and iPad.
 
 ----------------------------------------------------------------
-1) ADD TASKS (needed before AI Sort)
+HOW TO TEST AI SORT AND IN-APP PURCHASES
 ----------------------------------------------------------------
-1. Launch the app to reach the Home screen.
-2. Tap the round "+" button in the center of the bottom bar; a menu appears.
-3. Tap the first item "タスクを追加" (Add task), enter a title and a due
-   date, then save.
-4. Add 3-5 tasks with different due dates.
+
+STEP 1: Add tasks
+  1. On the Home tab (house icon, bottom-left), tap the round "+" button
+     in the center of the bottom bar.
+  2. The Add Task sheet opens directly. Enter a title and a due date
+     (today, tomorrow, next week - any date is fine), then save.
+  3. Add at least 3 tasks. They will appear under "今すぐ / 今週 /
+     来週以降" sections.
+
+STEP 2: Find the AI Sort button
+  Return to the Home tab. At the TOP of the screen, you will see a
+  LARGE DARK CARD that shows:
+    - "TODAY" pill, streak (flame), and your level (Lv. + XP).
+    - "今日の進捗" (Today's progress) count + ring.
+    - A BRIGHT BUTTON inside the card labelled "タスクをAIで整理"
+      (Sort tasks with AI).
+  This button is ALWAYS visible inside the top card whenever any task
+  exists (regardless of due date). If you don't see it, scroll UP to the
+  very top of the Home screen.
+
+STEP 3: Run AI Sort
+  Tap "タスクをAIで整理" inside the top card. A loading dialog appears
+  ("整理中…"). After ~5-10 seconds (internet required) the result
+  screen opens with the AI-recommended execution date and priority for
+  each task.
+
+STEP 4: Reach the In-App Purchase sheet
+  The app grants 2 free AI Sorts per lifetime. Use them up by tapping
+  "タスクをAIで整理" twice. On the 3rd attempt, a bottom sheet titled
+  "AI 整理の回数が不足しています" (Not enough AI sorts left) opens with
+  three options:
+    - Premium Plan: 580 JPY / month or 4,200 JPY / year
+      Products: yarunavi_premium_monthly_v2 / yarunavi_premium_yearly_v2
+    - AI Sort Ticket: 120 JPY consumable (up to 3 lifetime purchases)
+      Product: yarunavi_ai_ticket_v2
+    - "動画を視聴" Watch rewarded video (free, up to 2 lifetime uses)
+  Tap a paid option to start the StoreKit purchase flow.
+
+STEP 5: Premium subscription screen
+  Open the "設定" (Settings) tab (rightmost icon in the bottom bar).
+  Tap "プレミアムに登録" (Upgrade to Premium) to open the store screen.
+  It shows monthly (580 JPY) and yearly (4,200 JPY) plans with an
+  auto-renewal notice, a Restore Purchases button, and Terms / Privacy
+  links. Premium includes 30 AI Sorts per month, automatic notification
+  scheduling, calendar sync, and an ad-free experience.
 
 ----------------------------------------------------------------
-2) RUN AI SORT (the main feature)
+CALENDAR SYNC (optional)
 ----------------------------------------------------------------
-The large card at the top of the Home screen is the AI Sort card; its button
-reads "今日のタスクをAIで整理" (Sort today's tasks with AI). Tap it (internet
-required). The AI proposes an execution date and a priority for each task,
-then opens the result screen.
-
-----------------------------------------------------------------
-3) IN-APP PURCHASES
-----------------------------------------------------------------
-Free users get 2 AI Sorts total (lifetime). On the 3rd attempt, a purchase
-sheet titled "AI 整理の回数が不足しています" (Not enough AI sorts left) opens
-with three options:
-  - "プレミアムプラン ¥580/月" (Premium - 580 yen/month; 4,200 yen/year is
-    also offered on the store screen).
-    Products: yarunavi_premium_monthly / yarunavi_premium_yearly.
-  - "AI 整理チケット ¥120" (AI Sort Ticket - 120 yen consumable, up to 3).
-    Product: yarunavi_ai_ticket.
-  - "動画を視聴" (Watch a video - free rewarded ad, up to 2 times total).
-
-Quick path: run AI Sort twice to use the free quota; on the 3rd attempt the
-sheet opens automatically. Tapping the ticket starts the StoreKit purchase;
-tapping Premium opens the subscription store screen.
-
-----------------------------------------------------------------
-4) PREMIUM FROM SETTINGS
-----------------------------------------------------------------
-Open the "設定" (Settings) tab (rightmost icon) and tap "プレミアムに登録"
-(Upgrade to Premium) to open the store screen. It shows the monthly (580 yen)
-and yearly (4,200 yen) plans, the auto-renewal notice, a Restore Purchases
-button, and Terms / Privacy links. Premium includes 30 AI Sorts per month,
-automatic notification scheduling, calendar sync, and an ad-free experience.
-
-----------------------------------------------------------------
-5) CALENDAR SYNC
-----------------------------------------------------------------
-Open the "カレンダー" (Calendar) tab (2nd icon from the left) and tap "取込"
-(Import) at the top-right. This directly presents the iOS system calendar-
-permission dialog (no custom pre-prompt). After you allow access, events for
-the next 60 days are imported.
+Open the "カレンダー" (Calendar) tab (2nd icon from the left). Tap the
+round "+" button at the bottom and choose "カレンダーから取り込み"
+(Import from calendar), or open the import action at the top. iOS
+shows the system calendar-permission dialog directly (no custom
+pre-prompt, per Guideline 5.1.1(iv)). After permission, events for the
+next 60 days are imported.
 
 ----------------------------------------------------------------
 NOTES
 ----------------------------------------------------------------
-- All data is stored locally; there is no sign-in and no account.
-- Gamification (XP / Level / Streak) is cosmetic only and does not affect
-  app functionality.
+- All task data is stored locally; no sign-in and no account.
+- Gamification (XP / Level / Streak) is cosmetic only.
+- The proxy only forwards AI Sort requests; no personal data leaves
+  the device.
